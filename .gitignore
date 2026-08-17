@@ -1,4 +1,5 @@
 /vendor/
 /.mago/
 /.phpunit.cache/
-
+/bin/
+/composer.lock

@@ -4,7 +4,6 @@ php-version = "8.1"
 [source]
 paths = ["src"]
 
-[extension-hosts.acme]
+[extension-hosts.drupal]
 command = ["php", "worker.php"]
 workers = 1
-

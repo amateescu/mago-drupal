@@ -1,6 +1,9 @@
 set dotenv-load := false
 
-mago := "vendor/bin/mago"
+# Override with MAGO=/path/to/mago to use a binary the Composer downloader
+# cannot fetch, such as a local build or a release that does not match the
+# installed package version.
+mago := env_var_or_default("MAGO", "vendor/bin/mago")
 
 validate:
     composer validate --strict --no-check-publish
@@ -20,9 +23,12 @@ format:
 format-check:
     {{mago}} --config mago.toml format --check
 
+# Starts a real worker, so it needs a Mago binary with extension-host support.
 test-corpus:
-    {{mago}} --workspace tests/corpus lint --only acme/no-legacy-helper --reporting-format count
+    {{mago}} --workspace tests/corpus lint --only drupal/weak-hash --reporting-format count
     {{mago}} --workspace tests/corpus analyze --reporting-format count
 
-check: validate format-check test lint analyze test-corpus
+check: validate format-check test lint analyze
+
+check-all: check test-corpus
 

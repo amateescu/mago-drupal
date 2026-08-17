@@ -1,105 +1,79 @@
-# Mago Extension Template
+# mago-drupal
 
-A small, end-to-end template for building external linter rules and analyzer plugins for [Mago](https://github.com/carthage-software/mago).
+A [Mago](https://github.com/carthage-software/mago) extension that contributes Drupal-specific
+knowledge to the linter and analyzer.
 
-The example extension contains:
+> **Status: pre-release.** Mago's extension API ships in 1.47, which is not released yet. The PHP
+> SDK is already on Mago's `main` branch, so the rules and tests here build and run against
+> `dev-main`. Anything that starts a real worker, including the corpus test, needs a Mago binary
+> with `extension-hosts` support: wait for 1.47 or build Mago from source.
 
-- a linter rule selected by an exact syntax-node kind;
-- a machine-applicable edit based on Mago's resolved names;
-- an analyzer plugin with a targeted method return-type provider;
-- unit tests and a real Mago corpus test using an external worker;
-- formatting, linting, analysis, and CI commands.
-
-## Start a new extension
-
-Create a repository from this template, then replace the example identity before writing new capabilities:
-
-1. Rename `acme/mago-extension` in `composer.json`.
-2. Replace the `Acme\Mago` namespace and PSR-4 mappings.
-3. Rename `AcmeExtension` and update its identifier, name, and version.
-4. Rename the analyzer plugin identifier and every linter issue code.
-5. Replace or remove the example rule, provider, fixtures, and corpus expectations.
-6. Set the package author, description, keywords, and license.
-
-Keep the package-owned extension factory as the only registration API consumers need. Typed factory arguments may expose intentional options, but consumers should not have to reconstruct rule and plugin lists themselves.
-
-## Package structure
-
-```text
-src/
-├── AcmeExtension.php
-├── Analyzer/
-│   ├── AcmePlugin.php
-│   └── Providers/
-│       └── ContainerReturnTypeProvider.php
-└── Linter/
-    └── Rules/
-        └── NoLegacyHelperRule.php
-tests/
-├── Unit/
-└── corpus/
-    ├── mago.toml
-    ├── worker.php
-    └── src/
-```
-
-Put lifecycle callbacks under `src/Analyzer/Hooks/`, semantic providers under `src/Analyzer/Providers/`, linter rules under `src/Linter/Rules/`, and worker reducers under `src/Worker/`.
-
-## Install the extension
-
-Applications install Mago and the finished extension together:
+## Install
 
 ```shell
-composer require --dev carthage-software/mago acme/mago-extension
+composer require --dev carthage-software/mago amateescu/mago-drupal
 ```
 
-The application owns its worker entrypoint. Create `.mago/extensions.php`:
+Create a worker entrypoint at `.mago/extensions.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-use Acme\Mago\AcmeExtension;
+use amateescu\MagoDrupal\DrupalExtension;
 use Mago\Sdk\Worker;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-new Worker(AcmeExtension::create())->run();
+(new Worker(DrupalExtension::create()))->run();
 ```
 
 Register it in `mago.toml`:
 
 ```toml
-[extension-hosts.acme]
+[extension-hosts.drupal]
 command = ["php", ".mago/extensions.php"]
 ```
 
-Several extension factories may be passed to the same `Worker`. Standard output is reserved for protocol frames; write development diagnostics to standard error.
+Pass `DrupalExtension::create(core: true)` when analysing Drupal core itself, which enables rules
+that only apply to core.
+
+## What it provides
+
+### Linter rules
+
+| Code | Level | What it reports |
+| --- | --- | --- |
+| `drupal/weak-hash` | Warning | `md5()`, `sha1()` and `crc32()` calls, and `hash()` called with `md5`, `sha1`, `crc32` or `crc32b`. Carries an unsafe fix to `hash('xxh64', …)`. |
+
+Rule codes are stable. They get written into baselines and `// @mago-expect lint:<code>` comments in
+projects we don't control, so they will not be vendor-prefixed or renamed.
+
+### Analyzer plugin
+
+The `drupal` plugin is registered but does not contribute providers yet. Everything it needs
+depends on an index built from `*.services.yml`, `*.routing.yml`, plugin attributes and
+`*.schema.yml`, so that index comes first. See the `@todo` list in `src/Analyzer/DrupalPlugin.php`.
 
 ## Development
-
-Install dependencies and run every check:
 
 ```shell
 composer install
 just check
 ```
 
-Useful focused commands are:
+`just check` runs `validate`, `format-check`, `test`, `lint` and `analyze`. `just check-all` adds
+`test-corpus`, which starts a real worker and checks the inline `@mago-expect` annotations in
+`tests/corpus/src/`.
+
+Mago's Composer binary downloader only resolves tagged releases, so it cannot fetch one for
+`dev-main`. Point the recipes at a binary you already have:
 
 ```shell
-just format
-just test
-just lint
-just analyze
-just test-corpus
+MAGO=/path/to/mago just check
 ```
-
-The corpus starts the real worker and checks inline `@mago-expect` annotations. Keep small fixtures for positive, negative, and non-matching behavior. A larger extension may use Mago's strict baseline files for a representative fixture project.
-
-Read the [Mago extension documentation](https://mago.carthage.software/main/en/extensions/overview/) for the complete SDK, lifecycle, metadata, reporting, performance, and packaging contracts.
 
 ## License
 
-The template uses the MIT License. Replace it if the new package uses another license.
+MIT.
