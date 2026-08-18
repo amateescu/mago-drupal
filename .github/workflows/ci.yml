@@ -7,12 +7,6 @@ on:
 permissions:
   contents: read
 
-env:
-  # The Composer package tracks Mago's main branch for the PHP SDK, but its
-  # binary downloader only resolves tagged releases. Fetch the binary directly
-  # until the SDK ships in one.
-  MAGO_BINARY_VERSION: '1.46.0'
-
 jobs:
   test:
     name: PHP ${{ matrix.php }}
@@ -39,13 +33,5 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Install the Mago binary
-        run: |
-          mkdir -p bin
-          curl -fsSL "https://github.com/carthage-software/mago/releases/download/${MAGO_BINARY_VERSION}/mago-${MAGO_BINARY_VERSION}-x86_64-unknown-linux-gnu.tar.gz" | tar -xz -C bin --strip-components=1
-          bin/mago --version
-
       - name: Check
-        env:
-          MAGO: ${{ github.workspace }}/bin/mago
-        run: just check
+        run: just check-all

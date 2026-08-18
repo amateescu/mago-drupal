@@ -148,9 +148,8 @@ just check
 `tests/corpus/src/`. An unfulfilled expectation is reported as an issue, so a clean corpus run means
 every rule fired exactly where the fixtures say it should.
 
-Every recipe reads the `MAGO` env variable. With `dev-main` installed the override is required, not
-optional: Composer's mago binary downloader only resolves tagged releases, so `vendor/bin/mago`
-cannot be provisioned until 1.47 is tagged. Point `MAGO` at a local build:
+Every recipe reads the `MAGO` env variable, so the checks can run against a build other than
+`vendor/bin/mago`, such as a local one:
 
 ```shell
 MAGO=/path/to/mago just check-all
