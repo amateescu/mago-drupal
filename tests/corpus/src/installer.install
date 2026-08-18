@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Exercises the rules that only fire inside an .install file.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_install().
+ */
+// @mago-expect lint:drupal/empty-install-hook
+function installer_install(): void {
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function installer_uninstall(): void {
+  \Drupal::state()->delete('installer.installed');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function installer_schema(): array {
+  return [
+    'corpus' => [
+      // @mago-expect lint:drupal/t-in-hook-schema
+      'description' => t('Stores corpus records.'),
+      'fields' => [],
+    ],
+  ];
+}

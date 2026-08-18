@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Exercises the rules that only fire inside a .module file.
+ */
+
+declare(strict_types=1);
+
+// @mago-expect lint:drupal/constant-prefix
+define('CACHE_LIFETIME', 3600);
+
+// Shares the module name's leading letters but skips the underscore.
+// @mago-expect lint:drupal/constant-prefix
+define('CORPUSCACHE_TTL', 3600);
+
+define('CORPUS_DEFAULT_LIMIT', 50);
+
+/**
+ * Implements hook_install().
+ */
+// @mago-expect lint:drupal/install-hook-location
+function corpus_install(): void {
+  \Drupal::state()->set('corpus.installed', TRUE);
+}
+
+/**
+ * Implements hook_schema().
+ */
+// @mago-expect lint:drupal/install-hook-location
+function corpus_schema(): array {
+  return [];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function corpus_menu(): array {
+  return [
+    'admin/corpus' => [
+      // @mago-expect lint:drupal/t-in-hook-menu
+      'title' => t('Corpus'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme().
+ */
+function corpus_theme(): array {
+  global $_corpus_registry;
+  // @mago-expect lint:drupal/global-variable
+  global $registry;
+
+  $_corpus_registry = [];
+  $registry = [];
+
+  return $_corpus_registry + $registry;
+}

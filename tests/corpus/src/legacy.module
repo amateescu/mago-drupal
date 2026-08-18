@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Exercises the Drupal 7 era rules, which core still enables.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_form_alter().
+ */
+function legacy_form_alter(array &$form, array $form_state): void {
+  // @mago-expect lint:drupal/link-text-translatable
+  $form['help'] = l('Read the docs', 'https://example.com');
+
+  $form['ok'] = l(t('Read the docs'), 'https://example.com');
+
+  // @mago-expect lint:drupal/watchdog-message
+  watchdog('legacy', t('Form altered.'));
+
+  // The named spelling of the message is checked too.
+  // @mago-expect lint:drupal/watchdog-message
+  watchdog('legacy', message: t('Form altered.'));
+
+  watchdog('legacy', 'Form altered for %form.', ['%form' => 'test']);
+}
+
+/**
+ * Logs prepared entries.
+ *
+ * @param list<array{string, string}> $entries
+ */
+function legacy_log_batch(array $entries): void {
+  foreach ($entries as $entry) {
+    // A spread may carry both arguments, so this is not a short call.
+    watchdog(...$entry);
+  }
+}

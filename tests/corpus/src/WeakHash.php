@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Demo;
+namespace Drupal\corpus;
 
 use function hash;
 use function md5;
@@ -24,6 +24,12 @@ function weak_algorithm(string $input): string
 {
     // @mago-expect lint:drupal/weak-hash
     return hash('sha1', $input);
+}
+
+function weak_algorithm_by_name(string $input): string
+{
+    // @mago-expect lint:drupal/weak-hash
+    return hash(algo: 'md5', data: $input);
 }
 
 function supported_algorithm(string $input): string

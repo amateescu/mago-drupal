@@ -3,7 +3,13 @@ php-version = "8.1"
 
 [source]
 paths = ["src"]
+# Signatures for the Drupal functions the fixtures call. Read for symbols, not
+# linted, so the analyzer half of the corpus run has something to check against.
+includes = ["stubs"]
+# Drupal keeps procedural code in files PHP does not name `.php`, and several
+# rules only fire inside those.
+extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
 
 [extension-hosts.drupal]
-command = ["php", "worker.php"]
+command = ["php", "../../resources/worker.php"]
 workers = 1
