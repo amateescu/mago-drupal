@@ -148,6 +148,12 @@ just check
 `tests/corpus/src/`. An unfulfilled expectation is reported as an issue, so a clean corpus run means
 every rule fired exactly where the fixtures say it should.
 
+`tests/corpus/expected-rules.txt` pins every rule code the extension registers, and `test-corpus`
+compares Mago's registration against it before linting. The lint run is narrowed to those codes so
+the built-in rules cannot fail the deliberately-bad fixtures, and narrowing skips the expectations
+for every rule left out, so without the pin a rule could stop registering and take its fixture
+coverage with it. Add the code there when you add a rule.
+
 Every recipe reads the `MAGO` env variable, so the checks can run against a build other than
 `vendor/bin/mago`, such as a local one:
 
