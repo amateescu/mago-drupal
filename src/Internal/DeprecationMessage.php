@@ -61,8 +61,11 @@ final class DeprecationMessage
 
     /**
      * Returns how $version departs from the machine-name format, if it does.
+     *
+     * Shared with the `@deprecated` tag grammar, which writes the same
+     * versions in a differently shaped sentence.
      */
-    private static function versionProblem(string $label, string $version): ?string
+    public static function versionProblem(string $label, string $version): ?string
     {
         if (preg_match(self::VERSION, $version) === 1) {
             return null;
@@ -76,8 +79,11 @@ final class DeprecationMessage
 
     /**
      * Returns how $link departs from the change-record format, if it does.
+     *
+     * Shared with the `@see` tag that must follow a `@deprecated` tag, which
+     * writes the same link outside the message sentence.
      */
-    private static function linkProblem(string $link): ?string
+    public static function linkProblem(string $link): ?string
     {
         $matches = [];
         preg_match(self::LINK, $link, $matches);
