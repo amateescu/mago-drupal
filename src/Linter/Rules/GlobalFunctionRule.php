@@ -63,30 +63,36 @@ final class GlobalFunctionRule implements Rule
 
     public function getDefinition(): RuleDefinition
     {
+        // `FunctionCall` is declared as a target so Rust collects every call
+        // into the file's pre-computed target-node list, which the class
+        // pass reads instead of walking the class subtree in PHP; the
+        // per-call dispatches are no-ops.
         return new RuleDefinition(
             code: 'drupal/global-function',
             name: 'Global function in a class',
             description: 'Reports procedural Drupal functions called from inside a class.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: self::TARGETS,
+            targets: [...self::TARGETS, NodeKind::FunctionCall],
         );
     }
 
     public function lint(LintContext $context): void
     {
-        // Scanning the source is far cheaper than walking the subtree, and
-        // most classes call none of these.
+        if ($context->node->kind === NodeKind::FunctionCall) {
+            return;
+        }
+
+        // Scanning the source is far cheaper than a pass over the target
+        // list, and most classes call none of these.
         if (preg_match(self::candidatePattern(), $context->file->getText($context->node)) !== 1) {
             return;
         }
 
-        // One walk over the class, rather than one per method. Walking the
-        // tree in PHP is the dominant cost of this rule.
-        foreach (Calls::findFunctions(
+        foreach (Calls::findFunctionsInTargets(
             $context->file,
-            $context->node,
-            array_keys(self::REPLACEMENTS),
+            within: $context->node,
+            names: array_keys(self::REPLACEMENTS),
         ) as $name => $calls) {
             foreach ($calls as $call) {
                 // A class nested inside this one is its own target, so its

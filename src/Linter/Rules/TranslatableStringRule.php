@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\Instantiations;
 use amateescu\MagoDrupal\Internal\Invocation;
 use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Linter\LintContext;
@@ -14,16 +16,26 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 
+use function array_key_exists;
+use function count;
+use function preg_match_all;
 use function strrpos;
 use function substr;
 use function trim;
+
+use const PHP_INT_MAX;
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * Checks the strings passed to t() and the other translation entry points.
  *
  * Ports Drupal.Semantics.FunctionT. Translatable strings have to be literal and
  * whole, because the extractor reads the source rather than running it.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class TranslatableStringRule implements Rule
 {
@@ -41,6 +53,32 @@ final class TranslatableStringRule implements Rule
         'formatplural' => [1, 2],
     ];
 
+    /**
+     * Text shapes only a file with a translation entry point contains.
+     *
+     * `t` and `formatPlural` are too short to scan for bare, so they need
+     * an anchor: standing alone right before an opening parenthesis, or
+     * written after `new` as a class name. A comment between a callee and
+     * its parenthesis would defeat the first anchor; nothing writes that.
+     */
+    private const GATE = '/(?<!\w)(?:t|formatplural)\s*\(|new\s+[\w\\\\]*(?:t|formatplural)\b/i';
+
+    /**
+     * The shape of a method or static call to a translation entry point.
+     *
+     * Every such call writes its selector between an arrow or double colon
+     * and an opening parenthesis, so the file-wide match offsets say which
+     * spans can hold one. The same comment caveat as GATE applies.
+     */
+    private const METHOD_GATE = '/(?:->|::)\s*(?:t|formatplural|translatablemarkup|translationwrapper)\s*\(/i';
+
+    private ?FileGate $gate = null;
+
+    private string $methodPath = '';
+
+    /** @var list<int> */
+    private array $methodOffsets = [];
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -55,6 +93,11 @@ final class TranslatableStringRule implements Rule
 
     public function lint(LintContext $context): void
     {
+        $this->gate ??= new FileGate(needles: ['translatablemarkup', 'translationwrapper'], pattern: self::GATE);
+        if (!$this->gate->passes($context->file) || !$this->nodeMayMatch($context->file, $context->node)) {
+            return;
+        }
+
         $invocation = Invocation::fromNode($context->file, $context->node);
         if ($invocation === null) {
             return;
@@ -62,12 +105,7 @@ final class TranslatableStringRule implements Rule
 
         $name = Calls::normalize($invocation->name);
         if ($context->node->kind === NodeKind::Instantiation) {
-            // The sniff matches class basenames, so a qualified
-            // `new \Foo\TranslatableMarkup()` counts like the imported form.
-            $separator = strrpos($name, needle: '\\');
-            if ($separator !== false) {
-                $name = substr($name, $separator + 1);
-            }
+            $name = self::basename($name);
         }
 
         $positions = self::TRANSLATED_ARGUMENTS[$name] ?? null;
@@ -89,6 +127,99 @@ final class TranslatableStringRule implements Rule
                 $this->check($context, $message);
             }
         }
+    }
+
+    /**
+     * Cheap written-name screen run before the precise derivation.
+     *
+     * A NULL fast name rejects a call node outright, because such a call
+     * has no written name for the precise walk to find either. For an
+     * instantiation NULL means undetermined, so the node stays in. A
+     * surviving candidate still goes through the precise path, which
+     * re-derives and re-checks the name, so an over-matched curried call
+     * drops out there.
+     *
+     * Method and static calls skip even the fast derivation unless the
+     * file-wide METHOD_GATE offsets put a matching selector inside their
+     * span, which prunes them at the cost of one comparison each.
+     */
+    private function nodeMayMatch(SourceFile $file, Node $node): bool
+    {
+        if ($node->kind === NodeKind::Instantiation) {
+            $name = Instantiations::writtenNameFast($file, $node);
+
+            return $name === null
+            || array_key_exists(self::basename(Calls::normalize($name)), self::TRANSLATED_ARGUMENTS);
+        }
+
+        if ($node->kind !== NodeKind::FunctionCall && !$this->spanHoldsMethodEntryPoint($file, $node)) {
+            return false;
+        }
+
+        $name = Calls::writtenNameFast($file, $node);
+
+        return $name !== null && array_key_exists(Calls::normalize($name), self::TRANSLATED_ARGUMENTS);
+    }
+
+    /**
+     * Whether a METHOD_GATE match starts inside the node's span.
+     */
+    private function spanHoldsMethodEntryPoint(SourceFile $file, Node $node): bool
+    {
+        if ($this->methodPath !== $file->path) {
+            $this->methodPath = $file->path;
+            $this->methodOffsets = self::matchOffsets(self::METHOD_GATE, $file->contents);
+        }
+
+        $offsets = $this->methodOffsets;
+        $low = 0;
+        $high = count($offsets) - 1;
+        while ($low <= $high) {
+            $middle = ($low + $high) >> 1;
+            if ($offsets[$middle] < $node->span->start) {
+                $low = $middle + 1;
+                continue;
+            }
+
+            $high = $middle - 1;
+        }
+
+        return ($offsets[$low] ?? PHP_INT_MAX) < $node->span->end;
+    }
+
+    /**
+     * Returns the sorted byte offsets where a pattern matches.
+     *
+     * @return list<int>
+     */
+    private static function matchOffsets(string $pattern, string $contents): array
+    {
+        $matches = [];
+        preg_match_all($pattern, $contents, $matches, flags: PREG_OFFSET_CAPTURE);
+        // The stub for preg_match_all() does not model the offset-capture
+        // shape, where each match is a value and byte offset pair.
+        // @mago-expect analysis:docblock-type-mismatch
+        /** @var list<array{string, int}> $pairs */
+        $pairs = $matches[0];
+        $offsets = [];
+        foreach ($pairs as $pair) {
+            $offsets[] = $pair[1];
+        }
+
+        return $offsets;
+    }
+
+    /**
+     * Strips a qualified name to its basename.
+     *
+     * The sniff matches class basenames, so a qualified
+     * `new \Foo\TranslatableMarkup()` counts like the imported form.
+     */
+    private static function basename(string $name): string
+    {
+        $separator = strrpos($name, needle: '\\');
+
+        return $separator === false ? $name : substr($name, $separator + 1);
     }
 
     /**

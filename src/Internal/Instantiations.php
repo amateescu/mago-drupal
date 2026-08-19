@@ -8,6 +8,9 @@ use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
+use function strspn;
+use function strtolower;
+
 /**
  * Reads the class name and arguments off a `new` expression.
  *
@@ -25,6 +28,31 @@ final class Instantiations
     ];
 
     private function __construct() {}
+
+    /**
+     * Returns the written class name read straight from the source text.
+     *
+     * NULL means undetermined, not absent: dynamic callees, anonymous
+     * classes and any spelling the text scan cannot settle need name()
+     * instead. A non-null result equals what name() returns for a directly
+     * named class, so a caller can reject a candidate on it without
+     * walking the callee.
+     */
+    public static function writtenNameFast(SourceFile $file, Node $node): ?string
+    {
+        $contents = $file->contents;
+        // Skip the three bytes of `new`, then the whitespace run. A comment
+        // there stops the scan at its slash, which falls out as NULL.
+        $offset = $node->span->start + 3;
+        $offset += strspn($contents, characters: " \t\r\n\v\f", offset: $offset);
+
+        $name = Calls::leadingIdentifier($contents, $offset);
+        if ($name === null || strtolower($name) === 'class') {
+            return null;
+        }
+
+        return $name;
+    }
 
     /**
      * Returns the instantiated class name as written in the source.

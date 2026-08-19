@@ -66,27 +66,38 @@ final class DeprecationMessageRule implements Rule
 
     public function getDefinition(): RuleDefinition
     {
+        // `FunctionCall` is declared as a target so Rust collects every call
+        // into the file's pre-computed target-node list, which the Program
+        // pass reads instead of walking the whole tree in PHP; the
+        // per-call dispatches are no-ops. Core is deprecation-heavy, so the
+        // content prefilter below passes often enough for the walk to have
+        // been this rule's dominant cost.
         return new RuleDefinition(
             code: 'drupal/deprecation-message',
             name: 'Deprecation message format',
             description: 'Checks that E_USER_DEPRECATED messages follow the documented deprecation grammar.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: [NodeKind::Program],
+            targets: [NodeKind::Program, NodeKind::FunctionCall],
         );
     }
 
     public function lint(LintContext $context): void
     {
-        // Walking the tree costs a lot more than scanning the source, and
-        // almost no file contains a deprecation. PHP function names are
-        // case-insensitive, so the scan is too.
+        if ($context->node->kind !== NodeKind::Program) {
+            return;
+        }
+
+        // Scanning the source costs a lot less than even one pass over the
+        // target list, and almost no file contains a deprecation. PHP
+        // function names are case-insensitive, so the scan is too.
         if (stripos($context->file->contents, needle: 'trigger_error') === false) {
             return;
         }
 
         $standards = [];
-        $calls = Calls::findFunctions($context->file, $context->node, ['trigger_error'])['trigger_error'] ?? [];
+        $calls = Calls::findFunctionsInTargets($context->file, within: null, names: ['trigger_error'])['trigger_error']
+        ?? [];
         foreach ($calls as $call) {
             $declaration = $this->enclosingDeclaration($context->file, $call);
 

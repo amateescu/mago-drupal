@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\FileGate;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -20,6 +21,8 @@ use Mago\Sdk\Syntax\NodeKind;
  */
 final class TranslatedExceptionRule implements Rule
 {
+    private ?FileGate $gate = null;
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -34,6 +37,14 @@ final class TranslatedExceptionRule implements Rule
 
     public function lint(LintContext $context): void
     {
+        // A match writes `t` right before a parenthesis, as a plain call
+        // or a method selector; the second branch keeps files with a
+        // function import in for the aliased-import case.
+        $this->gate ??= new FileGate(pattern: '/(?<!\w)t\s*\(|\buse\s[^;]*\bfunction\b/i');
+        if (!$this->gate->passes($context->file)) {
+            return;
+        }
+
         $instantiation = $context->file->getFirstDescendant($context->node, NodeKind::Instantiation);
         if ($instantiation === null) {
             return;

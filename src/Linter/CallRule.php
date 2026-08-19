@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Syntax\CallExpression;
 use Mago\Sdk\Syntax\Node;
-use Mago\Sdk\Syntax\NodeKind;
+
+use function array_map;
+use function implode;
+use function preg_quote;
 
 /**
  * Base for rules that fire on a call to one of a fixed set of names.
@@ -21,6 +25,8 @@ abstract class CallRule implements Rule
 {
     /** @var null|array<string, true> */
     private ?array $wanted = null;
+
+    private ?FileGate $gate = null;
 
     /**
      * Call names this rule reacts to, matched case-insensitively.
@@ -36,7 +42,15 @@ abstract class CallRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $name = $this->matchedName($context);
+        $this->gate ??= self::buildGate($this->names());
+        if (!$this->gate->passes($context->file)) {
+            return;
+        }
+
+        // The wanted set is normalized once per rule, not once per node.
+        $this->wanted ??= Calls::normalizeAll($this->names());
+
+        $name = Calls::matchWanted($context->file, $context->node, $this->wanted);
         if ($name === null) {
             return;
         }
@@ -68,35 +82,26 @@ abstract class CallRule implements Rule
     }
 
     /**
-     * Returns the normalized wanted name this call matches, or NULL.
+     * Builds the file gate from the rule's call names.
      *
-     * Mago resolves an unimported unqualified call into the current
-     * namespace, but PHP falls back to the global function at runtime, so
-     * only an imported resolution is trusted over the written name. That is
-     * how Mago's own rules match global functions too.
+     * Any match puts a wanted name in the source right before an opening
+     * parenthesis, whether written as a plain call, a method selector, or
+     * a fully qualified call. The one exception is a call through an
+     * aliased `use function` import, which the second branch keeps in by
+     * passing any file with a function import. Anchoring on the
+     * parenthesis lets even one-letter names like `l` gate their files; a
+     * comment between the callee and its parenthesis would defeat the
+     * anchor, and nothing writes that.
+     *
+     * @param list<string> $names
      */
-    private function matchedName(LintContext $context): ?string
+    private static function buildGate(array $names): FileGate
     {
-        // The wanted set is normalized once per rule, not once per node.
-        $this->wanted ??= Calls::normalizeAll($this->names());
+        $alternation = implode('|', array_map(static fn(string $name): string => preg_quote(
+            $name,
+            delimiter: '/',
+        ), $names));
 
-        // An imported resolution wins outright: when it misses the wanted
-        // set there is no fall-through to the written name.
-        $name = null;
-        if ($context->node->kind === NodeKind::FunctionCall) {
-            $resolved = $context->getResolvedName();
-            if ($resolved !== null && $resolved->imported) {
-                $name = $resolved->name;
-            }
-        }
-
-        $name ??= Calls::name($context->file, $context->node);
-        if ($name === null) {
-            return null;
-        }
-
-        $name = Calls::normalize($name);
-
-        return $this->wanted[$name] ?? false ? $name : null;
+        return new FileGate(pattern: "/(?<!\\w)(?:{$alternation})\\s*\\(|\\buse\\s[^;]*\\bfunction\\b/i");
     }
 }
