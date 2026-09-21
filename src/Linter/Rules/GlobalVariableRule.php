@@ -16,15 +16,15 @@ use function in_array;
 use function str_starts_with;
 
 /**
- * Reports module globals that skip the underscore prefix.
+ * Reports module globals that do not have the underscore prefix.
  *
- * Ports Drupal.NamingConventions.ValidGlobal. Globals share one namespace, so
- * a module's own globals are marked with a leading underscore.
+ * Ports Drupal.NamingConventions.ValidGlobal. Globals share one namespace. A
+ * leading underscore marks the globals that a module owns.
  */
 final class GlobalVariableRule implements Rule
 {
     /**
-     * Globals Drupal core owns, which modules are allowed to read.
+     * Globals that Drupal core owns. A module may read them.
      */
     private const CORE_GLOBALS = [
         '$argc',
@@ -91,8 +91,8 @@ final class GlobalVariableRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // The naming convention covers a module's own globals, so only the
-        // module's procedural entry files are checked.
+        // The naming convention covers the globals that a module owns. The
+        // rule examines only the procedural entry files of the module.
         $file = DrupalFile::fromSource($context->file);
         if (!$file->isModule() && !$file->isInstall()) {
             return;
@@ -105,7 +105,7 @@ final class GlobalVariableRule implements Rule
             }
 
             $context->report(Issue::new(
-                "Global {$name} should start with an underscore followed by the module's name.",
+                "Start the global {$name} with an underscore and the module's name.",
                 $variable->span,
             )->withHelp('Globals share one namespace across every module on the site.'));
         }

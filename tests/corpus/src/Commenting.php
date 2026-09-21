@@ -118,3 +118,87 @@ class CommentingLegacyTest
     {
     }
 }
+
+// @mago-expect lint:drupal/author-tag
+/**
+ * Stands in for a file that credits its writer.
+ *
+ * @author Someone <someone@example.com>
+ */
+function author_tag_bad(): void
+{
+}
+
+// @mago-expect lint:drupal/comment-line-length
+// This inline comment is written deliberately long so that it runs past the eighty-character limit.
+// @mago-expect lint:drupal/function-comment
+function comment_line_length_bad(): void
+{
+}
+
+// A line with no space in it cannot be wrapped, so it is left alone:
+// https://www.drupal.org/docs/develop/standards/php/php-coding-standards#s-line-length-and-wrapping
+// @mago-expect lint:drupal/function-comment
+function comment_line_length_url(): void
+{
+}
+
+// @mago-expect lint:drupal/comment-line-length
+/**
+ * Describes a value.
+ *
+ * @param string $value
+ *   This description of the parameter is written long enough to run past the eighty-character limit.
+ */
+function comment_line_length_docblock(string $value): void
+{
+}
+
+/**
+ * Shows the lines the length check leaves alone.
+ *
+ * @param string $value
+ *   A short description, followed by an example that keeps its own formatting.
+ *
+ * @code
+ * $result = comment_line_length_exempt('a value that makes this example line run past the limit');
+ * @endcode
+ *
+ * @see https://www.drupal.org/docs/develop/standards/php/php-coding-standards#s-line-length-and-wrapping
+ */
+function comment_line_length_exempt(string $value): void
+{
+}
+
+// @mago-expect lint:drupal/comment-line-length
+/**
+ * Mentions a tag in the middle of a line.
+ *
+ * @param string $value
+ *   A description that names the @see tag mid-line and still runs past the limit.
+ */
+function comment_line_length_mid_line_tag(string $value): void
+{
+}
+
+/**
+ * Holds a reference comment the length check still measures.
+ */
+function comment_line_length_indented_reference(): void
+{
+    // @mago-expect lint:drupal/comment-line-length
+    //   @see an indented reference line, which is measured because the exemption
+}
+
+/**
+ * Holds trailing comments the length check judges on their own text.
+ */
+function comment_line_length_trailing(): string
+{
+    // @mago-expect lint:drupal/post-statement-comment
+    $reference = 'a'; // @see https://www.drupal.org/project/corpus/issues/3456789012345678
+    // @mago-expect lint:drupal/post-statement-comment
+    $url = 'b'; // https://www.drupal.org/docs/develop/standards/php/php-coding-standards#s-line
+
+    return $reference . $url;
+}

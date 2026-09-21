@@ -22,10 +22,10 @@ use function stripos;
 /**
  * Checks that a class property has a `@var` docblock.
  *
- * Ports Drupal.Commenting.VariableComment. `IncorrectVarType`, which wants a
- * canonical scalar alias like `bool` instead of `Boolean`, is not ported: a
- * wrong-cased alias is not a real PHP type, so `mago analyze` already flags
- * it as unresolvable.
+ * Ports Drupal.Commenting.VariableComment. `IncorrectVarType` wants a
+ * canonical scalar alias such as `bool` instead of `Boolean`. The rule does
+ * not port it. A wrong-cased alias is not a real PHP type, so `mago analyze`
+ * already reports it as unresolvable.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -50,21 +50,20 @@ final class VariableCommentRule implements Rule
 
         if ($closest === null) {
             if (!$this->hasNativeType($context)) {
-                $context->report(Issue::new('Missing property doc comment.', $context->node->span));
+                $context->report(Issue::new('The property has no docblock.', $context->node->span));
             }
 
             return;
         }
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new('A property comment must use "/**" style comments.', $context->node->span));
+            $context->report(Issue::new('The property docblock must start with "/**".', $context->node->span));
 
             return;
         }
 
-        // A property inheriting its parent's own docblock has nothing of
-        // its own left to check here, the same exemption Coder's sniff
-        // makes.
+        // A property that inherits its parent's docblock has nothing of its
+        // own to check here. Coder's sniff makes the same exemption.
         if (stripos($context->file->getText($closest->span), needle: '{@inheritdoc}') !== false) {
             return;
         }
@@ -85,28 +84,25 @@ final class VariableCommentRule implements Rule
             }
 
             if ($tag->name === 'see' && $tag->content() === '') {
-                $context->report(Issue::new('A @see tag must have content.', $tag->nameSpan));
+                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
             }
         }
 
         if ($varTags === []) {
             if (!$this->hasNativeType($context)) {
-                $context->report(Issue::new('Missing @var tag in property doc comment.', $context->node->span));
+                $context->report(Issue::new('The property docblock has no @var tag.', $context->node->span));
             }
 
             return;
         }
 
         if (count($varTags) > 1) {
-            $context->report(Issue::new('Only one @var tag is allowed for a property.', $varTags[1][1]->nameSpan));
+            $context->report(Issue::new('Use only one @var tag for a property.', $varTags[1][1]->nameSpan));
         }
 
         [$firstIndex, $firstVar] = $varTags[0];
         if ($firstIndex !== 0) {
-            $context->report(Issue::new(
-                'The @var tag must be the first tag in a property doc comment.',
-                $firstVar->nameSpan,
-            ));
+            $context->report(Issue::new('Put the @var tag first in the property docblock.', $firstVar->nameSpan));
         }
 
         $content = $firstVar->content();
@@ -119,24 +115,22 @@ final class VariableCommentRule implements Rule
         [$type, $rest] = Docblocks::splitType($content);
         if ($type !== null && preg_match('/^\$/', $rest) === 1) {
             $context->report(Issue::new(
-                'A @var tag should not repeat the property name after its type.',
+                'Do not repeat the property name after the type in the @var tag.',
                 $firstVar->contentSpan(),
             ));
         }
     }
 
     /**
-     * Whether a property declaration already carries a native type hint,
-     * which makes an explicit `@var` optional.
+     * Whether a property declaration has a native type hint. A native type
+     * hint makes an explicit `@var` optional.
      *
-     * Reads the parsed structure instead of the declaration's text: an
-     * earlier, text-based version had to skip past modifier keywords by
-     * hand, and an attribute above the property (`#[Attr]`) is more of that
-     * same text to skip, one layer it did not account for. A native type
-     * hint, when present, is a `Hint` node sitting directly under the
-     * `PlainProperty`/`HookedProperty` node, alongside the modifiers and
-     * attributes rather than nested inside them, which is what makes a
-     * direct-children check sufficient here.
+     * The check reads the parsed structure, not the declaration's text. A
+     * text check must skip the modifier keywords and an attribute above the
+     * property (`#[Attr]`) by hand. A native type hint is a `Hint` node
+     * directly under the `PlainProperty`/`HookedProperty` node, next to the
+     * modifiers and attributes and not nested inside them. That is why a
+     * check of the direct children is enough here.
      */
     private function hasNativeType(LintContext $context): bool
     {

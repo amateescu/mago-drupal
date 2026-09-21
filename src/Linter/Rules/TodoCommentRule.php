@@ -21,17 +21,17 @@ use function strlen;
 /**
  * Reports a to-do comment that does not start with `@todo`.
  *
- * Ports Drupal.Commenting.TodoCommentSniff. Catches the wording variants
- * Drupal's release tooling would otherwise miss when scanning for open
- * to-dos: missing the leading `@`, extra dashes or spaces between "to" and
- * "do", and mismatched case.
+ * Ports Drupal.Commenting.TodoCommentSniff. Drupal's release tooling searches
+ * for open to-dos and misses the other spellings. The rule reports those
+ * spellings: a missing leading `@`, extra dashes or spaces between "to" and
+ * "do", and a different case.
  *
  * @see https://www.drupal.org/node/1354
  */
 final class TodoCommentRule implements Rule
 {
     /**
-     * Matches "to-do" wording that is not already a correctly formed
+     * Matches a "to-do" spelling that is not a correctly formed
      * `@todo Some text.` tag.
      */
     private const PATTERN = '/(?x)
@@ -66,9 +66,9 @@ final class TodoCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // PATTERN only fires on some "to…do" run with dash or space
-        // separators, so a file without one anywhere cannot match. The
-        // loose scan is a superset of PATTERN's wording variants.
+        // PATTERN matches only a "to…do" run with dash or space separators,
+        // so a file without one cannot match. The loose search is a superset
+        // of the spellings that PATTERN matches.
         $this->gate ??= new FileGate(pattern: '/to[-\s]*do/i');
         if (!$this->gate->passes($context->file)) {
             return;
@@ -94,7 +94,7 @@ final class TodoCommentRule implements Rule
         }
 
         $context->report(Issue::new(
-            'To-do comments must use the format "@todo Fix problem X here."',
+            'Write a to-do comment in the format "@todo Fix problem X here."',
             new Span($offset, $offset + strlen($text)),
         )->withLink('https://www.drupal.org/node/1354'));
     }

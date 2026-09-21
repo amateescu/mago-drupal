@@ -12,8 +12,8 @@ use function preg_match;
 /**
  * Checks a deprecation message against Drupal's documented grammar.
  *
- * Drupal writes the same sentence in `@trigger_error()` calls and `@deprecated`
- * docblocks, so both rules share this.
+ * Drupal writes the same sentence in `@trigger_error()` calls and in
+ * `@deprecated` docblocks, so both rules share this class.
  *
  * @see https://www.drupal.org/node/2856820
  *
@@ -22,8 +22,8 @@ use function preg_match;
 final class DeprecationMessage
 {
     /**
-     * Accepts drupal:n.n.n, project:n.x-n.n and project:n.n.n, with an optional
-     * release label such as `-beta1`.
+     * Accepts drupal:n.n.n, project:n.x-n.n and project:n.n.n. An optional
+     * release label such as `-beta1` may follow.
      */
     private const VERSION = '/^[a-z\d_]+:(\d{1,2}\.\d{1,2}\.\d{1,2}|\d{1,2}\.x\-\d{1,2}\.\d{1,2})(-[a-z]{1,5}\d{1,2})?$/';
 
@@ -32,7 +32,7 @@ final class DeprecationMessage
     private function __construct() {}
 
     /**
-     * Returns every way $text departs from the grammar.
+     * Returns every way in which $text differs from the grammar.
      *
      * @return list<string>
      */
@@ -41,8 +41,9 @@ final class DeprecationMessage
         $matches = [];
         preg_match($standard->layout(), $text, $matches);
 
-        // The layout patterns capture thing, deprecation version, middle text,
-        // removal version, extra info and the change-record link.
+        // The layout patterns capture the thing, the deprecation version, the
+        // middle text, the removal version, the extra info and the
+        // change-record link.
         if (count($matches) !== 7) {
             return [
                 "The deprecation message does not match the {$standard->label()} standard format: "
@@ -60,10 +61,10 @@ final class DeprecationMessage
     }
 
     /**
-     * Returns how $version departs from the machine-name format, if it does.
+     * Returns how $version differs from the machine-name format, if it does.
      *
-     * Shared with the `@deprecated` tag grammar, which writes the same
-     * versions in a differently shaped sentence.
+     * The `@deprecated` tag grammar shares this method. That grammar writes
+     * the same versions in a sentence of a different shape.
      */
     public static function versionProblem(string $label, string $version): ?string
     {
@@ -78,10 +79,10 @@ final class DeprecationMessage
     }
 
     /**
-     * Returns how $link departs from the change-record format, if it does.
+     * Returns how $link differs from the change-record format, if it does.
      *
-     * Shared with the `@see` tag that must follow a `@deprecated` tag, which
-     * writes the same link outside the message sentence.
+     * The `@see` tag that must follow a `@deprecated` tag shares this
+     * method. That tag writes the same link outside the message sentence.
      */
     public static function linkProblem(string $link): ?string
     {
@@ -95,10 +96,10 @@ final class DeprecationMessage
             );
         }
 
-        // A trailing period is a common typo and the url is otherwise correct,
-        // so it gets its own message.
+        // A trailing period is a frequent typo, and the url is correct in all
+        // other ways, so it gets its own message.
         if (($matches[3] ?? '') !== '') {
-            return "The change-record url '{$link}' should not end with a period.";
+            return "Do not end the change-record url '{$link}' with a period.";
         }
 
         return null;

@@ -19,8 +19,8 @@ use function stripos;
 /**
  * Reports the legacy PHPUnit `@expectedException*` docblock tags.
  *
- * Ports DrupalPractice.Commenting.ExpectedException. PHPUnit dropped these in
- * favor of `expectException()` and its siblings.
+ * Ports DrupalPractice.Commenting.ExpectedException. PHPUnit no longer has
+ * these tags. Use `expectException()` and the related methods instead.
  *
  * @see https://thephp.cc/news/2016/02/questioning-phpunit-best-practices
  */
@@ -47,8 +47,8 @@ final class ExpectedExceptionTagRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Almost no file mentions these legacy tags, so one scan of the raw
-        // source skips the docblock parsing entirely for the rest.
+        // Almost no file has these legacy tags. One scan of the raw source
+        // skips the docblock parsing for the rest.
         if (stripos($context->file->contents, needle: '@expectedexception') === false) {
             return;
         }
@@ -64,7 +64,7 @@ final class ExpectedExceptionTagRule implements Rule
                 }
 
                 $context->report(Issue::new(
-                    "@{$tag->name} should not be used, use \$this->expectException() and its siblings instead.",
+                    "Do not use @{$tag->name}. Use \$this->expectException() and the related methods instead.",
                     $tag->nameSpan,
                 )->withLink('https://thephp.cc/news/2016/02/questioning-phpunit-best-practices'));
             }

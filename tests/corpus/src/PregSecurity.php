@@ -29,7 +29,8 @@ function evil_flag_with_bracket_delimiters(string $input): ?string
 }
 
 // preg_grep is deliberately not imported.
-// Real Drupal code rarely imports functions, and the unqualified call must still match.
+// Real Drupal code rarely imports functions, and the unqualified call must
+// still match.
 // @mago-expect lint:drupal/function-comment
 function evil_flag_without_a_function_import(string $input): array|false
 {

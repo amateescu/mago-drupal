@@ -224,7 +224,7 @@ function function_comment_see_punctuation(): void
 }
 
 /**
- * Exercises the signature-dependent checks: the constructor exemption and missing @param coverage.
+ * Exercises the constructor exemption and missing @param coverage.
  */
 class FunctionCommentFixture
 {
@@ -250,4 +250,45 @@ class FunctionCommentFixture
     public function method(): void
     {
     }
+}
+
+/**
+ * Documents a parameter with an example at the end of its description.
+ *
+ * @param array $settings
+ *   The settings, keyed by name. For example:
+ *   @code
+ *   ['enabled' => TRUE, 'labels' => ['first', 'second']]
+ *   @endcode
+ */
+function param_description_ending_in_an_example(array $settings): void
+{
+}
+
+// @mago-expect lint:drupal/function-comment
+/**
+ * Documents a parameter with prose after the example.
+ *
+ * @param array $settings
+ *   The settings, keyed by name. For example:
+ *   @code
+ *   ['enabled' => TRUE]
+ *   @endcode
+ *   The keys are machine names
+ */
+function prose_after_an_example_still_needs_a_full_stop(array $settings): void
+{
+}
+
+/**
+ * Documents a parameter with the example at the star column.
+ *
+ * @param array $settings
+ *   The settings, keyed by name. For example:
+ * @code
+ * ['enabled' => TRUE, 'labels' => ['first', 'second']]
+ * @endcode
+ */
+function param_description_with_a_star_column_example(array $settings): void
+{
 }

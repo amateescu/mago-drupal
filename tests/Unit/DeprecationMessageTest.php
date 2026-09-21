@@ -64,6 +64,6 @@ final class DeprecationMessageTest extends TestCase
         $problems = DeprecationMessage::problems(self::VALID . '.', DeprecationStandard::Strict);
 
         self::assertCount(1, $problems);
-        self::assertStringContainsString('should not end with a period', $problems[0]);
+        self::assertStringContainsString('with a period', $problems[0]);
     }
 }

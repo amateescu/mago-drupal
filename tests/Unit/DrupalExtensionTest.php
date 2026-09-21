@@ -22,8 +22,8 @@ final class DrupalExtensionTest extends TestCase
     }
 
     /**
-     * Rule codes end up in user baselines and @mago-expect comments, so they
-     * are namespaced to Drupal rather than to the package vendor.
+     * Rule codes go into user baselines and @mago-expect comments, so the
+     * codes have the Drupal namespace and not the package vendor.
      */
     public function testRuleCodesAreNamespacedToDrupal(): void
     {
@@ -44,24 +44,29 @@ final class DrupalExtensionTest extends TestCase
     }
 
     /**
-     * Codes, default levels and enabled flags are public contract. Users
-     * write them into baselines and @mago-expect pragmas. A rename or a level
-     * flip has to fail here instead of shipping silently.
+     * Codes, default levels and enabled flags are a public contract. Users
+     * write them into baselines and @mago-expect pragmas. A rename or a
+     * level change must fail here, so that it does not ship unnoticed.
      */
     public function testRuleDefinitionsAreStable(): void
     {
         $expected = [
+            'drupal/author-tag' => [Level::Warning, true],
             'drupal/class-comment' => [Level::Error, true],
+            'drupal/comment-line-length' => [Level::Warning, true],
             'drupal/constant-prefix' => [Level::Warning, true],
             'drupal/deprecated-tag' => [Level::Warning, true],
             'drupal/deprecation-message' => [Level::Warning, true],
+            'drupal/discouraged-function' => [Level::Error, true],
             'drupal/doc-comment' => [Level::Warning, true],
             'drupal/doc-comment-array-syntax' => [Level::Warning, true],
             'drupal/doc-type-namespace' => [Level::Warning, true],
+            'drupal/else-if' => [Level::Error, true],
             'drupal/empty-install-hook' => [Level::Error, true],
             'drupal/enum-case-name' => [Level::Error, true],
             'drupal/expected-exception-tag' => [Level::Warning, true],
             'drupal/file-comment' => [Level::Error, true],
+            'drupal/fully-qualified-name' => [Level::Error, true],
             'drupal/function-comment' => [Level::Error, true],
             'drupal/gender-neutral-comment' => [Level::Warning, true],
             'drupal/global-function' => [Level::Warning, true],
@@ -69,18 +74,24 @@ final class DrupalExtensionTest extends TestCase
             'drupal/hook-comment' => [Level::Warning, true],
             'drupal/inline-comment' => [Level::Warning, true],
             'drupal/inline-variable-comment' => [Level::Warning, true],
+            'drupal/insecure-unserialize' => [Level::Error, true],
             'drupal/install-hook-location' => [Level::Error, true],
             'drupal/link-text-translatable' => [Level::Error, true],
+            'drupal/method-visibility' => [Level::Error, true],
             'drupal/post-statement-comment' => [Level::Warning, true],
             'drupal/preg-security' => [Level::Error, true],
             'drupal/property-name' => [Level::Error, true],
             'drupal/redundant-use' => [Level::Error, true],
             'drupal/remote-address' => [Level::Error, true],
+            'drupal/render-callback' => [Level::Error, true],
+            'drupal/symfony-yaml-parse' => [Level::Warning, true],
             'drupal/t-in-hook-menu' => [Level::Error, true],
             'drupal/t-in-hook-schema' => [Level::Error, true],
             'drupal/todo-comment' => [Level::Warning, true],
             'drupal/translatable-string' => [Level::Warning, true],
             'drupal/translated-exception' => [Level::Warning, true],
+            'drupal/unsilenced-deprecation' => [Level::Error, true],
+            'drupal/use-leading-backslash' => [Level::Error, true],
             'drupal/variable-comment' => [Level::Error, true],
             'drupal/watchdog-message' => [Level::Error, true],
             'drupal/weak-hash' => [Level::Warning, true],
@@ -97,8 +108,8 @@ final class DrupalExtensionTest extends TestCase
     }
 
     /**
-     * Mago rejects a rule that subscribes to nothing, so a typo in a target
-     * list should fail here rather than when a worker starts.
+     * Mago rejects a rule that subscribes to nothing, so a typo in a
+     * target list must fail here and not when a worker starts.
      */
     public function testEveryRuleSubscribesToNodeKinds(): void
     {

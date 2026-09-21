@@ -23,7 +23,8 @@ final class Values
     /**
      * Returns the decoded value of a literal-string node.
      *
-     * Falls back to trimming the quotes when the snapshot sends raw literals.
+     * If the snapshot sends a raw literal, the result is the text without
+     * its quotes.
      */
     public static function literalString(SourceFile $file, Node $node): ?string
     {
@@ -38,8 +39,8 @@ final class Values
      * Unwraps the wrapper nodes around a value.
      *
      * An argument that is itself a call arrives as `Expression -> Call ->
-     * FunctionCall`, so `Call` has to come off too or every check against a
-     * call kind misses.
+     * FunctionCall`, so `Call` must come off too. Without that, every
+     * check against a call kind misses.
      */
     public static function unwrap(SourceFile $file, Node $node): Node
     {

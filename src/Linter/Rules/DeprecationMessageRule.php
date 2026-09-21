@@ -29,17 +29,18 @@ use function strtoupper;
 use function trim;
 
 /**
- * Checks the wording of deprecation messages passed to trigger_error().
+ * Checks the wording of the deprecation messages that trigger_error() gets.
  *
- * Ports Drupal.Semantics.FunctionTriggerError. Drupal's release tooling parses
- * these strings to build the deprecation report, so the wording has to match.
+ * Ports Drupal.Semantics.FunctionTriggerError. Drupal's release tooling
+ * parses these strings to build the deprecation report, so the wording must
+ * match.
  *
- * Targets the whole file rather than calls or declarations, so one pass finds
- * every trigger_error(), including the deprecated-file pattern at file scope.
- * The wording standard comes from the enclosing declaration's docblock, or
- * for a file-scope notice from the next file-level docblock, which is how the
- * ported sniff reads it. The scope classification needs its branches, so the
- * complexity is deliberate.
+ * The rule targets the whole file, not calls or declarations. One pass then
+ * finds every trigger_error(). This includes the deprecated-file pattern at
+ * file scope. The wording standard comes from the enclosing declaration's
+ * docblock. For a file-scope notice, it comes from the next file-level
+ * docblock. The ported sniff reads it the same way. The scope classification
+ * needs its branches, so the complexity is intended.
  *
  * @see https://www.drupal.org/node/2856820
  *
@@ -66,12 +67,12 @@ final class DeprecationMessageRule implements Rule
 
     public function getDefinition(): RuleDefinition
     {
-        // `FunctionCall` is declared as a target so Rust collects every call
-        // into the file's pre-computed target-node list, which the Program
-        // pass reads instead of walking the whole tree in PHP; the
-        // per-call dispatches are no-ops. Core is deprecation-heavy, so the
-        // content prefilter below passes often enough for the walk to have
-        // been this rule's dominant cost.
+        // `FunctionCall` is a target. Rust then collects every call into the
+        // file's target-node list. The Program pass reads that list instead
+        // of walking the whole tree in PHP. The per-call dispatches do
+        // nothing. Core has many deprecations, so the content prefilter below
+        // passes often. Without the list, the walk is this rule's largest
+        // cost.
         return new RuleDefinition(
             code: 'drupal/deprecation-message',
             name: 'Deprecation message format',
@@ -88,9 +89,9 @@ final class DeprecationMessageRule implements Rule
             return;
         }
 
-        // Scanning the source costs a lot less than even one pass over the
-        // target list, and almost no file contains a deprecation. PHP
-        // function names are case-insensitive, so the scan is too.
+        // Scanning the source takes much less time than one pass over the
+        // target list. Almost no file has a deprecation. PHP function names
+        // are case-insensitive, so the scan is too.
         if (stripos($context->file->contents, needle: 'trigger_error') === false) {
             return;
         }
@@ -101,9 +102,10 @@ final class DeprecationMessageRule implements Rule
         foreach ($calls as $call) {
             $declaration = $this->enclosingDeclaration($context->file, $call);
 
-            // A declaration's wording standard covers every call in it, so it
-            // resolves once per declaration. File-scope notices resolve per
-            // call, because their docblock lookup starts at the call.
+            // A declaration's wording standard covers every call in it. The
+            // rule resolves it once per declaration. A file-scope notice
+            // resolves per call, because its docblock lookup starts at the
+            // call.
             $standard = $declaration === null
                 ? $this->fileScopeStandard($context->file, $call)
                 : ($standards[$declaration->id] ??= $this->declarationStandard($context->file, $declaration));
@@ -117,12 +119,12 @@ final class DeprecationMessageRule implements Rule
      */
     private function check(LintContext $context, Node $call, DeprecationStandard $standard): void
     {
-        // The finder already matched the callee, so the arguments are read
+        // The finder already matched the callee. The rule reads the arguments
         // straight off the call view.
         $arguments = Calls::positionalArguments($context->file, CallExpression::fromNode($context->file, $call));
 
-        // The constant may be written fully qualified, so the leading
-        // backslash comes off before comparing.
+        // The constant can be fully qualified. The rule removes the leading
+        // backslash before the comparison.
         $level = $arguments[1] ?? null;
         if (
             $level === null
@@ -143,13 +145,13 @@ final class DeprecationMessageRule implements Rule
 
         foreach (DeprecationMessage::problems($text, $standard) as $problem) {
             $context->report(Issue::new($problem, $message->span)->withHelp(
-                "The message reads: '{$text}'",
+                "The message text is: '{$text}'",
             )->withLink(self::LINK));
         }
     }
 
     /**
-     * Returns the function or method declaration enclosing a call, if any.
+     * Returns the function or method declaration that encloses a call, if any.
      */
     private function enclosingDeclaration(SourceFile $file, Node $call): ?Node
     {
@@ -168,8 +170,8 @@ final class DeprecationMessageRule implements Rule
     /**
      * Returns the wording standard for a call inside a declaration.
      *
-     * A tagged deprecation must use the strict wording, which fixes the
-     * removal phrasing and not just the versions.
+     * A tagged deprecation must use the strict wording. The strict wording
+     * fixes the removal phrase, not only the versions.
      */
     private function declarationStandard(SourceFile $file, Node $declaration): DeprecationStandard
     {
@@ -183,8 +185,9 @@ final class DeprecationMessageRule implements Rule
     /**
      * Returns the wording standard for a file-scope call.
      *
-     * A deprecated-file notice comes before the declarations it covers, so
-     * the sniff this ports reads the next file-level docblock after the call.
+     * A deprecated-file notice comes before the declarations that it covers.
+     * The ported sniff thus reads the next file-level docblock after the
+     * call.
      */
     private function fileScopeStandard(SourceFile $file, Node $call): DeprecationStandard
     {
@@ -206,7 +209,7 @@ final class DeprecationMessageRule implements Rule
     }
 
     /**
-     * Whether a span sits outside every declaration body.
+     * Whether a span is outside every declaration body.
      */
     private function atFileLevel(SourceFile $file, Span $span): bool
     {

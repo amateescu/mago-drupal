@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Tests;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\DocblockTag;
 use Mago\Sdk\Internal\Syntax\NodeStore;
 use Mago\Sdk\Internal\Syntax\ResolvedNameStore;
 use Mago\Sdk\Internal\Syntax\TriviaStore;
@@ -29,15 +30,15 @@ use function substr;
 final class DocblocksTest extends TestCase
 {
     /**
-     * `lines()` and `tags()` only ever call `SourceFile::getText()`, which
-     * reads straight from `$contents`, so the node, name and trivia stores
-     * behind a real snapshot are never touched here.
+     * `lines()` and `tags()` call only `SourceFile::getText()`. That method
+     * reads directly from `$contents`, so this test never touches the
+     * node, name and trivia stores behind a real snapshot.
      *
-     * Each call gets its own path: `Docblocks::lines()`/`tags()` memoize per
-     * (path, span), and two fixtures in this file can easily share a span
-     * (both spanning `0..strlen($contents)`, say) while meaning different
-     * things, so a shared path would let one test's cached result leak into
-     * another's assertions.
+     * Each call gets its own path. `Docblocks::lines()` and `tags()` memoize
+     * per path and span. Two fixtures in this file can share a span, for
+     * example `0..strlen($contents)`, but mean different things. With a
+     * shared path, the cached result of one test could leak into the
+     * assertions of another test.
      */
     private static function sourceFile(string $contents): SourceFile
     {
@@ -65,10 +66,10 @@ final class DocblocksTest extends TestCase
     }
 
     /**
-     * Builds a SourceFile whose trivia store holds real records, for the
-     * `closest()`/`isDirective()` tests, which read trivia rather than raw
-     * docblock text. Each comment substring is located in $contents and
-     * packed the way the wire protocol encodes it.
+     * Builds a SourceFile whose trivia store holds real records. The
+     * `closest()` and `isDirective()` tests read trivia and not raw docblock
+     * text. This method finds each comment substring in $contents and packs
+     * it the way that the wire protocol encodes it.
      *
      * @param list<array{TriviaKind, string}> $comments
      */
@@ -106,9 +107,9 @@ final class DocblocksTest extends TestCase
     }
 
     /**
-     * Returns a bare declaration node spanning $needle inside $contents.
-     * `closest()` only reads the declaration's start offset, so the node
-     * needs no backing store.
+     * Returns a bare declaration node that spans $needle inside $contents.
+     * `closest()` reads only the declaration's start offset, so the
+     * node has no store behind it.
      */
     private static function declarationAt(string $contents, string $needle): Node
     {
@@ -128,8 +129,8 @@ final class DocblocksTest extends TestCase
             array_map(static fn($line) => $line->text, $lines),
         );
 
-        // The third line is bare "Summary." with the "/**\n * " prefix
-        // stripped, so its offset lands right on the "S".
+        // The third line is "Summary." without the "/**\n * " prefix, so its
+        // offset is exactly at the "S".
         self::assertSame('S', substr($contents, $lines[1]->offset, length: 1));
     }
 
@@ -151,8 +152,8 @@ final class DocblocksTest extends TestCase
 
         $leading = Docblocks::leadingLines($file, new Span(0, strlen($contents)));
 
-        // The opening "/**" line is itself blank content, kept here exactly
-        // like any other blank line rather than special-cased away.
+        // The opening "/**" line is blank content. The result keeps it in the
+        // same way as any other blank line.
         self::assertSame(
             ['', 'Summary.', '', 'Long description.', ''],
             array_map(static fn($line) => $line->text, $leading),
@@ -171,6 +172,21 @@ final class DocblocksTest extends TestCase
         self::assertSame('string $a   A multi-line   description.', $tags[0]->content());
         self::assertSame('return', $tags[1]->name);
         self::assertSame('bool', $tags[1]->content());
+    }
+
+    public function testTagsTreatCodeMarkersAsTagsOfTheirOwn(): void
+    {
+        $contents = "/**\n * @param array \$a\n *   Keyed by name. For example:\n * @code\n *   ['x' => 1]\n * @endcode\n * @return bool\n */";
+        $file = self::sourceFile($contents);
+
+        $tags = Docblocks::tags($file, new Span(0, strlen($contents)));
+
+        // Coder's tokenizer does the same, so `drupal/doc-comment` can see
+        // an example that splits two @param groups.
+        self::assertSame(
+            ['param', 'code', 'endcode', 'return'],
+            array_map(static fn(DocblockTag $tag): string => $tag->name, $tags),
+        );
     }
 
     public function testTagNameSpanCoversOnlyTheAtNameToken(): void
@@ -221,9 +237,9 @@ final class DocblocksTest extends TestCase
     }
 
     /**
-     * Regression test: the closing marker has to come off a line before the
-     * leading star does, or a last line with nothing but "* /" loses its
-     * star to the leading strip and leaves a stray "/" as that line's text.
+     * Regression test. The closing marker must come off a line before the
+     * leading star does. Without that, a last line with only "* /" loses its
+     * star to the leading strip, and a stray "/" stays as the line's text.
      */
     public function testLinesStripAClosingLineThatIsOnlyTheStarAndMarker(): void
     {
@@ -267,8 +283,8 @@ final class DocblocksTest extends TestCase
     }
 
     /**
-     * The lower edge of the boundary search: every trivia entry ends after
-     * the declaration starts, so there is no candidate at all.
+     * The lower edge of the boundary search. Every trivia entry ends after
+     * the declaration starts, so no candidate exists.
      */
     public function testClosestReturnsNullWhenAllTriviaFollowTheDeclaration(): void
     {

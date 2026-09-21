@@ -8,6 +8,7 @@ namespace Drupal\corpus;
 use Exception;
 // The leading backslash spells the same global import.
 // @mago-expect lint:drupal/redundant-use
+// @mago-expect lint:drupal/use-leading-backslash
 use \RuntimeException;
 use Drupal\corpus\Nested\Thing;
 use Drupal\corpus\Nested\Thing as AliasedThing;
@@ -48,6 +49,41 @@ class Naming
     {
         throw new RuntimeException('boom');
     }
+
+    // @mago-expect lint:drupal/function-comment
+    // @mago-expect lint:drupal/method-visibility
+    function withoutVisibility(): bool
+    {
+        return true;
+    }
+
+    // @mago-expect lint:drupal/function-comment
+    // @mago-expect lint:drupal/fully-qualified-name
+    public function fullyQualified(): string
+    {
+        return \Drupal\corpus\Nested\Thing::class;
+    }
+
+    // @mago-expect lint:drupal/function-comment
+    public function globalClassInline(): Exception
+    {
+        // A class with no namespace of its own stays written out.
+        return new \Exception('boom');
+    }
+
+    // @mago-expect lint:drupal/function-comment
+    public function namespacedFunctionCall(): bool
+    {
+        // A callee keeps its namespace, since PHP falls back to the global
+        // function and an import would be pointless.
+        return \Drupal\corpus\naming_helper();
+    }
+}
+
+// @mago-expect lint:drupal/function-comment
+function naming_helper(): bool
+{
+    return true;
 }
 
 /**

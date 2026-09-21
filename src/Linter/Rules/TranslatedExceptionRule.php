@@ -14,7 +14,7 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 /**
- * Reports exception messages wrapped in t().
+ * Reports an exception message wrapped in t().
  *
  * Ports DrupalPractice.General.ExceptionT. Exception text goes to logs and
  * developers, not to site visitors.
@@ -28,7 +28,7 @@ final class TranslatedExceptionRule implements Rule
         return new RuleDefinition(
             code: 'drupal/translated-exception',
             name: 'Translated exception',
-            description: 'Reports exception messages passed through t().',
+            description: 'Reports an exception message passed through t().',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Throw],
@@ -37,9 +37,9 @@ final class TranslatedExceptionRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // A match writes `t` right before a parenthesis, as a plain call
-        // or a method selector; the second branch keeps files with a
-        // function import in for the aliased-import case.
+        // A match has `t` directly before a parenthesis, as a plain call or
+        // as a method selector. The second branch keeps a file with a
+        // function import, for the case of an aliased import.
         $this->gate ??= new FileGate(pattern: '/(?<!\w)t\s*\(|\buse\s[^;]*\bfunction\b/i');
         if (!$this->gate->passes($context->file)) {
             return;
@@ -55,8 +55,8 @@ final class TranslatedExceptionRule implements Rule
             return;
         }
 
-        $context->report(Issue::new('Exception messages should not be translated.', $call->span)->withHelp(
-            'Exception text is read by developers in logs, so translating it hides the original.',
+        $context->report(Issue::new('Do not translate an exception message.', $call->span)->withHelp(
+            'Developers read exception text in logs. A translation hides the original text.',
         ));
     }
 }

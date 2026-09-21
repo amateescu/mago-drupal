@@ -44,8 +44,8 @@ final class DrupalFileTest extends TestCase
     }
 
     /**
-     * The corpus config lists the scanned extensions on its own, so this pins
-     * that copy to the constant instead of trusting it.
+     * The corpus config has its own list of scanned extensions. This test
+     * compares that copy with the constant.
      */
     public function testCorpusConfigScansEveryProceduralExtension(): void
     {
@@ -68,7 +68,7 @@ final class DrupalFileTest extends TestCase
 
         self::assertTrue($file->implementsHook('node_install', 'install'));
         self::assertFalse($file->implementsHook('node_install', 'uninstall'));
-        // A different module implementing the hook is not this file's hook.
+        // The same hook in a different module is not the hook of this file.
         self::assertFalse($file->implementsHook('user_install', 'install'));
     }
 }

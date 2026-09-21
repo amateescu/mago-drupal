@@ -6,7 +6,6 @@ namespace amateescu\MagoDrupal\Linter;
 
 use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\FileGate;
-use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Syntax\CallExpression;
@@ -17,7 +16,7 @@ use function implode;
 use function preg_quote;
 
 /**
- * Base for rules that fire on a call to one of a fixed set of names.
+ * Base for a rule that reports a call to one of a fixed set of names.
  *
  * @internal
  */
@@ -29,14 +28,14 @@ abstract class CallRule implements Rule
     private ?FileGate $gate = null;
 
     /**
-     * Call names this rule reacts to, matched case-insensitively.
+     * The call names that this rule reports. The match ignores case.
      *
      * @return list<string>
      */
     abstract protected function names(): array;
 
     /**
-     * Checks one matched call. $name is the matched name, normalized.
+     * Checks one matched call. $name is the normalized matched name.
      */
     abstract protected function inspect(LintContext $context, CallExpression $call, string $name): void;
 
@@ -47,7 +46,7 @@ abstract class CallRule implements Rule
             return;
         }
 
-        // The wanted set is normalized once per rule, not once per node.
+        // The rule normalizes the wanted set once, not once per node.
         $this->wanted ??= Calls::normalizeAll($this->names());
 
         $name = Calls::matchWanted($context->file, $context->node, $this->wanted);
@@ -60,9 +59,6 @@ abstract class CallRule implements Rule
 
     /**
      * Returns the value of an argument, read positionally or by name.
-     *
-     * PHP binds named arguments by parameter name, so a rule that passes
-     * $parameter also matches the `foo(name: $value)` spelling.
      */
     protected function argument(
         LintContext $context,
@@ -70,28 +66,20 @@ abstract class CallRule implements Rule
         int $index,
         ?string $parameter = null,
     ): ?Node {
-        if ($parameter !== null) {
-            foreach ($call->arguments as $argument) {
-                if ($argument->name === $parameter) {
-                    return Values::unwrap($context->file, $argument->value);
-                }
-            }
-        }
-
-        return Calls::positionalArguments($context->file, $call)[$index] ?? null;
+        return Calls::argument($context->file, $call, $index, $parameter);
     }
 
     /**
      * Builds the file gate from the rule's call names.
      *
-     * Any match puts a wanted name in the source right before an opening
-     * parenthesis, whether written as a plain call, a method selector, or
-     * a fully qualified call. The one exception is a call through an
-     * aliased `use function` import, which the second branch keeps in by
-     * passing any file with a function import. Anchoring on the
-     * parenthesis lets even one-letter names like `l` gate their files; a
-     * comment between the callee and its parenthesis would defeat the
-     * anchor, and nothing writes that.
+     * Every match puts a wanted name in the source directly before an
+     * opening parenthesis. This holds for a plain call, a method selector
+     * and a fully qualified call. The one exception is a call through an
+     * aliased `use function` import. The second branch keeps that case in,
+     * because it passes every file with a function import. The anchor on
+     * the parenthesis lets a one-letter name such as `l` gate its files. A
+     * comment between the callee and its parenthesis defeats the anchor,
+     * but nothing writes that.
      *
      * @param list<string> $names
      */

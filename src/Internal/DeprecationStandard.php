@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 /**
- * Which deprecation wording a message has to follow.
+ * The deprecation wording that a message must follow.
  *
  * @internal
  */
 enum DeprecationStandard
 {
     /**
-     * Used when a `@deprecated` docblock accompanies the message. It fixes the
-     * removal wording as well as the versions.
+     * Applies when a `@deprecated` docblock goes with the message. It fixes
+     * the removal wording and the versions.
      */
     case Strict;
 
     case Relaxed;
 
     /**
-     * Returns the pattern a message of this standard has to match.
+     * Returns the pattern that a message of this standard must match.
      */
     public function layout(): string
     {
@@ -31,7 +31,7 @@ enum DeprecationStandard
     }
 
     /**
-     * Returns the documented shape, quoted back in the issue message.
+     * Returns the documented shape. The issue message quotes it.
      */
     public function format(): string
     {
@@ -44,7 +44,7 @@ enum DeprecationStandard
     }
 
     /**
-     * Returns the name used for this standard in issue messages.
+     * Returns the name of this standard in issue messages.
      */
     public function label(): string
     {

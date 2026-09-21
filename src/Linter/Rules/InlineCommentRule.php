@@ -27,26 +27,32 @@ use function trim;
  * Checks the style and wording of a `//` inline comment.
  *
  * Ports part of Drupal.Commenting.InlineComment: the wording checks
- * (capitalization, terminal punctuation) and the ban on `#`-style comments.
- * Consecutive `//` lines with nothing but their own indentation between them
- * are judged as one logical comment, the same way a paragraph wrapped across
- * several lines reads as one sentence rather than several: capitalization is
- * checked against the first line's first word, terminal punctuation against
- * the last line's last word, so a two-line comment does not get flagged for
- * "starting" mid-sentence on its second line. A line starting with `@`
- * (`// @see …`, `// @todo …`) never continues the run above it, the same way
- * Coder's own sniff starts counting fresh there: a reference line reads as
- * its own thing, not a continuation of the sentence before it, and a run
- * that starts with one is itself exempt from the terminal-punctuation check,
- * the same as any run whose first word does not start with a letter at all.
- * A `cspell:`/`spell-checker:` directive anywhere in a run is exempt from
- * that same check, whichever line it is on. Not ported: the ban on a
- * docblock misused mid-statement, and pure blank-line placement, which
- * `mago format` already governs. Empty comments are already reported by
- * Mago's own `no-empty-comment` rule. A directive comment (`@mago-expect`,
- * `phpcs:ignore`, …) is exempt from the wording checks and does not join a
- * run either: it is a machine-readable instruction, not a line of prose, so
- * it can neither be judged as one nor stitched into the sentence next to it.
+ * (capitalization, terminal punctuation) and the ban on `#` comments.
+ *
+ * Consecutive `//` lines with only their own indentation between them are
+ * one logical comment. A paragraph wrapped across several lines is one
+ * sentence, not several. The rule checks the capitalization of the first
+ * word on the first line. It checks the terminal punctuation of the last
+ * word on the last line. A two-line comment is therefore not reported for
+ * a second line that starts in the middle of a sentence.
+ *
+ * A line that starts with `@` (`// @see …`, `// @todo …`) never continues
+ * the run above it. Coder's own sniff starts a new run there too. A
+ * reference line is a comment of its own, not a continuation of the
+ * sentence before it. A run that starts with a reference line is exempt
+ * from the terminal-punctuation check. The same exemption applies to a run
+ * whose first word does not start with a letter. A run that has a
+ * `cspell:` or `spell-checker:` directive on any line is exempt from that
+ * check too.
+ *
+ * Not ported: the ban on a docblock in the middle of a statement, and the
+ * placement of blank lines. `mago format` already controls both. Mago's own
+ * `no-empty-comment` rule already reports an empty comment.
+ *
+ * A directive comment (`@mago-expect`, `phpcs:ignore`, …) is exempt from
+ * the wording checks. It does not join a run either. A directive is a
+ * machine-readable instruction, not a line of prose. The rule cannot judge
+ * it as prose, and cannot join it to the sentence next to it.
  *
  * @mago-expect lint:cyclomatic-complexity
  */
@@ -77,7 +83,7 @@ final class InlineCommentRule implements Rule
                 $previous = null;
 
                 $context->report(Issue::new('Use "//" for a single-line comment, not "#".', $trivia->span)->withHelp(
-                    'Drupal follows PSR-12, which reserves "#" for shebang lines.',
+                    'Drupal follows PSR-12. PSR-12 reserves "#" for shebang lines.',
                 ));
 
                 continue;
@@ -107,9 +113,9 @@ final class InlineCommentRule implements Rule
     }
 
     /**
-     * Whether $next is the next physical line after $previous, with nothing
-     * but its own leading whitespace between them: what makes a run of `//`
-     * lines read as one logical comment rather than several unrelated ones.
+     * Whether $next is on the line directly after $previous, with only its
+     * own leading whitespace between them. That is what makes a run of `//`
+     * lines one logical comment instead of several unrelated ones.
      */
     private function continuesRun(LintContext $context, Trivia $previous, Trivia $next): bool
     {
@@ -119,9 +125,9 @@ final class InlineCommentRule implements Rule
     }
 
     /**
-     * Whether a `//` line's own content starts with `@`, which reads as a
-     * reference (`@see …`, `@todo …`) rather than a continuation of prose
-     * above it.
+     * Whether the content of a `//` line starts with `@`. Such a line is a
+     * reference (`@see …`, `@todo …`), not a continuation of the prose above
+     * it.
      */
     private function isAnnotationLine(LintContext $context, Trivia $trivia): bool
     {
@@ -166,16 +172,16 @@ final class InlineCommentRule implements Rule
             return;
         }
 
-        // A word that mixes in a digit, underscore or punctuation reads as a
-        // machine name or code reference rather than prose, so it is exempt
-        // from capitalization.
+        // A word that has a digit, an underscore or punctuation in it is a
+        // machine name or a code reference, not prose. It is exempt from the
+        // capitalization check.
         if (preg_match('/^[a-z]+$/', $words[0]) === 1) {
-            $context->report(Issue::new('Inline comments must start with a capital letter.', $first->span));
+            $context->report(Issue::new('Start an inline comment with a capital letter.', $first->span));
         }
 
-        // A run whose first word is not even a word (starting with "@", a
-        // digit, punctuation, …) or that carries a spell-check directive
-        // anywhere in it is exempt from needing terminal punctuation too.
+        // A run whose first word starts with "@", a digit or punctuation is
+        // exempt from the terminal-punctuation check. A run with a
+        // spell-check directive on any line is exempt too.
         if ($hasSpellDirective || preg_match('/^\p{L}/u', $words[0]) !== 1) {
             return;
         }
@@ -188,7 +194,7 @@ final class InlineCommentRule implements Rule
             || preg_match('/[()]/', $lastWord) === 1;
         if (!$exempt && preg_match('/[.!?:)]/', $lastChar) !== 1) {
             $context->report(Issue::new(
-                'Inline comments must end in a full-stop, exclamation mark, question mark or colon.',
+                'End an inline comment with a full stop, an exclamation mark, a question mark or a colon.',
                 $last->span,
             ));
         }

@@ -12,22 +12,29 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function ltrim;
+use function preg_match;
 use function str_contains;
 
 /**
- * Reports use statements importing a class that has no namespace.
+ * Reports a use statement that imports a class with no namespace.
  *
  * Ports Drupal.Classes.UseGlobalClass. Drupal writes `\Exception` at the call
- * site rather than importing it, so the import and its usages move together.
+ * site and does not import it. The import and its usages move together.
  */
 final class RedundantUseRule implements Rule
 {
+    /**
+     * A statement that imports one name with no namespace, with or without an
+     * alias.
+     */
+    private const SINGLE_GLOBAL_IMPORT = '/^use\s+\\\\?[A-Za-z_][A-Za-z0-9_]*(?:\s+as\s+[A-Za-z_][A-Za-z0-9_]*)?\s*;/i';
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
             code: 'drupal/redundant-use',
             name: 'Redundant use statement',
-            description: 'Reports use statements that import a class from the global namespace.',
+            description: 'Reports a use statement that imports a class from the global namespace.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Use],
@@ -38,9 +45,19 @@ final class RedundantUseRule implements Rule
     {
         $file = $context->file;
 
-        // `use function` and `use const` parse as a TypedUseItemSequence, and
-        // grouped imports as a Mixed/TypedUseItemList whose items hang off a
-        // namespace prefix. Only a plain sequence can import a global class.
+        // A single namespaced import, a grouped import and a function or
+        // constant import cannot name a global class. Together they are
+        // nearly every use statement. The text shows this without a node
+        // read. The rule still walks a statement that lists several names.
+        $text = $file->getText($context->node);
+        if (!str_contains($text, ',') && preg_match(self::SINGLE_GLOBAL_IMPORT, $text) !== 1) {
+            return;
+        }
+
+        // `use function` and `use const` parse as a TypedUseItemSequence. A
+        // grouped import parses as a Mixed/TypedUseItemList, and its items are
+        // under a namespace prefix. Only a plain sequence can import a global
+        // class.
         $items = $file->getFirstDescendant($context->node, NodeKind::UseItems);
         $sequence = $items === null ? null : $file->getChildren($items)[0] ?? null;
         if ($sequence === null || $sequence->kind !== NodeKind::UseItemSequence) {
@@ -48,17 +65,17 @@ final class RedundantUseRule implements Rule
         }
 
         foreach ($file->getDescendants($sequence, NodeKind::UseItem) as $item) {
-            // Only the item's own identifier says whether the class is
-            // namespaced. An alias is a local identifier too, so searching
-            // descendants would report `use Bar\Baz as Qux` as global.
+            // Only the item's own identifier shows whether the class is
+            // namespaced. An alias is also a local identifier. A search of
+            // the descendants reports `use Bar\Baz as Qux` as global.
             $identifier = $file->getFirstDescendant($item, NodeKind::Identifier);
             $name = $identifier === null ? null : $file->getChildren($identifier)[0] ?? null;
             if ($name === null) {
                 continue;
             }
 
-            // `use \Exception;` spells the same global import with a leading
-            // backslash and parses as a fully qualified identifier.
+            // `use \Exception;` is the same global import with a leading
+            // backslash. It parses as a fully qualified identifier.
             $class = ltrim($file->getText($name), characters: '\\');
             $global =
                 $name->kind === NodeKind::LocalIdentifier
@@ -66,12 +83,9 @@ final class RedundantUseRule implements Rule
             if (!$global) {
                 continue;
             }
-            $context->report(Issue::new(
-                "{$class} is not namespaced and should not be imported.",
-                $item->span,
-            )->withHelp(
-                "Drop the use statement and write \\{$class} at each usage. "
-                . 'Removing the import on its own breaks the references.',
+            $context->report(Issue::new("Do not import the global class {$class}.", $item->span)->withHelp(
+                "Remove the use statement and write \\{$class} at each usage. "
+                . 'If you remove only the import, the references break.',
             ));
         }
     }

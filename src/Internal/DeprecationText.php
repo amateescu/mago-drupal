@@ -22,11 +22,11 @@ final class DeprecationText
     private function __construct() {}
 
     /**
-     * Returns the message text, or an empty string when it cannot be read.
+     * Returns the message text, or an empty string if it cannot be read.
      *
-     * sprintf() wrappers contribute their format string. Anything else is read
-     * as its literal parts joined by spaces, which is how Drupal's sniff treats
-     * concatenated messages and interpolated constants.
+     * A sprintf() wrapper gives its format string. For any other shape, the
+     * result is its literal parts joined by spaces. Drupal's sniff treats
+     * concatenated messages and interpolated constants the same way.
      */
     public static function fromNode(SourceFile $file, Node $message): string
     {
@@ -43,7 +43,7 @@ final class DeprecationText
     }
 
     /**
-     * Returns the format string when the message is built by sprintf().
+     * Returns the format string if sprintf() builds the message.
      */
     private static function sprintfFormat(SourceFile $file, Node $message): ?string
     {
@@ -76,8 +76,8 @@ final class DeprecationText
             }
         }
 
-        // Adjacent literals carry their own spacing, so runs of spaces from
-        // the joining collapse to one.
+        // Adjacent literals have their own spacing, so a run of spaces from
+        // the join collapses to one space.
         return trim((string) preg_replace('/ {2,}/', replacement: ' ', subject: implode(' ', $parts)));
     }
 }

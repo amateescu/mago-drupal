@@ -20,27 +20,25 @@ use function ltrim;
 use function preg_match;
 use function preg_split;
 use function str_contains;
+use function strpbrk;
 use function strrpos;
 use function substr;
 
 /**
- * Reports a doc comment type written as a use-imported class's short name.
+ * Reports a docblock type written as the short name of an imported class.
  *
- * Ports Drupal.Commenting.DataTypeNamespace. Only single, unaliased imports
- * are handled, matching what the ported sniff itself reads reliably; a
- * grouped or comma-separated `use` statement is left alone.
+ * Ports Drupal.Commenting.DataTypeNamespace. The rule only handles single,
+ * unaliased imports. The ported sniff itself reads only those reliably. The
+ * rule skips a grouped or comma-separated `use` statement.
  *
- * Targets the whole file rather than one `use` statement at a time: reading
- * every import once and then walking every docblock once, instead of
- * re-walking every docblock after each import, turns a cost proportional to
- * imports times docblocks times docblock lines into one proportional to
- * imports plus docblocks times lines. A large file with dozens of imports
- * and docblocks made this the single most expensive rule in the family
- * before the change. One simplification that comes with it: an import is
- * treated as in scope for the whole file, not just the docblocks below it.
- * In practice that means a docblock *above* the imports is now in scope too,
- * most commonly a procedural file's own `@file` block, not the unusual
- * placement of a `use` statement after code that already referenced it.
+ * The rule targets the whole file, not one `use` statement at a time. It
+ * thus reads the imports once and walks every docblock once. A per-import
+ * dispatch walks every docblock once per import. This has one
+ * simplification: an import counts as in scope for the whole file, not only
+ * for the docblocks below it. That includes a docblock above the imports,
+ * most often a procedural file's own `@file` block. It does not include the
+ * unusual case of a `use` statement after code that already refers to the
+ * class.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -51,14 +49,14 @@ final class DocTypeNamespaceRule implements Rule
 
     public function getDefinition(): RuleDefinition
     {
-        // `Use` is declared as a target so Rust collects every import into
-        // the file's pre-computed target-node list, which the Program pass
-        // reads for free; the per-import dispatches are no-ops. Asking the
-        // node table instead was one full, unindexed re-scan per file.
+        // `Use` is a target. Rust then collects every import into the file's
+        // target-node list, and the Program pass reads that list at no cost.
+        // The per-import dispatches do nothing. A node table query is one
+        // full, unindexed re-scan per file.
         return new RuleDefinition(
             code: 'drupal/doc-type-namespace',
             name: 'Doc comment type namespace',
-            description: 'Reports @param, @return, @var and @throws types written as a use-imported short name instead of the fully qualified name.',
+            description: 'Reports @param, @return, @var and @throws types written as an imported short name instead of the fully qualified name.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Use],
@@ -93,7 +91,7 @@ final class DocTypeNamespaceRule implements Rule
 
     /**
      * Returns every single, unaliased import in the file, keyed by the
-     * short name it introduces.
+     * short name that it introduces.
      *
      * @return array<string, string>
      */
@@ -158,23 +156,42 @@ final class DocTypeNamespaceRule implements Rule
             return;
         }
 
+        // Most types are plain. A plain type is one lookup.
+        if (strpbrk($type, characters: '|<[?') === false) {
+            $this->reportImported($context, $tag, $type, $imports);
+
+            return;
+        }
+
         $members = preg_split('/\|/', $type);
         foreach ($members === false ? [] : $members as $member) {
             $member = ltrim($member, characters: '?');
             $member = explode('<', $member, limit: 2)[0];
             $member = explode('[', $member, limit: 2)[0];
 
-            $fullyQualified = $imports[$member] ?? null;
-            if ($fullyQualified === null) {
-                continue;
+            if ($this->reportImported($context, $tag, $member, $imports)) {
+                return;
             }
-
-            $context->report(Issue::new(
-                "Data types in @{$tag->name} tags need to be fully namespaced: use \\{$fullyQualified} instead of {$member}.",
-                $tag->contentSpan(),
-            ));
-
-            return;
         }
+    }
+
+    /**
+     * Reports a type member that is an imported short name.
+     *
+     * @param array<string, string> $imports
+     */
+    private function reportImported(LintContext $context, DocblockTag $tag, string $member, array $imports): bool
+    {
+        $fullyQualified = $imports[$member] ?? null;
+        if ($fullyQualified === null) {
+            return false;
+        }
+
+        $context->report(Issue::new(
+            "The @{$tag->name} type must be fully qualified. Use \\{$fullyQualified} instead of {$member}.",
+            $tag->contentSpan(),
+        ));
+
+        return true;
     }
 }

@@ -10,7 +10,7 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 /**
- * Reports t() calls inside hook_schema().
+ * Reports a t() call inside hook_schema().
  *
  * Ports Drupal.Semantics.TInHookSchema.
  */
@@ -21,7 +21,7 @@ final class TranslationInHookSchemaRule extends HookTranslationRule
         return new RuleDefinition(
             code: 'drupal/t-in-hook-schema',
             name: 'Translation in hook_schema()',
-            description: 'Reports t() calls inside hook_schema(), where the strings are never shown to users.',
+            description: 'Reports a t() call inside hook_schema(). Drupal never shows those strings to users.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function],
@@ -40,6 +40,6 @@ final class TranslationInHookSchemaRule extends HookTranslationRule
 
     protected function help(): string
     {
-        return 'Schema descriptions are developer documentation, so translating them only adds work for translators.';
+        return 'A schema description is developer documentation. A translation only adds work for translators.';
     }
 }

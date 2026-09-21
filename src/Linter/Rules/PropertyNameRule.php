@@ -9,6 +9,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function preg_match;
@@ -36,10 +37,12 @@ final class PropertyNameRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Only the declared items are property names. A hooked property keeps
-        // its get and set bodies in the same subtree, so walking every
-        // descendant would report the local variables inside them.
-        foreach ($context->file->getDescendants($context->node, NodeKind::PropertyItem) as $item) {
+        // Only the declared items are property names. A hooked property
+        // keeps its get and set bodies in the same subtree. A walk of every
+        // descendant reports the local variables inside them. A default
+        // value can be a large array, and a walk of it is not worth the
+        // time. The items are one level under the plain or hooked wrapper.
+        foreach ($this->items($context) as $item) {
             $variable = $context->file->getFirstDescendant($item, NodeKind::DirectVariable);
             if ($variable === null) {
                 continue;
@@ -50,7 +53,34 @@ final class PropertyNameRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new("Property \${$name} must use lowerCamelCase.", $variable->span));
+            $context->report(Issue::new("Write the property \${$name} in lowerCamelCase.", $variable->span));
         }
+    }
+
+    /**
+     * The property's declared items, read from the wrapper's children.
+     *
+     * @return list<Node>
+     */
+    private function items(LintContext $context): array
+    {
+        $items = [];
+        foreach ($context->file->getChildren($context->node) as $child) {
+            if ($child->kind === NodeKind::PropertyItem) {
+                $items[] = $child;
+
+                continue;
+            }
+
+            foreach ($context->file->getChildren($child) as $grandchild) {
+                if ($grandchild->kind !== NodeKind::PropertyItem) {
+                    continue;
+                }
+
+                $items[] = $grandchild;
+            }
+        }
+
+        return $items;
     }
 }

@@ -9,7 +9,7 @@ use Mago\Sdk\Analyzer\PluginDefinition;
 use Mago\Sdk\Analyzer\PluginRegistry;
 
 /**
- * Teaches the analyzer about Drupal's runtime wiring.
+ * Gives the analyzer the facts about Drupal's runtime wiring.
  *
  * @internal
  */
@@ -32,18 +32,19 @@ final class DrupalPlugin implements Plugin
     {
         $registry->enableProviderMemoization();
 
-        // @todo Register the container, entity storage, plugin manager and
-        //   config return-type providers once the service and plugin index
-        //   lands. All of them need the same YAML-derived index, so it comes
-        //   first.
+        // @todo Register the return-type providers for the container, the
+        //   entity storage, the plugin manager and the config after the
+        //   service and plugin index exists. All of them must have the same
+        //   YAML-derived index, so build that index first.
         // @todo Register a property initialization provider for
         //   ContainerInjectionInterface::create() and #[Autowire].
-        // @todo Register routing, hook and event-subscriber entry points so
-        //   find-unused-definitions stops reporting framework-invoked code.
+        // @todo Register the routing, hook and event-subscriber entry points,
+        //   so that find-unused-definitions stops its reports on code that
+        //   the framework calls.
     }
 
     /**
-     * Whether rules that only apply to Drupal core itself are enabled.
+     * Whether the rules that apply only to Drupal core are enabled.
      */
     public function isCore(): bool
     {

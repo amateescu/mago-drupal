@@ -16,8 +16,8 @@ use Mago\Sdk\Syntax\NodeKind;
 /**
  * Reports install-time hooks declared in a `.module` file.
  *
- * Ports Drupal.Semantics.InstallHooks. Drupal only loads `.install` during
- * install and update runs, so a hook placed in `.module` never fires.
+ * Ports Drupal.Semantics.InstallHooks. Drupal loads `.install` only during
+ * install and update runs. Drupal never calls a hook placed in `.module`.
  */
 final class InstallHookLocationRule implements Rule
 {
@@ -53,9 +53,9 @@ final class InstallHookLocationRule implements Rule
             }
 
             $context->report(Issue::new(
-                "{$name}() is an installation hook and must be declared in {$file->name}.install.",
+                "{$name}() is an install hook. Declare it in {$file->name}.install.",
                 $context->node->span,
-            )->withHelp('Drupal only loads the .install file during install and update runs.'));
+            )->withHelp('Drupal loads the .install file only during install and update runs.'));
 
             return;
         }

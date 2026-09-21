@@ -20,10 +20,10 @@ use function in_array;
 use function strtolower;
 
 /**
- * Reports md5(), sha1() and crc32() calls, and suggests hash() with xxHash.
+ * Reports an md5(), sha1() or crc32() call, and suggests hash() with xxHash.
  *
- * Ports the disallowed-call configuration in Drupal core's phpstan.neon.dist,
- * including the variant that passes a weak algorithm name to hash() itself.
+ * Ports the disallowed-call configuration in Drupal core's phpstan.neon.dist.
+ * That includes the variant that passes a weak algorithm name to hash().
  *
  * @see https://www.drupal.org/node/3581605
  */
@@ -31,12 +31,12 @@ final class WeakHashRule extends CallRule
 {
     private const REPLACEMENT = 'xxh64';
 
-    private const HELP = 'xxHash is faster and is what Drupal standardises on for non-cryptographic hashing.';
+    private const HELP = 'xxHash is faster, and Drupal uses it as the standard for non-cryptographic hashing.';
 
     private const LINK = 'https://www.drupal.org/node/3581605';
 
     /**
-     * Algorithm names that are just as weak when passed to hash().
+     * Algorithm names that are as weak when a call passes them to hash().
      */
     private const WEAK_ALGORITHMS = ['md5', 'sha1', 'crc32', 'crc32b'];
 
@@ -45,7 +45,7 @@ final class WeakHashRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/weak-hash',
             name: 'Weak hash algorithm',
-            description: 'Reports md5(), sha1() and crc32() calls, and hash() calls using those algorithms.',
+            description: 'Reports an md5(), sha1() or crc32() call, and a hash() call that uses one of those algorithms.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],
@@ -69,7 +69,7 @@ final class WeakHashRule extends CallRule
     }
 
     /**
-     * Reports a direct call to a weak hashing function.
+     * Reports a direct call to a weak hash function.
      */
     private function reportFunction(LintContext $context, CallExpression $call, string $label): void
     {
@@ -80,8 +80,8 @@ final class WeakHashRule extends CallRule
 
         $replacement = $this->buildReplacement($context, $call);
         if ($replacement !== null) {
-            // Swapping the algorithm changes the digest, so anything already
-            // persisted needs migrating rather than just recomputing.
+            // A change of algorithm changes the digest. A stored digest must
+            // be migrated, not only computed again.
             $issue = $issue->withEdit(TextEdit::replace(
                 $context->node->span,
                 $replacement,
@@ -92,7 +92,7 @@ final class WeakHashRule extends CallRule
     }
 
     /**
-     * Reports hash() called with a weak algorithm name.
+     * Reports a hash() call with a weak algorithm name.
      */
     private function reportAlgorithm(LintContext $context, CallExpression $call): void
     {
@@ -118,9 +118,9 @@ final class WeakHashRule extends CallRule
     }
 
     /**
-     * Builds a hash() call replacing a single-argument weak hash call.
+     * Builds a hash() call that replaces a single-argument weak hash call.
      *
-     * Returns NULL when the call has extra arguments, because the binary and
+     * Returns NULL when the call has more arguments, because the binary and
      * raw-output flags do not map across.
      */
     private function buildReplacement(LintContext $context, CallExpression $call): ?string

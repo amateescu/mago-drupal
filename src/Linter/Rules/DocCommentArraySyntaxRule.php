@@ -24,7 +24,7 @@ use function strpos;
  * Reports `array()` syntax inside a docblock's `@code` example block.
  *
  * Ports Drupal.Commenting.DocCommentLongArraySyntax. `@code` content is
- * example source, not real code Mago parses, so nothing else catches this.
+ * example source, not real code that Mago parses. Nothing else reports this.
  */
 final class DocCommentArraySyntaxRule implements Rule
 {
@@ -42,9 +42,14 @@ final class DocCommentArraySyntaxRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Most files have no @code example at all, so one scan of the raw
-        // source skips the docblock parsing entirely for them.
-        if (!str_contains($context->file->contents, needle: '@code')) {
+        // Most files have no @code example at all. One scan of the raw source
+        // skips the docblock parsing for them. A report needs both an example
+        // and the long syntax somewhere in the file. Almost no file has the
+        // long syntax.
+        if (
+            !str_contains($context->file->contents, needle: '@code')
+            || preg_match('/\barray\s*\(/', $context->file->contents) !== 1
+        ) {
             return;
         }
 
@@ -81,7 +86,7 @@ final class DocCommentArraySyntaxRule implements Rule
 
         $position = (int) strpos($text, $matches[0]);
         $context->report(Issue::new(
-            'Long array syntax must not be used in doc comment @code examples.',
+            'Do not use the long array syntax in a docblock @code example.',
             new Span($offset + $position, $offset + $position + strlen($matches[0])),
         ));
     }

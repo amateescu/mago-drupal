@@ -23,9 +23,10 @@ use function strtolower;
 /**
  * Checks that a class, interface, trait or enum has a docblock.
  *
- * Ports Drupal.Commenting.ClassComment. The `@file`-tagged exemption exists
- * because a single-class file's docblock is often written as the file
- * comment instead, which `drupal/file-comment` already covers.
+ * Ports Drupal.Commenting.ClassComment. A file that holds one class often
+ * writes its docblock as the file comment instead. That is why a docblock
+ * tagged `@file` does not count as the class docblock. The
+ * `drupal/file-comment` rule already covers the file comment.
  */
 final class ClassCommentRule implements Rule
 {
@@ -54,13 +55,13 @@ final class ClassCommentRule implements Rule
         $closest = Docblocks::closest($context->file, $context->node);
 
         if ($closest === null) {
-            $context->report(Issue::new("Missing {$keyword} doc comment.", $context->node->span));
+            $context->report(Issue::new("The {$keyword} has no docblock.", $context->node->span));
 
             return;
         }
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new("A {$keyword} comment must use \"/**\" style comments.", $context->node->span));
+            $context->report(Issue::new("The {$keyword} docblock must start with \"/**\".", $context->node->span));
 
             return;
         }
@@ -71,7 +72,7 @@ final class ClassCommentRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new("Missing {$keyword} doc comment.", $context->node->span));
+            $context->report(Issue::new("The {$keyword} has no docblock.", $context->node->span));
 
             return;
         }
@@ -111,7 +112,7 @@ final class ClassCommentRule implements Rule
             }
 
             $context->report(Issue::new(
-                "The {$keyword} comment should describe what the {$keyword} does, not just repeat its name.",
+                "The {$keyword} docblock only repeats the {$keyword} name. Describe what the {$keyword} does.",
                 $context->node->span,
             ));
 

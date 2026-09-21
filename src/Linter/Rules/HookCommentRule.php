@@ -27,8 +27,8 @@ use function strlen;
  * function.
  *
  * Ports Drupal.Commenting.HookComment. `NodeKind::Function` already excludes
- * methods, which are `NodeKind::Method`, so only a function nested inside
- * another function needs its own exclusion here.
+ * methods, because a method is `NodeKind::Method`. Only a function nested
+ * inside another function needs its own exclusion here.
  */
 final class HookCommentRule implements Rule
 {
@@ -79,9 +79,9 @@ final class HookCommentRule implements Rule
             && preg_match('/^Implements ' . preg_quote($name, delimiter: '/') . '\(\)\.$/i', $short) === 1
         ) {
             $context->report(Issue::new(
-                'Hook implementations must be documented with "Implements hook_example().".',
+                'Document a hook implementation with "Implements hook_example().".',
                 $this->span($summary),
-            )->withHelp('Replace the repeated function name with the abstract hook_ name it implements.'));
+            )->withHelp('Replace the repeated function name with the abstract hook_ name that it implements.'));
         }
     }
 
@@ -97,7 +97,7 @@ final class HookCommentRule implements Rule
 
         if (!$wellFormed) {
             $context->report(Issue::new(
-                'Format should be "Implements hook_foo().", "Implements hook_foo_BAR_ID_bar() for xyz_bar().", or a similar hook_ reference.',
+                'Use the format "Implements hook_foo().", "Implements hook_foo_BAR_ID_bar() for xyz_bar().", or a similar hook_ reference.',
                 $this->span($summary),
             ));
 
@@ -107,14 +107,14 @@ final class HookCommentRule implements Rule
         foreach (Docblocks::tags($context->file, $span) as $tag) {
             if ($tag->name === 'param') {
                 $context->report(Issue::new(
-                    'Hook implementations should not duplicate @param documentation.',
+                    'Do not repeat the @param documentation in a hook implementation.',
                     $tag->nameSpan,
                 ));
             }
 
             if ($tag->name === 'return') {
                 $context->report(Issue::new(
-                    'Hook implementations should not duplicate @return documentation.',
+                    'Do not repeat the @return documentation in a hook implementation.',
                     $tag->nameSpan,
                 ));
             }
@@ -122,8 +122,8 @@ final class HookCommentRule implements Rule
     }
 
     /**
-     * Joins a paragraph's lines into one string, the way Coder's own sniff
-     * reconstructs a short description that spans several lines.
+     * Joins a paragraph's lines into one string. Coder's own sniff
+     * rebuilds a short description that spans several lines the same way.
      *
      * @param list<DocblockLine> $paragraph
      */

@@ -39,8 +39,8 @@ final class GenderNeutralCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Comments are part of the source text, so one scan of the whole
-        // file with the same pattern soundly skips the per-comment scans.
+        // Comments are part of the source text. One scan of the whole file
+        // with the same pattern is enough to skip the per-comment scans.
         $this->gate ??= new FileGate(pattern: self::PATTERN);
         if (!$this->gate->passes($context->file)) {
             return;
@@ -51,7 +51,7 @@ final class GenderNeutralCommentRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new('Unnecessarily gendered language in a comment.', $trivia->span));
+            $context->report(Issue::new('The comment uses a gendered pronoun.', $trivia->span));
         }
     }
 }

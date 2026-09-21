@@ -2,7 +2,7 @@ version = "1"
 php-version = "8.1"
 
 [source]
-# resources/ holds the worker entrypoint every consuming project runs, so it
-# gets the same checks as the rules it starts.
+# resources/ holds the worker entrypoint that every consuming project runs,
+# so it gets the same checks as the rules that it starts.
 paths = ["src", "tests/Unit", "resources"]
 includes = ["vendor"]

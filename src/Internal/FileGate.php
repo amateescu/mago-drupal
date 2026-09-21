@@ -10,12 +10,12 @@ use function preg_match;
 use function stripos;
 
 /**
- * A per-file text screen deciding whether a rule can match at all.
+ * A per-file text screen that decides whether a rule can match at all.
  *
- * A gate is sound only for rules whose every match puts a known piece of
- * text in the source, so a rule that reports something missing cannot use
- * one. The result is cached for the file the worker is currently on, since
- * rules see each file's nodes back to back.
+ * A gate is correct only for a rule whose every match puts a known piece of
+ * text in the source, so a rule that reports a missing thing cannot use
+ * one. The result is cached for the worker's current file, because the
+ * rules see the nodes of each file in sequence.
  *
  * @internal
  */
@@ -26,8 +26,8 @@ final class FileGate
     private bool $passes = true;
 
     /**
-     * @param list<string> $needles Case-insensitive substrings; any hit passes.
-     * @param null|string $pattern Regex fallback tried after the needles miss.
+     * @param list<string> $needles Case-insensitive substrings. One hit passes.
+     * @param null|string $pattern A regex that is tried if no needle hits.
      */
     public function __construct(
         private readonly array $needles = [],

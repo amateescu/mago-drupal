@@ -17,7 +17,7 @@ use function preg_quote;
 use function substr;
 
 /**
- * Reports the `e` modifier on preg patterns, which evaluates the replacement.
+ * Reports the `e` modifier on a preg pattern. It evaluates the replacement.
  *
  * Ports Drupal.Semantics.PregSecurity.
  *
@@ -32,7 +32,7 @@ final class PregSecurityRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/preg-security',
             name: 'Insecure preg modifier',
-            description: 'Reports preg patterns using the `e` modifier, which evaluates the replacement as PHP.',
+            description: 'Reports a preg pattern with the `e` modifier. The modifier evaluates the replacement as PHP.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],
@@ -59,15 +59,15 @@ final class PregSecurityRule extends CallRule
             return;
         }
 
-        // The raw text keeps the quotes, so the delimiter follows the opening
-        // quote and the modifiers sit before the closing quote.
+        // The raw text keeps the quotes. The delimiter follows the opening
+        // quote, and the modifiers are before the closing quote.
         $raw = $context->file->getText($pattern);
         $delimiter = substr($raw, offset: 1, length: 1);
         if ($delimiter === '') {
             return;
         }
 
-        // Bracket-style delimiters close with the counterpart character.
+        // A bracket delimiter closes with its counterpart character.
         $closing = match ($delimiter) {
             '{' => '}',
             '(' => ')',
@@ -81,8 +81,8 @@ final class PregSecurityRule extends CallRule
             return;
         }
 
-        $context->report(Issue::new("Using the e modifier in {$name}() is a security risk.", $pattern->span)->withHelp(
-            'The replacement is evaluated as PHP. Use preg_replace_callback() instead.',
+        $context->report(Issue::new("The e modifier in {$name}() is a security risk.", $pattern->span)->withHelp(
+            'PHP evaluates the replacement as code. Use preg_replace_callback() instead.',
         )->withLink(self::LINK));
     }
 }

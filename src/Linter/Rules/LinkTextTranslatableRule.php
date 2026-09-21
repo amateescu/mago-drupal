@@ -18,8 +18,8 @@ use function str_starts_with;
 /**
  * Reports untranslated link text passed to l().
  *
- * Ports Drupal.Semantics.LStringTranslatable. Only fires on Drupal 7 era code,
- * since l() was replaced by the Link class.
+ * Ports Drupal.Semantics.LStringTranslatable. The rule reports only in
+ * Drupal 7 era code, because the Link class replaces l() in Drupal 8.
  */
 final class LinkTextTranslatableRule extends CallRule
 {
@@ -28,7 +28,7 @@ final class LinkTextTranslatableRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/link-text-translatable',
             name: 'Translatable link text',
-            description: 'Reports literal link text passed to l() without wrapping it in t().',
+            description: 'Reports literal link text passed to l() without a t() wrapper.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],
@@ -47,15 +47,15 @@ final class LinkTextTranslatableRule extends CallRule
             return;
         }
 
-        // Markup passed as link text is a render array label rather than a
-        // sentence, so it is left alone.
+        // Markup passed as link text is a render array label, not a
+        // sentence. The rule skips it.
         $value = Values::literalString($context->file, $text);
         if ($value === null || str_starts_with($value, '<')) {
             return;
         }
 
-        $context->report(Issue::new('The link text passed to l() should be wrapped in t().', $text->span)->withHelp(
-            'Link text is shown to users, so it needs to be translatable.',
+        $context->report(Issue::new('Wrap the link text passed to l() in t().', $text->span)->withHelp(
+            'Users see the link text, so it must be translatable.',
         ));
     }
 }

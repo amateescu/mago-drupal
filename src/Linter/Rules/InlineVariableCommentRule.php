@@ -22,12 +22,12 @@ use function substr;
 /**
  * Checks the style and word order of an inline `@var` type declaration.
  *
- * Ports Drupal.Commenting.InlineVariableComment. A `//` or `#` comment
- * containing `@var` should use `/** *\/` delimiters instead, unless it sits
- * right before a declaration, where it is really that declaration's own
- * comment written in the wrong style, a problem `drupal/class-comment`,
- * `drupal/file-comment` and `drupal/variable-comment` already report. A real
- * `@var` docblock tag must write the type before the variable name.
+ * Ports Drupal.Commenting.InlineVariableComment. A `//` or `#` comment that
+ * has `@var` in it must use `/** *\/` delimiters instead. One exception: a
+ * comment directly before a declaration is the docblock of that declaration
+ * in the wrong style. `drupal/class-comment`, `drupal/file-comment` and
+ * `drupal/variable-comment` already report that problem. A real `@var`
+ * docblock tag must have the type before the variable name.
  */
 final class InlineVariableCommentRule implements Rule
 {
@@ -51,8 +51,8 @@ final class InlineVariableCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Both branches key on the literal tag, so a file without "@var"
-        // anywhere cannot match.
+        // Both branches look for the literal tag. A file without "@var"
+        // cannot match.
         $this->gate ??= new FileGate(needles: ['@var']);
         if (!$this->gate->passes($context->file)) {
             return;
@@ -66,7 +66,7 @@ final class InlineVariableCommentRule implements Rule
                     }
 
                     $context->report(Issue::new(
-                        'The variable name should be defined after the type in a @var tag.',
+                        'Put the variable name after the type in a @var tag.',
                         $tag->contentSpan(),
                     ));
                 }
@@ -79,10 +79,10 @@ final class InlineVariableCommentRule implements Rule
                 && !$this->precedesADeclaration($context->file->contents, $trivia->span->end)
             ) {
                 $context->report(Issue::new(
-                    'An inline @var declaration should use "/** */" delimiters.',
+                    'Use "/** */" delimiters for an inline @var declaration.',
                     $trivia->span,
                 )->withHelp(
-                    'Move the @var declaration into its own docblock, or drop the tag if it just repeats a native type hint.',
+                    'Move the @var declaration into its own docblock. Remove the tag if it only repeats a native type hint.',
                 ));
             }
         }

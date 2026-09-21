@@ -16,7 +16,7 @@ use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
-use function array_filter;
+use function array_reverse;
 use function array_values;
 use function count;
 use function in_array;
@@ -24,6 +24,8 @@ use function ltrim;
 use function mb_strtoupper;
 use function mb_substr;
 use function preg_match;
+use function preg_match_all;
+use function preg_replace;
 use function rtrim;
 use function str_starts_with;
 use function strlen;
@@ -33,19 +35,20 @@ use function trim;
 
 /**
  * Checks that a function or method has a docblock, and that its `@param`,
- * `@return`, `@throws` and `@see` tags are structurally sound and well
- * worded.
+ * `@return`, `@throws` and `@see` tags have the correct structure and
+ * wording.
  *
- * Ports Drupal.Commenting.FunctionComment. Most of what looks like the hard
- * part of this sniff, comparing a docblock's types against the real
- * signature, is not ported: `mago analyze` already reads `@param`/`@return`
- * as authoritative types when there is no native hint, so it already
- * reports a `void` return that returns a value, a function with no `return`
- * at all, an `@param` naming an unknown parameter, a bare tag with no type,
- * and most wrong-cased type aliases, which fail to resolve as a class. What
- * is left is presence, structure and prose. The one signature-dependent
- * check that survives is a method with partial `@param` coverage missing an
- * entry for a real parameter, which nothing else catches.
+ * Ports Drupal.Commenting.FunctionComment. The comparison of a docblock's
+ * types against the real signature is the difficult part of this sniff,
+ * and most of it is not ported. `mago analyze` already reads `@param` and
+ * `@return` as authoritative types when there is no native hint. It thus
+ * already reports a `void` return that returns a value, a function with no
+ * `return` at all, an `@param` that names an unknown parameter, and a bare
+ * tag with no type. It also reports most wrong-cased type aliases, because
+ * they do not resolve as a class. What is left is presence, structure and
+ * prose. One signature-dependent check stays: a method with partial
+ * `@param` coverage that has no entry for a real parameter. Nothing else
+ * reports that.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -53,6 +56,19 @@ use function trim;
  */
 final class FunctionCommentRule implements Rule
 {
+    /**
+     * A quoted string, a block comment or a line comment. `#[` opens an
+     * attribute, not a comment.
+     */
+    private const QUOTED_OR_COMMENT = '/\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*"|\/\*.*?\*\/|(?:\/\/|#(?!\[))[^\n]*/s';
+
+    private string $mentionPath = '';
+
+    /**
+     * @var list<int>
+     */
+    private array $constructorMentions = [];
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -73,13 +89,13 @@ final class FunctionCommentRule implements Rule
 
         $closest = Docblocks::closest($context->file, $context->node);
         if ($closest === null) {
-            $context->report(Issue::new('Missing function doc comment.', $context->node->span));
+            $context->report(Issue::new('The function has no docblock.', $context->node->span));
 
             return;
         }
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new('A function comment must use "/**" style comments.', $context->node->span));
+            $context->report(Issue::new('The function docblock must start with "/**".', $context->node->span));
 
             return;
         }
@@ -93,10 +109,44 @@ final class FunctionCommentRule implements Rule
 
     private function isConstructor(LintContext $context): bool
     {
-        return (
-            $context->node->kind === NodeKind::Method
-            && Nodes::declaredName($context->file, $context->node) === '__construct'
-        );
+        if ($context->node->kind !== NodeKind::Method) {
+            return false;
+        }
+
+        // A method whose text does not have the name cannot be the
+        // constructor. The rule finds the file's mentions once. Checking a
+        // method against them excludes almost every method without reading
+        // its nodes. The name lookup below must read the nodes.
+        if ($this->mentionPath !== $context->file->path) {
+            $this->mentionPath = $context->file->path;
+            $this->constructorMentions = self::mentionOffsets($context->file->contents);
+        }
+
+        $span = $context->node->span;
+        foreach ($this->constructorMentions as $offset) {
+            if ($offset >= $span->start && $offset < $span->end) {
+                return Nodes::declaredName($context->file, $context->node) === '__construct';
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The byte offsets of every `__construct` in the file.
+     *
+     * @return list<int>
+     */
+    private static function mentionOffsets(string $contents): array
+    {
+        $offsets = [];
+        $offset = strpos($contents, needle: '__construct');
+        while ($offset !== false) {
+            $offsets[] = $offset;
+            $offset = strpos($contents, needle: '__construct', offset: $offset + 1);
+        }
+
+        return $offsets;
     }
 
     /**
@@ -104,9 +154,14 @@ final class FunctionCommentRule implements Rule
      */
     private function checkParamTags(LintContext $context, array $tags): void
     {
-        $paramTags = array_values(array_filter($tags, static fn(DocblockTag $tag): bool => $tag->name === 'param'));
-        foreach ($paramTags as $tag) {
-            $this->checkParamTag($context, $tag);
+        $paramTags = [];
+        foreach ($tags as $tag) {
+            if ($tag->name !== 'param') {
+                continue;
+            }
+
+            $paramTags[] = $tag;
+            $this->checkParamTag($context, $tag, $tags);
         }
 
         if ($context->node->kind === NodeKind::Method && $paramTags !== []) {
@@ -114,13 +169,46 @@ final class FunctionCommentRule implements Rule
         }
     }
 
-    private function checkParamTag(LintContext $context, DocblockTag $tag): void
+    /**
+     * Whether an example follows a `@param` description.
+     *
+     * Drupal writes the example inside the description. It is either
+     * indented with the text, or at the star column, where it parses as a
+     * tag of its own. Coder skips the same markers when it reads a param
+     * comment. With both spellings, the check for terminal punctuation thus
+     * applies to the description, not to the example's last line. Coder
+     * skips `@link` the same way, but a link is not an example. The
+     * description before it is prose and keeps its check.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    private function precedesExample(array $tags, DocblockTag $tag): bool
+    {
+        if ($this->endsInExample($tag)) {
+            return true;
+        }
+
+        $index = Docblocks::indexOf($tags, $tag);
+        if ($index === null) {
+            return false;
+        }
+
+        $next = $tags[$index + 1] ?? null;
+
+        return $next !== null && in_array($next->name, Docblocks::EXAMPLE_TAGS, strict: true);
+    }
+
+    /**
+     * @param list<DocblockTag> $tags Every tag in the docblock. The rule
+     *   uses them to find whether an example follows the description.
+     */
+    private function checkParamTag(LintContext $context, DocblockTag $tag, array $tags): void
     {
         $content = $tag->content();
         $matches = [];
         if (preg_match('/\$[A-Za-z_][A-Za-z0-9_]*/', $content, $matches) !== 1) {
             if (trim($content) !== '') {
-                $context->report(Issue::new('The @param tag is missing a $variable name.', $tag->contentSpan()));
+                $context->report(Issue::new('The @param tag has no $variable name.', $tag->contentSpan()));
             }
 
             return;
@@ -133,24 +221,27 @@ final class FunctionCommentRule implements Rule
         $rest = substr($content, $offset + strlen($variable));
 
         if ($type === '') {
-            $context->report(Issue::new('The @param tag is missing a type.', $tag->contentSpan()));
+            $context->report(Issue::new('The @param tag has no type.', $tag->contentSpan()));
         }
 
         if (str_starts_with($rest, '.')) {
-            $context->report(Issue::new(
-                'The @param variable name must not be followed by a period.',
-                $tag->contentSpan(),
-            ));
+            $context->report(Issue::new('Do not put a period after the @param variable name.', $tag->contentSpan()));
         }
 
         $description = ltrim($rest, characters: ". \t");
         if ($description === '') {
-            $context->report(Issue::new('The @param tag is missing a description.', $tag->contentSpan()));
+            $context->report(Issue::new('The @param tag has no description.', $tag->contentSpan()));
 
             return;
         }
 
-        $this->checkProse($context, $description, $tag->contentSpan(), 'param description');
+        $this->checkProseStart($context, $description, $tag->contentSpan(), 'param description');
+
+        // A description with an example after it ends on the example, not on
+        // a sentence. The ported sniff exempts that.
+        if (!$this->precedesExample($tags, $tag)) {
+            $this->checkProseEnd($context, $description, $tag->contentSpan(), 'param description');
+        }
     }
 
     /**
@@ -171,7 +262,7 @@ final class FunctionCommentRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new("Missing @param documentation for {$name}.", $context->node->span));
+            $context->report(Issue::new("The docblock has no @param tag for {$name}.", $context->node->span));
         }
     }
 
@@ -180,25 +271,25 @@ final class FunctionCommentRule implements Rule
      */
     private function realParameters(LintContext $context): array
     {
-        $names = [];
         foreach ($context->file->getChildren($context->node) as $child) {
             if ($child->kind !== NodeKind::FunctionLikeParameterList) {
                 continue;
             }
 
-            foreach ($context->file->getChildren($child) as $parameter) {
-                if ($parameter->kind !== NodeKind::FunctionLikeParameter) {
-                    continue;
-                }
+            // The rule reads the variables off the list's text, not its nodes.
+            // The nodes take several reads per parameter. A type, an
+            // attribute or a default value holds no variable. The only other
+            // places for a `$` are a quoted string or a comment. The rule
+            // blanks those first.
+            $text =
+                preg_replace(self::QUOTED_OR_COMMENT, replacement: '', subject: $context->file->getText($child)) ?? '';
+            $matches = [];
+            preg_match_all('/\$[A-Za-z_][A-Za-z0-9_]*/', $text, $matches);
 
-                $variable = $context->file->getFirstDescendant($parameter, NodeKind::DirectVariable);
-                if ($variable !== null) {
-                    $names[] = $context->file->getText($variable);
-                }
-            }
+            return array_values($matches[0]);
         }
 
-        return $names;
+        return [];
     }
 
     /**
@@ -206,9 +297,17 @@ final class FunctionCommentRule implements Rule
      */
     private function checkReturnTags(LintContext $context, array $tags): void
     {
-        $returnTags = array_values(array_filter($tags, static fn(DocblockTag $tag): bool => $tag->name === 'return'));
+        $returnTags = [];
+        foreach ($tags as $tag) {
+            if ($tag->name !== 'return') {
+                continue;
+            }
+
+            $returnTags[] = $tag;
+        }
+
         if (count($returnTags) > 1) {
-            $context->report(Issue::new('Only one @return tag is allowed.', $returnTags[1]->nameSpan));
+            $context->report(Issue::new('Use only one @return tag.', $returnTags[1]->nameSpan));
         }
 
         if ($returnTags === []) {
@@ -217,14 +316,14 @@ final class FunctionCommentRule implements Rule
 
         [$type, $rest] = Docblocks::splitType($returnTags[0]->content());
         if ($type === null) {
-            // A bare @return with nothing after it is already reported by
-            // mago analyze as a malformed docblock.
+            // mago analyze already reports a bare @return with nothing after
+            // it as a malformed docblock.
             return;
         }
 
         if (str_starts_with($rest, '$')) {
             $context->report(Issue::new(
-                'The @return type should not be followed by a variable name.',
+                'Do not put a variable name after the @return type.',
                 $returnTags[0]->contentSpan(),
             ));
 
@@ -232,7 +331,7 @@ final class FunctionCommentRule implements Rule
         }
 
         if ($rest === '' && !in_array($type, ['$this', 'static'], strict: true)) {
-            $context->report(Issue::new('The @return tag is missing a description.', $returnTags[0]->contentSpan()));
+            $context->report(Issue::new('The @return tag has no description.', $returnTags[0]->contentSpan()));
         }
     }
 
@@ -248,8 +347,9 @@ final class FunctionCommentRule implements Rule
 
             [$type, $rest] = Docblocks::splitType($tag->content());
             if ($type === null || $rest === '') {
-                // An empty @throws is already reported by mago analyze as a
-                // malformed docblock; a type-only @throws needs no description.
+                // mago analyze already reports an empty @throws as a malformed
+                // docblock. A description is not necessary for a type-only
+                // @throws.
                 continue;
             }
 
@@ -277,19 +377,33 @@ final class FunctionCommentRule implements Rule
             [, $rest] = Docblocks::splitType($content);
             if ($rest !== '') {
                 $context->report(Issue::new(
-                    'The @see tag should contain only a reference, not additional text.',
+                    'The @see tag must have only a reference, with no other text.',
                     $tag->contentSpan(),
                 ));
             }
 
             $lastChar = mb_substr(rtrim($content), -1);
             if (in_array($lastChar, ['.', '!', '?'], strict: true)) {
-                $context->report(Issue::new(
-                    'The @see reference should not end with punctuation.',
-                    $tag->contentSpan(),
-                ));
+                $context->report(Issue::new('Do not end the @see reference with punctuation.', $tag->contentSpan()));
             }
         }
+    }
+
+    /**
+     * Whether a tag's last line is a `@code` example, not prose.
+     */
+    private function endsInExample(DocblockTag $tag): bool
+    {
+        foreach (array_reverse($tag->lines) as $line) {
+            $text = trim($line->text);
+            if ($text === '') {
+                continue;
+            }
+
+            return str_starts_with($text, '@code') || str_starts_with($text, '@endcode');
+        }
+
+        return false;
     }
 
     /**
@@ -298,11 +412,26 @@ final class FunctionCommentRule implements Rule
      */
     private function checkProse(LintContext $context, string $text, Span $span, string $label): void
     {
+        $this->checkProseStart($context, $text, $span, $label);
+        $this->checkProseEnd($context, $text, $span, $label);
+    }
+
+    /**
+     * Checks that free-form text starts with a capital letter.
+     */
+    private function checkProseStart(LintContext $context, string $text, Span $span, string $label): void
+    {
         $first = mb_substr($text, start: 0, length: 1);
         if ($first !== mb_strtoupper($first)) {
             $context->report(Issue::new("The {$label} must start with a capital letter.", $span));
         }
+    }
 
+    /**
+     * Checks that free-form text ends with terminal punctuation.
+     */
+    private function checkProseEnd(LintContext $context, string $text, Span $span, string $label): void
+    {
         $last = mb_substr(rtrim($text), -1);
         if (!in_array($last, ['.', '!', '?', ')'], strict: true)) {
             $context->report(Issue::new("The {$label} must end with terminal punctuation.", $span));

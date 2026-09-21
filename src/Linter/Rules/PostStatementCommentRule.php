@@ -20,15 +20,16 @@ use function strrpos;
 use function substr;
 
 /**
- * Reports a `//` comment sharing a line with the statement before it.
+ * Reports a `//` comment on the same line as the statement before it.
  *
- * Ports Drupal.Commenting.PostStatementComment. A comment describing a
- * statement belongs on its own line above it, not trailing after it, except
- * right after a closing brace, which the sniff this ports treats as the end
- * of a block rather than a statement to comment on. A trailing directive
- * (`$x = foo(); // phpcs:ignore Some.Sniff`) is exempt: it has to share the
- * statement's line to work at all, and phpcs tokenizes its own annotations
- * as non-comment tokens, so the ported sniff never saw them either.
+ * Ports Drupal.Commenting.PostStatementComment. A comment that describes a
+ * statement belongs on its own line above it, not after it. A comment
+ * directly after a closing brace is exempt. The ported sniff treats the
+ * brace as the end of a block, not as a statement to comment on. A
+ * trailing directive (`$x = foo(); // phpcs:ignore Some.Sniff`) is exempt
+ * too. It must be on the line of the statement to work. Also, phpcs reads
+ * its own annotations as non-comment tokens, so the ported sniff never
+ * sees them.
  */
 final class PostStatementCommentRule implements Rule
 {
@@ -37,7 +38,7 @@ final class PostStatementCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/post-statement-comment',
             name: 'Post-statement comment',
-            description: 'Reports a `//` comment sharing a line with the statement before it.',
+            description: 'Reports a `//` comment on the same line as the statement before it.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -52,10 +53,10 @@ final class PostStatementCommentRule implements Rule
                 continue;
             }
 
-            // Searching within the prefix via a negative offset avoids
-            // copying it: strrpos() skips the trailing (length - start)
-            // bytes and searches only what is left, which is the same
-            // range substr($contents, 0, $start) would have copied out.
+            // A search with a negative offset does not copy the prefix.
+            // strrpos() skips the trailing (length - start) bytes and
+            // searches only the rest. That is the same range that
+            // substr($contents, 0, $start) copies out.
             $lineStart = strrpos($contents, needle: "\n", offset: $trivia->span->start - strlen($contents));
             $lineStart = $lineStart === false ? 0 : $lineStart + 1;
 
@@ -65,7 +66,7 @@ final class PostStatementCommentRule implements Rule
             }
 
             $context->report(Issue::new(
-                'A comment may not appear after a statement on the same line.',
+                'Do not put a comment after a statement on the same line.',
                 $trivia->span,
             )->withHelp('Move the comment to its own line above the statement.'));
         }

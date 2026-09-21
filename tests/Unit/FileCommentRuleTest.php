@@ -25,16 +25,16 @@ use function strlen;
 use function strpos;
 
 /**
- * Every check this rule makes is anchored to "the first trivia in the file",
- * so a suppressing `@mago-expect` comment would itself become that trivia
- * and change the answer. The corpus can only prove the happy path does not
- * false-positive; the negative cases are exercised here instead.
+ * Every check of this rule starts at the first trivia in the file, so a
+ * `@mago-expect` comment that suppresses an issue becomes that trivia and
+ * changes the result. The corpus can only make sure that a correct file
+ * gets no report. This test covers the negative cases.
  */
 final class FileCommentRuleTest extends TestCase
 {
     /**
-     * Finds $needle's span in $contents, so a fixture never hand-counts
-     * byte offsets.
+     * Finds the span of $needle in $contents, so a fixture never counts
+     * byte offsets by hand.
      */
     private static function spanOf(string $contents, string $needle): Span
     {
@@ -45,12 +45,12 @@ final class FileCommentRuleTest extends TestCase
     }
 
     /**
-     * `Docblocks::tags()` memoizes per (path, span), and several fixtures
-     * below share the literal path `node.module`, so each call gets its own
-     * unique path instead: without it, one test's cached result could leak
-     * into another's assertions if two fixtures ever produced the same
-     * docblock span. The extension stays intact, since `FileCommentRule`
-     * reads it to decide whether the file is procedural at all.
+     * `Docblocks::tags()` memoizes per path and span. Several fixtures below
+     * share the literal path `node.module`, so each call gets its own unique
+     * path. Without that, the cached result of one test could leak into the
+     * assertions of another test if two fixtures had the same docblock span.
+     * The extension stays the same, because `FileCommentRule` reads it to
+     * decide whether the file is procedural.
      *
      * @return list<Issue>
      */
@@ -129,7 +129,7 @@ final class FileCommentRuleTest extends TestCase
         $issues = self::lint('node.module', "<?php\n\nfunction foo(): void {}\n");
 
         self::assertCount(1, $issues);
-        self::assertStringContainsString('Missing file doc comment', $issues[0]->message);
+        self::assertStringContainsString('does not start with a docblock', $issues[0]->message);
     }
 
     public function testReportsWrongStyleForAPlainComment(): void
@@ -144,7 +144,7 @@ final class FileCommentRuleTest extends TestCase
         );
 
         self::assertCount(1, $issues);
-        self::assertStringContainsString('must use "/**" style comments', $issues[0]->message);
+        self::assertStringContainsString('must start with "/**"', $issues[0]->message);
     }
 
     public function testReportsMissingFileTagOnADocblockWithoutOne(): void
@@ -174,6 +174,6 @@ final class FileCommentRuleTest extends TestCase
         );
 
         self::assertCount(1, $issues);
-        self::assertStringContainsString('Missing file doc comment', $issues[0]->message);
+        self::assertStringContainsString('does not start with a docblock', $issues[0]->message);
     }
 }

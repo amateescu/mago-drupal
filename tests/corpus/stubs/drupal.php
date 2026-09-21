@@ -75,3 +75,30 @@ namespace Drupal\corpus {
     #[\Attribute]
     class CorpusAttribute {}
 }
+
+namespace Drupal\Component\Serialization {
+    class Yaml
+    {
+        public static function decode(string $raw): mixed
+        {
+            return null;
+        }
+    }
+}
+
+namespace Symfony\Component\Yaml {
+    class Yaml
+    {
+        public static function parse(string $input): mixed
+        {
+            return null;
+        }
+    }
+}
+
+namespace {
+    function dpm(mixed $input, ?string $name = null): mixed
+    {
+        return $input;
+    }
+}

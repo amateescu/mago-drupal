@@ -16,16 +16,17 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
+use function array_slice;
 use function preg_match;
 
 /**
  * Checks the wording of a `@deprecated` docblock tag and the `@see` tag
- * required right after it.
+ * that must follow it.
  *
- * Ports Drupal.Commenting.Deprecated. A separate grammar from
- * `drupal/deprecation-message`, which checks `trigger_error()`'s message
- * text: that sentence embeds its change-record link with "… See %link%",
- * while `@deprecated` writes the link as a following `@see` tag instead.
+ * Ports Drupal.Commenting.Deprecated. The `drupal/deprecation-message` rule
+ * checks the `trigger_error()` message text with a different grammar. That
+ * message embeds its change-record link with "… See %link%". A `@deprecated`
+ * tag writes the link as a `@see` tag after it instead.
  *
  * @see https://www.drupal.org/node/2807731
  */
@@ -51,8 +52,8 @@ final class DeprecatedTagRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Every match writes the literal tag, so a substring scan can skip
-        // the docblock parsing for the whole file.
+        // Every match holds the literal tag, so a substring scan can skip the
+        // docblock parsing for the whole file.
         $this->gate ??= new FileGate(needles: ['@deprecated']);
         if (!$this->gate->passes($context->file)) {
             return;
@@ -69,27 +70,43 @@ final class DeprecatedTagRule implements Rule
                     continue;
                 }
 
-                $this->checkTag($context, $tag, $tags[$index + 1] ?? null);
+                $this->checkTag($context, $tag, self::seeTagAfter($tags, $index));
             }
         }
     }
 
-    private function checkTag(LintContext $context, DocblockTag $tag, ?DocblockTag $next): void
+    /**
+     * Returns the first `@see` tag after position $index.
+     *
+     * The ported sniff accepts any later `@see` in the block. An example or
+     * another tag may sit between the two.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    private static function seeTagAfter(array $tags, int $index): ?DocblockTag
+    {
+        foreach (array_slice($tags, $index + 1) as $candidate) {
+            if ($candidate->name === 'see') {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private function checkTag(LintContext $context, DocblockTag $tag, ?DocblockTag $see): void
     {
         $this->checkLayout($context, $tag);
 
-        if ($next === null || $next->name !== 'see') {
-            $context->report(Issue::new(
-                'Each @deprecated tag must have a @see tag immediately following it.',
-                $tag->nameSpan,
-            ));
+        if ($see === null) {
+            $context->report(Issue::new('Put a @see tag after each @deprecated tag.', $tag->nameSpan));
 
             return;
         }
 
-        $linkProblem = DeprecationMessage::linkProblem($next->content());
+        $linkProblem = DeprecationMessage::linkProblem($see->content());
         if ($linkProblem !== null) {
-            $context->report(Issue::new($linkProblem, $next->contentSpan()));
+            $context->report(Issue::new($linkProblem, $see->contentSpan()));
         }
     }
 

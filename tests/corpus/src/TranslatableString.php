@@ -79,6 +79,7 @@ function markup_object_is_fine(string $name): TranslatableMarkup
 function qualified_markup_object(string $name): TranslatableMarkup
 {
     // @mago-expect lint:drupal/translatable-string
+    // @mago-expect lint:drupal/fully-qualified-name
     return new \Drupal\Core\StringTranslation\TranslatableMarkup('Hello ' . $name);
 }
 

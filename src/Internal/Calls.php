@@ -50,8 +50,8 @@ final class Calls
     /**
      * Returns the first call to any of the named functions inside a subtree.
      *
-     * Matches `t()` and `$this->t()` alike, which is how Drupal's sniffs treat
-     * translation calls.
+     * The match includes `t()` and `$this->t()`. Drupal's sniffs treat
+     * translation calls the same way.
      *
      * @param list<string> $names
      */
@@ -59,7 +59,7 @@ final class Calls
     {
         $wanted = self::normalizeAll($names);
 
-        // One depth-first walk in source order, stopping at the first match.
+        // One depth-first walk in source order. It stops at the first match.
         $stack = [$node];
         while (($current = array_pop($stack)) !== null) {
             if (
@@ -83,7 +83,7 @@ final class Calls
      * Finds plain function calls to any of the named functions in a subtree.
      *
      * Method calls are excluded. A rule about procedural functions must not
-     * match `$this->t()`, which reports the same callee name as `t()`.
+     * match `$this->t()`. That call has the same callee name as `t()`.
      *
      * @param list<string> $names
      * @return array<string, list<Node>> Matched calls grouped by normalized name.
@@ -106,25 +106,27 @@ final class Calls
     /**
      * Returns the normalized wanted name a call node matches, or NULL.
      *
-     * An imported resolution is trusted over the written name, so
-     * `use function Foo\bar;` does not match global bar() and an aliased
-     * import still does. Mago resolves an unimported unqualified call into
-     * the current namespace, but PHP falls back to the global function at
-     * runtime, so only an imported resolution beats the written text. That
-     * is how Mago's own rules match global functions too.
+     * An imported resolution wins over the written name, so
+     * `use function Foo\bar;` does not match global bar(), and an aliased
+     * import still matches. Mago resolves an unimported unqualified call
+     * into the current namespace, but PHP uses the global function at run
+     * time, so only an imported resolution wins over the written text.
+     * Mago's own rules match global functions the same way.
      *
-     * The written name comes from the cheap text scan, which over-matches
-     * one shape: a curried call like `md5(1)(2)` starts with `md5` in the
-     * source even though its callee is another call. Every hit from the
-     * scan is re-checked against name(), which walks the real callee, so
-     * a match reported here is always exact. Misses need no re-check: the
-     * scanned name covers every name the walk would find.
+     * The written name comes from the cheap text scan. That scan
+     * over-matches one shape. A curried call such as `md5(1)(2)` starts
+     * with `md5` in the source, but its callee is another call. This method
+     * checks every hit from the scan against name(). That method walks the
+     * real callee, so a match reported here is always exact. A miss
+     * needs no second check, because the scanned name covers every name
+     * that the walk can find.
      *
-     * Memoized per node: several call rules subscribe to the same call
-     * kinds, so the worker dispatches every one of them for the same node
-     * and each would re-derive the same name. One slot per file, cleared
-     * when the path changes, the same pattern `DrupalFile::fromSource()`
-     * and `Docblocks::lines()` already use.
+     * The result is memoized per node. Several call rules subscribe to the
+     * same call kinds, so the worker dispatches each of them for the same
+     * node. Without the cache, each of them derives the same name again. The
+     * cache has one slot per file, and a change of path clears it.
+     * `DrupalFile::fromSource()` and `Docblocks::lines()` use the same
+     * pattern.
      *
      * @param array<string, true> $wanted
      */
@@ -176,18 +178,19 @@ final class Calls
     }
 
     /**
-     * Returns a call node's written name without walking its callee.
+     * Returns the written name of a call node without walking its callee.
      *
-     * A function call's callee text sits at the node's own span start, so
-     * the identifier run there is the written name. It over-matches curried
-     * calls, whose callee is another call starting with the same run, so a
-     * caller acting on a hit has to re-check it against name().
+     * The callee text of a function call is at the start of the node's own
+     * span, so the identifier run there is the written name. This
+     * over-matches a curried call, whose callee is another call that starts
+     * with the same run. A caller that acts on a hit must check it again
+     * against name().
      *
-     * A method or static call keeps the selector in the member child, and
-     * a named selector shares the member's span exactly, so the member's
-     * text is the selector. Variable and expression selectors show as `$`
-     * or `{` in the first byte, the shapes name() maps to NULL, which
-     * makes this branch exact rather than over-matching.
+     * A method or static call keeps the selector in the member child. A
+     * named selector has exactly the member's span, so the member's text is
+     * the selector. A variable or expression selector has `$` or `{` as its
+     * first byte. name() maps those shapes to NULL, so this branch is exact
+     * and does not over-match.
      */
     public static function writtenNameFast(SourceFile $file, Node $node): ?string
     {
@@ -212,8 +215,8 @@ final class Calls
      * Reads the identifier run at a byte offset straight from the source.
      *
      * The accepted bytes cover PHP's identifier grammar plus the namespace
-     * separator, so a qualified name comes back whole and a dynamic callee
-     * yields NULL at its `$`, `(` or quote.
+     * separator, so a qualified name comes back whole, and a dynamic
+     * callee gives NULL at its `$`, `(` or quote.
      */
     public static function leadingIdentifier(string $contents, int $offset): ?string
     {
@@ -239,12 +242,13 @@ final class Calls
      * Finds plain function calls to any of the named functions among the
      * file's pre-collected target nodes.
      *
-     * Rust gathers every node whose kind any active rule targets into the
-     * snapshot's target list, already materialized before dispatch, so
-     * reading calls from it costs one array pass instead of a full tree
-     * walk in PHP. The calling rule must declare `NodeKind::FunctionCall`
-     * among its own targets, or the guarantee only holds while some other
-     * rule that declares it happens to be active.
+     * Rust puts every node whose kind an active rule targets into the
+     * snapshot's target list. That list is materialized before dispatch,
+     * so reading the calls from it takes one array pass instead of a
+     * full tree walk in PHP. The rule that calls this method must declare
+     * `NodeKind::FunctionCall` among its own targets. Without that, the
+     * list holds the calls only if some other rule that declares it is
+     * active.
      *
      * @param list<string> $names
      * @return array<string, list<Node>> Matched calls grouped by normalized name.
@@ -275,8 +279,9 @@ final class Calls
     /**
      * Returns the callee name of a call node, as written in the source.
      *
-     * CallExpression::fromNode materializes every argument up front, so name
-     * lookups that only filter candidates read the callee children directly.
+     * CallExpression::fromNode materializes every argument first, so a
+     * name lookup that only filters candidates reads the callee children
+     * directly.
      */
     public static function name(SourceFile $file, Node $node): ?string
     {
@@ -308,8 +313,9 @@ final class Calls
     /**
      * Returns the positional argument values of a call view, in source order.
      *
-     * Named and unpacked arguments are skipped, so an index here lines up with
-     * the parameter position only when every earlier argument is positional.
+     * This skips named and unpacked arguments, so an index here agrees
+     * with the parameter position only if every earlier argument is
+     * positional.
      *
      * @return list<Node>
      */
@@ -328,6 +334,45 @@ final class Calls
     }
 
     /**
+     * Returns an argument value, read positionally or by parameter name.
+     *
+     * PHP binds a named argument by parameter name, so `unserialize($data,
+     * options: [])` puts the options in the same place as the second
+     * positional argument. Reading only the positions does not find it.
+     */
+    public static function argument(
+        SourceFile $file,
+        CallExpression $call,
+        int $index,
+        ?string $parameter = null,
+    ): ?Node {
+        if ($parameter !== null) {
+            foreach ($call->arguments as $argument) {
+                if ($argument->name === $parameter) {
+                    return Values::unwrap($file, $argument->value);
+                }
+            }
+        }
+
+        return self::positionalArguments($file, $call)[$index] ?? null;
+    }
+
+    /**
+     * Whether a call spreads an array into its arguments. Such a spread
+     * hides what is in a given position.
+     */
+    public static function isUnpacked(CallExpression $call): bool
+    {
+        foreach ($call->arguments as $argument) {
+            if ($argument->unpacked) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Whether a callee name matches a wanted name.
      */
     public static function matches(string $name, string $wanted): bool
@@ -338,8 +383,8 @@ final class Calls
     /**
      * Normalizes wanted names into a lookup set.
      *
-     * Finders test one candidate per descendant, so the list is normalized
-     * once here instead of once per candidate.
+     * The finders test one candidate per descendant, so this method
+     * normalizes the list once, instead of once per candidate.
      *
      * @param list<string> $names
      * @return array<string, true>
@@ -355,10 +400,11 @@ final class Calls
     }
 
     /**
-     * Lowercases a name and drops any leading separator.
+     * Lowercases a name and removes a leading separator.
      *
-     * Callers keying a table by name have to normalize the same way matching
-     * does, or `\format_date()` matches and then misses the lookup.
+     * A caller that keys a table by name must normalize the same way that
+     * the match does. Without that, `\format_date()` matches and then
+     * misses the lookup.
      */
     public static function normalize(string $name): string
     {

@@ -10,10 +10,10 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 /**
- * Reports t() calls inside hook_menu().
+ * Reports a t() call inside hook_menu().
  *
- * Ports Drupal.Semantics.TInHookMenu. Only fires on Drupal 7 era code, since
- * hook_menu() was replaced by routing YAML.
+ * Ports Drupal.Semantics.TInHookMenu. It reports only Drupal 7 era code,
+ * because routing YAML replaces hook_menu().
  */
 final class TranslationInHookMenuRule extends HookTranslationRule
 {
@@ -22,7 +22,7 @@ final class TranslationInHookMenuRule extends HookTranslationRule
         return new RuleDefinition(
             code: 'drupal/t-in-hook-menu',
             name: 'Translation in hook_menu()',
-            description: 'Reports t() calls inside hook_menu(), which Drupal translates on render instead.',
+            description: 'Reports a t() call inside hook_menu(). Drupal translates the strings when it renders them.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function],
@@ -41,6 +41,6 @@ final class TranslationInHookMenuRule extends HookTranslationRule
 
     protected function help(): string
     {
-        return 'Menu titles are translated when the item is rendered, so translating them here is too early.';
+        return 'Drupal translates a menu title when it renders the item. A translation here is too early.';
     }
 }

@@ -18,10 +18,10 @@ use function str_starts_with;
 use function strtoupper;
 
 /**
- * Reports define() constants in a procedural file that skip the module prefix.
+ * Reports define() constants in a procedural file that have no module prefix.
  *
- * Ports Drupal.Semantics.ConstantName.ConstantStart. Constants defined by a
- * module share one global namespace, so the prefix is what keeps them apart.
+ * Ports Drupal.Semantics.ConstantName.ConstantStart. Constants that a module
+ * defines share one global namespace. The prefix keeps them apart.
  */
 final class ConstantPrefixRule extends CallRule
 {
@@ -30,7 +30,7 @@ final class ConstantPrefixRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/constant-prefix',
             name: 'Constant prefix',
-            description: "Reports define() constants that are not prefixed with the module's name.",
+            description: 'Reports define() constants that do not start with the module name.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],
@@ -55,16 +55,16 @@ final class ConstantPrefixRule extends CallRule
         }
 
         $constant = Values::literalString($context->file, $name);
-        // The underscore is part of the prefix: CORPUSCACHE_TTL does not count
-        // as prefixed for a module named corpus.
+        // The underscore is part of the prefix. For a module named corpus,
+        // CORPUSCACHE_TTL does not count as prefixed.
         $expected = strtoupper($file->name) . '_';
         if ($constant === null || $constant === '' || str_starts_with($constant, $expected)) {
             return;
         }
 
         $context->report(Issue::new(
-            "Constants defined by a module must be prefixed with '{$expected}', found '{$constant}'.",
+            "The constant '{$constant}' must start with the module prefix '{$expected}'.",
             $name->span,
-        )->withHelp('Module constants share the global namespace, so the prefix keeps them from colliding.'));
+        )->withHelp('Module constants share the global namespace. The prefix keeps them apart.'));
     }
 }

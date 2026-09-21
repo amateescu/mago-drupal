@@ -19,14 +19,13 @@ use function preg_match;
 use function substr;
 
 /**
- * Checks that a procedural file opens with a docblock tagged `@file`.
+ * Checks that a procedural file starts with a docblock tagged `@file`.
  *
- * Ports the part of Drupal.Commenting.FileComment that matters outside core:
- * a procedural file, which has no class to hang documentation off instead,
- * needs its own file comment. The rest of that sniff also covers whether a
- * class-carrying file should have a *separate* file comment alongside its
- * class comment, which depends on how many declarations the file has and is
- * not ported.
+ * Ports the part of Drupal.Commenting.FileComment that matters outside
+ * core. A procedural file has no class to document, so it must have its own
+ * file comment. The rest of that sniff decides whether a file with a class
+ * must have a separate file comment next to its class comment. That depends
+ * on how many declarations the file has, and is not ported.
  */
 final class FileCommentRule implements Rule
 {
@@ -35,7 +34,7 @@ final class FileCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/file-comment',
             name: 'File comment',
-            description: 'Checks that a procedural file opens with a docblock tagged @file.',
+            description: 'Checks that a procedural file starts with a docblock tagged @file.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -50,13 +49,13 @@ final class FileCommentRule implements Rule
 
         $first = $context->file->getTrivia()[0] ?? null;
         if ($first === null || !$this->atFileStart($context->file->contents, $first->span)) {
-            $context->report(Issue::new('Missing file doc comment.', new Span(0, 0)));
+            $context->report(Issue::new('The file does not start with a docblock.', new Span(0, 0)));
 
             return;
         }
 
         if ($first->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new('A file comment must use "/**" style comments.', $first->span));
+            $context->report(Issue::new('The file docblock must start with "/**".', $first->span));
 
             return;
         }
@@ -67,13 +66,13 @@ final class FileCommentRule implements Rule
             }
         }
 
-        $context->report(Issue::new('A file doc comment must have an @file tag.', $first->span));
+        $context->report(Issue::new('The file docblock must have an @file tag.', $first->span));
     }
 
     /**
-     * Whether nothing but the opening `<?php` tag and whitespace sits before
-     * a comment, which is what makes it the file's own comment rather than
-     * one documenting whatever comes right after it.
+     * Whether only the opening `<?php` tag and whitespace come before a
+     * comment. That makes it the file's own comment, not a comment on the
+     * code after it.
      */
     private function atFileStart(string $contents, Span $span): bool
     {

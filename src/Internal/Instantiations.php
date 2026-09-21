@@ -12,10 +12,10 @@ use function strspn;
 use function strtolower;
 
 /**
- * Reads the class name and arguments off a `new` expression.
+ * Reads the class name and the arguments from a `new` expression.
  *
- * CallExpression only accepts call nodes, so instantiations need their own
- * accessor.
+ * CallExpression accepts only call nodes, so an instantiation must have its
+ * own accessor.
  *
  * @internal
  */
@@ -30,19 +30,19 @@ final class Instantiations
     private function __construct() {}
 
     /**
-     * Returns the written class name read straight from the source text.
+     * Returns the written class name, read directly from the source text.
      *
-     * NULL means undetermined, not absent: dynamic callees, anonymous
-     * classes and any spelling the text scan cannot settle need name()
-     * instead. A non-null result equals what name() returns for a directly
-     * named class, so a caller can reject a candidate on it without
-     * walking the callee.
+     * NULL means unknown, not absent. A dynamic callee, an anonymous class
+     * and any spelling that the text scan cannot decide must go through
+     * name() instead. A non-null result is equal to the result of name()
+     * for a class with a direct name, so a caller can reject a candidate
+     * on it without walking the callee.
      */
     public static function writtenNameFast(SourceFile $file, Node $node): ?string
     {
         $contents = $file->contents;
         // Skip the three bytes of `new`, then the whitespace run. A comment
-        // there stops the scan at its slash, which falls out as NULL.
+        // there stops the scan at its slash, and the result is NULL.
         $offset = $node->span->start + 3;
         $offset += strspn($contents, characters: " \t\r\n\v\f", offset: $offset);
 
@@ -57,8 +57,9 @@ final class Instantiations
     /**
      * Returns the instantiated class name as written in the source.
      *
-     * Only the callee is searched. The arguments hold identifiers too, so
-     * searching the whole node returns `t` for `new RuntimeException(t(...))`.
+     * The search covers only the callee. The arguments also hold
+     * identifiers, so searching the whole node returns `t` for
+     * `new RuntimeException(t(...))`.
      */
     public static function name(SourceFile $file, Node $node): ?string
     {
@@ -90,8 +91,9 @@ final class Instantiations
     /**
      * Returns the positional argument values, in source order.
      *
-     * Named and unpacked arguments are skipped, so an index here lines up with
-     * the parameter position only when every earlier argument is positional.
+     * This skips named and unpacked arguments, so an index here agrees
+     * with the parameter position only if every earlier argument is
+     * positional.
      *
      * @return list<Node>
      */

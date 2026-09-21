@@ -17,8 +17,9 @@ final class CallsTest extends TestCase
     }
 
     /**
-     * Rules keying a table by name have to normalize the same way matching
-     * does, or a fully qualified call matches and then misses the lookup.
+     * A rule that keys a table by name must normalize the same way that the
+     * match does. Without that, a fully qualified call matches and then
+     * misses the lookup.
      */
     public function testNormalizeAgreesWithMatches(): void
     {
@@ -35,8 +36,8 @@ final class CallsTest extends TestCase
     }
 
     /**
-     * Finders look candidates up in this set once per descendant, so its keys
-     * have to be exactly what normalize() produces.
+     * The finders look up a candidate in this set once per descendant, so
+     * its keys must be exactly what normalize() produces.
      */
     public function testNormalizeAllBuildsALookupSet(): void
     {

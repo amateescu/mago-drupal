@@ -12,7 +12,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Reporting\Issue;
 
 /**
- * Base for rules banning t() inside one particular hook.
+ * Base for a rule that reports t() inside one hook.
  *
  * @internal
  */
@@ -24,12 +24,12 @@ abstract class HookTranslationRule implements Rule
     abstract protected function hook(): string;
 
     /**
-     * The file extension the hook has to live in.
+     * The file extension that must hold the hook.
      */
     abstract protected function extension(): string;
 
     /**
-     * The explanation attached to the reported issue.
+     * The explanation that goes with the reported issue.
      */
     abstract protected function help(): string;
 

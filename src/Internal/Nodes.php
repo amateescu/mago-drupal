@@ -11,6 +11,9 @@ use Mago\Sdk\Syntax\SourceFile;
 use function array_pop;
 use function count;
 use function in_array;
+use function ltrim;
+use function str_contains;
+use function trim;
 
 /**
  * Structural lookups on declaration nodes.
@@ -22,14 +25,34 @@ final class Nodes
     private function __construct() {}
 
     /**
+     * The fully qualified name that a name node resolves to, without a
+     * leading backslash. A name that is written fully qualified resolves
+     * through its text.
+     *
+     * @return non-empty-string|null
+     */
+    public static function resolved(SourceFile $file, Node $node): ?string
+    {
+        $name = $file->getResolvedName($node)?->name;
+        if ($name === null) {
+            $text = trim($file->getText($node));
+
+            return str_contains($text, '\\') ? Shape::nonEmptyString(ltrim($text, characters: '\\')) : null;
+        }
+
+        return Shape::nonEmptyString(ltrim($name, characters: '\\'));
+    }
+
+    /**
      * Returns the name identifier node of a declaration-like node.
      *
-     * An attribute list precedes the name and holds its own identifier, so a
-     * plain descendant search would return `LegacyHook` for
-     * `#[LegacyHook] function node_install()`. Attribute subtrees are skipped
-     * here. The name identifier comes before parameter, extends and value
-     * identifiers in child order, so the first hit is the declared name. This
-     * also serves nodes that nest the name, e.g. an enum case.
+     * An attribute list is before the name and holds its own identifier,
+     * so a plain descendant search returns `LegacyHook` for
+     * `#[LegacyHook] function node_install()`. This method skips attribute
+     * subtrees. The name identifier is before the parameter, extends and
+     * value identifiers in child order, so the first hit is the declared
+     * name. This also works for a node that nests the name, such as an enum
+     * case.
      */
     public static function declaredIdentifier(SourceFile $file, Node $node): ?Node
     {
@@ -65,9 +88,10 @@ final class Nodes
     /**
      * Whether $node has an ancestor of one of the kinds below $root.
      *
-     * A walked subtree can contain another node the same rule targets, e.g. a
-     * function declared inside a function. The nested target is dispatched on
-     * its own, so the outer walk skips its contents to avoid double reports.
+     * A walked subtree can hold another node that the same rule targets,
+     * such as a function inside a function. The worker dispatches the
+     * nested target on its own, so the outer walk skips its contents and
+     * does not report it twice.
      *
      * @param list<NodeKind> $kinds
      */

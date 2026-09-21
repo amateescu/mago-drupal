@@ -18,8 +18,8 @@ use function str_contains;
 /**
  * Reports enum cases that are not UpperCamelCase.
  *
- * Ports Drupal.NamingConventions.ValidEnumCase, which applies the class naming
- * rules to case names.
+ * Ports Drupal.NamingConventions.ValidEnumCase. The sniff applies the class
+ * naming rules to case names.
  */
 final class EnumCaseNameRule implements Rule
 {
@@ -52,12 +52,12 @@ final class EnumCaseNameRule implements Rule
     }
 
     /**
-     * Returns how $name departs from UpperCamelCase, if it does.
+     * Returns how $name differs from UpperCamelCase, if it does.
      */
     private function problem(string $name): ?string
     {
         if (preg_match('/^[A-Z]/', $name) !== 1) {
-            return "Enum case {$name} must begin with a capital letter.";
+            return "Enum case {$name} must start with a capital letter.";
         }
 
         if (str_contains($name, '_')) {
@@ -65,7 +65,7 @@ final class EnumCaseNameRule implements Rule
         }
 
         if (preg_match('/^[A-Z]{3}[^a-z]*$/', $name) === 1) {
-            return "Enum case {$name} must not be several upper-case letters in a row.";
+            return "Enum case {$name} must not have several upper-case letters in a row.";
         }
 
         return null;

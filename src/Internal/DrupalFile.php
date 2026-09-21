@@ -17,19 +17,19 @@ use function substr;
 /**
  * Reads Drupal's file-naming conventions from a source path.
  *
- * Several rules only apply inside `.module` or `.install` files, and some need
- * the owning extension's machine name. Drupal encodes both in the filename, so
- * this needs no index.
+ * Several rules apply only inside `.module` or `.install` files. Some of
+ * them must have the machine name of the extension that owns the file.
+ * Drupal encodes both facts in the file name, so this class needs no index.
  *
  * @internal
  */
 final class DrupalFile
 {
     /**
-     * File extensions Drupal loads procedurally by convention.
+     * The file extensions that Drupal loads procedurally by convention.
      *
-     * tests/corpus/mago.toml and the README recommend scanning the same list;
-     * a unit test checks the corpus copy against this constant.
+     * tests/corpus/mago.toml and the README recommend the same list for the
+     * scan. A unit test compares the corpus copy with this constant.
      */
     public const PROCEDURAL_EXTENSIONS = ['module', 'install', 'inc', 'theme', 'profile', 'engine'];
 
@@ -39,13 +39,13 @@ final class DrupalFile
     ) {}
 
     /**
-     * Reads the conventions off the path of a file Mago is scanning.
+     * Reads the conventions from the path of a file that Mago scans.
      */
     public static function fromSource(SourceFile $file): self
     {
-        // One memo slot keyed by path. Rules call this once per target node
-        // and a worker lints one file's nodes consecutively, so this means
-        // one parse per file without unbounded growth.
+        // One memo slot, keyed by path. The rules call this once per target
+        // node, and a worker lints the nodes of one file in sequence, so
+        // there is one parse per file, and the memo does not grow.
         /** @var array<string, self> $memo */
         static $memo = [];
 
@@ -59,7 +59,7 @@ final class DrupalFile
     }
 
     /**
-     * Reads the conventions off a path.
+     * Reads the conventions from a path.
      */
     public static function fromPath(string $path): self
     {
@@ -70,15 +70,15 @@ final class DrupalFile
             return new self('', $basename);
         }
 
-        // Drupal names procedural files `<extension-name>.<suffix>`, so the
-        // first segment is the machine name even for `foo.pages.inc`.
+        // Drupal names a procedural file `<extension-name>.<suffix>`, so the
+        // first segment is the machine name, also for `foo.pages.inc`.
         $parts = explode('.', $basename);
 
         return new self(strtolower($parts[array_key_last($parts)]), $parts[0]);
     }
 
     /**
-     * Whether this is a procedural file Drupal loads by convention.
+     * Whether this is a procedural file that Drupal loads by convention.
      */
     public function isProcedural(): bool
     {
@@ -102,7 +102,7 @@ final class DrupalFile
     }
 
     /**
-     * Whether $function is the named hook implemented by this file's extension.
+     * Whether $function is the named hook of the extension that owns this file.
      */
     public function implementsHook(string $function, string $hook): bool
     {

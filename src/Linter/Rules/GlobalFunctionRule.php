@@ -26,16 +26,16 @@ use function trim;
 /**
  * Reports procedural wrappers called from inside a class.
  *
- * Ports DrupalPractice.Objects.GlobalFunction. Object-oriented code should take
- * the service instead, which is what makes it testable.
+ * Ports DrupalPractice.Objects.GlobalFunction. Object-oriented code must use
+ * the service instead. The service is what makes the code testable.
  *
- * Targets the class rather than the call. A linter snapshot only holds the
- * subtree under the target node, so a rule cannot ask a call what encloses it.
+ * The rule targets the class, not the call. A linter snapshot holds only the
+ * subtree under the target node. A rule cannot ask a call what encloses it.
  */
 final class GlobalFunctionRule implements Rule
 {
     /**
-     * Procedural functions mapped to what a class should use instead.
+     * Procedural functions mapped to what a class must use instead.
      */
     private const REPLACEMENTS = [
         'drupal_get_destination' => 'the "redirect.destination" service',
@@ -63,10 +63,10 @@ final class GlobalFunctionRule implements Rule
 
     public function getDefinition(): RuleDefinition
     {
-        // `FunctionCall` is declared as a target so Rust collects every call
-        // into the file's pre-computed target-node list, which the class
-        // pass reads instead of walking the class subtree in PHP; the
-        // per-call dispatches are no-ops.
+        // `FunctionCall` is a target so that Rust collects every call into
+        // the file's target-node list. The class pass reads that list
+        // instead of walking the class subtree in PHP. The per-call
+        // dispatches do nothing.
         return new RuleDefinition(
             code: 'drupal/global-function',
             name: 'Global function in a class',
@@ -83,8 +83,8 @@ final class GlobalFunctionRule implements Rule
             return;
         }
 
-        // Scanning the source is far cheaper than a pass over the target
-        // list, and most classes call none of these.
+        // Scanning the source is much cheaper than a pass over the target
+        // list, and most classes call none of these functions.
         if (preg_match(self::candidatePattern(), $context->file->getText($context->node)) !== 1) {
             return;
         }
@@ -95,13 +95,13 @@ final class GlobalFunctionRule implements Rule
             names: array_keys(self::REPLACEMENTS),
         ) as $name => $calls) {
             foreach ($calls as $call) {
-                // A class nested inside this one is its own target, so its
-                // calls are reported there.
+                // A class nested inside this one is its own target. The rule
+                // reports its calls there.
                 if (Nodes::isNestedInside($context->file, $call, $context->node, self::TARGETS)) {
                     continue;
                 }
 
-                // Static methods have no `$this`, so the trait and service
+                // A static method has no `$this`. The trait and service
                 // replacements have nothing to bind to.
                 if ($this->inStaticMethod($context->file, $call)) {
                     continue;
@@ -115,8 +115,8 @@ final class GlobalFunctionRule implements Rule
     /**
      * Builds the candidate pre-scan regex from the replacement table.
      *
-     * The lookbehind keeps `$this->t()` from counting as a candidate, which
-     * is what makes the scan selective.
+     * The lookbehind excludes `$this->t()` from the candidates. That is what
+     * makes the scan selective.
      */
     private static function candidatePattern(): string
     {
@@ -134,7 +134,7 @@ final class GlobalFunctionRule implements Rule
     }
 
     /**
-     * Whether the call sits in a static method of the target class.
+     * Whether the call is in a static method of the target class.
      */
     private function inStaticMethod(SourceFile $file, Node $call): bool
     {
@@ -151,14 +151,14 @@ final class GlobalFunctionRule implements Rule
     }
 
     /**
-     * Reports one procedural call, naming the replacement.
+     * Reports one procedural call and names the replacement.
      */
     private function report(LintContext $context, Node $call, string $name): void
     {
         $replacement = self::REPLACEMENTS[$name];
 
         $context->report(Issue::new("Use {$replacement} instead of {$name}().", $call->span)->withHelp(
-            'Injected services can be swapped in tests, procedural calls cannot.',
+            'A test can replace an injected service. It cannot replace a procedural call.',
         ));
     }
 

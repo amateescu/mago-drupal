@@ -325,7 +325,7 @@ function my_module_directive_between_docblock_and_function($node): void
 // @mago-expect lint:drupal/function-comment
 function inline_comment_wraps_across_two_lines(): void
 {
-    // A comment that wraps across two physical lines reads as one sentence,
+    // A comment that wraps across two physical lines is one sentence,
     // so neither line is judged as if it were the whole comment on its own.
     $result = 1;
 
@@ -428,3 +428,29 @@ function inline_comment_directive_shapes(): void
 /**
  * @}
  */
+
+/**
+ * Does something that got replaced, with an example of the replacement.
+ *
+ * @deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar() instead.
+ * @code
+ * bar($thing);
+ * @endcode
+ *
+ * @see https://www.drupal.org/node/1234567
+ */
+function deprecated_tag_with_an_example(): void
+{
+}
+
+/**
+ * Does something that got replaced, with another tag before the link.
+ *
+ * @deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar() instead.
+ * @throws \RuntimeException
+ *
+ * @see https://www.drupal.org/node/1234567
+ */
+function deprecated_tag_with_a_tag_before_the_see(): void
+{
+}

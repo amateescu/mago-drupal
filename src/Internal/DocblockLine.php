@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 /**
- * One physical line inside a docblock, with its comment markers stripped.
+ * One physical line inside a docblock, without its comment markers.
  *
  * @internal
  */

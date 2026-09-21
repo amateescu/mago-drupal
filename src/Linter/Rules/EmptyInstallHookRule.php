@@ -49,8 +49,8 @@ final class EmptyInstallHookRule implements Rule
             return;
         }
 
-        $context->report(Issue::new("{$name}() is empty and can be removed.", $context->node->span)->withHelp(
-            'Drupal treats a missing installation hook the same as an empty one.',
+        $context->report(Issue::new("{$name}() is empty. Remove it.", $context->node->span)->withHelp(
+            'Drupal treats a missing install hook the same as an empty one.',
         ));
     }
 }

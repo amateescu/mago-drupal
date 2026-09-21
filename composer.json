@@ -1,7 +1,7 @@
 {
   "$schema": "https://getcomposer.org/schema.json",
   "name": "amateescu/mago-drupal",
-  "description": "Mago extension for Drupal: linter rules and analyzer plugins that understand Drupal conventions.",
+  "description": "Mago extension for Drupal. Linter rules and analyzer plugins that know the Drupal conventions.",
   "type": "library",
   "license": "MIT",
   "authors": [

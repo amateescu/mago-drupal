@@ -14,13 +14,13 @@ use function in_array;
 /**
  * One call or instantiation, reduced to a name and its arguments.
  *
- * Drupal reaches the same behaviour through `t()` and through
- * `new TranslatableMarkup()`, so rules covering both need one view over the
- * two node shapes.
+ * Drupal gets the same behaviour through `t()` and through
+ * `new TranslatableMarkup()`, so a rule that covers both must have one
+ * view over the two node shapes.
  *
- * The name resolves up front and the arguments only on first use. Rules
- * filter on the name, and almost every candidate fails that filter, so an
- * eager argument walk would be wasted work for all of them.
+ * The name resolves first, and the arguments resolve on first use. The
+ * rules filter on the name, and almost every candidate fails that filter,
+ * so an eager argument walk is wasted work for all of them.
  *
  * @internal
  */
@@ -38,7 +38,8 @@ final class Invocation
     /**
      * Builds a view over a call or instantiation node.
      *
-     * Returns NULL for any other node, and for a callee Mago cannot name.
+     * Returns NULL for any other node, and for a callee that Mago cannot
+     * name.
      */
     public static function fromNode(SourceFile $file, Node $node): ?self
     {
@@ -64,7 +65,7 @@ final class Invocation
     }
 
     /**
-     * Returns the argument at a position, or NULL when it is absent or named.
+     * Returns the argument at a position, or NULL if it is absent or named.
      */
     public function argument(int $position): ?Node
     {
@@ -74,8 +75,8 @@ final class Invocation
     /**
      * Whether the call passes no arguments at all.
      *
-     * Named and unpacked arguments count as present here, unlike arguments(),
-     * which lists only positional ones.
+     * Named and unpacked arguments count as present here. arguments() lists
+     * only the positional ones.
      */
     public function isEmpty(): bool
     {

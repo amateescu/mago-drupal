@@ -29,20 +29,21 @@ use const PHP_INT_MAX;
 use const PREG_OFFSET_CAPTURE;
 
 /**
- * Checks the strings passed to t() and the other translation entry points.
+ * Checks the strings that a call passes to t() and the other translation entry
+ * points.
  *
- * Ports Drupal.Semantics.FunctionT. Translatable strings have to be literal and
- * whole, because the extractor reads the source rather than running it.
+ * Ports Drupal.Semantics.FunctionT. A translatable string must be a whole
+ * literal, because the extractor reads the source and does not run it.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */
 final class TranslatableStringRule implements Rule
 {
-    private const HELP = 'The string extractor reads source code, so it only sees whole literals.';
+    private const HELP = 'The string extractor reads the source code, so it sees only whole literals.';
 
     /**
-     * Entry points mapped to the argument positions holding a translatable
+     * Entry points mapped to the argument positions that hold a translatable
      * string. formatPlural() takes the count first, so its strings are second
      * and third.
      */
@@ -54,21 +55,22 @@ final class TranslatableStringRule implements Rule
     ];
 
     /**
-     * Text shapes only a file with a translation entry point contains.
+     * Text shapes that only a file with a translation entry point has.
      *
-     * `t` and `formatPlural` are too short to scan for bare, so they need
-     * an anchor: standing alone right before an opening parenthesis, or
-     * written after `new` as a class name. A comment between a callee and
-     * its parenthesis would defeat the first anchor; nothing writes that.
+     * `t` and `formatPlural` are too short for a bare text search, so they
+     * need an anchor. The anchor is the name alone before an opening
+     * parenthesis, or the name after `new` as a class name. A comment between
+     * a callee and its parenthesis defeats the first anchor. Nothing writes
+     * that.
      */
     private const GATE = '/(?<!\w)(?:t|formatplural)\s*\(|new\s+[\w\\\\]*(?:t|formatplural)\b/i';
 
     /**
      * The shape of a method or static call to a translation entry point.
      *
-     * Every such call writes its selector between an arrow or double colon
-     * and an opening parenthesis, so the file-wide match offsets say which
-     * spans can hold one. The same comment caveat as GATE applies.
+     * Every such call has its selector between an arrow or double colon and
+     * an opening parenthesis. The file-wide match offsets show which spans
+     * can hold one. The same comment limit as for GATE applies.
      */
     private const METHOD_GATE = '/(?:->|::)\s*(?:t|formatplural|translatablemarkup|translationwrapper)\s*\(/i';
 
@@ -84,7 +86,7 @@ final class TranslatableStringRule implements Rule
         return new RuleDefinition(
             code: 'drupal/translatable-string',
             name: 'Translatable string',
-            description: 'Checks that translatable strings are single literals without concatenation or padding.',
+            description: 'Checks that a translatable string is one literal without concatenation or padding.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [...Calls::CALL_KINDS, NodeKind::Instantiation],
@@ -113,10 +115,10 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
-        // Named-only and unpacked-only calls are not empty, they just have no
-        // readable positional argument, so they fall through and go unchecked.
+        // A call with only named or only unpacked arguments is not empty. It
+        // has no readable positional argument, so the rule does not check it.
         if ($invocation->isEmpty()) {
-            $context->report(Issue::new('Empty calls to t() are not allowed.', $context->node->span));
+            $context->report(Issue::new('Do not call t() without arguments.', $context->node->span));
 
             return;
         }
@@ -130,18 +132,17 @@ final class TranslatableStringRule implements Rule
     }
 
     /**
-     * Cheap written-name screen run before the precise derivation.
+     * Cheap check of the written name, done before the precise derivation.
      *
-     * A NULL fast name rejects a call node outright, because such a call
-     * has no written name for the precise walk to find either. For an
-     * instantiation NULL means undetermined, so the node stays in. A
-     * surviving candidate still goes through the precise path, which
-     * re-derives and re-checks the name, so an over-matched curried call
-     * drops out there.
+     * A NULL fast name rejects a call node at once, because the precise walk
+     * cannot find a written name for such a call either. For an instantiation
+     * NULL means unknown, so the node stays in. A candidate that passes still
+     * goes through the precise path. That path derives and checks the name
+     * again, so it rejects an over-matched curried call.
      *
-     * Method and static calls skip even the fast derivation unless the
-     * file-wide METHOD_GATE offsets put a matching selector inside their
-     * span, which prunes them at the cost of one comparison each.
+     * A method or static call skips the fast derivation too, unless the
+     * file-wide METHOD_GATE offsets put a matching selector inside its span.
+     * This excludes such calls at the cost of one comparison each.
      */
     private function nodeMayMatch(SourceFile $file, Node $node): bool
     {
@@ -197,7 +198,7 @@ final class TranslatableStringRule implements Rule
         $matches = [];
         preg_match_all($pattern, $contents, $matches, flags: PREG_OFFSET_CAPTURE);
         // The stub for preg_match_all() does not model the offset-capture
-        // shape, where each match is a value and byte offset pair.
+        // shape. In that shape each match is a value and byte offset pair.
         // @mago-expect analysis:docblock-type-mismatch
         /** @var list<array{string, int}> $pairs */
         $pairs = $matches[0];
@@ -210,10 +211,10 @@ final class TranslatableStringRule implements Rule
     }
 
     /**
-     * Strips a qualified name to its basename.
+     * Reduces a qualified name to its basename.
      *
      * The sniff matches class basenames, so a qualified
-     * `new \Foo\TranslatableMarkup()` counts like the imported form.
+     * `new \Foo\TranslatableMarkup()` counts the same as the imported form.
      */
     private static function basename(string $name): string
     {
@@ -239,14 +240,14 @@ final class TranslatableStringRule implements Rule
         }
 
         if ($value === '') {
-            $context->report(Issue::new('Do not pass empty strings to t().', $message->span));
+            $context->report(Issue::new('Do not pass an empty string to t().', $message->span));
 
             return;
         }
 
         if ($value !== trim($value)) {
             $context->report(Issue::new(
-                'Translatable strings must not begin or end with whitespace.',
+                'Do not start or end a translatable string with whitespace.',
                 $message->span,
             )->withHelp('Use placeholders for the variable parts instead of padding the literal.'));
         }
@@ -256,13 +257,13 @@ final class TranslatableStringRule implements Rule
      * Reports an argument that is not a plain literal.
      *
      * Concatenation and interpolation each get their own message. Both are
-     * common, and naming the actual mistake makes the fix obvious.
+     * frequent, and a message that names the mistake makes the fix clear.
      */
     private function reportNonLiteral(LintContext $context, Node $message): void
     {
         if (Values::concatenates($context->file, $message)) {
             $context->report(Issue::new(
-                'Concatenating translatable strings is not allowed. Use placeholders instead.',
+                'Do not concatenate a translatable string. Use placeholders instead.',
                 $message->span,
             )->withHelp(self::HELP));
 
@@ -271,17 +272,17 @@ final class TranslatableStringRule implements Rule
 
         if ($message->kind === NodeKind::InterpolatedString || $message->kind === NodeKind::CompositeString) {
             $context->report(Issue::new(
-                'Do not interpolate variables into translatable strings. Use placeholders instead.',
+                'Do not interpolate a variable into a translatable string. Use placeholders instead.',
                 $message->span,
             )->withHelp(self::HELP));
 
             return;
         }
 
-        // Variables and constants land here. Passing one is sometimes
-        // deliberate, so the message says "where possible".
+        // A variable or a constant gets here. A call sometimes passes one on
+        // purpose, so the message says "where possible".
         $context->report(Issue::new(
-            'Only string literals should be passed to t() where possible.',
+            'Pass only a string literal to t() where possible.',
             $message->span,
         )->withHelp(self::HELP));
     }
