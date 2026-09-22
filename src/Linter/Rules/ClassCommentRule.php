@@ -30,11 +30,15 @@ use function strtolower;
  */
 final class ClassCommentRule implements Rule
 {
+    /**
+     * Keyed by the `NodeKind` case name. PHP 8.1 rejects `->value` on an
+     * enum case inside a class constant.
+     */
     private const KEYWORDS = [
-        NodeKind::Class_->value => 'class',
-        NodeKind::Interface->value => 'interface',
-        NodeKind::Trait->value => 'trait',
-        NodeKind::Enum->value => 'enum',
+        'Class_' => 'class',
+        'Interface' => 'interface',
+        'Trait' => 'trait',
+        'Enum' => 'enum',
     ];
 
     public function getDefinition(): RuleDefinition
@@ -51,7 +55,7 @@ final class ClassCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $keyword = self::KEYWORDS[$context->node->kind->value];
+        $keyword = self::KEYWORDS[$context->node->kind->name];
         $closest = Docblocks::closest($context->file, $context->node);
 
         if ($closest === null) {
