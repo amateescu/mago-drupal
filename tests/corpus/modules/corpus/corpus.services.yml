@@ -1,0 +1,46 @@
+# Shapes the container return-type fixture resolves through.
+services:
+  _defaults:
+    autoconfigure: true
+  corpus.thing:
+    class: Drupal\corpus\Nested\Thing
+  plugin.manager.block:
+    class: Drupal\Core\Block\BlockManager
+  corpus.alias: '@corpus.thing'
+  corpus.aliased:
+    alias: corpus.thing
+    deprecated:
+      package: drupal/core
+      version: 11.0.0
+      message: The "%alias_id%" alias is deprecated. Use "corpus.thing" instead.
+  corpus.decorated:
+    class: Drupal\corpus\Nested\Thing
+  corpus.decorated_alias: '@corpus.decorated'
+  corpus.private:
+    class: Drupal\corpus\Nested\Thing
+    public: false
+  corpus.private_alias: '@corpus.private'
+  corpus.decorator:
+    class: Drupal\corpus\Nested\Other
+    decorates: corpus.decorated
+  corpus.outside_decorated:
+    class: Drupal\corpus\Nested\Thing
+  corpus.outside_decorator:
+    class: Drupal\outside\Decorator
+    decorates: corpus.outside_decorated
+  corpus.ignored_decorator:
+    class: Drupal\corpus\Nested\Other
+    decorates: corpus.absent
+    decoration_on_invalid: ignore
+  corpus.base:
+    abstract: true
+    class: Drupal\corpus\Nested\Thing
+  corpus.child:
+    parent: corpus.base
+  Drupal\corpus\Nested\Thing: {}
+  corpus.factory_only:
+    factory: ['@corpus.thing', 'make']
+  corpus.placeholder:
+    class: '%corpus.placeholder.class%'
+  corpus.unknown_class:
+    class: Drupal\corpus\NotScannedAnywhere

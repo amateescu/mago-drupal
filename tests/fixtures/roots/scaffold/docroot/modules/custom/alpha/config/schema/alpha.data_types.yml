@@ -1,0 +1,3 @@
+alpha.element:
+  type: string
+  label: 'An element, defined outside a .schema.yml file'

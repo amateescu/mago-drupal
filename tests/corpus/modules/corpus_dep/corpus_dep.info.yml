@@ -1,0 +1,3 @@
+name: Corpus dependency
+type: module
+core_version_requirement: ^11

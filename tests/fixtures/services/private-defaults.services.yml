@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    public: false
+  hidden:
+    class: Drupal\Core\Hidden
+  shown:
+    class: Drupal\Core\Shown
+    public: true
+  shown.alias: '@shown'

@@ -1,0 +1,3 @@
+services:
+  core.thing:
+    class: Drupal\Core\Thing

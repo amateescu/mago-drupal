@@ -1,0 +1,3 @@
+services:
+  entity_type.manager:
+    class: Drupal\Core\Entity\EntityTypeManager

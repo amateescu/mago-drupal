@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal;
 
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
+use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
+use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
@@ -67,8 +69,10 @@ final class DrupalExtension
 
     /**
      * @param bool $core Enables the rules that apply only to Drupal core.
+     * @param string|null $root Drupal document root, absolute or relative to
+     *   the worker's cwd. Discovered from the cwd when null.
      */
-    public static function create(bool $core = false): Extension
+    public static function create(bool $core = false, ?string $root = null): Extension
     {
         return new Extension(
             identifier: 'amateescu/mago-drupal',
@@ -121,7 +125,9 @@ final class DrupalExtension
                 new WeakHashRule(),
             ],
             analyzerPlugins: [
-                new DrupalPlugin($core),
+                new DrupalPlugin($core, $root),
+                new PHPUnitPlugin(),
+                new PHPStanIgnoresPlugin(),
             ],
         );
     }

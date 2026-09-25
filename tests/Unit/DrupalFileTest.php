@@ -62,6 +62,16 @@ final class DrupalFileTest extends TestCase
         }
     }
 
+    public function testRecognisesUpdateCode(): void
+    {
+        self::assertTrue(DrupalFile::fromPath('modules/node/node.install')->isUpdate());
+        self::assertTrue(DrupalFile::fromPath('modules/node/node.post_update.php')->isUpdate());
+        self::assertFalse(DrupalFile::fromPath('modules/node/node.module')->isUpdate());
+        self::assertFalse(DrupalFile::fromPath('modules/node/src/Form/NodeForm.php')->isUpdate());
+        // A file merely named after the hook is not the post-update file.
+        self::assertFalse(DrupalFile::fromPath('modules/node/src/PostUpdate.php')->isUpdate());
+    }
+
     public function testMatchesHookImplementations(): void
     {
         $file = DrupalFile::fromPath('modules/node/node.module');

@@ -10,13 +10,21 @@
  *     [extension-hosts.drupal]
  *     command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
  *
- * Pass `--core` as a second argument when you analyze Drupal core.
+ * Pass `--core` as a second argument when you analyze Drupal core. Pass
+ * `--root=PATH` when the Drupal document root is not the cwd, `web/`,
+ * `docroot/`, `html/`, `public/` or the Composer scaffold's `web-root`.
  */
 
 declare(strict_types=1);
 
 use amateescu\MagoDrupal\DrupalExtension;
 use Mago\Sdk\Worker;
+
+// Mago reads stdout as the protocol stream, and the SDK only takes over
+// stray output once the plugins are registered. A PHP warning before that,
+// with the CLI default of printing errors, would land in the stream.
+// @mago-expect lint:no-ini-set
+ini_set('display_errors', value: 'stderr');
 
 (static function (array $arguments): void {
     $cwd = getcwd();
@@ -43,7 +51,18 @@ use Mago\Sdk\Worker;
             continue;
         }
 
-        (new Worker(DrupalExtension::create(core: in_array('--core', $arguments, strict: true))))->run();
+        // The last `--root=PATH` wins, matching how repeated CLI flags behave.
+        $root = array_reduce(
+            $arguments,
+            static fn(?string $root, mixed $argument): ?string => is_string($argument)
+            && str_starts_with($argument, '--root=')
+                    ? substr($argument, offset: 7)
+                    : $root,
+            initial: null,
+        );
+
+        $extension = DrupalExtension::create(core: in_array('--core', $arguments, strict: true), root: $root);
+        (new Worker($extension))->run();
 
         return;
     }

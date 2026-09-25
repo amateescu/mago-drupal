@@ -1,0 +1,40 @@
+# Schema for the config fixture; corpus.settings is fully validatable.
+corpus.settings:
+  type: config_object
+  label: 'Corpus settings'
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    name:
+      type: label
+    count:
+      type: integer
+    enabled:
+      type: boolean
+    ratio:
+      type: float
+    tags:
+      type: sequence
+      sequence:
+        type: string
+    page:
+      type: mapping
+      mapping:
+        front:
+          type: path
+    dynamic:
+      type: corpus.dynamic.[%parent.name]
+
+corpus.loose:
+  type: config_object
+  mapping:
+    name:
+      type: string
+
+corpus.item.*:
+  type: config_entity
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    weight:
+      type: weight

@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Procedural hooks in an install file.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\Core\Hook\Attribute\LegacyRequirementsHook;
+
+/**
+ * Implements hook_older_thing().
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_older_thing(): void {
+}
+
+/**
+ * Implements hook_legacy_thing().
+ */
+#[LegacyHook]
+function corpus_legacy_thing(): void {
+}
+
+/**
+ * Implements hook_legacy_requirements_thing().
+ */
+#[LegacyRequirementsHook]
+function corpus_legacy_requirements_thing(): void {
+}
+
+/**
+ * Implements hook_oldest_thing().
+ *
+ * The attribute is written bare, so it resolves as a name too.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+#[CorpusMarker]
+function corpus_oldest_thing(): void {
+}
+
+/**
+ * Moves the settings an older version of the module wrote.
+ */
+function corpus_update_11001(): void {
+  // Today's schema does not list the keys an update reads.
+  \Drupal::configFactory()->getEditable('corpus.settings')->get('nope');
+}

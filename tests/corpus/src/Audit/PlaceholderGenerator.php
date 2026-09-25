@@ -12,13 +12,13 @@ namespace Drupal\Core\Render;
 /**
  * Passes #lazy_builder through array_intersect_key() with a boolean value.
  */
-final class PlaceholderGenerator
-{
-    /**
-     * Keeps only the placeholder keys.
-     */
-    public function keep(array $element): array
-    {
-        return array_intersect_key($element, ['#lazy_builder' => TRUE]);
-    }
+final class PlaceholderGenerator {
+
+  /**
+   * Keeps only the placeholder keys.
+   */
+  public function keep(array $element): array {
+    return array_intersect_key($element, ['#lazy_builder' => TRUE]);
+  }
+
 }

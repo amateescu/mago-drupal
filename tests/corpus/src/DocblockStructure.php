@@ -7,31 +7,27 @@ namespace Drupal\corpus;
 // @mago-expect lint:drupal/doc-comment
 /**
  */
-function doc_comment_empty(): void
-{
+function doc_comment_empty(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
 /**
  * lowercase start.
  */
-function doc_comment_bad_capital(): void
-{
+function doc_comment_bad_capital(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
 /**
  * No terminal punctuation
  */
-function doc_comment_no_punctuation(): void
-{
+function doc_comment_no_punctuation(): void {
 }
 
 /**
  * A fine one-line summary.
  */
-function doc_comment_fine(): void
-{
+function doc_comment_fine(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
@@ -39,8 +35,7 @@ function doc_comment_fine(): void
  * Spans two
  * physical lines.
  */
-function doc_comment_two_line_summary(): void
-{
+function doc_comment_two_line_summary(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
@@ -48,64 +43,51 @@ function doc_comment_two_line_summary(): void
 /**
  * @inheritdoc
  */
-function doc_comment_bad_inheritdoc(): void
-{
+function doc_comment_bad_inheritdoc(): void {
 }
 
 /**
  * {@inheritdoc}
  */
-function doc_comment_fine_inheritdoc(): void
-{
+function doc_comment_fine_inheritdoc(): void {
 }
 
 /**
  * @covers ::something
  */
-function doc_comment_fine_covers_only(): void
-{
+function doc_comment_fine_covers_only(): void {
 }
 
 // @mago-expect lint:drupal/class-comment
-class ClassCommentMissing
-{
-}
+class ClassCommentMissing {}
 
 // @mago-expect lint:drupal/class-comment
 /*
  * Wrong style comment.
  */
-class ClassCommentWrongStyle
-{
-}
+class ClassCommentWrongStyle {}
 
 /**
  * Describes what this class actually does.
  */
-class ClassCommentFine
-{
-}
+class ClassCommentFine {}
 
 // @mago-expect lint:drupal/class-comment
 /**
  * ClassCommentShort.
  */
-class ClassCommentShort
-{
-}
+class ClassCommentShort {}
 
 /**
  * Implements hook_node_insert().
  */
-function my_module_node_insert($node): void
-{
+function my_module_node_insert($node): void {
 }
 
 /**
  * Implements hook_node_insert() for the page bundle.
  */
-function my_module_form_page_form_alter(array &$form): void
-{
+function my_module_form_page_form_alter(array &$form): void {
 }
 
 // @mago-expect lint:drupal/hook-comment
@@ -113,16 +95,14 @@ function my_module_form_page_form_alter(array &$form): void
 /**
  * Implements hook_node_insert
  */
-function my_module_bad_hook_format($node): void
-{
+function my_module_bad_hook_format($node): void {
 }
 
 // @mago-expect lint:drupal/hook-comment
 /**
  * Implements my_module_bad_hook_repeat().
  */
-function my_module_bad_hook_repeat($node): void
-{
+function my_module_bad_hook_repeat($node): void {
 }
 
 // @mago-expect lint:drupal/hook-comment
@@ -132,8 +112,7 @@ function my_module_bad_hook_repeat($node): void
  * @param object $node
  *   The node.
  */
-function my_module_hook_dup_param($node): void
-{
+function my_module_hook_dup_param($node): void {
 }
 
 /**
@@ -143,8 +122,7 @@ function my_module_hook_dup_param($node): void
  *
  * @see https://www.drupal.org/node/1234567
  */
-function deprecated_tag_fine(): void
-{
+function deprecated_tag_fine(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag
@@ -154,8 +132,7 @@ function deprecated_tag_fine(): void
  *
  * @deprecated foo bar not matching the grammar at all.
  */
-function deprecated_tag_bad_layout(): void
-{
+function deprecated_tag_bad_layout(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag
@@ -166,8 +143,7 @@ function deprecated_tag_bad_layout(): void
  *
  * @see https://www.drupal.org/node/1234567
  */
-function deprecated_tag_bad_version(): void
-{
+function deprecated_tag_bad_version(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag
@@ -178,8 +154,7 @@ function deprecated_tag_bad_version(): void
  *
  * @see https://www.drupal.org/node/1234567
  */
-function deprecated_tag_missing_extra_info(): void
-{
+function deprecated_tag_missing_extra_info(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag
@@ -188,8 +163,7 @@ function deprecated_tag_missing_extra_info(): void
  *
  * @deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar() instead.
  */
-function deprecated_tag_missing_see(): void
-{
+function deprecated_tag_missing_see(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag
@@ -201,32 +175,30 @@ function deprecated_tag_missing_see(): void
  *
  * @see https://www.drupal.org/node/1234567.
  */
-function deprecated_tag_trailing_period(): void
-{
+function deprecated_tag_trailing_period(): void {
 }
 
 // @mago-expect lint:drupal/function-comment
-function inline_variable_comment_bad(): void
-{
-    // @mago-expect lint:drupal/inline-variable-comment
-    // @var \Exception $bar
-    $bar = new \Exception('x');
+function inline_variable_comment_bad(): void {
+  // @mago-expect lint:drupal/inline-variable-comment
+  // @var \Exception $bar
+  $bar = new \Exception('x');
 
-    echo $bar->getMessage();
+  echo $bar->getMessage();
 }
 
 // @mago-expect lint:drupal/class-comment
-class InlineVariableCommentExempted
-{
-    // @mago-expect lint:drupal/variable-comment
-    // @var \Exception
-    protected \Exception $exempted;
+class InlineVariableCommentExempted {
 
-    // @mago-expect lint:drupal/function-comment
-    public function read(): \Exception
-    {
-        return $this->exempted;
-    }
+  // @mago-expect lint:drupal/variable-comment
+  // @var \Exception
+  protected \Exception $exempted;
+
+  // @mago-expect lint:drupal/function-comment
+  public function read(): \Exception {
+    return $this->exempted;
+  }
+
 }
 
 // @mago-expect lint:drupal/inline-variable-comment
@@ -234,111 +206,109 @@ class InlineVariableCommentExempted
 /**
  * @var $bar \Exception Wrong word order.
  */
-function inline_variable_comment_bad_order(): void
-{
+function inline_variable_comment_bad_order(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
 /**
  * @var \Exception Fine order.
  */
-function inline_variable_comment_fine_order(): void
-{
+function inline_variable_comment_fine_order(): void {
 }
 
 // @mago-expect lint:drupal/function-comment
-function inline_comment_examples(): void
-{
-    // @mago-expect lint:drupal/inline-comment
-    # Hash style comment.
-    $a = 1;
+function inline_comment_examples(): void {
+  // @mago-format-ignore-start
+  // @mago-expect lint:drupal/inline-comment
+  // The formatter would turn the next comment into a `//` one.
+  # Hash style comment.
+  // @mago-format-ignore-end
+  $a = 1;
 
-    // @mago-expect lint:drupal/inline-comment
-    // lowercase start.
-    $b = 2;
+  // @mago-expect lint:drupal/inline-comment
+  // lowercase start.
+  $b = 2;
 
-    // @mago-expect lint:drupal/inline-comment
-    // No terminal punctuation
-    $c = 3;
+  // @mago-expect lint:drupal/inline-comment
+  // No terminal punctuation
+  $c = 3;
 
-    // Fine comment.
-    $d = 4;
+  // Fine comment.
+  $d = 4;
 
-    // corpus_machine_name is a machine name.
-    $e = 5;
+  // corpus_machine_name is a machine name.
+  $e = 5;
 
-    echo $a . $b . $c . $d . $e;
+  echo $a . $b . $c . $d . $e;
 }
 
 // @mago-expect lint:drupal/class-comment
-class VariableCommentFixture
-{
-    // @mago-expect lint:drupal/variable-comment
-    protected $missing;
+class VariableCommentFixture {
 
-    protected string $fineNativeType;
+  // @mago-expect lint:drupal/variable-comment
+  protected $missing;
 
-    // @mago-expect lint:drupal/variable-comment
-    /*
-     * Wrong style.
-     */
-    protected $wrongStyle;
+  protected string $fineNativeType;
 
-    /**
-     * A fine property.
-     *
-     * @var string
-     */
-    protected $fine;
+  // @mago-expect lint:drupal/variable-comment
+  /*
+   * Wrong style.
+   */
+  protected $wrongStyle;
 
-    // @mago-expect lint:drupal/variable-comment
-    /**
-     * No @var tag here, and no native type either.
-     */
-    protected $missingVar;
+  /**
+   * A fine property.
+   *
+   * @var string
+   */
+  protected $fine;
 
-    // @mago-expect lint:drupal/variable-comment
-    // @mago-expect lint:drupal/doc-comment
-    /**
-     * @var string
-     * @var int
-     */
-    protected $duplicateVar;
+  // @mago-expect lint:drupal/variable-comment
+  /**
+   * No @var tag here, and no native type either.
+   */
+  protected $missingVar;
 
-    // @mago-expect lint:drupal/variable-comment
-    // @mago-expect lint:drupal/doc-comment
-    /**
-     * @var string $inlineRepeat Should not repeat the name.
-     */
-    protected $inlineRepeat;
+  // @mago-expect lint:drupal/variable-comment
+  // @mago-expect lint:drupal/doc-comment
+  /**
+   * @var string
+   * @var int
+   */
+  protected $duplicateVar;
+
+  // @mago-expect lint:drupal/variable-comment
+  // @mago-expect lint:drupal/doc-comment
+  /**
+   * @var string $inlineRepeat Should not repeat the name.
+   */
+  protected $inlineRepeat;
+
 }
 
 /**
  * Implements hook_node_insert().
  */
-// @mago-expect lint:drupal/preg-security
-function my_module_directive_between_docblock_and_function($node): void
-{
-    preg_match('/(.*)/e', 'unused');
+// @mago-ignore lint:drupal/preg-security
+function my_module_directive_between_docblock_and_function($node): void {
+  preg_match('/(.*)/e', 'unused');
 }
 
 // @mago-expect lint:drupal/function-comment
-function inline_comment_wraps_across_two_lines(): void
-{
-    // A comment that wraps across two physical lines is one sentence,
-    // so neither line is judged as if it were the whole comment on its own.
-    $result = 1;
+function inline_comment_wraps_across_two_lines(): void {
+  // A comment that wraps across two physical lines is one sentence,
+  // so neither line is judged as if it were the whole comment on its own.
+  $result = 1;
 
-    echo $result;
+  echo $result;
 }
 
 // @mago-expect lint:drupal/function-comment
-function doc_comment_ignores_a_local_var_annotation(array $data): void
-{
-    /** @var \Exception $error */
-    $error = $data['error'];
+function doc_comment_ignores_a_local_var_annotation(array $data): void {
+  /** @var \Exception $error */
+  $error = $data['error'];
 
-    echo $error->getMessage();
+  echo $error->getMessage();
 }
 
 /**
@@ -351,8 +321,7 @@ function doc_comment_ignores_a_local_var_annotation(array $data): void
  * @param string $value
  *   The value.
  */
-function doc_comment_exempts_code_from_param_order($value): void
-{
+function doc_comment_exempts_code_from_param_order($value): void {
 }
 
 /**
@@ -360,8 +329,7 @@ function doc_comment_exempts_code_from_param_order($value): void
  *
  * The colon below introduces a list, so it is a fine long-description ending:
  */
-function doc_comment_long_description_may_end_with_a_colon(): void
-{
+function doc_comment_long_description_may_end_with_a_colon(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
@@ -370,8 +338,7 @@ function doc_comment_long_description_may_end_with_a_colon(): void
  *
  * This long description just trails off
  */
-function doc_comment_long_description_must_not_end_with_a_letter(): void
-{
+function doc_comment_long_description_must_not_end_with_a_letter(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
@@ -388,9 +355,8 @@ function doc_comment_long_description_must_not_end_with_a_letter(): void
  * @param string $second
  *   The second parameter.
  */
-function corpus_split_param_groups(string $first, string $second): string
-{
-    return $first . $second;
+function corpus_split_param_groups(string $first, string $second): string {
+  return $first . $second;
 }
 
 /**
@@ -404,25 +370,23 @@ function corpus_split_param_groups(string $first, string $second): string
 /**
  * Belongs to the documentation group opened above.
  */
-function doc_comment_inside_a_documentation_group(): void
-{
+function doc_comment_inside_a_documentation_group(): void {
 }
 
 // @mago-expect lint:drupal/function-comment
-function inline_comment_directive_shapes(): void
-{
-    // cspell:ignore corpusword otherword
-    $a = 1;
+function inline_comment_directive_shapes(): void {
+  // cspell:ignore corpusword otherword
+  $a = 1;
 
-    // @mago-expect lint:drupal/inline-comment
-    // This sentence is cut short by the reference below
-    // @see https://example.com/reference
-    $b = 2;
+  // @mago-expect lint:drupal/inline-comment
+  // This sentence is cut short by the reference below
+  // @see https://example.com/reference
+  $b = 2;
 
-    // A trailing directive has to share the statement's line to work.
-    $c = 1; // phpcs:ignore Drupal.Some.Sniff
+  // A trailing directive has to share the statement's line to work.
+  $c = 1; // phpcs:ignore Drupal.Some.Sniff
 
-    echo $a . $b . $c;
+  echo $a . $b . $c;
 }
 
 /**
@@ -439,8 +403,7 @@ function inline_comment_directive_shapes(): void
  *
  * @see https://www.drupal.org/node/1234567
  */
-function deprecated_tag_with_an_example(): void
-{
+function deprecated_tag_with_an_example(): void {
 }
 
 /**
@@ -451,6 +414,5 @@ function deprecated_tag_with_an_example(): void
  *
  * @see https://www.drupal.org/node/1234567
  */
-function deprecated_tag_with_a_tag_before_the_see(): void
-{
+function deprecated_tag_with_a_tag_before_the_see(): void {
 }
