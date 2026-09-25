@@ -1,0 +1,3 @@
+services:
+  broken.thing:
+    class: [unclosed

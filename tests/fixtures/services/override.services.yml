@@ -1,0 +1,4 @@
+services:
+  core.overridden:
+    class: Drupal\Override\Replacement
+  override.alias: '@core.thing'

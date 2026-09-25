@@ -7,6 +7,9 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityInterface;
+
 // @mago-expect lint:drupal/constant-prefix
 define('CACHE_LIFETIME', 3600);
 
@@ -56,4 +59,35 @@ function corpus_theme(): array {
   $registry = [];
 
   return $_corpus_registry + $registry;
+}
+
+/**
+ * Implements hook_old_thing().
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_old_thing(): void {
+}
+
+/**
+ * Implements hook_new_thing().
+ */
+function corpus_new_thing(): void {
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+// @mago-expect analysis:drupal/hook-entity-operation-cacheability
+function corpus_entity_operation(EntityInterface $entity): array {
+  return [];
+}
+
+/**
+ * Implements hook_entity_operation_alter().
+ */
+function corpus_entity_operation_alter(
+  array &$operations,
+  EntityInterface $entity,
+  CacheableMetadata $cacheability,
+): void {
 }

@@ -6,6 +6,8 @@ namespace amateescu\MagoDrupal;
 
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
+use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
+use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
@@ -97,15 +99,21 @@ final class DrupalExtension
 
     /**
      * Builds the extension from the worker's arguments: `--core` when the
-     * worker runs on Drupal core, and `--disable=<code>,<code>` for the rules
-     * to turn off by default. `--disable` can be given more than once.
+     * worker runs on Drupal core, `--root=PATH` for the Drupal document root,
+     * and `--disable=<code>,<code>` for the rules to turn off by default.
+     * `--disable` can be given more than once, and the last `--root` wins.
      *
      * @param array<mixed> $arguments
      */
     public static function fromArguments(array $arguments): Extension
     {
         $disabled = [];
+        $root = null;
         foreach (array_filter($arguments, is_string(...)) as $argument) {
+            if (str_starts_with($argument, '--root=')) {
+                $root = substr($argument, offset: strlen('--root='));
+            }
+
             if (!str_starts_with($argument, '--disable=')) {
                 continue;
             }
@@ -119,7 +127,7 @@ final class DrupalExtension
             }
         }
 
-        return self::create(core: in_array('--core', $arguments, strict: true), disabled: $disabled);
+        return self::create(core: in_array('--core', $arguments, strict: true), disabled: $disabled, root: $root);
     }
 
     /**
@@ -127,12 +135,14 @@ final class DrupalExtension
      *   turns off by default the rules that core's `phpcs.xml.dist` turns off.
      * @param list<string> $disabled The codes of the rules to turn off by
      *   default.
+     * @param string|null $root Drupal document root, absolute or relative to
+     *   the worker's cwd. Discovered from the cwd when null.
      *
      * @throws InvalidArgumentException When a code in $disabled names no rule.
      *
      * @mago-expect lint:no-boolean-flag-parameter
      */
-    public static function create(bool $core = false, array $disabled = []): Extension
+    public static function create(bool $core = false, array $disabled = [], ?string $root = null): Extension
     {
         $off = array_fill_keys($core ? [...self::CORE_OFF, ...$disabled] : $disabled, value: true);
         $rules = [];
@@ -154,7 +164,9 @@ final class DrupalExtension
             version: self::VERSION,
             linterRules: $rules,
             analyzerPlugins: [
-                new DrupalPlugin($core),
+                new DrupalPlugin($core, $root),
+                new PHPUnitPlugin(),
+                new PHPStanIgnoresPlugin(),
             ],
         );
     }

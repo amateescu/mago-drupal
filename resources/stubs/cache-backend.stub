@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * Drupal documents the cache item as a bare `object`. Every core backend sets
+ * these properties, but not with one type: the database backend returns
+ * `created` and `expire` as numeric strings and adds `serialized` and
+ * `checksum`, so the shape allows strings and stays open.
+ *
+ * A stub replaces the class header and Mago builds the descendants of a
+ * stubbed interface from the stub alone, so the constant and every method have
+ * to be restated here even when only two of them change. A restated docblock
+ * replaces core's as well, so each one repeats core's parameter types and
+ * deprecations.
+ */
+
+namespace Drupal\Core\Cache;
+
+interface CacheBackendInterface
+{
+    const CACHE_PERMANENT = -1;
+
+    /**
+     * @param string $cid
+     * @param bool $allow_invalid
+     * @return object{cid: string, data: mixed, created: int|float|numeric-string, expire: int|numeric-string, tags: list<string>, valid: bool, ...}|false
+     */
+    public function get($cid, $allow_invalid = false);
+
+    /**
+     * The items are keyed by cache ID, and PHP turns a numeric ID into an
+     * integer key.
+     *
+     * @param array $cids
+     * @param bool $allow_invalid
+     * @return array<array-key, object{cid: string, data: mixed, created: int|float|numeric-string, expire: int|numeric-string, tags: list<string>, valid: bool, ...}>
+     */
+    public function getMultiple(&$cids, $allow_invalid = false);
+
+    /**
+     * @param string $cid
+     * @param mixed $data
+     * @param int $expire
+     * @param array $tags
+     */
+    public function set($cid, $data, $expire = self::CACHE_PERMANENT, array $tags = []);
+
+    /**
+     * @param array $items
+     */
+    public function setMultiple(array $items);
+
+    /**
+     * @param string $cid
+     */
+    public function delete($cid);
+
+    /**
+     * @param array $cids
+     */
+    public function deleteMultiple(array $cids);
+
+    public function deleteAll();
+
+    /**
+     * @param string $cid
+     */
+    public function invalidate($cid);
+
+    /**
+     * @param string[] $cids
+     */
+    public function invalidateMultiple(array $cids);
+
+    /**
+     * @deprecated in drupal:11.2.0 and is removed from drupal:12.0.0. Use
+     *   CacheBackendInterface::deleteAll() or cache tag invalidation instead.
+     */
+    public function invalidateAll();
+
+    public function garbageCollection();
+
+    public function removeBin();
+}

@@ -11,6 +11,8 @@
  *     command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
  *
  * Add `--core` to the command when you analyze Drupal core. Add
+ * `--root=PATH` when the Drupal document root is not the cwd, `web/`,
+ * `docroot/`, `html/`, `public/` or the Composer scaffold's `web-root`. Add
  * `--disable=<code>,<code>` to turn rules off. Mago does not take this
  * extension's rule codes under `[linter.rules]`.
  */
@@ -19,6 +21,12 @@ declare(strict_types=1);
 
 use amateescu\MagoDrupal\DrupalExtension;
 use Mago\Sdk\Worker;
+
+// Mago reads stdout as the protocol stream, and the SDK only takes over
+// stray output once the plugins are registered. A PHP warning before that,
+// with the CLI default of printing errors, would land in the stream.
+// @mago-expect lint:no-ini-set
+ini_set('display_errors', value: 'stderr');
 
 (static function (array $arguments): void {
     $cwd = getcwd();

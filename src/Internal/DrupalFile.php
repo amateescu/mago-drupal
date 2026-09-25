@@ -10,6 +10,7 @@ use function array_key_last;
 use function explode;
 use function in_array;
 use function str_contains;
+use function str_ends_with;
 use function strrpos;
 use function strtolower;
 use function substr;
@@ -36,6 +37,7 @@ final class DrupalFile
     private function __construct(
         public readonly string $extension,
         public readonly string $name,
+        public readonly string $basename = '',
     ) {}
 
     /**
@@ -67,14 +69,14 @@ final class DrupalFile
         $basename = $separator === false ? $path : substr($path, $separator + 1);
 
         if (!str_contains($basename, '.')) {
-            return new self('', $basename);
+            return new self('', $basename, $basename);
         }
 
         // Drupal names a procedural file `<extension-name>.<suffix>`, so the
         // first segment is the machine name, also for `foo.pages.inc`.
         $parts = explode('.', $basename);
 
-        return new self(strtolower($parts[array_key_last($parts)]), $parts[0]);
+        return new self(strtolower($parts[array_key_last($parts)]), $parts[0], $basename);
     }
 
     /**
@@ -99,6 +101,15 @@ final class DrupalFile
     public function isInstall(): bool
     {
         return $this->extension === 'install';
+    }
+
+    /**
+     * Whether this file holds update code: the `hook_update_N()` functions of
+     * an `.install` file, or a `.post_update.php`.
+     */
+    public function isUpdate(): bool
+    {
+        return $this->isInstall() || str_ends_with(strtolower($this->basename), '.post_update.php');
     }
 
     /**
