@@ -26,6 +26,17 @@ use function strtolower;
  */
 final class EntityTypes
 {
+    /**
+     * The type core declares on the dedicated getter of each handler type,
+     * since `getStorage($id)` is `getHandler($id, 'storage')`.
+     */
+    private const HANDLER_INTERFACES = [
+        'storage' => 'Drupal\Core\Entity\EntityStorageInterface',
+        'access' => 'Drupal\Core\Entity\EntityAccessControlHandlerInterface',
+        'view_builder' => 'Drupal\Core\Entity\EntityViewBuilderInterface',
+        'list_builder' => 'Drupal\Core\Entity\EntityListBuilderInterface',
+    ];
+
     private function __construct() {}
 
     /**
@@ -89,6 +100,17 @@ final class EntityTypes
      * Whether Mago knows the class, so a handler named by an unscanned module
      * does not surface as a phantom type.
      */
+    /**
+     * The interface a handler of this type implements whatever its class,
+     * or null for a handler type without a dedicated getter.
+     */
+    public static function handlerInterface(?string $handlerType): ?Type
+    {
+        $interface = self::HANDLER_INTERFACES[$handlerType ?? ''] ?? null;
+
+        return $interface === null ? null : Type::namedObject($interface);
+    }
+
     public static function known(Codebase $codebase, ?string $class): bool
     {
         return $class !== null && $codebase->classLikeExists($class);

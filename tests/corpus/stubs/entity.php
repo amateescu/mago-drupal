@@ -22,7 +22,13 @@ namespace Drupal\Core\Entity {
 
     interface ContentEntityInterface extends FieldableEntityInterface {}
 
-    interface EntityTypeInterface {}
+    interface EntityTypeInterface
+    {
+        /**
+         * @return string|false
+         */
+        public function getKey(string $key);
+    }
 
     interface ContentEntityTypeInterface extends EntityTypeInterface {}
 

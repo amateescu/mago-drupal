@@ -19,6 +19,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\TranslatableRevisionableInterface;
 use Drupal\corpus\Entity\CorpusSetting;
 use Drupal\corpus\Entity\CorpusThing;
 use Drupal\corpus\Entity\CorpusThingStorage;
@@ -262,6 +263,40 @@ final class Entities {
     $this->requireDefinition($this->entityTypeManager->getDefinition('corpus_thing', FALSE));
 
     return $this->entityTypeManager->getDefinition('corpus_bare');
+  }
+
+  /**
+   * The keys every entity type has come back as strings.
+   *
+   * Any other key can still be FALSE.
+   */
+  public function keys(EntityTypeInterface $entity_type): string {
+    // @mago-expect analysis:possibly-false-operand
+    return $entity_type->getKey('id') . $entity_type->getKey('langcode') . $entity_type->getKey('uuid');
+  }
+
+  /**
+   * An entity type the index does not know still gets a handler interface.
+   *
+   * That holds for the handler types with their own getter.
+   */
+  public function unknownStorage(string $entity_type_id): EntityStorageInterface {
+    return $this->entityTypeManager->getHandler($entity_type_id, 'storage');
+  }
+
+  /**
+   * Any other handler type keeps the declared `object`.
+   */
+  public function unknownHandler(string $entity_type_id): EntityStorageInterface {
+    // @mago-expect analysis:less-specific-return-statement
+    return $this->entityTypeManager->getHandler($entity_type_id, 'views_data');
+  }
+
+  /**
+   * Core returns the raw field value, so the cast is needed.
+   */
+  public function affected(TranslatableRevisionableInterface $entity): bool {
+    return (bool) $entity->isRevisionTranslationAffected();
   }
 
   /**

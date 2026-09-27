@@ -47,6 +47,7 @@ use amateescu\MagoDrupal\Analyzer\Providers\ConfigStorageProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ContainerGetProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityAccessProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityFieldProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\EntityKeyProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueryAssertionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueryProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityRepositoryProvider;
@@ -229,6 +230,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodAssertionProvider(new EntityQueryAssertionProvider());
         $registry->registerMethodCallAnalysisHook(new EntityQueryAccessCheckHook());
         $registry->registerMethodReturnTypeProvider(new EntityAccessProvider());
+        $registry->registerMethodReturnTypeProvider(new EntityKeyProvider());
         $registry->registerPropertyTypeProvider(new EntityFieldProvider());
         $registry->registerPropertyTypeProvider(new FieldItemPropertyProvider());
     }

@@ -107,12 +107,25 @@ $etm->getFormObject('node', 'edit');            // Drupal\node\NodeForm<'node'>
 $etm->getDefinition('node');                    // Drupal\Core\Entity\ContentEntityTypeInterface
 $etm->getDefinition('node', FALSE);             // Drupal\Core\Entity\ContentEntityTypeInterface|null
 $etm->getDefinition($id);                       // Drupal\Core\Entity\EntityTypeInterface
+$etm->getHandler($id, 'storage');               // Drupal\Core\Entity\EntityStorageInterface
+$entity_type->getKey('id');                     // string
 $etm->getEntityTypeFromClass(Node::class);      // 'node'
 $handler->access($entity, 'view');              // bool
 $handler->access($entity, 'view', NULL, TRUE);  // Drupal\Core\Access\AccessResultInterface
 $storage->getEntityTypeId();                    // 'node'
 $repository->loadEntityByUuid('taxonomy_term', $uuid); // Drupal\taxonomy\Entity\Term|null
 ```
+
+`getHandler()` for an entity type the index cannot resolve returns what core declares on the
+handler type's own getter: `EntityStorageInterface` for `storage`, and the access control, view
+builder and list builder interfaces for `access`, `view_builder` and `list_builder`, since
+`getStorage($id)` is `getHandler($id, 'storage')`. Other handler types keep `object`.
+
+`getKey()` is documented as `string|false`, but for `id`, `revision`, `bundle`, `langcode`,
+`default_langcode` and `revision_translation_affected` it returns a string. The `EntityType`
+constructor fills in the last five, with an empty string for the first three, and `getKey()`
+returns what is set, so an absent `revision` key is `''`, not FALSE. Core requires an `id` key of
+every entity type that can be saved. Any other key keeps `string|false`.
 
 `EntityAccessControlHandlerInterface::access()`, `createAccess()` and `fieldAccess()` return an
 `AccessResultInterface` when `$return_as_object` is a literal true and a `bool` otherwise. Drupal
@@ -590,7 +603,7 @@ counts as used: it can be removed, but Mago does not point it out.
 
 ## Stub files
 
-Drupal documents a few core signatures more loosely than the code behaves. The worker loads the
+Drupal documents a few core signatures differently from how the code behaves. The worker loads the
 stub files under `resources/stubs/` into Mago's symbol table before the analysis starts. They are
 read for symbols only: never linted, formatted or reported on.
 
@@ -599,7 +612,12 @@ $url->toString();      // string
 $url->toString(TRUE);  // Drupal\Core\GeneratedUrl
 $url->toString($flag); // Drupal\Core\GeneratedUrl|string
 $cache->get('cid');    // object{cid: string, data: mixed, created: int|float|numeric-string, expire: int|numeric-string, tags: list<string>, valid: bool, ...}|false
+$entity->isRevisionTranslationAffected(); // bool|int|string|null
 ```
+
+Core documents `isRevisionTranslationAffected()` as returning a bool, but `ContentEntityBase`
+returns the raw field value: `'1'` or `'0'` from MySQL, an int from SQLite, or NULL when the flag is
+not set. A `(bool)` cast on it is needed, so it is not reported as `redundant-cast`.
 
 A stub only wins where core is a dependency. When core itself is the analyzed code, its own
 declaration is the one Mago keeps, so `--core` runs see no change.
@@ -608,8 +626,7 @@ A stub replaces the class header: `extends`, `implements` and class constants co
 and the descendants of a stubbed interface are built from it, so a stub has to restate the whole
 header and every method whose absence a subclass would notice. A restated method's docblock
 replaces core's too, `@deprecated` included, so the stubs repeat core's parameter types and
-deprecations. Two members change in the two files shipped, the rest are there to keep the type
-intact.
+deprecations. Each file changes one or two members; the rest are there to keep the type intact.
 
 Not translated from phpstan-drupal's stub directory:
 

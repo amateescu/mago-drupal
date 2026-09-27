@@ -86,22 +86,22 @@ final class EntityTypeManagerProvider implements MethodReturnTypeProvider
             return self::definition($invocation, $type?->definitionInterface() ?? self::ENTITY_TYPE);
         }
 
-        if ($type === null) {
-            return null;
-        }
-
-        $handler = match ($method) {
-            'getformobject' => $type->handler(
-                'form',
-                $invocation->getArgument(1, 'operation')?->type?->getLiteralString(),
-            ),
-            'gethandler' => $type->handler(
-                $invocation->getArgument(1, 'handler_type')?->type?->getLiteralString() ?? '',
-            ),
-            default => $type->handler(self::HANDLER_GETTERS[$method] ?? ''),
-        };
-        if ($handler === null || !EntityTypes::known($context->codebase, $handler)) {
-            return null;
+        $handler = $type === null
+            ? null
+            : match ($method) {
+                'getformobject' => $type->handler(
+                    'form',
+                    $invocation->getArgument(1, 'operation')?->type?->getLiteralString(),
+                ),
+                'gethandler' => $type->handler(
+                    $invocation->getArgument(1, 'handler_type')?->type?->getLiteralString() ?? '',
+                ),
+                default => $type->handler(self::HANDLER_GETTERS[$method] ?? ''),
+            };
+        if ($type === null || $handler === null || !EntityTypes::known($context->codebase, $handler)) {
+            return $method === 'gethandler'
+                ? EntityTypes::handlerInterface($invocation->getArgument(1, 'handler_type')?->type?->getLiteralString())
+                : null;
         }
 
         return EntityTypes::handler($handler, $type);
