@@ -58,7 +58,9 @@ final class EntityTypeIndex
         $definitions = [];
         for ($offset = 0, $total = count($names); $offset < $total; $offset += self::BATCH) {
             foreach ($codebase->getMultipleClasses(array_slice($names, $offset, self::BATCH)) as $class) {
-                $definition = $class === null ? null : EntityTypeAttribute::read($class->name, $class->attributes);
+                $definition = $class === null
+                    ? null
+                    : EntityTypeAttribute::read($class->originalName, $class->attributes);
                 if ($definition !== null) {
                     $definitions[] = $definition;
                 }
