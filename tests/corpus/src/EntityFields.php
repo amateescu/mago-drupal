@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -62,6 +64,33 @@ final class EntityFields {
     // @mago-expect analysis:mixed-argument
     $this->wantsList($item->value);
     $item->value = 'a plain string';
+  }
+
+  /**
+   * A content entity interface has the magic methods at runtime.
+   *
+   * Every content entity class extends `ContentEntityBase`, so neither the
+   * read nor the write is a missing `__get()` or `__set()`.
+   */
+  public function interfaceField(ContentEntityInterface $entity): void {
+    $entity->field_thing->onlyOnFieldItemList();
+    $entity->field_thing = 'a plain string';
+  }
+
+  /**
+   * `EntityBase` serves `original` on a config entity interface too.
+   */
+  public function interfaceOriginal(ConfigEntityInterface $config): void {
+    // @mago-expect analysis:drupal/deprecated-original
+    $config->original?->id();
+  }
+
+  /**
+   * A `@property` tag on another interface still needs the magic method.
+   */
+  public function taggedInterface(TaggedThing $thing): string {
+    // @mago-expect analysis:missing-magic-method
+    return $thing->tagged;
   }
 
   /**
@@ -131,6 +160,13 @@ final class EntityFields {
   }
 
 }
+
+/**
+ * Documents a property it has no way to serve.
+ *
+ * @property string $tagged
+ */
+interface TaggedThing {}
 
 /**
  * Carries entities in declared properties, as core's entity type events do.

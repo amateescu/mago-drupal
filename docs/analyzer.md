@@ -211,9 +211,15 @@ deprecates the magic property in favor of `getOriginal()` and `setOriginal()`, a
 write, `isset()` and `unset()` of it is reported as `drupal/deprecated-original`.
 
 A property PHP itself resolves keeps its own type: a declared property, an inherited one and a
-`@property` tag all win over the field type. When the receiver's static type is an interface,
-Mago still reports the access, since the interface declares no `__get()`; typing the variable as
-the entity class silences it.
+`@property` tag all win over the field type.
+
+When the receiver's static type is an interface, such as `NodeInterface`, Mago reports these
+accesses as `missing-magic-method`, since an interface declares no `__get()` or `__set()`. The
+plugin drops that report on any interface extending `FieldableEntityInterface`: every content
+entity class extends `ContentEntityBase`, whose magic methods read and write fields and any other
+name, including the `$account->passRaw` tests set. It drops it for `original` on any entity
+interface, since `EntityBase` serves that one. A concrete class without the magic method keeps the
+report, and so does a `@property` tag on any other interface.
 
 ## Config
 

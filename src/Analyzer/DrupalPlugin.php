@@ -24,6 +24,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedServiceHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationTargetFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DescendantMetadataHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\EntityMagicPropertyFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityQueryAccessCheckHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\FormResponseReturnFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\GlobalDrupalCallHook;
@@ -119,6 +120,7 @@ final class DrupalPlugin implements Plugin
         }
 
         $registry->registerIssueFilterHook(new FormResponseReturnFilter());
+        $registry->registerIssueFilterHook(new EntityMagicPropertyFilter());
         $registry->registerIssueFilterHook(new TraitPropertyFilter($traitRoots));
 
         $indexes = $this->indexes;
