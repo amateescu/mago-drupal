@@ -10,6 +10,7 @@ use Revolt\EventLoop\Suspension;
 
 use function basename;
 use function chmod;
+use function clearstatcache;
 use function fclose;
 use function file_get_contents;
 use function file_put_contents;
@@ -185,6 +186,11 @@ final class DiskCache
     public static function fingerprint(array $paths): ?string
     {
         $recent = time() - self::RECENT;
+
+        // PHP keeps the last stat result, and before 8.3 a write does not
+        // drop it, so a file stat'd again after an edit would give the old
+        // time and size.
+        clearstatcache();
 
         // A file can disappear between the listing and the stat, which then
         // counts as time and size 0.

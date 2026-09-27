@@ -9,6 +9,7 @@ use function array_key_exists;
 use function array_pop;
 use function array_unique;
 use function array_values;
+use function clearstatcache;
 use function count;
 use function dirname;
 use function filemtime;
@@ -214,6 +215,10 @@ final class ExtensionFiles
      */
     public static function mtime(string $directory): int
     {
+        // PHP keeps the last stat result, and before 8.3 adding a file does
+        // not drop it, so the directory checked again would keep its old time.
+        clearstatcache();
+
         return is_dir($directory) ? (int) filemtime($directory) : 0;
     }
 
