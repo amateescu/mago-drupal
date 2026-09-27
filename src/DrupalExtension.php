@@ -54,6 +54,7 @@ use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\WeakHashRule;
+use Composer\InstalledVersions;
 use InvalidArgumentException;
 use Mago\Sdk\Extension;
 use Mago\Sdk\Linter\Rule;
@@ -81,7 +82,7 @@ use function trim;
  */
 final class DrupalExtension
 {
-    private const VERSION = '0.1.0';
+    private const PACKAGE = 'amateescu/mago-drupal';
 
     private function __construct() {}
 
@@ -149,9 +150,9 @@ final class DrupalExtension
         }
 
         return new Extension(
-            identifier: 'amateescu/mago-drupal',
+            identifier: self::PACKAGE,
             name: 'Drupal',
-            version: self::VERSION,
+            version: self::version(),
             linterRules: $rules,
             analyzerPlugins: [
                 new DrupalPlugin($core),
@@ -214,5 +215,19 @@ final class DrupalExtension
             new WatchdogMessageRule(),
             new WeakHashRule(),
         ];
+    }
+
+    /**
+     * The version Composer installed: the tag, or `dev-<branch>` for a
+     * checkout. Mago shows it in `mago extension list`.
+     */
+    private static function version(): string
+    {
+        // A package loaded without Composer's autoloader has no record.
+        if (!InstalledVersions::isInstalled(self::PACKAGE)) {
+            return 'unknown';
+        }
+
+        return InstalledVersions::getPrettyVersion(self::PACKAGE) ?? 'unknown';
     }
 }
