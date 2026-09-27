@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Providers\Containers;
 use amateescu\MagoDrupal\Analyzer\Providers\ServiceIds;
+use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\ServiceIndex;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use Closure;
@@ -38,6 +39,7 @@ final class DeprecatedServiceHook implements MethodCallAnalysisHook
      */
     public function __construct(
         private readonly Closure $services,
+        private readonly DeprecationTarget $target,
     ) {}
 
     public function getTargets(): array
@@ -72,7 +74,7 @@ final class DeprecatedServiceHook implements MethodCallAnalysisHook
         }
 
         $deprecation = ($this->services)($context->codebase)->get($id)?->deprecation;
-        if ($deprecation === null) {
+        if ($deprecation === null || !$this->target->keeps($deprecation)) {
             return;
         }
 

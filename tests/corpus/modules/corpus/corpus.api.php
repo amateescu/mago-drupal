@@ -37,6 +37,14 @@ function hook_old_thing(): void {}
 function hook_new_thing(): void {}
 
 /**
+ * An old hook that Drupal 13 removes.
+ *
+ * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. Use
+ *   hook_new_thing() instead.
+ */
+function hook_later_thing(): void {}
+
+/**
  * Another old hook, implemented from an install file.
  *
  * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use

@@ -29,9 +29,11 @@ apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-pu
 port.
 
 Add `"--root=PATH"` when the Drupal document root is somewhere other than the project directory,
-`web/`, `docroot/`, `html/`, `public/` or the Composer scaffold's `web-root`. Parsed indexes are
-cached under the system temporary directory; `MAGO_DRUPAL_CACHE=/dir` moves the cache and
-`MAGO_DRUPAL_CACHE=0` turns it off (see [docs/analyzer.md](docs/analyzer.md#cost)).
+`web/`, `docroot/`, `html/`, `public/` or the Composer scaffold's `web-root`. Add
+`"--deprecations=12"` to report only the Drupal deprecations removed in Drupal 12 or earlier (see
+[docs/analyzer.md](docs/analyzer.md#deprecation-target)). Parsed indexes are cached under the system
+temporary directory; `MAGO_DRUPAL_CACHE=/dir` moves the cache and `MAGO_DRUPAL_CACHE=0` turns it off
+(see [docs/analyzer.md](docs/analyzer.md#cost)).
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:

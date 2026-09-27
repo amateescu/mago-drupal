@@ -92,12 +92,12 @@ final class DiskCacheTest extends TestCase
     public function testOnlyAllowedClassesComeBackAsObjects(): void
     {
         $cache = new DiskCache($this->directory);
-        $cache->set('hooks', 'a', HookFunctions::fromDefinitions(['hook_x' => [true, 2]]));
+        $cache->set('hooks', 'a', HookFunctions::fromDefinitions(['hook_x' => ['in drupal:11.1.0.', 2]]));
 
         /** @var mixed $hooks */
         $hooks = $cache->get('hooks', 'a', [HookFunctions::class]);
         self::assertInstanceOf(HookFunctions::class, $hooks);
-        self::assertTrue($hooks->deprecation('hook_x'));
+        self::assertSame('in drupal:11.1.0.', $hooks->deprecation('hook_x'));
         self::assertNotInstanceOf(HookFunctions::class, $cache->get('hooks', 'a'));
     }
 
@@ -127,7 +127,7 @@ final class DiskCacheTest extends TestCase
         $build = static function () use ($builds): HookFunctions {
             $builds->append(1);
 
-            return HookFunctions::fromDefinitions(['hook_y' => [false, 1]]);
+            return HookFunctions::fromDefinitions(['hook_y' => [null, 1]]);
         };
 
         $first = $cache->shared('hooks', '1-0', $build, [HookFunctions::class]);
@@ -146,7 +146,7 @@ final class DiskCacheTest extends TestCase
         $cache->shared(
             'hooks',
             '1-old',
-            static fn(): HookFunctions => HookFunctions::fromDefinitions(['hook_old' => [false, 1]]),
+            static fn(): HookFunctions => HookFunctions::fromDefinitions(['hook_old' => [null, 1]]),
             [HookFunctions::class],
         );
 
@@ -155,7 +155,7 @@ final class DiskCacheTest extends TestCase
         $built = $cache->shared(
             'hooks',
             '1-old',
-            static fn(): HookFunctions => HookFunctions::fromDefinitions(['hook_new' => [false, 2]]),
+            static fn(): HookFunctions => HookFunctions::fromDefinitions(['hook_new' => [null, 2]]),
             [HookFunctions::class],
         );
 
@@ -179,7 +179,7 @@ final class DiskCacheTest extends TestCase
         $built = $cache->shared(
             'hooks',
             '1-held',
-            static fn(): HookFunctions => HookFunctions::fromDefinitions(['hook_z' => [false, 3]]),
+            static fn(): HookFunctions => HookFunctions::fromDefinitions(['hook_z' => [null, 3]]),
             [HookFunctions::class],
         );
 

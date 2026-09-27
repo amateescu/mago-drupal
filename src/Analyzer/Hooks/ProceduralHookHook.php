@@ -9,6 +9,7 @@ use amateescu\MagoDrupal\Analyzer\Checks\EntityOperationCacheabilityCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Attributes;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
+use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\HookFunctions;
 use Closure;
@@ -52,6 +53,7 @@ final class ProceduralHookHook implements NodeAnalysisHook
      */
     public function __construct(
         private readonly Closure $hooks,
+        private readonly DeprecationTarget $target,
     ) {}
 
     public function getTargets(): array
@@ -104,7 +106,7 @@ final class ProceduralHookHook implements NodeAnalysisHook
         $reporter = new Reporter($context);
         // The name, rather than the whole function, is what gets marked.
         $where = $function->nameLocation ?? $function->location;
-        if ($hooks->deprecation("hook_{$hook}") === true) {
+        if (DeprecatedHookCheck::reports($hooks, $this->target, $hook)) {
             $reporter->warning(DeprecatedHookCheck::CODE, DeprecatedHookCheck::issue($short, $hook, $where));
         }
 

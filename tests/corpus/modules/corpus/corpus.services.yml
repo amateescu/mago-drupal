@@ -13,6 +13,12 @@ services:
       package: drupal/core
       version: 11.0.0
       message: The "%alias_id%" alias is deprecated. Use "corpus.thing" instead.
+  corpus.retiring:
+    class: Drupal\corpus\Nested\Thing
+    deprecated:
+      package: drupal/core
+      version: 11.4.0
+      message: The "%service_id%" service is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. Use "corpus.thing" instead.
   corpus.decorated:
     class: Drupal\corpus\Nested\Thing
   corpus.decorated_alias: '@corpus.decorated'

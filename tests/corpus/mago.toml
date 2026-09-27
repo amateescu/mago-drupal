@@ -15,8 +15,9 @@ extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
 [formatter]
 preset = "drupal"
 
+# `--deprecations=12` so src/DeprecationTargets.php can prove it.
 [extension-hosts.drupal]
-command = ["php", "../../resources/worker.php"]
+command = ["php", "../../resources/worker.php", "--deprecations=12"]
 workers = 1
 
 # Off by default; on here so IgnoreComments.php can prove it.

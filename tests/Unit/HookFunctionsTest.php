@@ -16,19 +16,22 @@ final class HookFunctionsTest extends TestCase
         $hooks = HookFunctions::fromApiFiles([dirname(__DIR__) . '/fixtures/api/sample.api.php']);
 
         self::assertSame(6, $hooks->count());
-        self::assertFalse($hooks->deprecation('hook_form_alter'));
+        self::assertNull($hooks->deprecation('hook_form_alter'));
         self::assertSame(3, $hooks->parameterCount('hook_form_alter'));
         self::assertSame(3, $hooks->parameterCount('hook_with_defaults'));
         self::assertSame(0, $hooks->parameterCount('hook_bare'));
-        self::assertTrue($hooks->deprecation('HOOK_OLD'));
+        self::assertSame(
+            'in drupal:11.1.0 and is removed from drupal:12.0.0. Use hook_bare() instead.',
+            $hooks->deprecation('HOOK_OLD'),
+        );
         self::assertSame(1, $hooks->parameterCount('hook_old'));
         self::assertNull($hooks->deprecation('hook_unknown'));
         self::assertNull($hooks->parameterCount('_api_helper'));
         // A docblock ends at its own `*/`: the helper's @deprecated stays with
         // the helper.
-        self::assertFalse($hooks->deprecation('hook_after_helper'));
+        self::assertNull($hooks->deprecation('hook_after_helper'));
         // Core puts `// phpcs:` lines between some docblocks and functions.
-        self::assertFalse($hooks->deprecation('hook_update_N'));
+        self::assertNull($hooks->deprecation('hook_update_N'));
         self::assertSame(1, $hooks->parameterCount('hook_update_N'));
     }
 

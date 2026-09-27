@@ -124,6 +124,13 @@ final class Hooks {
   }
 
   /**
+   * Implements a hook that Drupal 13 removes, which --deprecations=12 skips.
+   */
+  #[Hook('later_thing')]
+  public function laterThing(): void {
+  }
+
+  /**
    * Implements the replacement.
    */
   #[Hook('new_thing')]

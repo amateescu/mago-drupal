@@ -328,6 +328,32 @@ deprecated. Mago analyzes a trait once, on its own, so a trait method counts whe
 gets it from the trait inherits a deprecated declaration; finding those classes is a search by
 method name across the codebase, and only a trait pays for one.
 
+## Deprecation target
+
+`--deprecations=12` on the worker command reports only the Drupal deprecations that Drupal 12 or an
+earlier major removes. A project getting ready for Drupal 12 can leave the ones Drupal 13 removes
+for later; this is the "fix now" list of upgrade_status.
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--deprecations=12"]
+```
+
+The removal version comes from the `@deprecated` text, in Drupal's form: `in drupal:11.4.0 and is
+removed from drupal:13.0.0.` Text that names no Drupal removal version is always reported. That
+covers a contrib module's own deprecations (`removed from webform:7.0.0`), Symfony's and PHP's.
+
+Mago's issue names the deprecated symbol but not its `@deprecated` text, which Mago does not keep.
+The plugin looks up the symbol's declaration and reads the docblock above it from the file. A
+declaration it cannot read keeps its issue, such as a PHP function from Mago's built-in stubs. The
+codes covered are `deprecated-class`, `deprecated-constant`, `deprecated-function`,
+`deprecated-method` and `deprecated-trait`. The plugin's own `drupal/deprecated-hook` (from the
+hook's api.php docblock), `drupal/deprecated-service` (from the `deprecated:` message) and
+`drupal/deprecated-original` (removed in Drupal 12) follow the same target.
+
+A filter can only keep or drop an issue, so Mago's message still names only the symbol. The
+replacement is in the `@deprecated` text at the declaration.
+
 ## Form responses
 
 `FormBuilder::retrieveForm()` accepts a `Response` from a form's `buildForm()`: it throws an

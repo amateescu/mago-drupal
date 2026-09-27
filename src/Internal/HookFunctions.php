@@ -10,7 +10,6 @@ use function file_get_contents;
 use function is_file;
 use function preg_match_all;
 use function preg_replace;
-use function str_contains;
 use function strtolower;
 use function substr_count;
 use function trim;
@@ -35,8 +34,9 @@ final class HookFunctions
     private const DECLARATION = '/\/\*\*((?:(?!\*\/).)*)\*\/\s*(?:\/\/[^\n]*\s*)*function\s+(hook_[A-Za-z0-9_]+)\s*\(((?:[^()]|\([^()]*\))*)\)/s';
 
     /**
-     * @param array<string, array{bool, int}> $hooks Lowercased function name to
-     *   `[deprecated, parameter count]`.
+     * @param array<string, array{string|null, int}> $hooks Lowercased
+     *   function name to `[@deprecated text, parameter count]`. The text is
+     *   null when the hook is not deprecated.
      */
     private function __construct(
         private readonly array $hooks,
@@ -56,10 +56,7 @@ final class HookFunctions
             }
 
             foreach ($matches as [$_, $docblock, $name, $parameters]) {
-                $hooks[strtolower($name)] = [
-                    str_contains($docblock, '@deprecated'),
-                    self::countParameters($parameters),
-                ];
+                $hooks[strtolower($name)] = [DeprecatedTag::text($docblock), self::countParameters($parameters)];
             }
         }
 
@@ -67,7 +64,7 @@ final class HookFunctions
     }
 
     /**
-     * @param array<string, array{bool, int}> $hooks
+     * @param array<string, array{string|null, int}> $hooks
      */
     public static function fromDefinitions(array $hooks): self
     {
@@ -75,10 +72,10 @@ final class HookFunctions
     }
 
     /**
-     * Whether the hook's documentation function is `@deprecated`; null when
-     * no such function is documented.
+     * The `@deprecated` text of the hook's documentation function; null when
+     * the hook is not deprecated or not documented.
      */
-    public function deprecation(string $function): ?bool
+    public function deprecation(string $function): ?string
     {
         $key = strtolower($function);
 

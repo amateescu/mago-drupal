@@ -75,6 +75,14 @@ function corpus_new_thing(): void {
 }
 
 /**
+ * Implements hook_later_thing().
+ */
+function corpus_later_thing(): void {
+  // Drupal 13 removes the hook, so the corpus worker's --deprecations=12
+  // leaves this implementation alone.
+}
+
+/**
  * Implements hook_entity_operation().
  */
 // @mago-expect analysis:drupal/hook-entity-operation-cacheability

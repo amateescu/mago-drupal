@@ -52,6 +52,8 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
      */
     public const CODE = 'deprecated-original';
 
+    public const MESSAGE = 'The original property is deprecated in drupal:11.2.0 and is removed from drupal:12.0.0.';
+
     private const ENTITY = 'Drupal\Core\Entity\EntityInterface';
 
     private const PROPERTY = 'original';
@@ -120,13 +122,9 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
         $context->report(
             Level::Warning,
             self::CODE,
-            Issue::new(
-                'The original property is deprecated in drupal:11.2.0 and is removed from drupal:12.0.0.',
-                $span,
-                'deprecated property',
-            )->withHelp('Call getOriginal() to read it and setOriginal() to set it.')->withLink(
-                'https://www.drupal.org/node/3295826',
-            ),
+            Issue::new(self::MESSAGE, $span, 'deprecated property')->withHelp(
+                'Call getOriginal() to read it and setOriginal() to set it.',
+            )->withLink('https://www.drupal.org/node/3295826'),
         );
     }
 

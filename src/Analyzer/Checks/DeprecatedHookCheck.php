@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
 use amateescu\MagoDrupal\Internal\ClassFacts;
+use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\HookFunctions;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
@@ -30,6 +31,7 @@ final class DeprecatedHookCheck implements MetadataCheck
      */
     public function __construct(
         private readonly Closure $hooks,
+        private readonly DeprecationTarget $target,
     ) {}
 
     public function mentionsAny(): array
@@ -42,12 +44,23 @@ final class DeprecatedHookCheck implements MetadataCheck
         $hooks = ($this->hooks)($class->codebase);
         foreach (HookMethods::of($class) as [$hook, $method]) {
             $location = $method->nameLocation ?? $method->location;
-            if ($location === null || $hooks->deprecation("hook_{$hook}") !== true) {
+            if ($location === null || !self::reports($hooks, $this->target, $hook)) {
                 continue;
             }
 
             $reporter->warning(self::CODE, self::issue(HookMethods::label($method), $hook, $location));
         }
+    }
+
+    /**
+     * Whether an implementation of the hook is reported: its documentation
+     * function is `@deprecated`, and the target keeps the deprecation.
+     */
+    public static function reports(HookFunctions $hooks, DeprecationTarget $target, string $hook): bool
+    {
+        $deprecation = $hooks->deprecation("hook_{$hook}");
+
+        return $deprecation !== null && $target->keeps($deprecation);
     }
 
     /**

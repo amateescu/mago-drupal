@@ -22,6 +22,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownNameHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOriginalHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedServiceHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationTargetFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DescendantMetadataHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityQueryAccessCheckHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\FormResponseReturnFilter;
@@ -57,6 +58,7 @@ use amateescu\MagoDrupal\Analyzer\Providers\ListBuilderOperationsProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\PluginManagerProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\SelfReturnProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\TraitCallProvider;
+use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DiskCache;
 use amateescu\MagoDrupal\Internal\Indexes;
 use amateescu\MagoDrupal\Internal\TraitRoots;
@@ -78,16 +80,22 @@ final class DrupalPlugin implements Plugin
 {
     private readonly Indexes $indexes;
 
+    private readonly DeprecationTarget $deprecations;
+
     /**
      * @param bool $core Enables rules that only apply to Drupal core itself.
      * @param string|null $root Drupal document root, absolute or relative to
      *   the worker's cwd. Discovered from the cwd when null.
+     * @param DeprecationTarget|null $deprecations The Drupal major whose
+     *   removals are reported; every deprecation when null.
      */
     public function __construct(
         private readonly bool $core = false,
         ?string $root = null,
+        ?DeprecationTarget $deprecations = null,
     ) {
         $this->indexes = new Indexes($root, DiskCache::fromEnvironment());
+        $this->deprecations = $deprecations ?? DeprecationTarget::all();
     }
 
     public function getDefinition(): PluginDefinition
@@ -105,6 +113,10 @@ final class DrupalPlugin implements Plugin
         $registry->registerInitializationHook(new StubFiles());
         $traitRoots = new TraitRoots();
         $registry->registerIssueFilterHook(new DeprecationScopeFilter());
+        if (!$this->deprecations->isAll()) {
+            $registry->registerIssueFilterHook(new DeprecationTargetFilter($this->deprecations));
+        }
+
         $registry->registerIssueFilterHook(new FormResponseReturnFilter());
         $registry->registerIssueFilterHook(new TraitPropertyFilter($traitRoots));
 
@@ -113,8 +125,13 @@ final class DrupalPlugin implements Plugin
         $registry->registerCodebaseScanHook(new AnnotationScan($indexes->setAnnotated(...)));
         $registry->registerMethodReturnTypeProvider(new ContainerGetProvider($indexes->services(...)));
         $registry->registerMethodReturnTypeProvider(new ClassResolverProvider($indexes->services(...)));
-        $registry->registerMethodCallAnalysisHook(new DeprecatedServiceHook($indexes->services(...)));
-        $registry->registerNodeAnalysisHook(new DeprecatedOriginalHook());
+        $registry->registerMethodCallAnalysisHook(
+            new DeprecatedServiceHook($indexes->services(...), $this->deprecations),
+        );
+        if ($this->deprecations->keeps(DeprecatedOriginalHook::MESSAGE)) {
+            $registry->registerNodeAnalysisHook(new DeprecatedOriginalHook());
+        }
+
         $registry->registerMethodCallAnalysisHook(new UnknownServiceHook($indexes->services(...)));
 
         $this->registerEntityHooks($registry);
@@ -147,7 +164,7 @@ final class DrupalPlugin implements Plugin
             new ClassMetadataHook(
                 $indexes->annotated(...),
                 [
-                    new DeprecatedHookCheck($hooks),
+                    new DeprecatedHookCheck($hooks, $this->deprecations),
                     new FormAlterSignatureCheck(),
                     new EntityOperationCacheabilityCheck($hooks),
                 ],
@@ -158,7 +175,7 @@ final class DrupalPlugin implements Plugin
             ),
         );
         $registry->registerNodeAnalysisHook(new TraitStorageHook($storage));
-        $registry->registerNodeAnalysisHook(new ProceduralHookHook($hooks));
+        $registry->registerNodeAnalysisHook(new ProceduralHookHook($hooks, $this->deprecations));
         $registry->registerClassLikeAnalysisHook(new TestClassHook());
         $registry->registerClassLikeAnalysisHook(
             new DescendantMetadataHook(BrowserTestThemeCheck::ANCESTORS, new BrowserTestThemeCheck()),

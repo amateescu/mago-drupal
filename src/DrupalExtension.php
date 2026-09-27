@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal;
 
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
+use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
@@ -68,6 +69,7 @@ use function explode;
 use function implode;
 use function in_array;
 use function is_string;
+use function preg_match;
 use function str_starts_with;
 use function strlen;
 use function substr;
@@ -100,8 +102,13 @@ final class DrupalExtension
     /**
      * Builds the extension from the worker's arguments: `--core` when the
      * worker runs on Drupal core, `--root=PATH` for the Drupal document root,
-     * and `--disable=<code>,<code>` for the rules to turn off by default.
-     * `--disable` can be given more than once, and the last `--root` wins.
+     * `--deprecations=N` for the Drupal major whose removals to report, and
+     * `--disable=<code>,<code>` for the rules to turn off by default.
+     * `--disable` can be given more than once. Of the others, the last one
+     * wins, matching how repeated CLI flags behave.
+     *
+     * @throws InvalidArgumentException When `--deprecations` is not a major
+     *   version, or a code in `--disable` names no rule.
      *
      * @param array<mixed> $arguments
      */
@@ -109,9 +116,14 @@ final class DrupalExtension
     {
         $disabled = [];
         $root = null;
+        $deprecations = null;
         foreach (array_filter($arguments, is_string(...)) as $argument) {
             if (str_starts_with($argument, '--root=')) {
                 $root = substr($argument, offset: strlen('--root='));
+            }
+
+            if (str_starts_with($argument, '--deprecations=')) {
+                $deprecations = substr($argument, offset: strlen('--deprecations='));
             }
 
             if (!str_starts_with($argument, '--disable=')) {
@@ -127,7 +139,18 @@ final class DrupalExtension
             }
         }
 
-        return self::create(core: in_array('--core', $arguments, strict: true), disabled: $disabled, root: $root);
+        if ($deprecations !== null && preg_match('/^[1-9][0-9]*$/', $deprecations) !== 1) {
+            throw new InvalidArgumentException(
+                "--deprecations takes a Drupal major version such as 12, got \"{$deprecations}\".",
+            );
+        }
+
+        return self::create(
+            core: in_array('--core', $arguments, strict: true),
+            disabled: $disabled,
+            root: $root,
+            deprecations: $deprecations === null ? null : (int) $deprecations,
+        );
     }
 
     /**
@@ -137,12 +160,21 @@ final class DrupalExtension
      *   default.
      * @param string|null $root Drupal document root, absolute or relative to
      *   the worker's cwd. Discovered from the cwd when null.
+     * @param int|null $deprecations Reports only the Drupal deprecations
+     *   removed in this major or earlier, such as 12; every deprecation when
+     *   null.
      *
-     * @throws InvalidArgumentException When a code in $disabled names no rule.
+     * @throws InvalidArgumentException When a code in $disabled names no rule,
+     *   or $deprecations is not a positive number.
      *
      * @mago-expect lint:no-boolean-flag-parameter
      */
-    public static function create(bool $core = false, array $disabled = [], ?string $root = null): Extension
+    public static function create(
+        bool $core = false,
+        array $disabled = [],
+        ?string $root = null,
+        ?int $deprecations = null,
+    ): Extension
     {
         $off = array_fill_keys($core ? [...self::CORE_OFF, ...$disabled] : $disabled, value: true);
         $rules = [];
@@ -164,7 +196,7 @@ final class DrupalExtension
             version: self::VERSION,
             linterRules: $rules,
             analyzerPlugins: [
-                new DrupalPlugin($core, $root),
+                new DrupalPlugin($core, $root, $deprecations === null ? null : DeprecationTarget::major($deprecations)),
                 new PHPUnitPlugin(),
                 new PHPStanIgnoresPlugin(),
             ],

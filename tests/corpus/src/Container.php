@@ -64,6 +64,8 @@ final class Container {
     \Drupal::classResolver('corpus.aliased');
     // Probing never instantiates, so it is not a deprecated use.
     $this->container->has('corpus.aliased');
+    // Drupal 13 removes this one, so --deprecations=12 skips it.
+    \Drupal::service('corpus.retiring');
   }
 
   /**
