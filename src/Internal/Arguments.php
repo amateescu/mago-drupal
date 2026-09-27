@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Internal;
 use Mago\Sdk\Analyzer\Invocation;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\Type;
+use Mago\Sdk\Syntax\CallArgument;
 use Mago\Sdk\Syntax\CallExpression;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\SourceFile;
@@ -41,7 +42,7 @@ final class Arguments
      */
     public static function type(NodeAnalysisContext $context, int $position, string ...$names): ?Type
     {
-        $index = self::index($context->source, $context->node, $position, $names);
+        $index = self::find($context->source, $context->node, $position, $names)?->index;
 
         return $index === null ? null : $context->argumentTypes[$index] ?? null;
     }
@@ -56,11 +57,23 @@ final class Arguments
      */
     public static function sourceIndex(NodeAnalysisContext $context, int $position, string ...$names): ?int
     {
-        return self::index($context->source, $context->node, $position, $names);
+        return self::find($context->source, $context->node, $position, $names)?->index;
     }
 
     /**
-     * The source position of the argument filling a parameter.
+     * The argument filling a parameter, with its node, or null when the call
+     * does not pass it.
+     *
+     * @param non-empty-list<string> $names Names of the parameter, as
+     *   `type()` takes them.
+     */
+    public static function argument(NodeAnalysisContext $context, int $position, string ...$names): ?CallArgument
+    {
+        return self::find($context->source, $context->node, $position, $names);
+    }
+
+    /**
+     * The argument filling a parameter.
      *
      * An argument unpacked from an array leaves every later position
      * unknown, so the answer is null rather than a guess. So does a node
@@ -68,7 +81,7 @@ final class Arguments
      *
      * @param array<array-key, string> $names
      */
-    private static function index(SourceFile $file, Node $node, int $position, array $names): ?int
+    private static function find(SourceFile $file, Node $node, int $position, array $names): ?CallArgument
     {
         if (!in_array($node->kind, Calls::CALL_KINDS, strict: true)) {
             return null;
@@ -84,7 +97,7 @@ final class Arguments
         foreach ($call->arguments as $argument) {
             if ($argument->name !== null) {
                 if (in_array(rtrim(trim($argument->name), characters: ' :'), $names, strict: true)) {
-                    return $argument->index;
+                    return $argument;
                 }
 
                 continue;
@@ -95,7 +108,7 @@ final class Arguments
             }
 
             if ($positional === $position) {
-                return $argument->index;
+                return $argument;
             }
 
             ++$positional;

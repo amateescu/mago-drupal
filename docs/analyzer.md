@@ -446,6 +446,34 @@ $this->assertNotEmpty($node);
 $node->label();            // narrowed, no possible-method-access-on-null
 ```
 
+## Redundant assertions
+
+An assertion that the value's type already guarantees is reported as `phpunit/redundant-assertion`,
+a warning, as phpstan-phpunit reports it. It covers `assertInstanceOf()`, `assertNotNull()`,
+`assertNull()`, `assertTrue()`, `assertFalse()`, `assertNotTrue()`, `assertNotFalse()` and the
+`assertIsArray()`, `assertIsBool()`, `assertIsFloat()`, `assertIsInt()`, `assertIsNumeric()`,
+`assertIsObject()`, `assertIsScalar()` and `assertIsString()` checks. A type from a docblock
+counts, and so does one the plugins supply, such as a service from `services.yml`.
+
+```php
+$node = $this->drupalCreateNode();
+$this->assertInstanceOf(NodeInterface::class, $node);  // phpunit/redundant-assertion
+$this->assertTrue(TRUE, 'No exception thrown.');       // phpunit/redundant-assertion
+```
+
+Some values Mago types more narrowly than the code behaves, and those are left alone:
+
+- `$this->name` counts only when the property's declared type passes too. Mago keeps a property's
+  narrowed type across calls that may change it, such as a callback that sets `$this->fired`.
+  Another object's property, `$other->name`, is never reported, since the check does not know that
+  object's class.
+- `$items[0]`, since Mago's `ArrayAccess` stub types `offsetGet()` without null, while an empty
+  field item list returns null.
+- `isset()`, which tests `__isset()` or `ArrayAccess` rather than a type.
+
+An assertion that can never pass is Mago's own `impossible-type-comparison` when the value is a
+variable, and is not reported otherwise.
+
 ## Mock unions
 
 Drupal's older tests document a mock as `@var X|MockObject`, from before PHP had intersection types.

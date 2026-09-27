@@ -24,6 +24,18 @@ namespace PHPUnit\Framework {
         final public static function assertNotEmpty(mixed $actual, string $message = ''): void {}
 
         final public static function assertEmpty(mixed $actual, string $message = ''): void {}
+
+        final public static function assertInstanceOf(string $expected, mixed $actual, string $message = ''): void {}
+
+        final public static function assertNotNull(mixed $actual, string $message = ''): void {}
+
+        final public static function assertTrue(mixed $condition, string $message = ''): void {}
+
+        final public static function assertNotFalse(mixed $condition, string $message = ''): void {}
+
+        final public static function assertIsArray(mixed $actual, string $message = ''): void {}
+
+        final public static function assertIsString(mixed $actual, string $message = ''): void {}
     }
 
     abstract class TestCase extends Assert implements Test

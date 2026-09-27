@@ -115,7 +115,8 @@ The `drupal` analyzer plugin types what Drupal's runtime wiring hands back, with
 
 A second plugin, `phpunit`, knows nothing about Drupal. It narrows `assertNotEmpty()` and
 `assertEmpty()`, types mocks documented as `X|MockObject` and the calls that set up a Prophecy
-double, and reports mocks and prophecies documented with the wrong type. A third, `phpstan-ignores`, is off by default; turned on, it lets `@phpstan-ignore` comments
+double, and reports mocks and prophecies documented with the wrong type and assertions that always
+pass. A third, `phpstan-ignores`, is off by default; turned on, it lets `@phpstan-ignore` comments
 drop the Mago issues that report the same finding.
 
 [docs/analyzer.md](docs/analyzer.md) has the details and the limits.
