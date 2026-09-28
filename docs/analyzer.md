@@ -156,6 +156,15 @@ parameter for those calls, so they are not reported as `too-many-arguments`. A n
 `cacheability:` argument fails at runtime on those versions, so that call keeps the declared
 signature.
 
+The entity type manager's `getDefinitions()`, the entity's `getFields()`, `getTranslatableFields()`
+and `getFieldDefinitions()`, and the field manager's `getBaseFieldDefinitions()`,
+`getFieldDefinitions()` and `getFieldStorageDefinitions()` come back keyed by `string`, where core
+documents `EntityTypeInterface[]`, `FieldItemListInterface[]` and so on. The keys are entity type IDs
+and field names. A field name matches `/^[_a-z]+[_a-z0-9]*$/`, and no entity type ID is numeric,
+so PHP never turns one into an integer key, and `array_keys()` or a `foreach` key hands the name on
+to a method that takes a string. phpstan-drupal's stubs type the entity's field methods the same
+way. The values keep the type core documents.
+
 `getTranslationLanguages()` and the language manager's `getLanguages()` come back keyed by
 language code as `string`, where core documents `LanguageInterface[]`. A language code matches
 `LanguageInterface::VALID_LANGCODE_REGEX`, which starts with a letter, so PHP never turns one into
@@ -321,7 +330,8 @@ stops at its closing brace. A `@deprecated` property or constant opens no scope.
 are `deprecated-class`, `deprecated-closure`, `deprecated-constant`, `deprecated-function`,
 `deprecated-method` and `deprecated-trait`. `deprecated-feature` is left alone, since it is about
 PHP language features rather than the Drupal API a legacy test exercises. The plugin's own
-`deprecated-original` skips the same scopes.
+`deprecated-original`, `deprecated-class`, `deprecated-class-constant`, `deprecated-property` and
+`deprecated-method` skip the same scopes.
 
 The scopes are read from the file's own bytes with PHP's tokenizer. A file that holds none of the
 four markers is screened out by a substring test, and Mago batches a file's issues into one
@@ -367,11 +377,118 @@ The plugin looks up the symbol's declaration and reads the docblock above it fro
 declaration it cannot read keeps its issue, such as a PHP function from Mago's built-in stubs. The
 codes covered are `deprecated-class`, `deprecated-constant`, `deprecated-function`,
 `deprecated-method` and `deprecated-trait`. The plugin's own `drupal/deprecated-hook` (from the
-hook's api.php docblock), `drupal/deprecated-service` (from the `deprecated:` message) and
-`drupal/deprecated-original` (removed in Drupal 12) follow the same target.
+hook's api.php docblock), `drupal/deprecated-service` (from the `deprecated:` message),
+`drupal/deprecated-original` (removed in Drupal 12) and the four checks below (from the
+`@deprecated` text they read with the symbol) follow the same target.
 
 A filter can only keep or drop an issue, so Mago's message still names only the symbol. The
 replacement is in the `@deprecated` text at the declaration.
+
+## Deprecations Mago does not report
+
+Mago reports a deprecated function, method, global constant and trait, and a deprecated class where
+it is instantiated or extended. A method is deprecated for Mago only where its own docblock says so,
+so a call to an implementation that says `{@inheritdoc}` goes unreported. The plugin reports the rest of what phpstan-deprecation-rules
+checks, for the symbols Drupal marks `@deprecated`:
+
+| Code | What it reports |
+| --- | --- |
+| `drupal/deprecated-class` | A class, enum or interface that implements or extends a deprecated interface. A deprecated class-like in a native parameter, return or property type, or in a `catch`. A constant of a deprecated class-like. A static call on a deprecated class-like to a method that is not deprecated itself, which Mago reports. |
+| `drupal/deprecated-class-constant` | A deprecated class constant, read on the class that declares it or on a subclass. |
+| `drupal/deprecated-property` | A read or write of a deprecated property: on `$this`, statically, or on a receiver whose type Mago knows. |
+| `drupal/deprecated-method` | A call to a method that overrides a deprecated method without saying so, as `ConfigEntityBase::trustData()` does for `ConfigEntityInterface::trustData()`. An override whose docblock says `@not-deprecated` is left alone, as PHPStan does. |
+
+```php
+$file_system->copy($source, $target, FileSystemInterface::EXISTS_REPLACE); // deprecated-class-constant
+$settings['display'] = DateTimeRangeConstantsInterface::BOTH;              // deprecated-class
+```
+
+The symbols come from the PHP files under `core/lib`, `core/tests` and every module's `src`
+directory, read before the analysis starts, and the `@deprecated` text read with each one is the
+issue's help. Vendor code is not read, so a deprecated Symfony or Drush interface is not reported.
+Only native types are checked, not docblock types. A call through `parent::` to a method of a
+deprecated parent is left to Mago's report on the `extends`, and a property access Mago does not
+analyze again (a repeat of a narrowed `$node->prop`) is not reported. A `@phpstan-ignore
+property.deprecated` does not drop these reports, since the `phpstan-ignores` plugin runs before
+them.
+
+## Plugin definitions
+
+`PluginBase` documents `$pluginDefinition` and `getPluginDefinition()` as
+`array|PluginDefinitionInterface`, so Mago reports every `$this->pluginDefinition['label']` as
+`invalid-array-access` for the object half. Arrays are Drupal's default: annotation, attribute and
+YAML discovery all produce them unless the plugin type opts into a definition class. The plugin
+drops that report on a plugin's own definition, read through the property or the getter, unless
+the class is a layout, Layout Builder section storage or CKEditor 5 plugin, which have definition
+objects in core, or carries a discovery attribute whose `get()` returns an object.
+
+```php
+$this->pluginDefinition['label'];       // no invalid-array-access on a block, local task or filter
+$this->getPluginDefinition()['label'];  // the same through the getter
+$block->getPluginDefinition();          // array<string, mixed> on a BlockPluginInterface
+```
+
+`getPluginDefinition()` on another plugin returns `array<string, mixed>` when the receiver's type
+names a plugin type with array definitions: an interface extending `PluginInspectionInterface`
+other than the context-aware ones, which layouts and section storage share, or a discovery
+attribute. That covers a definition held in a variable too. A receiver typed as
+`PluginInspectionInterface` or `PluginBase` keeps core's union, since any plugin type fits. In a
+trait, `$this->getPluginDefinition()` is an array when every class using the trait has array
+definitions, so `BlockPluginTrait` gets one and `ContextAwarePluginTrait`, which layouts use too,
+keeps the union.
+
+A deriver gets its base definition documented the same way, so inside a class implementing
+`DeriverInterface` every such report goes, whatever the variable is called: a deriver for a plugin
+type with definition objects works with them through their methods. A plugin manager's
+`$definition` in `processDefinition()` or an alter keeps the report.
+
+## Core return values
+
+A few more of core's methods are typed the way the code behaves:
+
+```php
+$setting->id();                          // string|null on a config entity, not int|string|null
+$workspace->id();                        // string|null on a content entity with a string ID field
+$storage->loadMultipleRevisions([$a, $b]); // a list of int|string IDs is accepted
+$queue->claimItem();                     // object{data: mixed, item_id: int|string, created: int|string, ...}|false
+$file_system->scanDirectory($dir, $mask); // array<int|string, object{uri: string, filename: string, name: string, ...}>
+$this->getTestFiles('image');            // list<object{uri: string, filename: string, name: string, ...}>
+$installer->validateUninstall(['mod']);  // array<string, list<string|MarkupInterface>>
+static::getEntityTypeEvents();           // array<string, list<array{0: string, 1: int}>>
+parent::create($container);              // static, in a form or controller
+$manager->createHandlerInstance(X::class, $type); // X, not object
+```
+
+- A config entity's ID is its machine name, so passing one on is a question of the null only.
+- A content entity type's ID is an integer unless its `baseFieldDefinitions()` creates the ID
+  field (`$fields['id']` or `$fields[$entity_type->getKey('id')]`) as a `string` or `uuid` field,
+  as `Workspace` does. An integer ID comes back from storage as a numeric string, so those keep
+  `int|string|null`. The method is read up through `parent::baseFieldDefinitions()` calls, and an
+  interface is narrowed when every entity class implementing it has a string ID.
+- The repository, revision storage and workspace methods that document an ID list as
+  `int[]|string[]` accept `array<int|string>`: the IDs of one entity type are all integers or all
+  strings, but a list built from `id()` calls is typed `list<int|string>`. The rest of each
+  signature is read from core's own declaration.
+- `claimItem()` is documented `bool|object` and never returns TRUE. The item's properties come
+  from the method's description; the database queue reads `item_id` and `created` as strings.
+- The files `scanDirectory()` and `getTestFiles()` find are the objects their descriptions list.
+  Core's image tests pass these to `uploadNodeImage()`, which documents a `FileInterface`, so
+  those calls are reported as `invalid-argument`: the docblock is wrong, not the call.
+- Uninstall validators return translatable markup, which keeps their placeholders safe to
+  render. The `module-uninstall-validator.stub` accepts that on each validator.
+- `EntityTypeEventSubscriberTrait` and `FieldStorageDefinitionEventSubscriberTrait` build a list
+  of `[method, priority]` pairs per event, which a subscriber can return as it is.
+- `createHandlerInstance()` builds an instance of the class it is handed, so a literal class name
+  or a `class-string<X>` gives that type; a plain string keeps core's `object`.
+- `ContainerInjectionInterface::create()` returns a new instance of the called class but documents
+  no return type, and Mago gives a `create()` that only says `{@inheritdoc}` that interface's
+  missing type, even where a parent has `AutowireTrait`'s `@return static`. So
+  `$instance = parent::create($container)` in a form or controller is `static`, and so is
+  `Foo::create($container)` when no `create()` on the way documents a type.
+
+`getLoadedRevisionId()` stays the `int` core documents, though it is NULL on a new or duplicated
+entity: with the null in, Mago reports every `==` and `!=` comparison with it, and the flag that
+stops null reports elsewhere does not reach comparisons.
 
 ## Form responses
 
@@ -598,14 +715,26 @@ code; `@phpstan-ignore-next-line`; and `@phpstan-ignore-line`. An identifier dro
 codes the plugin lists for it, so `@phpstan-ignore return.type` still lets a missing method on the
 same line through. The two line forms drop every listed code, and an identifier the plugin does not
 list drops nothing. The list covers PHPStan's identifiers for argument, return and property types,
-argument counts, undefined symbols, deprecations, always-true and always-false conditions, missing
-types and offset access, and the deprecation identifiers of phpstan-deprecation-rules; it lives in
-`PHPStanIgnoreFilter`. phpstan-drupal's identifiers are not in it. The `drupal/` and `phpunit/`
-checks report after Mago runs the plugin, so a comment never drops one of them.
+argument counts, undefined symbols, deprecations, always-true and always-false conditions,
+unreachable code, missing types and offset access, and the deprecation identifiers of
+phpstan-deprecation-rules; it lives in `PHPStanIgnoreFilter`. phpstan-drupal's identifiers are not
+in it. The `drupal/` and `phpunit/` checks report after Mago runs the plugin, so a comment never
+drops one of them.
 
-An issue counts as being on the covered line when it starts there. Mago matches `@mago-expect`
-pragmas before the plugin runs, so a pragma next to a `@phpstan-ignore` for the same issue still
-counts as used: it can be removed, but Mago does not point it out.
+An issue counts as being on the covered line when it starts there. Unreachable code is the one
+exception: PHPStan reports the first unreachable statement of a block and Mago every one of them, so
+a comment ignoring `deadCode.unreachable` also drops Mago's `unevaluated-code` on the lines after it,
+up to the end of its block.
+
+```php
+$this->markTestSkipped('Blocked by a core issue.');
+// @phpstan-ignore deadCode.unreachable
+$result = $this->build();          // no unevaluated-code
+$this->assertSame('x', $result);   // none here either
+```
+
+Mago matches `@mago-expect` pragmas before the plugin runs, so a pragma next to a `@phpstan-ignore`
+for the same issue still counts as used: it can be removed, but Mago does not point it out.
 
 ## Stub files
 
@@ -619,6 +748,7 @@ $url->toString(TRUE);  // Drupal\Core\GeneratedUrl
 $url->toString($flag); // Drupal\Core\GeneratedUrl|string
 $cache->get('cid');    // object{cid: string, data: mixed, created: int|float|numeric-string, expire: int|numeric-string, tags: list<string>, valid: bool, ...}|false
 $entity->isRevisionTranslationAffected(); // bool|int|string|null
+$validator->validate('module');           // array<string|MarkupInterface>
 ```
 
 Core documents `isRevisionTranslationAffected()` as returning a bool, but `ContentEntityBase`
@@ -695,6 +825,9 @@ ids.
 Three more ports are linter rules, since they need no types: `drupal/discouraged-function`,
 `drupal/symfony-yaml-parse` and `drupal/render-callback`; see [rules.md](rules.md).
 
+The deprecation checks that fill in for Mago's own are described under
+[Deprecations Mago does not report](#deprecations-mago-does-not-report).
+
 The checks read Mago's class metadata, not the source. A class-level hook asks the host for the
 class node's span and the file text; the names resolved inside that span say whether any check can
 apply (a `#[Hook]` attribute, an entity storage type, `DependencySerializationTrait`, a config
@@ -767,11 +900,17 @@ which classes are looked up at all, and each lookup is a few metadata requests, 
 The file text is already shipped for the other checks that ask for it, so the lifecycle requests on
 core stay at 64.9 MB either way.
 
-`deprecated-original` is the one check that sees every property access, because Mago targets node
+`deprecated-original` sees every property access, because Mago targets node
 kinds and not property names. It asks for nothing but the file text, which other checks already
 ship, and a byte compare on the end of each access sends all but `->original` straight back; only
 those ask the host for the receiver's type. On core it adds 2.5 MB to the 62 MB of lifecycle
 requests and 0.9 s of worker CPU spread over the pool, which does not show in the wall time.
+
+The `@deprecated` symbol list is read like the `@internal` one, from the same files through the same
+cache, and gives the interface and method checks their targets. The constant, property and
+class-reference checks see every class constant fetch, property access, type and static call, and a
+compare of the name against the list sends almost all of them straight back. On core the three add
+about 0.15 s of wall time and 2.5 s of worker CPU across twelve workers.
 
 On core (11,000 files) the extension adds
 about a second to a run that takes two and a half without it; on a contrib module it adds a few

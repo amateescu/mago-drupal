@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\corpus\Audit;
 
 use Drupal\Core\Config\FileStorage;
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
  * Holds storages and calls \Drupal statically, both discouraged.
  */
 final class Injection implements ContainerInjectionInterface {
+
+  use AutowireTrait;
 
   /**
    * The injected storage.

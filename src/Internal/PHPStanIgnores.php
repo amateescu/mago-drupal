@@ -112,4 +112,15 @@ final class PHPStanIgnores
 
         return $found;
     }
+
+    /**
+     * The covered lines: first and last offset, with the identifiers each
+     * ignores, or true for all of them.
+     *
+     * @return list<array{int, int, list<string>|true}>
+     */
+    public function lines(): array
+    {
+        return $this->lines;
+    }
 }

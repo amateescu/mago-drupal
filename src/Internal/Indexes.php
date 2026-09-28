@@ -236,6 +236,15 @@ final class Indexes
     }
 
     /**
+     * Symbols marked `@deprecated` under the root, for the deprecation checks
+     * Mago has none of. Read once at registration.
+     */
+    public function deprecatedSymbols(): DeprecatedSymbols
+    {
+        return $this->root()->deprecatedSymbols();
+    }
+
+    /**
      * The descendant list costs one codebase request and goes into the key of
      * the shared entry, next to the run identity.
      */

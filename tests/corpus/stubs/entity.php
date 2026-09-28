@@ -18,6 +18,11 @@ namespace Drupal\Core\Entity {
     interface FieldableEntityInterface extends EntityInterface
     {
         public function get(string $field_name): \Drupal\Core\Field\FieldItemListInterface;
+
+        /**
+         * @return \Drupal\Core\Field\FieldDefinitionInterface[]
+         */
+        public function getFieldDefinitions(): array;
     }
 
     interface ContentEntityInterface extends FieldableEntityInterface {}
@@ -82,7 +87,10 @@ namespace Drupal\Core\Entity {
 
         public function loadRevisionUnchanged(int|string $revision_id): ?EntityInterface;
 
-        /** @return array<int|string, EntityInterface> */
+        /**
+         * @param int[]|string[] $revision_ids
+         * @return array<int|string, EntityInterface>
+         */
         public function loadMultipleRevisions(array $revision_ids): array;
 
         public function createRevision(EntityInterface $entity, bool $default = true): EntityInterface;
@@ -107,7 +115,18 @@ namespace Drupal\Core\Entity {
 
         public function getHandler(string $entity_type_id, string $handler_type): object;
 
+        /**
+         * @param string $class
+         * @return object
+         */
+        public function createHandlerInstance($class, ?EntityTypeInterface $definition = null);
+
         public function getDefinition(string $entity_type_id, bool $exception_on_invalid = true): ?EntityTypeInterface;
+
+        /**
+         * @return \Drupal\Core\Entity\EntityTypeInterface[]
+         */
+        public function getDefinitions(): array;
     }
 
     interface EntityRepositoryInterface
@@ -224,6 +243,17 @@ namespace Drupal\Core\Entity {
             return null;
         }
 
+        /**
+         * @return array<string, \Drupal\Core\Field\FieldDefinitionInterface>
+         */
+        public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array
+        {
+            $fields = [];
+            $fields[$entity_type->getKey('id')] = \Drupal\Core\Field\BaseFieldDefinition::create('integer');
+
+            return $fields;
+        }
+
         public function label(): string|null
         {
             return null;
@@ -232,6 +262,11 @@ namespace Drupal\Core\Entity {
         public function get(string $field_name): \Drupal\Core\Field\FieldItemListInterface
         {
             throw new \RuntimeException('stub');
+        }
+
+        public function getFieldDefinitions(): array
+        {
+            return [];
         }
 
         public function __get(string $name): mixed
@@ -244,6 +279,21 @@ namespace Drupal\Core\Entity {
 }
 
 namespace Drupal\Core\Field {
+    interface FieldDefinitionInterface {}
+
+    class BaseFieldDefinition implements FieldDefinitionInterface
+    {
+        public static function create(string $type): static
+        {
+            return new static();
+        }
+
+        public function setLabel(string $label): static
+        {
+            return $this;
+        }
+    }
+
     interface FieldItemListInterface
     {
         public function onlyOnFieldItemList(): void;

@@ -19,8 +19,14 @@ use amateescu\MagoDrupal\Analyzer\Hooks\CacheableDependencyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ClassMetadataHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownKeyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownNameHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedClassReferenceHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedConstantHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedInterfaceHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOriginalHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOverrideHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedPropertyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedServiceHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedUse;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationTargetFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DescendantMetadataHook;
@@ -31,6 +37,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\GlobalDrupalCallHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\InternalParentHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\LoadIncludeHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\LoggerFromFactoryHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\PluginDefinitionArrayFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\PluginManagerAuditHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ProceduralHookHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ServiceProviderScan;
@@ -42,24 +49,36 @@ use amateescu\MagoDrupal\Analyzer\Hooks\UnknownEntityTypeHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownPluginHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownServiceHook;
 use amateescu\MagoDrupal\Analyzer\Providers\ClassResolverProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\ConfigEntityIdProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigFactoryProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigGetProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigStorageProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ContainerGetProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\ContainerInjectionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityAccessProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityFieldProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\EntityIdListParameterProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityKeyProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueryAssertionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueryProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityRepositoryProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityStorageProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityTypeManagerProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\EventListProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\FieldItemPropertyProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\HandlerInstanceProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\LanguageKeysProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ListBuilderOperationsProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\MachineNameKeysProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\PluginDefinitionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\PluginManagerProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\QueueItemProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\ScannedFilesProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\SelfReturnProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\StringEntityIdProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\TraitCallProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\TraitPluginDefinitionProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\UninstallReasonsProvider;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DiskCache;
 use amateescu\MagoDrupal\Internal\Indexes;
@@ -121,6 +140,7 @@ final class DrupalPlugin implements Plugin
 
         $registry->registerIssueFilterHook(new FormResponseReturnFilter());
         $registry->registerIssueFilterHook(new EntityMagicPropertyFilter());
+        $registry->registerIssueFilterHook(new PluginDefinitionArrayFilter());
         $registry->registerIssueFilterHook(new TraitPropertyFilter($traitRoots));
 
         $indexes = $this->indexes;
@@ -135,12 +155,16 @@ final class DrupalPlugin implements Plugin
             $registry->registerNodeAnalysisHook(new DeprecatedOriginalHook());
         }
 
+        $this->registerDeprecatedSymbolHooks($registry);
+
         $registry->registerMethodCallAnalysisHook(new UnknownServiceHook($indexes->services(...)));
 
         $this->registerEntityHooks($registry);
+        // Ahead of the generic trait call provider, which would answer first.
+        $registry->registerMethodReturnTypeProvider(new TraitPluginDefinitionProvider());
         $registry->registerMethodReturnTypeProvider(new TraitCallProvider($traitRoots));
         $registry->registerMethodReturnTypeProvider(new SelfReturnProvider());
-        $registry->registerMethodReturnTypeProvider(new LanguageKeysProvider());
+        $this->registerCoreTypes($registry);
 
         $registry->registerMethodReturnTypeProvider(new ConfigFactoryProvider());
         $registry->registerMethodReturnTypeProvider(new ConfigGetProvider($indexes->configSchema(...)));
@@ -151,6 +175,7 @@ final class DrupalPlugin implements Plugin
         );
 
         $registry->registerMethodReturnTypeProvider(new PluginManagerProvider($indexes->plugins(...)));
+        $registry->registerMethodReturnTypeProvider(new PluginDefinitionProvider());
         $registry->registerMethodCallAnalysisHook(new UnknownPluginHook($indexes->plugins(...)));
 
         // Hook implementations are called by the module handler, never from
@@ -210,6 +235,23 @@ final class DrupalPlugin implements Plugin
     }
 
     /**
+     * Providers that type core's return values and parameters the way the
+     * code behaves where its docblocks say less or something else.
+     */
+    private function registerCoreTypes(PluginRegistry $registry): void
+    {
+        $registry->registerMethodReturnTypeProvider(new LanguageKeysProvider());
+        $registry->registerMethodReturnTypeProvider(new MachineNameKeysProvider());
+        $registry->registerMethodReturnTypeProvider(new ConfigEntityIdProvider());
+        $registry->registerMethodReturnTypeProvider(new ContainerInjectionProvider());
+        $registry->registerMethodReturnTypeProvider(new EntityIdListParameterProvider());
+        $registry->registerMethodReturnTypeProvider(new EventListProvider());
+        $registry->registerMethodReturnTypeProvider(new QueueItemProvider());
+        $registry->registerMethodReturnTypeProvider(new ScannedFilesProvider());
+        $registry->registerMethodReturnTypeProvider(new UninstallReasonsProvider());
+    }
+
+    /**
      * The entity type manager, storage, repository, query and field
      * providers, and the hooks reporting unknown entity types and unchecked
      * queries.
@@ -221,6 +263,8 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new EntityStorageProvider($entityTypes));
         $registry->registerMethodReturnTypeProvider(new EntityRepositoryProvider($entityTypes));
         $registry->registerMethodReturnTypeProvider(new EntityQueryProvider($entityTypes));
+        $registry->registerMethodReturnTypeProvider(new HandlerInstanceProvider());
+        $registry->registerMethodReturnTypeProvider(new StringEntityIdProvider($entityTypes));
         $registry->registerMethodCallAnalysisHook(new UnknownEntityTypeHook(
             $entityTypes,
             UnknownEntityTypeHook::SINGLE,
@@ -235,6 +279,34 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new EntityKeyProvider());
         $registry->registerPropertyTypeProvider(new EntityFieldProvider());
         $registry->registerPropertyTypeProvider(new FieldItemPropertyProvider());
+    }
+
+    /**
+     * The deprecated symbols are read off the disk at registration, since the
+     * interface check wants its targets before the first request and the
+     * others check names before resolving anything. A root without any needs
+     * no hooks.
+     */
+    private function registerDeprecatedSymbolHooks(PluginRegistry $registry): void
+    {
+        $symbols = $this->indexes->deprecatedSymbols();
+        if ($symbols->isEmpty()) {
+            return;
+        }
+
+        $use = new DeprecatedUse($this->deprecations);
+        $registry->registerNodeAnalysisHook(new DeprecatedConstantHook($symbols, $use));
+        $registry->registerNodeAnalysisHook(new DeprecatedPropertyHook($symbols, $use));
+        $registry->registerNodeAnalysisHook(new DeprecatedClassReferenceHook($symbols, $use));
+        $interfaces = DeprecatedInterfaceHook::of($symbols, $use);
+        if ($interfaces !== null) {
+            $registry->registerClassLikeAnalysisHook($interfaces);
+        }
+
+        $overrides = DeprecatedOverrideHook::of($symbols, $use);
+        if ($overrides !== null) {
+            $registry->registerMethodCallAnalysisHook($overrides);
+        }
     }
 
     /**

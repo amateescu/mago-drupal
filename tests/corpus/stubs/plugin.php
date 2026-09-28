@@ -11,6 +11,11 @@ namespace Drupal\Component\Plugin {
     interface PluginInspectionInterface
     {
         public function getPluginId(): string;
+
+        /**
+         * @return \Drupal\Component\Plugin\Definition\PluginDefinitionInterface|array
+         */
+        public function getPluginDefinition();
     }
 
     abstract class PluginBase implements PluginInspectionInterface
@@ -18,12 +23,17 @@ namespace Drupal\Component\Plugin {
         public function __construct(
             protected array $configuration,
             protected string $pluginId,
-            protected mixed $pluginDefinition,
+            protected array|Definition\PluginDefinitionInterface $pluginDefinition,
         ) {}
 
         public function getPluginId(): string
         {
             return $this->pluginId;
+        }
+
+        public function getPluginDefinition(): array|Definition\PluginDefinitionInterface
+        {
+            return $this->pluginDefinition;
         }
     }
 
@@ -36,6 +46,14 @@ namespace Drupal\Component\Plugin {
             throw new \RuntimeException('stub');
         }
     }
+}
+
+namespace Drupal\Component\Plugin\Definition {
+    interface PluginDefinitionInterface {}
+}
+
+namespace Drupal\Core\Layout {
+    interface LayoutInterface extends \Drupal\Component\Plugin\PluginInspectionInterface {}
 }
 
 namespace Drupal\Component\Plugin\Factory {

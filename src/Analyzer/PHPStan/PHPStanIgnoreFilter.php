@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\PHPStan;
 
 use amateescu\MagoDrupal\Internal\PHPStanIgnores;
+use amateescu\MagoDrupal\Internal\UnreachableIgnores;
 use Mago\Sdk\Analyzer\IssueFilterContext;
 use Mago\Sdk\Analyzer\IssueFilterDecision;
 use Mago\Sdk\Analyzer\IssueFilterHook;
@@ -33,6 +34,12 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
     private const CONDITION_ALWAYS_TRUE = ['redundant-condition'];
 
     private const DEPRECATED_CLASS = ['deprecated-class', 'deprecated-trait'];
+
+    /**
+     * Mago reports every unreachable statement, and `UnreachableIgnores`
+     * finds the ones after a covered line.
+     */
+    private const UNEVALUATED = 'unevaluated-code';
 
     /**
      * PHPStan identifiers and the Mago codes that report the same finding.
@@ -69,6 +76,7 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'classConstant.deprecatedClass' => self::DEPRECATED_CLASS,
         'classConstant.notFound' => ['non-existent-class-constant'],
         'constant.deprecated' => ['deprecated-constant'],
+        'deadCode.unreachable' => [self::UNEVALUATED],
         'constant.notFound' => ['non-existent-constant'],
         'elseif.alwaysFalse' => self::CONDITION_ALWAYS_FALSE,
         'elseif.alwaysTrue' => self::CONDITION_ALWAYS_TRUE,
@@ -150,26 +158,43 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
     {
         $code = $context->issue->code;
         $annotations = $context->issue->annotations;
-        if ($code === null || $annotations === []) {
+        $ignores = $this->ignores($context->contents);
+        if ($code === null || $annotations === [] || $ignores === null) {
             return IssueFilterDecision::Keep;
         }
 
-        $ignored = $this->ignores($context->contents)?->at($annotations[0]->span->start);
-        if ($ignored === null) {
-            return IssueFilterDecision::Keep;
+        $offset = $annotations[0]->span->start;
+        if (self::drops($ignores->at($offset), $code)) {
+            return IssueFilterDecision::Remove;
+        }
+
+        return $code === self::UNEVALUATED && UnreachableIgnores::cover($ignores, $context->contents, $offset)
+            ? IssueFilterDecision::Remove
+            : IssueFilterDecision::Keep;
+    }
+
+    /**
+     * Whether what a line ignores drops the code.
+     *
+     * @param list<string>|bool|null $ignored
+     */
+    private static function drops(array|bool|null $ignored, string $code): bool
+    {
+        if ($ignored === null || $ignored === false) {
+            return false;
         }
 
         if ($ignored === true) {
-            return IssueFilterDecision::Remove;
+            return true;
         }
 
         foreach ($ignored as $identifier) {
             if (in_array($code, self::CODES[$identifier] ?? [], strict: true)) {
-                return IssueFilterDecision::Remove;
+                return true;
             }
         }
 
-        return IssueFilterDecision::Keep;
+        return false;
     }
 
     /**

@@ -202,8 +202,9 @@ namespace Drupal\FunctionalTests\Update {
 namespace Drupal\Core\Form {
     interface FormStateInterface {}
 
-    abstract class FormBase
+    abstract class FormBase implements \Drupal\Core\DependencyInjection\ContainerInjectionInterface
     {
+        use \Drupal\Core\DependencyInjection\AutowireTrait;
         use \Drupal\Core\DependencyInjection\DependencySerializationTrait;
     }
 }
@@ -223,11 +224,33 @@ namespace Drupal\Core\DependencyInjection {
         }
     }
 
-    interface ContainerInjectionInterface {}
+    interface ContainerInjectionInterface
+    {
+        /**
+         * Instantiates a new instance of this class.
+         *
+         * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+         */
+        public static function create(\Symfony\Component\DependencyInjection\ContainerInterface $container);
+    }
+
+    trait AutowireTrait
+    {
+        /**
+         * @return static
+         */
+        public static function create(\Symfony\Component\DependencyInjection\ContainerInterface $container)
+        {
+            return new static();
+        }
+    }
 }
 
 namespace Drupal\Core\Controller {
-    abstract class ControllerBase implements \Drupal\Core\DependencyInjection\ContainerInjectionInterface {}
+    abstract class ControllerBase implements \Drupal\Core\DependencyInjection\ContainerInjectionInterface
+    {
+        use \Drupal\Core\DependencyInjection\AutowireTrait;
+    }
 }
 
 namespace Drupal\Core\Hook\Attribute {

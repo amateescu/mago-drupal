@@ -84,13 +84,18 @@ namespace Drupal\Core\State {
 }
 
 namespace Drupal\Core\StringTranslation {
-    class TranslatableMarkup
+    class TranslatableMarkup implements \Drupal\Component\Render\MarkupInterface
     {
         public function __construct(
             protected string $string,
             protected array $arguments = [],
             protected array $options = [],
         ) {}
+
+        public function __toString(): string
+        {
+            return $this->string;
+        }
     }
 
     class TranslationManager

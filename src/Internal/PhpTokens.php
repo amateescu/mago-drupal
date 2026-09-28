@@ -9,6 +9,9 @@ use PhpToken;
 use function count;
 use function str_contains;
 
+use const T_CURLY_OPEN;
+use const T_DOLLAR_OPEN_CURLY_BRACES;
+
 /**
  * Low-level moves over a tokenized PHP file.
  *
@@ -124,5 +127,26 @@ final class PhpTokens
         }
 
         return null;
+    }
+
+    /**
+     * Whether a piece of code never closes more braces than it opens, so it
+     * stays inside the block it starts in.
+     */
+    public static function staysInBlock(string $code): bool
+    {
+        $depth = 0;
+        foreach (PhpToken::tokenize('<?php ' . $code) as $token) {
+            $depth += match (true) {
+                $token->text === '{', $token->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES]) => 1,
+                $token->text === '}' => -1,
+                default => 0,
+            };
+            if ($depth < 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

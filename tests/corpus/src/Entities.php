@@ -19,6 +19,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Entity\TranslatableRevisionableInterface;
 use Drupal\corpus\Entity\CorpusSetting;
 use Drupal\corpus\Entity\CorpusThing;
@@ -263,6 +264,27 @@ final class Entities {
     $this->requireDefinition($this->entityTypeManager->getDefinition('corpus_thing', FALSE));
 
     return $this->entityTypeManager->getDefinition('corpus_bare');
+  }
+
+  /**
+   * Entity type IDs and field names come back as string keys.
+   *
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   The entity whose field names are read.
+   *
+   * @return list<object>
+   *   The storages and field lists the keys name.
+   */
+  public function machineNameKeys(FieldableEntityInterface $entity): array {
+    $found = [];
+    foreach (array_keys($this->entityTypeManager->getDefinitions()) as $entity_type_id) {
+      $found[] = $this->entityTypeManager->getStorage($entity_type_id);
+    }
+    foreach (array_keys($entity->getFieldDefinitions()) as $field_name) {
+      $found[] = $entity->get($field_name);
+    }
+
+    return $found;
   }
 
   /**

@@ -146,6 +146,21 @@ final class EntityTypeIndex
         return count($ids) === 1 ? $this->types[$ids[0]] : null;
     }
 
+    /**
+     * The entity classes of every entity type.
+     *
+     * @return list<string>
+     */
+    public function classes(): array
+    {
+        $classes = [];
+        foreach ($this->types as $definition) {
+            $classes[] = $definition->class;
+        }
+
+        return $classes;
+    }
+
     public function count(): int
     {
         return count($this->types);

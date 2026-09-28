@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\corpus\Audit;
 
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\corpus\Nested\Thing;
 
@@ -16,6 +17,8 @@ use Drupal\corpus\Nested\Thing;
  * Falls back to the container for a service old callers do not pass.
  */
 final class InjectionFallback implements ContainerInjectionInterface {
+
+  use AutowireTrait;
 
   /**
    * The injected service.
@@ -52,6 +55,8 @@ final class InjectionFallback implements ContainerInjectionInterface {
  * Reaches for the container although every caller could inject.
  */
 final class InjectionInConstructor implements ContainerInjectionInterface {
+
+  use AutowireTrait;
 
   /**
    * The looked-up service.

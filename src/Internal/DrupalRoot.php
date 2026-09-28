@@ -174,6 +174,23 @@ final class DrupalRoot
     }
 
     /**
+     * Class-likes, class constants and properties marked `@deprecated` in the
+     * extension source under this root, parsed through the cache like the
+     * internal classes.
+     */
+    public function deprecatedSymbols(): DeprecatedSymbols
+    {
+        $files = $this->sourceFiles();
+
+        return $this->cached(
+            'deprecated',
+            $files,
+            static fn(): DeprecatedSymbols => DeprecatedSymbolScan::files($files),
+            [DeprecatedSymbols::class],
+        );
+    }
+
+    /**
      * Service ids that `*ServiceProvider.php` classes under this root register
      * in PHP. Only the ids are read; the scan hook types the providers in the
      * analyzed paths, and this covers the ones in includes, core's included.

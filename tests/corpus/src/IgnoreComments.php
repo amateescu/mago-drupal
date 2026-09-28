@@ -73,4 +73,33 @@ final class IgnoreComments {
     return $value;
   }
 
+  /**
+   * A comment on the first unreachable statement covers the rest of the block.
+   *
+   * PHPStan reports the block once, Mago once per statement.
+   */
+  public function deadCode(): int {
+    return 1;
+    // @phpstan-ignore deadCode.unreachable
+    $value = 2;
+    $value++;
+    return $value;
+  }
+
+  /**
+   * The comment stops at the end of its block.
+   */
+  public function deadCodeInBranches(bool $flag): int {
+    if ($flag) {
+      return 1;
+      // @phpstan-ignore deadCode.unreachable
+      $flag = FALSE;
+    }
+    else {
+      return 2;
+      // @mago-expect analysis:unevaluated-code
+      $flag = TRUE;
+    }
+  }
+
 }

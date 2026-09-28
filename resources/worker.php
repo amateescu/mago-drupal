@@ -41,8 +41,21 @@ ini_set('display_errors', value: 'stderr');
         dirname(__DIR__) . '/vendor/autoload.php',
     ];
 
+    // A project can hold another copy of this package, such as a release in
+    // its vendor directory while the command points at a clone. An
+    // autoloader counts only when it maps the package's namespace to this
+    // copy, since loading a class from the other one cannot be undone.
+    $own = realpath(dirname(__DIR__) . '/src');
+    $supplies = static function (string $autoloader) use ($own): bool {
+        $psr4 = dirname($autoloader) . '/composer/autoload_psr4.php';
+        /** @var array<string, list<string>> $map */
+        $map = is_file($psr4) ? (require $psr4) : [];
+
+        return in_array($own, array_map(realpath(...), $map['amateescu\\MagoDrupal\\'] ?? []), strict: true);
+    };
+
     foreach ($candidates as $autoloader) {
-        if (!is_file($autoloader)) {
+        if (!is_file($autoloader) || !$supplies($autoloader)) {
             continue;
         }
 
