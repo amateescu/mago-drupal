@@ -27,6 +27,17 @@ final class PhpTokens
     private function __construct() {}
 
     /**
+     * The tokens of an analyzed file, kept for the last file, so the hooks
+     * and filters that read the same file's tokens tokenize it once.
+     *
+     * @return list<PhpToken>
+     */
+    public static function of(string $contents): array
+    {
+        return LastFile::get(self::class, $contents, static fn(): array => PhpToken::tokenize($contents));
+    }
+
+    /**
      * The index of the token closing the delimiter opened at `$index`.
      *
      * The token at `$index` is the opener; an attribute's is `#[`, so it is

@@ -37,7 +37,7 @@ namespace Drupal\Component\Plugin {
         }
     }
 
-    interface PluginManagerInterface extends Factory\FactoryInterface {}
+    interface PluginManagerInterface extends Discovery\DiscoveryInterface, Factory\FactoryInterface {}
 
     abstract class PluginManagerBase implements PluginManagerInterface
     {
@@ -45,6 +45,21 @@ namespace Drupal\Component\Plugin {
         {
             throw new \RuntimeException('stub');
         }
+    }
+}
+
+namespace Drupal\Component\Plugin\Discovery {
+    interface DiscoveryInterface
+    {
+        /**
+         * @return mixed
+         */
+        public function getDefinition($plugin_id, $exception_on_invalid = true);
+
+        /**
+         * @return mixed[]
+         */
+        public function getDefinitions();
     }
 }
 
@@ -79,6 +94,22 @@ namespace Drupal\Component\Plugin\Attribute {
 namespace Drupal\Core\Plugin {
     class DefaultPluginManager extends \Drupal\Component\Plugin\PluginManagerBase
     {
+        /**
+         * @return mixed
+         */
+        public function getDefinition($plugin_id, $exception_on_invalid = true)
+        {
+            return null;
+        }
+
+        /**
+         * @return mixed[]
+         */
+        public function getDefinitions()
+        {
+            return [];
+        }
+
         protected function alterInfo(string $alter_hook): void {}
 
         public function setCacheBackend(object $cache_backend, string $cache_key, array $cache_tags = []): void {}

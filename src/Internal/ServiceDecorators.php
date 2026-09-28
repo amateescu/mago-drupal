@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Internal;
 
 use function array_key_exists;
 use function is_array;
+use function is_string;
 use function usort;
 
 /**
@@ -20,7 +21,8 @@ use function usort;
  * the id over for `decoration_on_invalid: ~`. An `.inner` id that holds the
  * decorated definition is private in the compiled container, so apply()
  * names those too. One that holds an alias, as with stacked decorators,
- * stays gettable, as every alias does in Drupal.
+ * stays gettable: Symfony creates it through Drupal's `setAlias()`, which
+ * makes every alias it creates public.
  *
  * @internal
  *
@@ -106,5 +108,37 @@ final class ServiceDecorators
         usort($decorators, static fn(array $a, array $b): int => $b[0] <=> $a[0]);
 
         return $decorators;
+    }
+
+    /**
+     * Whether a decorator may be off while the service it decorates is on:
+     * one declared by another module than the service, unless core or a
+     * required module declares it, which are always on.
+     *
+     * @param array<non-empty-string, Definition> $definitions
+     */
+    public static function optional(ServiceDefinition $decorator, ServiceDefinition $original, array $definitions): bool
+    {
+        $decoratorModule = self::moduleOf($decorator, $definitions);
+        $definition = $definitions[$decorator->id] ?? null;
+        $alwaysOn = is_array($definition) && ($definition[ServiceYaml::ALWAYS_ON] ?? false) === true;
+
+        return $decoratorModule === null || !$alwaysOn && $decoratorModule !== self::moduleOf($original, $definitions);
+    }
+
+    /**
+     * The extension whose services file declares the service, or null for
+     * one registered in PHP.
+     *
+     * @param array<non-empty-string, Definition> $definitions
+     */
+    private static function moduleOf(ServiceDefinition $service, array $definitions): ?string
+    {
+        $definition = $definitions[$service->id] ?? null;
+        if (!is_array($definition) || !is_string($definition[ServiceYaml::MODULE] ?? null)) {
+            return null;
+        }
+
+        return $definition[ServiceYaml::MODULE];
     }
 }

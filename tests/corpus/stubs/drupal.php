@@ -119,6 +119,39 @@ namespace Drupal\corpus\Nested {
     {
         public function onlyOnOther(): void {}
     }
+
+    interface Greeter
+    {
+        public function greet(): string;
+    }
+
+    class HomeGreeter implements Greeter
+    {
+        public function greet(): string
+        {
+            return 'hello';
+        }
+    }
+
+    interface Waver
+    {
+        public function wave(): string;
+    }
+
+    class HomeHost implements Greeter, Waver
+    {
+        public function greet(): string
+        {
+            return 'hello';
+        }
+
+        public function wave(): string
+        {
+            return 'bye';
+        }
+
+        public function onlyAtHome(): void {}
+    }
 }
 
 namespace Drupal\corpus {

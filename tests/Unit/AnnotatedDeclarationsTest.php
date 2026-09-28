@@ -65,7 +65,11 @@ final class AnnotatedDeclarationsTest extends TestCase
 
     public function testNothingToFoldIsAnEmptySet(): void
     {
-        self::assertTrue(AnnotatedDeclarations::mergeAll([])->isEmpty());
+        $empty = AnnotatedDeclarations::mergeAll([]);
+
+        self::assertSame([], $empty->entityTypes);
+        self::assertSame([], $empty->plugins);
+        self::assertSame([], $empty->contextKeyed);
     }
 
     /**

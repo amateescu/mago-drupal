@@ -54,6 +54,13 @@ final class Plugins {
   }
 
   /**
+   * A module under `includes` declares plugins with annotations too.
+   */
+  public function fromIncludes(): void {
+    $this->blockManager->createInstance('corpus_dep_block')->onlyOnDepBlock();
+  }
+
+  /**
    * Two classes claiming one id leave it untyped, and it is not unknown.
    */
   public function duplicate(): void {
@@ -84,7 +91,10 @@ final class Plugins {
   public function unknown(string $id): void {
     // @mago-expect analysis:drupal/unknown-plugin
     $this->blockManager->createInstance('corpus_typo')->onlyOnBroken();
-    // Derivative ids come from a deriver and are not checked.
+    // Derivative ids come from a deriver and are not checked, and one whose
+    // base nothing declares is not typed as the fallback either: the base
+    // may come from somewhere the index does not read.
+    // @mago-expect analysis:ambiguous-object-method-access
     $this->blockManager->createInstance('corpus_typo:derivative')->onlyOnBroken();
     // @mago-expect analysis:ambiguous-object-method-access
     $this->blockManager->createInstance($id)->onlyOnCorpusBlock();

@@ -131,3 +131,39 @@ class ApiKeepingMethod implements ApiWithDeprecatedMethodInterface
         return $this;
     }
 }
+
+/**
+ * Provides the method for a class that implements the interface.
+ */
+trait TrustTrait
+{
+    /**
+     * Trusts the data.
+     */
+    public function trust(): static
+    {
+        return $this;
+    }
+}
+
+/**
+ * Implements the deprecated method through a trait.
+ */
+class ApiWithTraitMethod implements ApiWithDeprecatedMethodInterface
+{
+    use TrustTrait;
+}
+
+/**
+ * An interface with a constant Drupal 12 removes.
+ */
+interface WithLegacyConstantInterface
+{
+    /**
+     * A constant Drupal 12 removes.
+     *
+     * @deprecated in drupal:11.3.0 and is removed from drupal:12.0.0. There is
+     *   no replacement.
+     */
+    const OLD = 1;
+}

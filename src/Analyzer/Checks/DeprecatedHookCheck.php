@@ -34,17 +34,16 @@ final class DeprecatedHookCheck implements MetadataCheck
         private readonly DeprecationTarget $target,
     ) {}
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
     {
         $hooks = ($this->hooks)($class->codebase);
-        foreach (HookMethods::of($class) as [$hook, $method]) {
-            $location = $method->nameLocation ?? $method->location;
-            if ($location === null || !self::reports($hooks, $this->target, $hook)) {
+        foreach (HookMethods::of($class) as [$hook, $method, $location]) {
+            if (!self::reports($hooks, $this->target, $hook)) {
                 continue;
             }
 

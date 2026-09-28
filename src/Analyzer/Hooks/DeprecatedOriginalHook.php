@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Providers\MagicProperties;
-use amateescu\MagoDrupal\Internal\DeprecationScopes;
-use amateescu\MagoDrupal\Internal\InheritedDeprecation;
-use amateescu\MagoDrupal\Internal\NamedFunctions;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -21,8 +18,7 @@ use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use WeakMap;
 
-use function rtrim;
-use function str_ends_with;
+use function preg_match;
 use function strlen;
 use function substr;
 use function substr_compare;
@@ -37,12 +33,9 @@ use function substr_compare;
  * the receiver's type is fetched from the host, and only an entity that does
  * not declare `$original` itself is reported. The deprecation scopes Mago's
  * own deprecation codes get apply here too, `backwardsCompatibleCall()` and
- * overrides of deprecated methods included. The text fast path and the repeats Mago does not analyze again
- * are where the branch count comes from.
+ * overrides of deprecated methods included.
  *
  * @internal
- *
- * @mago-expect lint:cyclomatic-complexity
  */
 final class DeprecatedOriginalHook implements NodeAnalysisHook
 {
@@ -57,6 +50,12 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
     private const ENTITY = 'Drupal\Core\Entity\EntityInterface';
 
     private const PROPERTY = 'original';
+
+    /**
+     * The arrow before the property name, with any whitespace and comments
+     * around it.
+     */
+    private const ARROW = '/' . DeprecatedUse::GAP . '\??->' . DeprecatedUse::GAP . '\z/';
 
     /**
      * Per file, whether each receiver, keyed by its source text, was an
@@ -111,11 +110,7 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
         $answers = $this->entities[$source] ?? [];
         $entity = $type === null ? $answers[$object] ?? false : ($answers[$object] = self::onEntity($context, $type));
         $this->entities[$source] = $answers;
-        if (
-            !$entity
-            || DeprecationScopes::marked($contents) && DeprecationScopes::of($contents)->covers($span)
-            || InheritedDeprecation::covers($context->codebase, $source->path, NamedFunctions::of($contents), $span)
-        ) {
+        if (!$entity || DeprecatedUse::covered($context, $span)) {
             return;
         }
 
@@ -134,15 +129,17 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
      */
     private static function receiver(string $contents, Span $span, int $length): ?Span
     {
-        $object = rtrim(substr($contents, $span->start, $span->length() - $length));
-        if (!str_ends_with($object, '->')) {
+        $before = substr($contents, $span->start, $span->length() - $length);
+        $matches = [];
+        if (preg_match(self::ARROW, $before, $matches) !== 1) {
             return null;
         }
 
-        $object = substr($object, offset: 0, length: -2);
-        $object = rtrim(str_ends_with($object, '?') ? substr($object, offset: 0, length: -1) : $object);
+        // The match is the arrow and what surrounds it, so the object ends
+        // where the match starts.
+        $object = strlen($before) - strlen($matches[0]);
 
-        return $object === '' ? null : new Span($span->start, $span->start + strlen($object));
+        return $object === 0 ? null : new Span($span->start, $span->start + $object);
     }
 
     /**

@@ -49,18 +49,17 @@ final class EntityOperationCacheabilityCheck implements MetadataCheck
         private readonly Closure $hooks,
     ) {}
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
     {
         $hooks = ($this->hooks)($class->codebase);
-        foreach (HookMethods::of($class) as [$hook, $method]) {
-            $location = $method->nameLocation ?? $method->location;
+        foreach (HookMethods::of($class) as [$hook, $method, $location]) {
             $position = self::missing($hooks, $hook, HookMethods::parameters($method));
-            if ($position === null || $location === null) {
+            if ($position === null) {
                 continue;
             }
 

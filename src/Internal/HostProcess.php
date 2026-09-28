@@ -10,6 +10,7 @@ use function function_exists;
 use function getmypid;
 use function is_file;
 use function posix_getppid;
+use function str_ends_with;
 use function strrpos;
 use function substr;
 
@@ -33,13 +34,25 @@ final class HostProcess
     private function __construct() {}
 
     /**
-     * The host of this worker: its process id and start time.
+     * The host's identity when it can key entries shared across a run, or
+     * null. Under `docker exec` or `ddev exec` the parent is pid 0 or 1, and
+     * without a start time two runs of one pid look the same, so neither
+     * tells runs apart.
      */
-    public static function identity(): string
+    public static function shareable(): ?string
     {
-        $pid = function_exists('posix_getppid') ? posix_getppid() : (int) getmypid();
+        return self::shareableFor(function_exists('posix_getppid') ? posix_getppid() : (int) getmypid());
+    }
 
-        return self::identify($pid);
+    /**
+     * The identity of the process when it can key shared entries, or null,
+     * by the rule shareable() applies to the host.
+     */
+    public static function shareableFor(int $pid): ?string
+    {
+        $identity = self::identify($pid);
+
+        return $pid <= 1 || str_ends_with($identity, '-' . self::UNKNOWN) ? null : $identity;
     }
 
     /**

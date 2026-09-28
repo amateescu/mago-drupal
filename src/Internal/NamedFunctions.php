@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
-use ParseError;
 use PhpToken;
 
 use function count;
@@ -44,18 +43,11 @@ final class NamedFunctions
 
     public static function of(string $contents): self
     {
-        try {
-            $tokens = PhpToken::tokenize($contents);
+        return LastFile::get(self::class, $contents, static function () use ($contents): self {
+            $tokens = PhpTokens::of($contents);
 
-            // The host analyzes files Mago's own parser accepts, which is not
-            // always what PHP's tokenizer accepts. A file it rejects has no
-            // functions rather than taking the worker down.
-            // @mago-expect analysis:avoid-catching-error
-        } catch (ParseError) {
-            return new self([]);
-        }
-
-        return new self(self::scan($tokens, ClassLikeRanges::scan($tokens)));
+            return new self(self::scan($tokens, ClassLikeRanges::scan($tokens)));
+        });
     }
 
     /**

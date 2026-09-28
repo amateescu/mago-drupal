@@ -9,6 +9,7 @@ use amateescu\MagoDrupal\Analyzer\Checks\TestClassCheck;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
+use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
@@ -20,9 +21,10 @@ use function str_ends_with;
 /**
  * Test class conventions on every PHPUnit TestCase descendant.
  *
- * Test classes are the largest group of classes in core, so this costs one
- * class lookup and one property lookup per class: the `$modules` property is
- * fetched by name rather than through the class's property list.
+ * Test classes are the largest group of classes in core, so the class text
+ * decides first whether any rule could report, and only then is the class
+ * looked up. The `$modules` property is fetched by name rather than through
+ * the class's property list.
  *
  * @internal
  */
@@ -35,12 +37,15 @@ final class TestClassHook implements ClassLikeAnalysisHook
 
     public function getRequirements(): array
     {
-        return [];
+        return [FileAnalysisRequirement::SourceText];
     }
 
     public function analyze(NodeAnalysisContext $context): void
     {
-        if ($context->node->kind !== NodeKind::Class_) {
+        if (
+            $context->node->kind !== NodeKind::Class_
+            || !TestClassCheck::mayReport($context->source->getText($context->node->span))
+        ) {
             return;
         }
 

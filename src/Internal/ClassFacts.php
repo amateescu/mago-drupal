@@ -107,6 +107,18 @@ final class ClassFacts
         return null;
     }
 
+    /**
+     * The method of that name the class has, its own or inherited.
+     */
+    public function visibleMethod(string $name): ?MethodMetadataProjection
+    {
+        return (
+            $this->method($name)
+            ?? $this->codebase->findMethods(class: $this->class->name, name: $name, fields: self::METHOD_FIELDS)[0]
+            ?? null
+        );
+    }
+
     public function constructor(): ?MethodMetadataProjection
     {
         return $this->method('__construct');

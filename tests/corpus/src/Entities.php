@@ -18,6 +18,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Entity\TranslatableRevisionableInterface;
@@ -282,6 +283,23 @@ final class Entities {
     }
     foreach (array_keys($entity->getFieldDefinitions()) as $field_name) {
       $found[] = $entity->get($field_name);
+    }
+
+    return $found;
+  }
+
+  /**
+   * A concrete manager's definitions are keyed by entity type ID too.
+   *
+   * It inherits `getDefinitions()` from the plugin manager base.
+   *
+   * @return list<\Drupal\Core\Entity\EntityStorageInterface>
+   *   The storages.
+   */
+  public function concreteManagerKeys(EntityTypeManager $manager): array {
+    $found = [];
+    foreach (array_keys($manager->getDefinitions()) as $entity_type_id) {
+      $found[] = $manager->getStorage($entity_type_id);
     }
 
     return $found;

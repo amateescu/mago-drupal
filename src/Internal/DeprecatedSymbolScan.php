@@ -40,7 +40,7 @@ use const T_WHITESPACE;
 
 /**
  * Reads the `@deprecated` class-likes, class constants, properties and
- * methods off PHP files.
+ * interface methods off PHP files.
  *
  * One walk over a file's tokens keeps the namespace, the class-like whose
  * body is open and the last docblock. A docblock counts for the declaration
@@ -75,6 +75,11 @@ final class DeprecatedSymbolScan
     private const DECLARATIONS = [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM];
 
     /**
+     * Tokens that may sit between `new` and an anonymous class's keyword.
+     */
+    private const BEFORE_CLASS = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT, T_READONLY, T_FINAL, T_ABSTRACT];
+
+    /**
      * The symbols found so far, in the shape `DeprecatedSymbols` takes them.
      *
      * @var array{
@@ -104,6 +109,14 @@ final class DeprecatedSymbolScan
      * A class-like declared but whose body has not opened yet.
      */
     private ?string $pending = null;
+
+    /**
+     * Whether the pending class-like, then the open one, is an interface.
+     * Only an interface's deprecated methods are kept.
+     *
+     * @var array{bool, bool}
+     */
+    private array $interface = [false, false];
 
     private int $classDepth = 0;
 
@@ -214,6 +227,7 @@ final class DeprecatedSymbolScan
         $name = $next === null ? '' : $tokens[$next]->text;
         $declared = ($this->namespace === '' ? '' : $this->namespace . '\\') . $name;
         $this->pending = $declared;
+        $this->interface[0] = $tokens[$index]->is(T_INTERFACE);
         if ($text === null || $declared === '' || $name === '') {
             return;
         }
@@ -232,6 +246,7 @@ final class DeprecatedSymbolScan
         $this->depth++;
         if ($this->pending !== null) {
             [$this->class, $this->classDepth, $this->pending] = [$this->pending, $this->depth, null];
+            $this->interface[1] = $this->interface[0];
         }
     }
 
@@ -258,7 +273,7 @@ final class DeprecatedSymbolScan
         $token = $tokens[$index];
         if ($token->is(T_FUNCTION)) {
             $method = DeclarationTokens::functionName($tokens, $index);
-            if ($method !== null) {
+            if ($method !== null && $this->interface[1]) {
                 $this->found['methods'][$class . '::' . $method] = $text;
             }
 
@@ -294,16 +309,28 @@ final class DeprecatedSymbolScan
     }
 
     /**
-     * Whether the keyword at the index declares a class-like: not `Foo::class`
-     * and not `new class`.
+     * Whether the keyword at the index declares a class-like: not
+     * `Foo::class`, not `new class`, and not a `class:` named argument.
      *
      * @param list<PhpToken> $tokens
      */
     private static function declaresClassLike(array $tokens, int $index): bool
     {
+        $next = PhpTokens::next($tokens, $index + 1);
+        if ($next !== null && $tokens[$next]->text === ':') {
+            return false;
+        }
+
         for ($i = $index - 1; $i >= 0; $i--) {
-            if (!$tokens[$i]->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
-                return !$tokens[$i]->is([T_DOUBLE_COLON, T_NEW]);
+            $token = $tokens[$i];
+            if ($token->text === ']') {
+                // An attribute, as in `new #[Attr] class`.
+                $i = DeclarationTokens::attributeStart($tokens, $i);
+                continue;
+            }
+
+            if (!$token->is(self::BEFORE_CLASS)) {
+                return !$token->is([T_DOUBLE_COLON, T_NEW]);
             }
         }
 

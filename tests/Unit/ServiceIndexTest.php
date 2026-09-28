@@ -163,7 +163,8 @@ final class ServiceIndexTest extends TestCase
         self::assertSame('Drupal\a\Repository', $index->get('b.inner')?->class);
         self::assertSame('Drupal\Core\Repository', $index->get('a.inner')?->class);
         // The `.inner` holding the definition is private; the one holding an
-        // alias to the first decorator stays gettable, as every alias does.
+        // alias to the first decorator stays gettable, as every alias
+        // Drupal's `setAlias()` creates does.
         self::assertFalse($index->get('a.inner')?->public);
         self::assertTrue($index->get('b.inner')?->public);
     }
@@ -173,6 +174,7 @@ final class ServiceIndexTest extends TestCase
         $index = ServiceIndex::fromDefinitions([
             'hidden' => ['class' => 'Drupal\Core\Hidden', 'public' => false],
             'hidden.alias' => '@hidden',
+            'closed.alias' => ['alias' => 'hidden', 'public' => false],
             'base' => ['abstract' => true, 'class' => 'Drupal\Core\Base', 'public' => false],
             'child' => ['parent' => 'base'],
             'open_child' => ['parent' => 'base', 'public' => true],
@@ -185,8 +187,9 @@ final class ServiceIndexTest extends TestCase
         ]);
 
         self::assertFalse($index->get('hidden')?->public);
-        // Drupal keeps every alias gettable, and with it the service behind.
+        // An alias is public unless it says otherwise, whatever its service is.
         self::assertTrue($index->get('hidden.alias')?->public);
+        self::assertFalse($index->get('closed.alias')?->public);
         // A child inherits its parent's privacy unless it sets its own.
         self::assertFalse($index->get('child')?->public);
         self::assertTrue($index->get('open_child')?->public);
@@ -203,7 +206,13 @@ final class ServiceIndexTest extends TestCase
 
         self::assertFalse($index->get('hidden')?->public);
         self::assertTrue($index->get('shown')?->public);
-        self::assertTrue($index->get('shown.alias')?->public);
+        // The defaults reach aliases too, in both forms.
+        self::assertFalse($index->get('shown.alias')?->public);
+        self::assertFalse($index->get('shown.keyed')?->public);
+        self::assertTrue($index->get('shown.open')?->public);
+        // A child keeps its parent's visibility; the defaults do not reach it.
+        self::assertTrue($index->get('shown.child')?->public);
+        self::assertFalse($index->get('hidden.child')?->public);
     }
 
     public function testAliasesFollowTheDecorator(): void
@@ -328,5 +337,21 @@ final class ServiceIndexTest extends TestCase
         self::assertSame('Drupal\Core\NullBody', $index->get('Drupal\Core\NullBody')?->class);
         self::assertFalse($index->has('_defaults'));
         self::assertFalse($index->has('broken.thing'));
+    }
+
+    public function testOnlyADecoratorFromAnotherOptionalModuleIsOptional(): void
+    {
+        $directory = dirname(__DIR__) . '/fixtures/services/decorators';
+        $index = ServiceIndex::fromFiles([
+            $directory . '/base.services.yml',
+            $directory . '/extra.services.yml',
+            $directory . '/always.services.yml',
+        ]);
+
+        // Another module may be off while the service's own module is on.
+        self::assertTrue($index->get('thing')?->optionalDecorator);
+        // A required module is always on, like core.
+        self::assertFalse($index->get('other')?->optionalDecorator);
+        self::assertSame('Drupal\always\Other', $index->get('other')?->class);
     }
 }

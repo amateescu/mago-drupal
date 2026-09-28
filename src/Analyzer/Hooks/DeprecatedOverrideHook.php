@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
 use amateescu\MagoDrupal\Internal\DeprecatedTag;
 use amateescu\MagoDrupal\Internal\Types;
+use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
@@ -17,16 +18,22 @@ use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use function strtolower;
 
 /**
- * Reports a call to a method that overrides a deprecated method without
- * saying so.
+ * Reports a call to a method that implements a deprecated interface method
+ * without saying so.
  *
  * Drupal deprecates an interface method on the interface and leaves the
  * implementation with `{@inheritdoc}`, as `ConfigEntityBase::trustData()`
  * does. Mago keeps the flag on the declaration that has the tag, so a call on
  * the concrete class goes unreported. PHPStan carries the tag over unless the
- * override says `@not-deprecated`, and so does this check. The host sends
- * only the calls to the methods marked on disk and their overrides; a method
- * Mago flags itself is left to Mago's `deprecated-method`.
+ * implementation says `@not-deprecated`, and so does this check. The host
+ * sends only the calls to the interface methods marked on disk and their
+ * implementations; a method Mago flags itself is left to Mago's
+ * `deprecated-method`. The interface is looked for above the receiver's
+ * class, so an implementation a trait provides counts too.
+ *
+ * Only interface methods are targets: the host checks every method call
+ * against every target's class before its name, so each target costs time
+ * on every call, and Drupal deprecates through interfaces.
  *
  * @internal
  */
@@ -98,8 +105,8 @@ final class DeprecatedOverrideHook implements MethodCallAnalysisHook
                 continue;
             }
 
-            foreach (DeprecatedUse::lineage($codebase, $declaring) as $ancestor) {
-                $text = $ancestor === strtolower($declaring) ? null : $this->symbols->method($ancestor, $name);
+            foreach (DeprecatedUse::lineage($codebase, $class) as $ancestor) {
+                $text = $this->symbols->method($ancestor, $name);
                 if ($text === null) {
                     continue;
                 }
@@ -108,16 +115,32 @@ final class DeprecatedOverrideHook implements MethodCallAnalysisHook
                     $context,
                     self::CODE,
                     $context->node->span,
-                    'Call to `'
-                    . DeprecatedUse::originalName($codebase, $declaring)
-                    . "::{$method->originalName}()`, which overrides deprecated `"
-                    . DeprecatedUse::originalName($codebase, $ancestor)
-                    . "::{$method->originalName}()`.",
+                    self::message($codebase, $declaring, $ancestor, $method->originalName),
                     $text,
                 );
 
                 return;
             }
         }
+    }
+
+    /**
+     * The message: the method called, and the declaration that deprecates
+     * it when that is another one. A stub that restates a deprecated
+     * interface method without its docblock leaves Mago no flag, and then the
+     * two are the same.
+     */
+    private static function message(Codebase $codebase, string $declaring, string $deprecating, string $method): string
+    {
+        $called = DeprecatedUse::originalName($codebase, $declaring) . "::{$method}()";
+        if (strtolower($declaring) === strtolower($deprecating)) {
+            return "Call to deprecated method `{$called}`.";
+        }
+
+        return (
+            "Call to `{$called}`, which implements deprecated `"
+            . DeprecatedUse::originalName($codebase, $deprecating)
+            . "::{$method}()`."
+        );
     }
 }

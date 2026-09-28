@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Hook\Attribute\ProceduralHookScanStop;
 
 // @mago-expect lint:drupal/constant-prefix
 define('CACHE_LIFETIME', 3600);
@@ -18,6 +19,9 @@ define('CACHE_LIFETIME', 3600);
 define('CORPUSCACHE_TTL', 3600);
 
 define('CORPUS_DEFAULT_LIMIT', 50);
+
+// A #[ProceduralHookScanStop] mention in a comment is not the attribute, so
+// the hooks below are still read.
 
 /**
  * Implements hook_install().
@@ -98,4 +102,17 @@ function corpus_entity_operation_alter(
   EntityInterface $entity,
   CacheableMetadata $cacheability,
 ): void {
+}
+
+/**
+ * Marks where the procedural hooks of this file end.
+ */
+#[ProceduralHookScanStop]
+function corpus_helpers(): void {
+}
+
+/**
+ * A helper Drupal's hook collector never reads as an implementation.
+ */
+function corpus_stopped_thing(): void {
 }

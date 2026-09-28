@@ -103,6 +103,8 @@ final class EntityFields {
     $thing->original?->id();
     // @mago-expect analysis:drupal/deprecated-original
     $thing->original = $other;
+    // @mago-expect analysis:drupal/deprecated-original
+    $other /* the entity */->original?->id();
   }
 
   /**

@@ -46,6 +46,7 @@ final class PluginManagers
         'Drupal\Core\Render\ElementInfoManager' => 'Drupal\Core\Render\Attribute\RenderElement',
         'Drupal\Core\Theme\Icon\IconExtractorPluginManager' => 'Drupal\Core\Theme\Icon\Attribute\IconExtractor',
         'Drupal\Core\TypedData\TypedDataManager' => 'Drupal\Core\TypedData\Attribute\DataType',
+        'Drupal\Core\TypedData\TypedDataManagerInterface' => 'Drupal\Core\TypedData\Attribute\DataType',
         'Drupal\ckeditor5\Plugin\CKEditor5PluginManager' => 'Drupal\ckeditor5\Attribute\CKEditor5Plugin',
         'Drupal\editor\Plugin\EditorManager' => 'Drupal\editor\Attribute\Editor',
         'Drupal\filter\FilterPluginManager' => 'Drupal\filter\Attribute\Filter',
@@ -84,6 +85,8 @@ final class PluginManagers
         'Drupal\Core\Field\Attribute\FieldType' => 'string',
         'Drupal\Core\Field\Attribute\FieldFormatter' => 'string',
         'Drupal\Core\Field\Attribute\FieldWidget' => 'string_textfield',
+        // A YAML layout, which the index never holds, so an unknown layout id
+        // is never reported: core's layouts are mostly YAML.
         'Drupal\Core\Layout\Attribute\Layout' => 'layout_onecol',
         'Drupal\Core\Mail\Attribute\Mail' => 'php_mail',
         'Drupal\filter\Attribute\Filter' => 'filter_null',

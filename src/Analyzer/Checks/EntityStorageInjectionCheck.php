@@ -9,6 +9,7 @@ use amateescu\MagoDrupal\Internal\StorageTypes;
 use amateescu\MagoDrupal\Internal\TraitRoots;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
+use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 
 use function in_array;
 use function ltrim;
@@ -54,9 +55,9 @@ final class EntityStorageInjectionCheck implements MetadataCheck
         private readonly TraitRoots $traitRoots,
     ) {}
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
@@ -82,8 +83,11 @@ final class EntityStorageInjectionCheck implements MetadataCheck
         foreach ($class->properties() as $property) {
             $location = $property->nameLocation ?? $property->location;
             $type = $property->type ?? $property->declaredType;
+            // A promoted property is its constructor parameter, which the
+            // injection report already covers, as phpstan-drupal does.
             if (
                 $location === null
+                || $property->flags->contains(MetadataFlags::PROMOTED_PROPERTY)
                 || $handler && self::own($property->name)
                 || !StorageTypes::any($class->codebase, Types::names($type?->type))
             ) {

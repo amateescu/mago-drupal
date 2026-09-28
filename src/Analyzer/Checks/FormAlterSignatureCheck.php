@@ -30,16 +30,15 @@ final class FormAlterSignatureCheck implements MetadataCheck
 
     private const FORM_STATE = ['FormStateInterface', 'FormState'];
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
     {
-        foreach (HookMethods::of($class) as [$hook, $method]) {
-            $location = $method->nameLocation ?? $method->location;
-            if ($location === null || preg_match('/^form(_[A-Za-z0-9_]+)?_alter$/', $hook) !== 1) {
+        foreach (HookMethods::of($class) as [$hook, $method, $location]) {
+            if (preg_match('/^form(_[A-Za-z0-9_]+)?_alter$/', $hook) !== 1) {
                 continue;
             }
 

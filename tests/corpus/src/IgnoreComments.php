@@ -31,6 +31,14 @@ final class IgnoreComments {
   }
 
   /**
+   * More identifiers may follow a reason.
+   */
+  public function afterReason(): int {
+    // @phpstan-ignore argument.type (the caller casts it), return.type
+    return 'not an integer';
+  }
+
+  /**
    * A trailing comment covers its own line.
    */
   public function trailing(): int {
@@ -100,6 +108,17 @@ final class IgnoreComments {
       // @mago-expect analysis:unevaluated-code
       $flag = TRUE;
     }
+  }
+
+  /**
+   * A line form on reachable code does not start a dead run.
+   */
+  public function deadCodeAfterLineForm(): int {
+    // @phpstan-ignore-next-line
+    $value = strlen('text');
+    throw new \RuntimeException((string) $value);
+    // @mago-expect analysis:unevaluated-code
+    return 1;
   }
 
 }

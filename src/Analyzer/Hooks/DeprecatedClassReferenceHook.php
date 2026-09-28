@@ -9,12 +9,15 @@ use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\NodeAnalysisHook;
-use Mago\Sdk\Syntax\Node;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function in_array;
+use function ltrim;
 use function max;
 use function preg_match;
-use function strrpos;
+use function strlen;
+use function strtolower;
 use function substr;
 
 /**
@@ -25,9 +28,9 @@ use function substr;
  * as a trait. A parameter, return or property type naming one, a `catch` of
  * one, and a static call on one to a method that is not deprecated itself go
  * unreported. Only native types are read, not docblock types, and a call
- * through `parent::` is left to Mago's report on the `extends`. The short
- * name is checked against the class-likes marked on disk before the name is
- * resolved.
+ * through `parent::` is left to Mago's report on the `extends`. The name is
+ * read off the source text and its resolved form looked up among the
+ * class-likes marked on disk, so an imported alias counts too.
  *
  * @internal
  */
@@ -43,6 +46,23 @@ final class DeprecatedClassReferenceHook implements NodeAnalysisHook
      * A class name as written: no nullable, union or intersection mark.
      */
     private const NAME = '/^\\\\?[A-Za-z_][\w\\\\]*$/';
+
+    /**
+     * A class name, `::` and a method name at the start of a static call.
+     */
+    private const STATIC_CALL =
+        '/\G(\\\\?[A-Za-z_][\w\\\\]*)'
+            . DeprecatedUse::GAP
+            . '::'
+            . DeprecatedUse::GAP
+            . '([A-Za-z_]\w*)'
+            . DeprecatedUse::GAP
+            . '\(/';
+
+    /**
+     * A call through these is left to Mago's report on the `extends`.
+     */
+    private const KEYWORDS = ['self', 'static', 'parent'];
 
     /**
      * How far back to look for a `catch` before a type.
@@ -66,43 +86,42 @@ final class DeprecatedClassReferenceHook implements NodeAnalysisHook
 
     public function getRequirements(): array
     {
-        return [FileAnalysisRequirement::SourceText, FileAnalysisRequirement::TargetSubtree];
+        return [FileAnalysisRequirement::SourceText];
     }
 
     public function analyze(NodeAnalysisContext $context): void
     {
-        $node = $context->node;
-        if ($node->kind === NodeKind::Hint) {
-            $this->hint($context, $node);
+        if ($context->node->kind === NodeKind::Hint) {
+            $this->hint($context);
 
             return;
         }
 
-        $children = $context->source->getChildren($node);
-        if ($children !== []) {
-            $this->staticCall($context, $children[0], $children[1] ?? null);
-        }
+        $this->staticCall($context);
     }
 
     /**
      * Reports a type declaration naming a deprecated class-like.
      */
-    private function hint(NodeAnalysisContext $context, Node $hint): void
+    private function hint(NodeAnalysisContext $context): void
     {
-        $name = $this->deprecatedName($context, $hint);
+        $span = $context->node->span;
+        $source = $context->source;
+        $resolved = preg_match(self::NAME, $source->getText($span)) === 1 ? $source->getResolvedName($span) : null;
+        $name = $resolved === null ? null : ltrim($resolved->name, characters: '\\');
         $text = $name === null ? null : $this->symbols->classLike($name);
         if ($name === null || $text === null) {
             return;
         }
 
         // The host targets the types of a `catch` as hints too.
-        $from = max(0, $hint->span->start - self::LOOKBEHIND);
-        $before = substr($context->source->contents, $from, $hint->span->start - $from);
+        $from = max(0, $span->start - self::LOOKBEHIND);
+        $before = substr($source->contents, $from, $span->start - $from);
         $subject = preg_match(self::CATCH, $before) === 1 ? 'Catch of' : 'Type declaration names';
         $this->use->report(
             $context,
             self::CODE,
-            $hint->span,
+            $span,
             $subject . ' deprecated ' . DeprecatedUse::describe($context->codebase, $name) . '.',
             $text,
         );
@@ -112,16 +131,25 @@ final class DeprecatedClassReferenceHook implements NodeAnalysisHook
      * Reports a static call on a deprecated class-like, unless the method is
      * deprecated too, which Mago reports.
      */
-    private function staticCall(NodeAnalysisContext $context, Node $class, ?Node $method): void
+    private function staticCall(NodeAnalysisContext $context): void
     {
-        $name = $this->deprecatedName($context, $class);
-        $text = $name === null ? null : $this->symbols->classLike($name);
-        if ($name === null || $text === null || $method === null) {
+        $span = $context->node->span;
+        $matches = [];
+        if (preg_match(self::STATIC_CALL, $context->source->contents, $matches, offset: $span->start) !== 1) {
             return;
         }
 
-        $methodName = $context->source->getText($method);
-        $declaring = $context->codebase->getDeclaringMethod($name, $methodName);
+        [, $prefix, $method] = $matches;
+        $resolved = in_array(strtolower($prefix), self::KEYWORDS, strict: true)
+            ? null
+            : $context->source->getResolvedName(new Span($span->start, $span->start + strlen($prefix)));
+        $name = $resolved === null ? null : ltrim($resolved->name, characters: '\\');
+        $text = $name === null ? null : $this->symbols->classLike($name);
+        if ($name === null || $text === null) {
+            return;
+        }
+
+        $declaring = $context->codebase->getDeclaringMethod($name, $method);
         if ($declaring?->flags->contains(MetadataFlags::DEPRECATED) === true) {
             return;
         }
@@ -129,27 +157,11 @@ final class DeprecatedClassReferenceHook implements NodeAnalysisHook
         $this->use->report(
             $context,
             self::CODE,
-            $context->node->span,
-            "Call to static method `{$methodName}()` of deprecated "
+            $span,
+            "Call to static method `{$method}()` of deprecated "
             . DeprecatedUse::describe($context->codebase, $name)
             . '.',
             $text,
         );
-    }
-
-    /**
-     * The resolved name the node spells, when its short name is one a
-     * deprecated class-like has; null otherwise.
-     */
-    private function deprecatedName(NodeAnalysisContext $context, Node $node): ?string
-    {
-        $text = $context->source->getText($node);
-        if (preg_match(self::NAME, $text) !== 1) {
-            return null;
-        }
-
-        $short = substr($text, (int) strrpos('\\' . $text, needle: '\\'));
-
-        return $this->symbols->hasShortName($short) ? DeprecatedUse::className($context, $node) : null;
     }
 }

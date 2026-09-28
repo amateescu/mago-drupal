@@ -101,7 +101,7 @@ namespace Drupal\Core\Entity {
         public function getEntityTypeFromClass(string $class_name): string;
     }
 
-    interface EntityTypeManagerInterface extends EntityTypeRepositoryInterface
+    interface EntityTypeManagerInterface extends \Drupal\Component\Plugin\PluginManagerInterface
     {
         public function getStorage(string $entity_type_id): EntityStorageInterface;
 
@@ -121,12 +121,29 @@ namespace Drupal\Core\Entity {
          */
         public function createHandlerInstance($class, ?EntityTypeInterface $definition = null);
 
-        public function getDefinition(string $entity_type_id, bool $exception_on_invalid = true): ?EntityTypeInterface;
+        /**
+         * @return \Drupal\Core\Entity\EntityTypeInterface|null
+         */
+        public function getDefinition($entity_type_id, $exception_on_invalid = true);
 
         /**
          * @return \Drupal\Core\Entity\EntityTypeInterface[]
          */
-        public function getDefinitions(): array;
+        public function getDefinitions();
+    }
+
+    /**
+     * Inherits `getDefinitions()` from `DefaultPluginManager`, as core's does.
+     */
+    abstract class EntityTypeManager extends \Drupal\Core\Plugin\DefaultPluginManager implements EntityTypeManagerInterface
+    {
+        /**
+         * @return \Drupal\Core\Entity\EntityTypeInterface|null
+         */
+        public function getDefinition($entity_type_id, $exception_on_invalid = true)
+        {
+            return null;
+        }
     }
 
     interface EntityRepositoryInterface
@@ -221,6 +238,11 @@ namespace Drupal\Core\Entity {
 
     abstract class EntityBase implements EntityInterface
     {
+        public function id(): string|int|null
+        {
+            return null;
+        }
+
         public function __get(string $name): mixed
         {
             return null;
@@ -350,11 +372,6 @@ namespace Drupal\Core\Config\Entity {
 
     abstract class ConfigEntityBase extends \Drupal\Core\Entity\EntityBase implements ConfigEntityInterface
     {
-        public function id(): string|int|null
-        {
-            return null;
-        }
-
         public function label(): string|null
         {
             return null;

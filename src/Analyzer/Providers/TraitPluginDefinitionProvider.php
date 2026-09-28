@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
 use amateescu\MagoDrupal\Internal\AnalysisMemo;
-use amateescu\MagoDrupal\Internal\TraitUsers;
+use amateescu\MagoDrupal\Internal\PluginDefinitions;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;
@@ -25,9 +25,9 @@ use function strtolower;
  * Mago analyzes a trait on its own, so the call is one the trait does not
  * declare, and `TraitCallProvider` gives it the using classes' declared
  * `array|PluginDefinitionInterface`. This provider is registered first and
- * asks `PluginDefinitionProvider` about each class using the trait instead:
- * `BlockPluginTrait` gets an array, `ContextAwarePluginTrait`, which layouts
- * use too, keeps the union.
+ * applies the own-definition rule of `PluginDefinitions` to each class using
+ * the trait instead: `BlockPluginTrait` gets an array,
+ * `ContextAwarePluginTrait`, which layouts use too, keeps the union.
  *
  * @internal
  */
@@ -72,17 +72,8 @@ final class TraitPluginDefinitionProvider implements MethodReturnTypeProvider, U
      */
     private static function usersHaveArrays(Codebase $codebase, string $trait): bool
     {
-        if ($codebase->getClassLike($trait)?->kind !== ClassLikeKind::Trait) {
-            return false;
-        }
+        $class = $codebase->getClassLike($trait);
 
-        $users = TraitUsers::classes($codebase, $trait);
-        foreach ($users as $user) {
-            if (!PluginDefinitionProvider::hasArrays($codebase, $user)) {
-                return false;
-            }
-        }
-
-        return $users !== [];
+        return $class?->kind === ClassLikeKind::Trait && PluginDefinitions::ownAreArrays($codebase, $class);
     }
 }

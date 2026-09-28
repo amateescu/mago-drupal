@@ -12,6 +12,7 @@ use Mago\Sdk\Syntax\SourceFile;
 use WeakMap;
 
 use function array_key_exists;
+use function preg_match;
 use function strtolower;
 
 /**
@@ -29,9 +30,17 @@ use function strtolower;
  * map, and every file a worker ever analyzed would stay in memory.
  *
  * @internal
+ *
+ * @mago-expect lint:cyclomatic-complexity
  */
 final class FileMembers
 {
+    /**
+     * `new class`, with any attributes or `readonly` before `class`, checked
+     * before the file is tokenized for its anonymous classes.
+     */
+    private const ANONYMOUS = '/\bnew\s++(?:#\[|readonly\b|class\b)/i';
+
     /**
      * @var WeakMap<SourceFile, self>|null
      */
@@ -74,7 +83,15 @@ final class FileMembers
             }
         }
 
-        return $found;
+        // Inside an anonymous class, `$this` and `self` are that class, which
+        // has no metadata name to hand back.
+        if ($found !== null && preg_match(self::ANONYMOUS, $file->contents) === 1) {
+            return ClassLikeRanges::inAnonymous($file->contents, $span) ? null : $found;
+        }
+
+        // A node hook's snapshot keeps only the names inside its targets,
+        // so an interface or enum that is not a target has no name there.
+        return $found ?? ClassLikeRanges::classAt($codebase, $file->contents, $span);
     }
 
     public function methodAt(Codebase $codebase, ClassLikeMetadata $class, Span $span): ?MethodMetadataProjection

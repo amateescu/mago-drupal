@@ -8,12 +8,13 @@ use amateescu\MagoDrupal\Analyzer\Checks\DeprecatedHookCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\EntityOperationCacheabilityCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Attributes;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\HookFunctions;
+use amateescu\MagoDrupal\Internal\ProceduralFunctions;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
+use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\AttributeMetadata;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\NodeAnalysisHook;
@@ -21,7 +22,6 @@ use Mago\Sdk\Syntax\NodeKind;
 
 use function str_starts_with;
 use function strlen;
-use function strrchr;
 use function substr;
 
 /**
@@ -63,41 +63,31 @@ final class ProceduralHookHook implements NodeAnalysisHook
 
     public function getRequirements(): array
     {
-        return [];
+        return [FileAnalysisRequirement::SourceText];
     }
 
     public function analyze(NodeAnalysisContext $context): void
     {
         $file = DrupalFile::fromPath($context->analysis->file);
-        if (!$file->isProcedural()) {
-            return;
-        }
-
         $module = $file->name;
-        $candidates = DeclaredClass::candidates($context->source, $context->node);
-        if ($candidates === [] || $module === '') {
+        if (!$file->isProcedural() || $module === '') {
             return;
         }
 
-        // A bare attribute on the function is a candidate too, so the
-        // function is the one declared at the node.
-        $function = null;
-        foreach ($context->codebase->getMultipleFunctions($candidates) as $candidate) {
-            if ($candidate === null || $candidate->location->span->start !== $context->node->span->start) {
-                continue;
-            }
-
-            $function = $candidate;
-            break;
+        // The name is read off the text first, so only a function named like
+        // a hook of this module costs a codebase request.
+        $contents = $context->source->contents;
+        $short = ProceduralFunctions::nameAt($contents, $context->node->span->start);
+        if (
+            $short === null
+            || !str_starts_with($short, $module . '_')
+            || ProceduralFunctions::afterScanStop($contents, $context->node->span->end)
+        ) {
+            return;
         }
 
+        $function = ProceduralFunctions::declared($context, $short);
         if ($function === null || self::legacy($function->attributes)) {
-            return;
-        }
-
-        $tail = strrchr($function->originalName, needle: '\\');
-        $short = $tail === false ? $function->originalName : substr($tail, offset: 1);
-        if (!str_starts_with($short, $module . '_')) {
             return;
         }
 

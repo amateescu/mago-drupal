@@ -97,10 +97,6 @@ final class EntityTypes
     }
 
     /**
-     * Whether Mago knows the class, so a handler named by an unscanned module
-     * does not surface as a phantom type.
-     */
-    /**
      * The interface a handler of this type implements whatever its class,
      * or null for a handler type without a dedicated getter.
      */
@@ -111,6 +107,10 @@ final class EntityTypes
         return $interface === null ? null : Type::namedObject($interface);
     }
 
+    /**
+     * Whether Mago knows the class, so a handler named by an unscanned module
+     * does not surface as a phantom type.
+     */
     public static function known(Codebase $codebase, ?string $class): bool
     {
         return $class !== null && $codebase->classLikeExists($class);

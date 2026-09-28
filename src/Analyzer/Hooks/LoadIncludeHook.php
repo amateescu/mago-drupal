@@ -76,7 +76,7 @@ final class LoadIncludeHook implements MethodCallAnalysisHook
                 Level::Warning,
                 self::CODE,
                 Issue::new(
-                    "loadInclude() names the module \"{$module}\", which is not in the analyzed code.",
+                    "loadInclude() names the module \"{$module}\", which is not under the Drupal root.",
                     $context->node->span,
                     'unknown module',
                 )->withHelp(

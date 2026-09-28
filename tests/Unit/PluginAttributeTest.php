@@ -8,6 +8,9 @@ use amateescu\MagoDrupal\Internal\PluginAttribute;
 use Mago\Sdk\Analyzer\Metadata\AttributeArgumentMetadata;
 use Mago\Sdk\Analyzer\Metadata\AttributeMetadata;
 use Mago\Sdk\Analyzer\Type;
+use Mago\Sdk\Analyzer\Type\ReferenceSelectorKind;
+use Mago\Sdk\Analyzer\Type\ReferenceType;
+use Mago\Sdk\Analyzer\Type\ReferenceTypeKind;
 use Mago\Sdk\SourceLocation;
 use Mago\Sdk\Span;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +20,8 @@ final class PluginAttributeTest extends TestCase
     private const BLOCK = 'Drupal\Core\Block\Attribute\Block';
 
     private const MEDIA_SOURCE = 'Drupal\media\Attribute\MediaSource';
+
+    private const NEGOTIATION = 'Drupal\language\Plugin\LanguageNegotiation\LanguageNegotiationUrl';
 
     public function testResolvesAttributesThroughTheirAncestors(): void
     {
@@ -37,13 +42,17 @@ final class PluginAttributeTest extends TestCase
                 ? self::BLOCK
                 : PluginAttribute::discovered($attribute, [])
         );
-        $plugins = PluginAttribute::read([
-            self::attribute(self::BLOCK, Type::literalString('page_title_block')),
-            self::attribute('Drupal\corpus\Attribute\SpecialBlock', Type::literalString('special')),
-            self::attribute(self::BLOCK, Type::string()),
-            self::attribute('Drupal\Core\Entity\Attribute\ContentEntityType', Type::literalString('node')),
-            self::attribute('Drupal\Core\Action\Attribute\Action', Type::literalString('entity:save_action')),
-        ], $resolver);
+        $plugins = PluginAttribute::read(
+            [
+                self::attribute(self::BLOCK, Type::literalString('page_title_block')),
+                self::attribute('Drupal\corpus\Attribute\SpecialBlock', Type::literalString('special')),
+                self::attribute(self::BLOCK, Type::string()),
+                self::attribute('Drupal\Core\Entity\Attribute\ContentEntityType', Type::literalString('node')),
+                self::attribute('Drupal\Core\Action\Attribute\Action', Type::literalString('entity:save_action')),
+            ],
+            $resolver,
+            static fn(string $class, string $constant): ?string => null,
+        );
 
         self::assertSame(
             [
@@ -52,6 +61,39 @@ final class PluginAttributeTest extends TestCase
                 ['Drupal\Core\Action\Attribute\Action', 'entity:save_action'],
             ],
             $plugins,
+        );
+    }
+
+    public function testReadsIdsHeldInClassConstants(): void
+    {
+        $constants = [self::NEGOTIATION . '::METHOD_ID' => 'language-url'];
+        $plugins = PluginAttribute::read(
+            [
+                self::attribute(self::BLOCK, self::constant(self::NEGOTIATION, 'METHOD_ID')),
+                self::attribute(self::BLOCK, self::constant(self::NEGOTIATION, 'MISSING')),
+            ],
+            static fn(string $attribute): ?string => PluginAttribute::discovered($attribute, []),
+            static fn(string $class, string $constant): ?string => $constants["{$class}::{$constant}"] ?? null,
+        );
+
+        self::assertSame([[self::BLOCK, 'language-url']], $plugins);
+    }
+
+    /**
+     * The type Mago gives an argument naming a class constant.
+     */
+    private static function constant(string $class, string $constant): Type
+    {
+        return Type::fromAtomic(
+            new ReferenceType(
+                ReferenceTypeKind::Member,
+                $class,
+                null,
+                null,
+                null,
+                $constant,
+                ReferenceSelectorKind::Identifier,
+            ),
         );
     }
 

@@ -66,6 +66,10 @@ final class Container {
     $this->container->has('corpus.aliased');
     // Drupal 13 removes this one, so --deprecations=12 skips it.
     \Drupal::service('corpus.retiring');
+    \Drupal::service('corpus.retiring_alias');
+    // An alias raises the deprecation of the service it points at.
+    // @mago-expect analysis:drupal/deprecated-service
+    \Drupal::service('corpus.leaving_alias');
   }
 
   /**
@@ -84,6 +88,16 @@ final class Container {
     $this->container->get('corpus.outside_decorated')->onlyOnThing();
     // @mago-expect analysis:non-existent-method
     $this->container->get('corpus.outside_decorated')->onlyOnOther();
+    // Another module's decorator is there only while that module is on, so
+    // the id has the type both classes share.
+    $this->container->get('corpus.greeter')->greet();
+    // @mago-expect analysis:non-existent-method
+    $this->container->get('corpus.greeter')->shout();
+    // Two interfaces neither extends are both shared, so the id is both.
+    $this->container->get('corpus.host')->greet();
+    $this->container->get('corpus.host')->wave();
+    // @mago-expect analysis:non-existent-method
+    $this->container->get('corpus.host')->onlyAtHome();
     // The container drops a decorator whose target is missing, so the id
     // is unknown at runtime too.
     // @mago-expect analysis:drupal/unknown-service
@@ -173,12 +187,16 @@ final class Container {
   }
 
   /**
-   * The container leaves a private service out, but not an alias of it.
+   * The container leaves a private service out, but not a plain alias of it.
+   *
+   * An alias that says it is private is left out too.
    */
   public function privateService(): void {
     // @mago-expect analysis:drupal/unknown-service
     $this->container->get('corpus.private')->onlyOnThing();
     $this->container->get('corpus.private_alias')->onlyOnThing();
+    // @mago-expect analysis:drupal/unknown-service
+    $this->container->get('corpus.closed_alias')->onlyOnThing();
   }
 
   /**

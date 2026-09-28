@@ -65,16 +65,34 @@ final class EntityTypeIndexTest extends TestCase
         self::assertNull($bare->storage());
     }
 
-    public function testLaterDefinitionsOverrideEarlierIds(): void
+    public function testTwoClassesDeclaringOneIdCancelOut(): void
     {
-        $first = new EntityTypeDefinition('node', 'Drupal\node\Entity\Node', EntityTypeKind::Content, handlers: []);
+        $first = new EntityTypeDefinition('node', 'Drupal\node\Entity\Node', EntityTypeKind::Content, handlers: [
+            'storage' => 'Drupal\node\NodeStorage',
+        ]);
         $second = new EntityTypeDefinition(
             'node',
             'Drupal\override\Entity\Node',
             EntityTypeKind::Content,
             handlers: [],
         );
+        $index = EntityTypeIndex::fromDefinitions([$first, $second]);
 
-        self::assertSame($second, EntityTypeIndex::fromDefinitions([$first, $second])->get('node'));
+        self::assertNull($index->get('node'));
+        self::assertTrue($index->declares('node'));
+        self::assertNull($index->byClass('Drupal\node\Entity\Node'));
+        self::assertNull($index->byClass('Drupal\override\Entity\Node'));
+        self::assertNull($index->byStorage('Drupal\node\NodeStorage'));
+        // A later merge cannot bring either back.
+        self::assertNull($index->merge([$first])->get('node'));
+        self::assertNull($index->merge([$first])->byClass('Drupal\node\Entity\Node'));
+    }
+
+    public function testOneClassDeclaredTwiceKeepsItsId(): void
+    {
+        $first = new EntityTypeDefinition('node', 'Drupal\node\Entity\Node', EntityTypeKind::Content, handlers: []);
+        $again = new EntityTypeDefinition('node', 'Drupal\node\Entity\node', EntityTypeKind::Content, handlers: []);
+
+        self::assertSame($again, EntityTypeIndex::fromDefinitions([$first, $again])->get('node'));
     }
 }

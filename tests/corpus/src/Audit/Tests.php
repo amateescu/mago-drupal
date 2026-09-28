@@ -46,6 +46,14 @@ final class WellFormedTest extends TestCase {
     $absent->onlyOnThing();
   }
 
+  /**
+   * PHPUnit counts a Countable, so an empty one passes `assertEmpty()`.
+   */
+  public function emptyCountable(\ArrayObject $items): int {
+    $this->assertEmpty($items);
+    return $items->count();
+  }
+
 }
 
 /**

@@ -28,6 +28,8 @@ use function preg_match;
  * `impossible-type-comparison`. One instance checks one assertion method.
  *
  * @internal
+ *
+ * @mago-expect lint:cyclomatic-complexity
  */
 final class RedundantAssertionHook implements MethodCallAnalysisHook
 {
@@ -82,6 +84,10 @@ final class RedundantAssertionHook implements MethodCallAnalysisHook
 
     public function analyze(NodeAnalysisContext $context): void
     {
+        if (!$this->anyMayPass($context)) {
+            return;
+        }
+
         $argument = $this->argument($context);
         $value = $argument === null ? null : $context->argumentTypes[$argument->index] ?? null;
         $passes = fn(Type $type): bool => $this->passes($context, $type);
@@ -113,6 +119,28 @@ final class RedundantAssertionHook implements MethodCallAnalysisHook
                 'Remove the assertion, or assert something about the value that its type does not already say.',
             ),
         );
+    }
+
+    /**
+     * Whether any argument's type could make the call always pass. Most
+     * calls fail this, and it costs less than reading the call's syntax.
+     */
+    private function anyMayPass(NodeAnalysisContext $context): bool
+    {
+        foreach ($context->argumentTypes as $type) {
+            $may =
+                $type !== null
+                && (
+                    $this->method === 'assertInstanceOf'
+                        ? Types::objectsOnly($type)
+                        : AlwaysPasses::check($this->method, $type)
+                );
+            if ($may) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

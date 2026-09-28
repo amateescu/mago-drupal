@@ -31,9 +31,9 @@ final class PluginAnnotationContextCheck implements MetadataCheck
         private readonly Closure $annotated,
     ) {}
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void

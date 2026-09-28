@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use Mago\Sdk\Analyzer\Metadata\FunctionLikeMetadata;
-use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\CallableParameter;
-
-use function array_keys;
-use function array_map;
 
 /**
  * What a call on a trait's `$this` returns and accepts, from the method's
@@ -48,43 +44,12 @@ final class TraitMethods
     }
 
     /**
-     * The first declaration's parameters, each typed only when every
-     * declaration gives it the same type.
+     * Parameters every declaration accepts; see `SharedParameters`.
      *
      * @return list<CallableParameter>
      */
     public function parameters(): array
     {
-        $first = $this->methods[0];
-
-        return array_map(
-            fn(int $position): CallableParameter => new CallableParameter(
-                name: $first->parameters[$position]->name,
-                type: $this->agreedType($position),
-                byReference: $first->parameters[$position]->flags->contains(MetadataFlags::BY_REFERENCE),
-                variadic: $first->parameters[$position]->flags->contains(MetadataFlags::VARIADIC),
-                hasDefault: $first->parameters[$position]->flags->contains(MetadataFlags::HAS_DEFAULT),
-            ),
-            array_keys($first->parameters),
-        );
-    }
-
-    /**
-     * The type every declaration gives the parameter, or null when they
-     * differ, one is generic or one leaves it untyped.
-     */
-    private function agreedType(int $position): ?Type
-    {
-        $agreed = null;
-        foreach ($this->methods as $method) {
-            $type = $method->templates === [] ? $method->parameters[$position]->type->type ?? null : null;
-            if ($type === null || $agreed !== null && $agreed->encode() !== $type->encode()) {
-                return null;
-            }
-
-            $agreed = $type;
-        }
-
-        return $agreed;
+        return SharedParameters::of($this->methods);
     }
 }

@@ -29,7 +29,9 @@ final class UnreachableIgnores
     public static function cover(PHPStanIgnores $ignores, string $contents, int $offset): bool
     {
         foreach ($ignores->lines() as [, $end, $identifiers]) {
-            $unreachable = $identifiers === true || in_array(self::IDENTIFIER, $identifiers, strict: true);
+            // A line form ignores everything on its line, reachable or not,
+            // so only the identifier says where a dead run starts.
+            $unreachable = $identifiers !== true && in_array(self::IDENTIFIER, $identifiers, strict: true);
             if ($unreachable && $end < $offset && PhpTokens::staysInBlock(substr($contents, $end, $offset - $end))) {
                 return true;
             }

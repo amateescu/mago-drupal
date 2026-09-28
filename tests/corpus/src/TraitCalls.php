@@ -183,3 +183,118 @@ final class ProvidingClass {
   }
 
 }
+
+/**
+ * Calls a method its users declare with different signatures.
+ */
+trait ArityTrait {
+
+  /**
+   * A call has to fit every user's declaration.
+   */
+  public function callHelpers(): void {
+    // @mago-expect analysis:too-many-arguments
+    $this->helper(1, 'two');
+    // @mago-expect analysis:too-few-arguments
+    $this->other();
+    $this->helper(1);
+    // @mago-expect analysis:too-few-arguments
+    $this->joined();
+    $this->joined('-', 'a', 'b');
+    // @mago-expect analysis:too-few-arguments
+    $this->spread();
+    $this->spread('a', 'b');
+    // @mago-expect analysis:too-few-arguments
+    $this->collide('a');
+    $this->collide('a', 'b');
+  }
+
+}
+
+/**
+ * Takes an optional second argument; sorts first.
+ */
+final class AAritySpacious {
+
+  use ArityTrait;
+
+  /**
+   * Takes one or two arguments.
+   */
+  public function helper(int $a, string $b = ''): string {
+    return $a . $b;
+  }
+
+  /**
+   * Takes an optional argument.
+   */
+  public function other(int $optional = 0): int {
+    return $optional;
+  }
+
+  /**
+   * Joins the parts.
+   */
+  public function joined(string $glue, string ...$parts): string {
+    return implode($glue, $parts);
+  }
+
+  /**
+   * Takes any number of strings, where the other user takes one or two.
+   */
+  public function spread(string ...$all): string {
+    return implode('', $all);
+  }
+
+  /**
+   * A variadic named like the fallback name of a later position.
+   */
+  public function collide(string ...$arg1): string {
+    return implode('', $arg1);
+  }
+
+}
+
+/**
+ * Takes only what it needs.
+ */
+final class BArityStrict {
+
+  use ArityTrait;
+
+  /**
+   * Takes one argument.
+   */
+  public function helper(int $a): string {
+    return (string) $a;
+  }
+
+  /**
+   * Takes one required argument.
+   */
+  public function other(int $required): int {
+    return $required;
+  }
+
+  /**
+   * Joins the pieces.
+   */
+  public function joined(string $glue, string ...$pieces): string {
+    return implode($glue, $pieces);
+  }
+
+  /**
+   * Takes one or two strings.
+   */
+  public function spread(string $first, string $second = ''): string {
+    return $first . $second;
+  }
+
+  /**
+   * Takes exactly two strings.
+   */
+  public function collide(string $a, string $b): string {
+    return $a . $b;
+  }
+
+}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Internal\ClassTargets;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
 use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
@@ -11,18 +12,17 @@ use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
-use Mago\Sdk\Exception\InvalidArgumentException;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function in_array;
 
 /**
- * Reports a class, enum or interface that implements or extends a deprecated
- * interface.
+ * Reports a class or enum that implements a deprecated interface.
  *
- * Mago reports a deprecated parent class but not a deprecated interface. The
- * host sends only the descendants of the interfaces marked on disk, and each
- * is reported once, at its name, for every deprecated interface it lists
+ * Mago reports a deprecated parent class, and an interface extending a
+ * deprecated interface, but not an `implements` of one. The host sends only
+ * the descendants of the interfaces marked on disk, and each class or enum is
+ * reported once, at its name, for every deprecated interface it lists
  * itself.
  *
  * @internal
@@ -35,7 +35,7 @@ final class DeprecatedInterfaceHook implements ClassLikeAnalysisHook
      */
     public const CODE = DeprecatedConstantHook::CLASS_CODE;
 
-    private const DECLARATIONS = [NodeKind::Class_, NodeKind::Interface, NodeKind::Enum];
+    private const DECLARATIONS = [NodeKind::Class_, NodeKind::Enum];
 
     /**
      * @param non-empty-list<non-empty-string> $interfaces The deprecated
@@ -53,19 +53,9 @@ final class DeprecatedInterfaceHook implements ClassLikeAnalysisHook
      */
     public static function of(DeprecatedSymbols $symbols, DeprecatedUse $use): ?self
     {
-        $interfaces = [];
-        foreach ($symbols->interfaces() as $interface) {
-            // The names come off the tokens of user code. One the SDK
-            // rejects, such as a namespace segment named `Enum`, must not
-            // fail the whole registration.
-            try {
-                ClassLikeTarget::descendantsOf($interface);
-            } catch (InvalidArgumentException) {
-                continue;
-            }
-
-            $interfaces[] = $interface;
-        }
+        // The names come off the tokens of user code, and one the SDK rejects
+        // must not fail the whole registration.
+        $interfaces = ClassTargets::accepted($symbols->interfaces());
 
         return $interfaces === [] ? null : new self($interfaces, $symbols, $use);
     }
@@ -96,11 +86,9 @@ final class DeprecatedInterfaceHook implements ClassLikeAnalysisHook
             return;
         }
 
-        $subject = match ($class->kind) {
-            ClassLikeKind::Interface => "Interface `{$class->originalName}` extends",
-            ClassLikeKind::Enum => "Enum `{$class->originalName}` implements",
-            default => "Class `{$class->originalName}` implements",
-        };
+        $subject = $class->kind === ClassLikeKind::Enum
+            ? "Enum `{$class->originalName}` implements"
+            : "Class `{$class->originalName}` implements";
         $where = ($class->nameLocation ?? $class->location)->span;
         foreach ($class->directParentInterfaces as $interface) {
             $text = $this->symbols->classLike($interface);

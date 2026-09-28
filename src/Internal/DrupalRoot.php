@@ -7,15 +7,19 @@ namespace amateescu\MagoDrupal\Internal;
 use Closure;
 use Throwable;
 
+use function basename;
 use function file_get_contents;
 use function glob;
+use function implode;
 use function is_file;
 use function json_decode;
 use function preg_match;
 use function realpath;
 use function rtrim;
+use function sha1;
 use function str_ends_with;
 use function str_starts_with;
+use function strtolower;
 
 use const DIRECTORY_SEPARATOR;
 use const GLOB_ONLYDIR;
@@ -40,6 +44,26 @@ use const GLOB_ONLYDIR;
 final class DrupalRoot
 {
     /**
+     * Where install profiles live: core's, the site's, and the test
+     * profiles core and extensions ship.
+     */
+    private const PROFILE_DIRECTORIES = [
+        'core/profiles/*',
+        'core/profiles/tests/*',
+        'core/modules/*/tests/profiles/*',
+        'profiles/*',
+        'profiles/*/*',
+        'modules/*/tests/profiles/*',
+        'modules/*/*/tests/profiles/*',
+    ];
+
+    /**
+     * Where Drupal discovers annotated entity types, plugins and render
+     * elements.
+     */
+    private const ANNOTATED_DIRECTORIES = '~/src/(?:Entity|Plugin(?:/.+)?|Element)/[^/]+\.php$~';
+
+    /**
      * Profile and theme directories, which the module map leaves out; one
      * level of `contrib`/`custom` nesting is covered.
      */
@@ -52,12 +76,31 @@ final class DrupalRoot
         'themes/*/*',
     ];
 
+    private const WEB_ROOT_CANDIDATES = ['', 'web', 'docroot', 'html', 'public'];
+
+    /**
+     * The core version once read: false before, null without a core checkout.
+     */
+    private string|false|null $coreVersion = false;
+
+    private ?AnnotatedDeclarations $annotated = null;
+
+    /**
+     * @var array<non-empty-string, Definition>|null
+     */
+    private ?array $providerIds = null;
+
+    /**
+     * Fingerprints of the file lists read so far, by a hash of the list.
+     *
+     * @var array<string, string>
+     */
+    private array $fingerprints = [];
+
     /**
      * @var list<string>|null
      */
     private ?array $sourceFiles = null;
-
-    private const WEB_ROOT_CANDIDATES = ['', 'web', 'docroot', 'html', 'public'];
 
     private ?ExtensionFileSet $files = null;
 
@@ -174,6 +217,78 @@ final class DrupalRoot
     }
 
     /**
+     * Each install profile under this root, by machine name, with whether it
+     * ships `system.theme` config in `config/sync` or `config/install`, the
+     * two places a functional test reads the default theme from. A test on
+     * a profile without one has to name its theme.
+     *
+     * @return array<string, bool>
+     */
+    public function profileThemes(): array
+    {
+        $profiles = [];
+        foreach (self::PROFILE_DIRECTORIES as $pattern) {
+            $directories = glob($this->path . '/' . $pattern, GLOB_ONLYDIR);
+            foreach ($directories === false ? [] : $directories as $directory) {
+                $name = basename($directory);
+                if (is_file($directory . '/' . $name . '.info.yml')) {
+                    $profiles[$name] =
+                        is_file($directory . '/config/sync/system.theme.yml')
+                        || is_file($directory . '/config/install/system.theme.yml');
+                }
+            }
+        }
+
+        return $profiles;
+    }
+
+    /**
+     * Entity types and plugins declared with a legacy annotation in the
+     * extension source under this root, analyzed or in `includes`, read off
+     * disk through the cache. Kept for the life of the root.
+     */
+    public function annotatedDeclarations(): AnnotatedDeclarations
+    {
+        if ($this->annotated !== null) {
+            return $this->annotated;
+        }
+
+        $files = [];
+        foreach ($this->sourceFiles() as $file) {
+            if (preg_match(self::ANNOTATED_DIRECTORIES, $file) !== 1) {
+                continue;
+            }
+
+            $files[] = $file;
+        }
+
+        return $this->annotated = $this->cached(
+            'annotated',
+            $files,
+            static fn(): AnnotatedDeclarations => AnnotatedDeclarations::fromFiles($files),
+            [AnnotatedDeclarations::class, EntityTypeDefinition::class, EntityTypeKind::class],
+        );
+    }
+
+    /**
+     * The classes in the extension source under this root that use the
+     * trait, directly or through another trait, read through the cache.
+     *
+     * @param non-empty-string $trait
+     */
+    public function traitComposers(string $trait): TraitComposers
+    {
+        $files = $this->sourceFiles();
+
+        return $this->cached(
+            'composers-' . strtolower($trait),
+            $files,
+            static fn(): TraitComposers => TraitComposers::fromFiles($files, $trait),
+            [TraitComposers::class],
+        );
+    }
+
+    /**
      * Class-likes, class constants and properties marked `@deprecated` in the
      * extension source under this root, parsed through the cache like the
      * internal classes.
@@ -199,6 +314,10 @@ final class DrupalRoot
      */
     public function providerIds(): array
     {
+        if ($this->providerIds !== null) {
+            return $this->providerIds;
+        }
+
         $files = [];
         foreach ($this->sourceFiles() as $file) {
             if (!str_ends_with($file, 'ServiceProvider.php')) {
@@ -208,7 +327,11 @@ final class DrupalRoot
             $files[] = $file;
         }
 
-        return $this->cached('provider-ids', $files, static fn(): array => ServiceDefinitions::idsInFiles($files));
+        return $this->providerIds = $this->cached(
+            'provider-ids',
+            $files,
+            static fn(): array => ServiceDefinitions::idsInFiles($files),
+        );
     }
 
     /**
@@ -273,15 +396,19 @@ final class DrupalRoot
      */
     public function coreVersion(): ?string
     {
+        if ($this->coreVersion !== false) {
+            return $this->coreVersion;
+        }
+
         $source = is_file($this->path . '/core/lib/Drupal.php')
             ? file_get_contents($this->path . '/core/lib/Drupal.php')
             : false;
         $matches = [];
         if ($source === false || preg_match("/const VERSION = '([^']+)'/", $source, $matches) !== 1) {
-            return null;
+            return $this->coreVersion = null;
         }
 
-        return $matches[1];
+        return $this->coreVersion = $matches[1];
     }
 
     /**
@@ -330,7 +457,15 @@ final class DrupalRoot
             return $parse();
         }
 
-        $fingerprint = DiskCache::fingerprint($paths);
+        // Several indexes read the same source file list, so each list's
+        // files are checked once per worker. A list with a file still being
+        // written has no fingerprint, and is checked again next time.
+        $list = sha1(implode("\0", $paths));
+        $fingerprint = $this->fingerprints[$list] ?? DiskCache::fingerprint($paths);
+        if ($fingerprint !== null) {
+            $this->fingerprints[$list] = $fingerprint;
+        }
+
         if ($fingerprint === null) {
             // A file is still being written. An entry keyed on it now would
             // never be read again.

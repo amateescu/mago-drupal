@@ -269,6 +269,9 @@ namespace Drupal\Core\Hook\Attribute {
 
     #[\Attribute(\Attribute::TARGET_FUNCTION)]
     class LegacyRequirementsHook {}
+
+    #[\Attribute(\Attribute::TARGET_FUNCTION)]
+    class ProceduralHookScanStop {}
 }
 
 namespace Drupal\Core\Config {

@@ -48,12 +48,10 @@ final class ClassResolverProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        $class = Containers::classFor(
+        return Containers::typeFor(
             $context->codebase,
             ($this->services)($context->codebase)->get($definition),
             $definition,
         );
-
-        return $class === null ? null : Type::namedObject($class);
     }
 }

@@ -30,10 +30,11 @@ use function strtolower;
  * `Iterator` nor an `IteratorAggregate` also has the `Iterator` methods, which
  * Prophecy's `TraversablePatch` adds.
  *
- * A prophecy documented as `@var Foo|ProphecyInterface` is left alone. A
- * prophecy is never a `Foo`, so the `Foo` half types the call as the real
- * method's result, and the docblock is what needs fixing, to
- * `ObjectProphecy<Foo>`.
+ * A prophecy documented as `@var Foo|ObjectProphecy` is typed half by half.
+ * The bare `ObjectProphecy` names no class, so its half gets a
+ * `MethodProphecy`, and the `Foo` half gets the real method's result. A
+ * prophecy is never a `Foo`, so the docblock is what needs fixing, to
+ * `ObjectProphecy<Foo>`, and `ProphecyUnionHook` reports it.
  *
  * @internal
  */

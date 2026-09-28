@@ -10,10 +10,7 @@ use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\SourceFile;
 
-use function array_key_exists;
 use function array_slice;
-use function ltrim;
-use function strtolower;
 
 /**
  * Finds the class a class node declares without the node's children.
@@ -39,25 +36,7 @@ final class DeclaredClass
      */
     public static function names(SourceFile $file, Node|Span|null $within): array
     {
-        $mentions = [];
-        $candidates = [];
-        foreach ($file->getResolvedNames($within) as $name) {
-            $resolved = ltrim($name->name, characters: '\\');
-            if ($resolved === '') {
-                continue;
-            }
-
-            $key = strtolower($resolved);
-            if ($name->imported || array_key_exists($key, $mentions)) {
-                $mentions[$key] = true;
-                continue;
-            }
-
-            $mentions[$key] = true;
-            $candidates[] = $resolved;
-        }
-
-        return [$mentions, $candidates];
+        return FileNames::of($file)->within($within instanceof Node ? $within->span : $within);
     }
 
     /**

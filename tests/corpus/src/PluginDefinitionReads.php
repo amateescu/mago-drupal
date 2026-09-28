@@ -27,6 +27,14 @@ abstract class PluginDefinitionReads extends PluginBase {
     return [$this->pluginDefinition['label'], $this->getPluginDefinition()['id']];
   }
 
+  /**
+   * The same read through a variable.
+   */
+  public function held(): mixed {
+    $definition = $this->getPluginDefinition();
+    return $definition['label'];
+  }
+
 }
 
 /**

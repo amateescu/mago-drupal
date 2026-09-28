@@ -102,3 +102,22 @@ final class Injection implements ContainerInjectionInterface {
   }
 
 }
+
+/**
+ * Takes a storage as a promoted property, reported once.
+ */
+final class PromotedInjection {
+
+  public function __construct(
+    // @mago-expect analysis:drupal/entity-storage-injection
+    protected EntityStorageInterface $nodeStorage,
+  ) {}
+
+  /**
+   * Reads the storage so it is not unused.
+   */
+  public function storage(): EntityStorageInterface {
+    return $this->nodeStorage;
+  }
+
+}

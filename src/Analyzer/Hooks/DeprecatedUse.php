@@ -14,9 +14,9 @@ use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Span;
-use Mago\Sdk\Syntax\Node;
 
 use function ltrim;
+use function strlen;
 use function strtolower;
 
 /**
@@ -30,6 +30,13 @@ use function strtolower;
  */
 final class DeprecatedUse
 {
+    /**
+     * Whitespace and comments, which PHP accepts between the tokens of an
+     * access such as `Foo::BAR`. `#[` opens an attribute, not a comment. The
+     * slashes are escaped so any pattern delimiter can hold it.
+     */
+    public const GAP = '(?:\s++|\/\*(?:[^*]|\*(?!\/))*+\*\/|(?:\/\/|#(?!\[))[^\n]*+)*+';
+
     public function __construct(
         private readonly DeprecationTarget $target,
     ) {}
@@ -42,13 +49,7 @@ final class DeprecatedUse
      */
     public function report(NodeAnalysisContext $context, string $code, Span $span, string $message, string $text): void
     {
-        $source = $context->source;
-        $contents = $source->contents;
-        if (
-            !$this->target->keeps($text)
-            || DeprecationScopes::marked($contents) && DeprecationScopes::of($contents)->covers($span)
-            || InheritedDeprecation::covers($context->codebase, $source->path, NamedFunctions::of($contents), $span)
-        ) {
+        if (!$this->target->keeps($text) || self::covered($context, $span)) {
             return;
         }
 
@@ -56,20 +57,37 @@ final class DeprecatedUse
     }
 
     /**
-     * The class a `Foo::`, `self::`, `static::` or `parent::` prefix names,
-     * or null when it names none.
+     * Whether a deprecation scope covers the span: the scopes Mago's own
+     * deprecation codes get, overrides of deprecated methods included.
      */
-    public static function className(NodeAnalysisContext $context, Node $class): ?string
+    public static function covered(NodeAnalysisContext $context, Span $span): bool
     {
         $source = $context->source;
-        $text = strtolower($source->getText($class));
-        if ($text === 'self' || $text === 'static' || $text === 'parent') {
-            $enclosing = FileMembers::of($source)->classAt($context->codebase, $source, $class->span);
+        $contents = $source->contents;
 
-            return $text === 'parent' ? $enclosing?->directParentClass : $enclosing?->name;
+        return (
+            DeprecationScopes::marked($contents) && DeprecationScopes::of($contents)->covers($span)
+            || InheritedDeprecation::covers($context->codebase, $source->path, NamedFunctions::of($contents), $span)
+        );
+    }
+
+    /**
+     * The class a `Foo::`, `self::`, `static::` or `parent::` prefix names,
+     * or null when it names none. The prefix is the text before `::`,
+     * starting at the offset.
+     */
+    public static function className(NodeAnalysisContext $context, string $prefix, int $offset): ?string
+    {
+        $source = $context->source;
+        $keyword = strtolower($prefix);
+        if ($keyword === 'self' || $keyword === 'static' || $keyword === 'parent') {
+            $at = new Span($offset, $offset + strlen($prefix));
+            $enclosing = FileMembers::of($source)->classAt($context->codebase, $source, $at);
+
+            return $keyword === 'parent' ? $enclosing?->directParentClass : $enclosing?->name;
         }
 
-        $resolved = $source->getResolvedName($class);
+        $resolved = $source->getResolvedName(new Span($offset, $offset + strlen($prefix)));
 
         return $resolved === null ? null : ltrim($resolved->name, characters: '\\');
     }

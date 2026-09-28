@@ -19,6 +19,14 @@ services:
       package: drupal/core
       version: 11.4.0
       message: The "%service_id%" service is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. Use "corpus.thing" instead.
+  corpus.retiring_alias: '@corpus.retiring'
+  corpus.leaving:
+    class: Drupal\corpus\Nested\Thing
+    deprecated:
+      package: drupal/core
+      version: 11.3.0
+      message: The "%service_id%" service is deprecated in drupal:11.3.0 and is removed from drupal:12.0.0. Use "corpus.thing" instead.
+  corpus.leaving_alias: '@corpus.leaving'
   corpus.decorated:
     class: Drupal\corpus\Nested\Thing
   corpus.decorated_alias: '@corpus.decorated'
@@ -26,9 +34,16 @@ services:
     class: Drupal\corpus\Nested\Thing
     public: false
   corpus.private_alias: '@corpus.private'
+  corpus.closed_alias:
+    alias: corpus.private
+    public: false
   corpus.decorator:
     class: Drupal\corpus\Nested\Other
     decorates: corpus.decorated
+  corpus.greeter:
+    class: Drupal\corpus\Nested\HomeGreeter
+  corpus.host:
+    class: Drupal\corpus\Nested\HomeHost
   corpus.outside_decorated:
     class: Drupal\corpus\Nested\Thing
   corpus.outside_decorator:

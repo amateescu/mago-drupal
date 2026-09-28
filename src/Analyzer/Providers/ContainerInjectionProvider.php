@@ -42,7 +42,8 @@ final class ContainerInjectionProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        $method = $context->codebase->getDeclaringMethod((string) $invocation->declaringClass, $invocation->name);
+        $declaring = $invocation->declaringClass;
+        $method = $declaring === null ? null : $context->codebase->getDeclaringMethod($declaring, $invocation->name);
         if ($method === null || $method->returnType !== null) {
             return null;
         }

@@ -10,6 +10,7 @@ use function file_get_contents;
 use function in_array;
 use function is_file;
 use function preg_match;
+use function strtolower;
 use function substr;
 
 /**
@@ -37,6 +38,11 @@ final class EntityIdField
      */
     private const STRING_TYPES = ['string', 'uuid'];
 
+    /**
+     * @var AnalysisMemo<string|null>|null
+     */
+    private static ?AnalysisMemo $types = null;
+
     private function __construct() {}
 
     /**
@@ -48,9 +54,20 @@ final class EntityIdField
     }
 
     /**
-     * The field type, or null when no method on the way sets it.
+     * The field type, or null when no method on the way sets it. Read once
+     * per class and analysis, since the file is read from disk.
      */
     public static function type(Codebase $codebase, string $class): ?string
+    {
+        self::$types ??= new AnalysisMemo();
+
+        return self::$types->get($codebase, strtolower($class), static fn(): ?string => self::read($codebase, $class));
+    }
+
+    /**
+     * Reads the field type off the `baseFieldDefinitions()` methods.
+     */
+    private static function read(Codebase $codebase, string $class): ?string
     {
         $current = $class;
         while ($current !== null) {

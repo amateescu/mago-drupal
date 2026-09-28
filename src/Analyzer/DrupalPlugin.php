@@ -12,23 +12,15 @@ use amateescu\MagoDrupal\Analyzer\Checks\EntityOperationCacheabilityCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\EntityStorageInjectionCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\FormAlterSignatureCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\ListBuilderCacheabilityCheck;
+use amateescu\MagoDrupal\Analyzer\Checks\MetadataCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\PluginAnnotationContextCheck;
-use amateescu\MagoDrupal\Analyzer\Hooks\AnnotationScan;
+use amateescu\MagoDrupal\Analyzer\Checks\PluginManagerCheck;
 use amateescu\MagoDrupal\Analyzer\Hooks\AnonymousInternalParentHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\CacheableDependencyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ClassMetadataHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownKeyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownNameHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedClassReferenceHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedConstantHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedInterfaceHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOriginalHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOverrideHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedPropertyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedServiceHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedUse;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationTargetFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DescendantMetadataHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityMagicPropertyFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityQueryAccessCheckHook;
@@ -38,7 +30,6 @@ use amateescu\MagoDrupal\Analyzer\Hooks\InternalParentHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\LoadIncludeHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\LoggerFromFactoryHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\PluginDefinitionArrayFilter;
-use amateescu\MagoDrupal\Analyzer\Hooks\PluginManagerAuditHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ProceduralHookHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ServiceProviderScan;
 use amateescu\MagoDrupal\Analyzer\Hooks\StubFiles;
@@ -49,7 +40,6 @@ use amateescu\MagoDrupal\Analyzer\Hooks\UnknownEntityTypeHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownPluginHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownServiceHook;
 use amateescu\MagoDrupal\Analyzer\Providers\ClassResolverProvider;
-use amateescu\MagoDrupal\Analyzer\Providers\ConfigEntityIdProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigFactoryProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigGetProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigStorageProvider;
@@ -58,6 +48,7 @@ use amateescu\MagoDrupal\Analyzer\Providers\ContainerInjectionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityAccessProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityFieldProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityIdListParameterProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\EntityIdProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityKeyProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueryAssertionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueryProvider;
@@ -75,17 +66,14 @@ use amateescu\MagoDrupal\Analyzer\Providers\PluginManagerProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\QueueItemProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ScannedFilesProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\SelfReturnProvider;
-use amateescu\MagoDrupal\Analyzer\Providers\StringEntityIdProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\TraitCallProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\TraitPluginDefinitionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\UninstallReasonsProvider;
+use amateescu\MagoDrupal\Internal\ClassTargets;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DiskCache;
 use amateescu\MagoDrupal\Internal\Indexes;
 use amateescu\MagoDrupal\Internal\TraitRoots;
-use InvalidArgumentException;
-use Mago\Sdk\Analyzer\ClassLikeTarget;
-use Mago\Sdk\Analyzer\ClassTarget;
 use Mago\Sdk\Analyzer\Plugin;
 use Mago\Sdk\Analyzer\PluginDefinition;
 use Mago\Sdk\Analyzer\PluginRegistry;
@@ -131,12 +119,9 @@ final class DrupalPlugin implements Plugin
     public function register(PluginRegistry $registry): void
     {
         $registry->enableProviderMemoization();
-        $registry->registerInitializationHook(new StubFiles());
+        $registry->registerInitializationHook(new StubFiles(coreVersion: $this->indexes->installedCoreVersion(...)));
         $traitRoots = new TraitRoots();
-        $registry->registerIssueFilterHook(new DeprecationScopeFilter());
-        if (!$this->deprecations->isAll()) {
-            $registry->registerIssueFilterHook(new DeprecationTargetFilter($this->deprecations));
-        }
+        DeprecationHooks::register($registry, $this->indexes, $this->deprecations);
 
         $registry->registerIssueFilterHook(new FormResponseReturnFilter());
         $registry->registerIssueFilterHook(new EntityMagicPropertyFilter());
@@ -144,20 +129,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerIssueFilterHook(new TraitPropertyFilter($traitRoots));
 
         $indexes = $this->indexes;
-        $registry->registerCodebaseScanHook(new ServiceProviderScan($indexes->reset(...), $indexes->setProvided(...)));
-        $registry->registerCodebaseScanHook(new AnnotationScan($indexes->setAnnotated(...)));
-        $registry->registerMethodReturnTypeProvider(new ContainerGetProvider($indexes->services(...)));
-        $registry->registerMethodReturnTypeProvider(new ClassResolverProvider($indexes->services(...)));
-        $registry->registerMethodCallAnalysisHook(
-            new DeprecatedServiceHook($indexes->services(...), $this->deprecations),
-        );
-        if ($this->deprecations->keeps(DeprecatedOriginalHook::MESSAGE)) {
-            $registry->registerNodeAnalysisHook(new DeprecatedOriginalHook());
-        }
-
-        $this->registerDeprecatedSymbolHooks($registry);
-
-        $registry->registerMethodCallAnalysisHook(new UnknownServiceHook($indexes->services(...)));
+        $this->registerServiceHooks($registry);
 
         $this->registerEntityHooks($registry);
         // Ahead of the generic trait call provider, which would answer first.
@@ -166,31 +138,36 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new SelfReturnProvider());
         $this->registerCoreTypes($registry);
 
-        $registry->registerMethodReturnTypeProvider(new ConfigFactoryProvider());
-        $registry->registerMethodReturnTypeProvider(new ConfigGetProvider($indexes->configSchema(...)));
-        $registry->registerMethodReturnTypeProvider(new ConfigStorageProvider($indexes->configSchema(...)));
-        $registry->registerMethodCallAnalysisHook(new ConfigUnknownKeyHook($indexes->configSchema(...)));
-        $registry->registerMethodCallAnalysisHook(
-            new ConfigUnknownNameHook($indexes->configSchema(...), $indexes->modules(...)),
-        );
+        $this->registerConfigHooks($registry);
 
         $registry->registerMethodReturnTypeProvider(new PluginManagerProvider($indexes->plugins(...)));
         $registry->registerMethodReturnTypeProvider(new PluginDefinitionProvider());
         $registry->registerMethodCallAnalysisHook(new UnknownPluginHook($indexes->plugins(...)));
 
-        // Hook implementations are called by the module handler, never from
-        // PHP the analyzer can see.
-        $registry->registerAttributedEntryPoint(ClassTarget::any(), 'Drupal\Core\Hook\Attribute\Hook');
+        $this->registerClassChecks($registry, $traitRoots);
+        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook());
+        $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
+        $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::REFINABLE));
+        $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::RENDERER));
 
-        // Class-level rules read metadata, never a subtree. Ancestry comes
-        // from the host's class-like targets and hook facts from the api.php
-        // files on disk.
-        $hooks = $indexes->hookFunctions(...);
-        $serialization = new DependencySerializationCheck();
+        $registry->registerMethodCallAnalysisHook(new LoadIncludeHook($indexes->modules(...)));
+        $this->registerInternalParentHook($registry);
+    }
+
+    /**
+     * Class-level rules read metadata, never a subtree. Ancestry comes from
+     * the host's class-like targets and hook facts from the api.php files on
+     * disk.
+     */
+    private function registerClassChecks(PluginRegistry $registry, TraitRoots $traitRoots): void
+    {
+        $hooks = $this->indexes->hookFunctions(...);
         $storage = new EntityStorageInjectionCheck($traitRoots);
+        $serialization =
+            new DependencySerializationCheck($this->indexes->traitComposers(DependencySerializationCheck::TRAIT));
         $registry->registerNodeAnalysisHook(
             new ClassMetadataHook(
-                $indexes->annotated(...),
+                $this->indexes->annotated(...),
                 [
                     new DeprecatedHookCheck($hooks, $this->deprecations),
                     new FormAlterSignatureCheck(),
@@ -198,40 +175,66 @@ final class DrupalPlugin implements Plugin
                 ],
                 $storage,
                 $serialization,
-                new ConfigEntityExportCheck($indexes->entityTypes(...)),
-                new PluginAnnotationContextCheck($indexes->annotated(...)),
+                new ConfigEntityExportCheck($this->indexes->entityTypes(...)),
+                new PluginAnnotationContextCheck($this->indexes->annotated(...)),
             ),
         );
         $registry->registerNodeAnalysisHook(new TraitStorageHook($storage));
         $registry->registerNodeAnalysisHook(new ProceduralHookHook($hooks, $this->deprecations));
         $registry->registerClassLikeAnalysisHook(new TestClassHook());
         $registry->registerClassLikeAnalysisHook(
-            new DescendantMetadataHook(BrowserTestThemeCheck::ANCESTORS, new BrowserTestThemeCheck()),
+            new DescendantMetadataHook(
+                BrowserTestThemeCheck::ANCESTORS,
+                new BrowserTestThemeCheck($this->indexes->profileThemes(...)),
+            ),
         );
-        $registry->registerMethodReturnTypeProvider(new ListBuilderOperationsProvider($indexes->coreVersion(...)));
+        $registry->registerMethodReturnTypeProvider(
+            new ListBuilderOperationsProvider($this->indexes->coreVersion(...)),
+        );
         // Core keeps the parameter commented out in its own list builders, so
         // the check is for contrib.
         if (!$this->core) {
             $registry->registerClassLikeAnalysisHook(
                 new DescendantMetadataHook(
                     ListBuilderCacheabilityCheck::ANCESTORS,
-                    new ListBuilderCacheabilityCheck($indexes->coreVersion(...)),
+                    new ListBuilderCacheabilityCheck($this->indexes->coreVersion(...)),
                 ),
             );
         }
 
-        $registry->registerClassLikeAnalysisHook(new DescendantMetadataHook(
-            DependencySerializationCheck::BASES,
-            $serialization,
-        ));
-        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook());
-        $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
-        $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::REFINABLE));
-        $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::RENDERER));
+        $this->registerDescendantCheck($registry, $serialization->bases(), $serialization);
+        $registry->registerClassLikeAnalysisHook(
+            new DescendantMetadataHook(PluginManagerCheck::ANCESTORS, new PluginManagerCheck()),
+        );
+    }
 
-        $registry->registerAfterAnalysisHook(new PluginManagerAuditHook());
-        $registry->registerMethodCallAnalysisHook(new LoadIncludeHook($indexes->modules(...)));
-        $this->registerInternalParentHook($registry);
+    /**
+     * The container providers typing services from the services files and
+     * providers, and the hooks reporting deprecated and unknown ids.
+     */
+    private function registerServiceHooks(PluginRegistry $registry): void
+    {
+        $indexes = $this->indexes;
+        $services = $indexes->services(...);
+        $registry->registerCodebaseScanHook(new ServiceProviderScan($indexes->reset(...), $indexes->setProvided(...)));
+        $registry->registerMethodReturnTypeProvider(new ContainerGetProvider($services));
+        $registry->registerMethodReturnTypeProvider(new ClassResolverProvider($services));
+        $registry->registerMethodCallAnalysisHook(new DeprecatedServiceHook($services, $this->deprecations));
+        $registry->registerMethodCallAnalysisHook(new UnknownServiceHook($services));
+    }
+
+    /**
+     * The config providers typing reads from the schema, and the hooks
+     * reporting unknown config names and keys.
+     */
+    private function registerConfigHooks(PluginRegistry $registry): void
+    {
+        $schema = $this->indexes->configSchema(...);
+        $registry->registerMethodReturnTypeProvider(new ConfigFactoryProvider());
+        $registry->registerMethodReturnTypeProvider(new ConfigGetProvider($schema));
+        $registry->registerMethodReturnTypeProvider(new ConfigStorageProvider($schema));
+        $registry->registerMethodCallAnalysisHook(new ConfigUnknownKeyHook($schema));
+        $registry->registerMethodCallAnalysisHook(new ConfigUnknownNameHook($schema, $this->indexes->modules(...)));
     }
 
     /**
@@ -242,7 +245,6 @@ final class DrupalPlugin implements Plugin
     {
         $registry->registerMethodReturnTypeProvider(new LanguageKeysProvider());
         $registry->registerMethodReturnTypeProvider(new MachineNameKeysProvider());
-        $registry->registerMethodReturnTypeProvider(new ConfigEntityIdProvider());
         $registry->registerMethodReturnTypeProvider(new ContainerInjectionProvider());
         $registry->registerMethodReturnTypeProvider(new EntityIdListParameterProvider());
         $registry->registerMethodReturnTypeProvider(new EventListProvider());
@@ -264,7 +266,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new EntityRepositoryProvider($entityTypes));
         $registry->registerMethodReturnTypeProvider(new EntityQueryProvider($entityTypes));
         $registry->registerMethodReturnTypeProvider(new HandlerInstanceProvider());
-        $registry->registerMethodReturnTypeProvider(new StringEntityIdProvider($entityTypes));
+        $registry->registerMethodReturnTypeProvider(new EntityIdProvider($entityTypes));
         $registry->registerMethodCallAnalysisHook(new UnknownEntityTypeHook(
             $entityTypes,
             UnknownEntityTypeHook::SINGLE,
@@ -282,30 +284,15 @@ final class DrupalPlugin implements Plugin
     }
 
     /**
-     * The deprecated symbols are read off the disk at registration, since the
-     * interface check wants its targets before the first request and the
-     * others check names before resolving anything. A root without any needs
-     * no hooks.
+     * Registers a check for the descendants of classes read off disk.
+     *
+     * @param list<string> $ancestors
      */
-    private function registerDeprecatedSymbolHooks(PluginRegistry $registry): void
+    private function registerDescendantCheck(PluginRegistry $registry, array $ancestors, MetadataCheck $check): void
     {
-        $symbols = $this->indexes->deprecatedSymbols();
-        if ($symbols->isEmpty()) {
-            return;
-        }
-
-        $use = new DeprecatedUse($this->deprecations);
-        $registry->registerNodeAnalysisHook(new DeprecatedConstantHook($symbols, $use));
-        $registry->registerNodeAnalysisHook(new DeprecatedPropertyHook($symbols, $use));
-        $registry->registerNodeAnalysisHook(new DeprecatedClassReferenceHook($symbols, $use));
-        $interfaces = DeprecatedInterfaceHook::of($symbols, $use);
-        if ($interfaces !== null) {
-            $registry->registerClassLikeAnalysisHook($interfaces);
-        }
-
-        $overrides = DeprecatedOverrideHook::of($symbols, $use);
-        if ($overrides !== null) {
-            $registry->registerMethodCallAnalysisHook($overrides);
+        $accepted = ClassTargets::accepted($ancestors);
+        if ($accepted !== []) {
+            $registry->registerClassLikeAnalysisHook(new DescendantMetadataHook($accepted, $check));
         }
     }
 
@@ -317,20 +304,7 @@ final class DrupalPlugin implements Plugin
      */
     private function registerInternalParentHook(PluginRegistry $registry): void
     {
-        $internal = [];
-        foreach ($this->core ? [] : $this->indexes->internalClasses()->names() as $class) {
-            // The names come off a regex over user code. One the SDK rejects,
-            // such as a namespace segment named `Enum`, must not fail the
-            // whole registration.
-            try {
-                ClassLikeTarget::descendantsOf($class);
-            } catch (InvalidArgumentException) {
-                continue;
-            }
-
-            $internal[] = $class;
-        }
-
+        $internal = ClassTargets::accepted($this->core ? [] : $this->indexes->internalClasses()->names());
         if ($internal === []) {
             return;
         }

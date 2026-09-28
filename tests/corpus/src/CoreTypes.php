@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\corpus;
 
 use Drupal\Component\Plugin\Derivative\DeriverInterface;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityTypeEventSubscriberTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -35,10 +36,20 @@ final class CoreTypes {
 
   /**
    * A config entity ID is a string, so only its null is reported.
+   *
+   * The class inherits `id()` from `EntityBase`, as core's config entities do.
    */
   public function configEntityId(CorpusSetting $setting): int {
     // @mago-expect analysis:possibly-null-argument
     return strlen($setting->id());
+  }
+
+  /**
+   * The same on a config entity typed by its interface.
+   */
+  public function configInterfaceId(ConfigEntityInterface $entity): int {
+    // @mago-expect analysis:possibly-null-argument
+    return strlen($entity->id());
   }
 
   /**

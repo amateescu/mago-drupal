@@ -22,6 +22,11 @@ final class ServiceDefinition
      * @param bool $public False when the compiled container leaves the id
      *   out, so `get()` cannot hand it back: a `public: false` definition, or
      *   the `.inner` id of a decorator.
+     * @param bool $optionalDecorator True when the decorator comes from
+     *   another module than the service it decorates, other than core, so a
+     *   site may run the service without it.
+     *
+     * @mago-expect lint:excessive-parameter-list
      */
     public function __construct(
         public readonly string $id,
@@ -29,5 +34,6 @@ final class ServiceDefinition
         public readonly ?string $deprecation = null,
         public readonly ?string $undecoratedClass = null,
         public readonly bool $public = true,
+        public readonly bool $optionalDecorator = false,
     ) {}
 }

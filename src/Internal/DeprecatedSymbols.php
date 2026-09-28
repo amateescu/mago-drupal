@@ -13,26 +13,20 @@ use function strtolower;
 use function substr;
 
 /**
- * Class-likes, class constants, properties and methods whose docblock marks
- * them `@deprecated`, with their `@deprecated` text.
+ * Class-likes, class constants, properties and interface methods whose
+ * docblock marks them `@deprecated`, with their `@deprecated` text.
  *
- * Mago reports a deprecated class only where it is instantiated, extended or
- * used as a trait, and never a deprecated class constant or property. The
- * hooks that report the rest need the names up front: an interface to target
- * its implementers, and the short names to send most nodes back after a
- * string compare. `DeprecatedSymbolScan` reads them off the files.
+ * Mago reports a deprecated class-like only where it is instantiated,
+ * extended, used as a trait or extended by an interface, and never a
+ * deprecated class constant or property. The hooks that report the rest need
+ * the names up front: an interface or an interface method to target, and
+ * constant and property names to send most nodes back after a string
+ * compare. `DeprecatedSymbolScan` reads them off the files.
  *
  * @internal
  */
 final class DeprecatedSymbols
 {
-    /**
-     * Lowercased short names of the class-likes.
-     *
-     * @var array<string, true>
-     */
-    private readonly array $shortNames;
-
     /**
      * @var array<string, true>
      */
@@ -71,11 +65,6 @@ final class DeprecatedSymbols
         private readonly array $properties,
         private readonly array $methods,
     ) {
-        $shortNames = [];
-        foreach (array_keys($classLikes) as $class) {
-            $shortNames[substr($class, (int) strrpos('\\' . $class, needle: '\\'))] = true;
-        }
-
         $constantNames = [];
         foreach (array_keys($constants) as $constant) {
             $constantNames[substr($constant, (int) strrpos($constant, needle: ':') + 1)] = true;
@@ -92,7 +81,6 @@ final class DeprecatedSymbols
         }
 
         $this->lowercasedMethods = $lowercasedMethods;
-        $this->shortNames = $shortNames;
         $this->constantNames = $constantNames;
         $this->propertyNames = $propertyNames;
     }
@@ -109,14 +97,6 @@ final class DeprecatedSymbols
     public function classLike(string $name): ?string
     {
         return $this->classLikes[strtolower(ltrim($name, characters: '\\'))] ?? null;
-    }
-
-    /**
-     * Whether a deprecated class-like has this short name, any case.
-     */
-    public function hasShortName(string $name): bool
-    {
-        return array_key_exists(strtolower($name), $this->shortNames);
     }
 
     /**

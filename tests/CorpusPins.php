@@ -55,6 +55,7 @@ use function str_replace;
 use function str_starts_with;
 use function strlen;
 use function substr;
+use function symlink;
 use function sys_get_temp_dir;
 use function trim;
 use function unlink;
@@ -424,7 +425,8 @@ final class CorpusPins
     }
 
     /**
-     * Copies a directory tree.
+     * Copies a directory tree. A symlink is copied as the same link, so a
+     * relative one points into the copy.
      */
     private static function copyTree(string $from, string $to): void
     {
@@ -436,6 +438,12 @@ final class CorpusPins
         /** @var SplFileInfo $entry */
         foreach ($entries as $entry) {
             $target = $to . substr($entry->getPathname(), offset: strlen($from));
+            $link = $entry->isLink() ? $entry->getLinkTarget() : false;
+            if ($link !== false) {
+                symlink($link, $target);
+                continue;
+            }
+
             if ($entry->isDir()) {
                 mkdir($target);
                 continue;

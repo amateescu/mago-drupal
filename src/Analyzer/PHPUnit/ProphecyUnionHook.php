@@ -14,14 +14,18 @@ use Mago\Sdk\Analyzer\NodeAnalysisHook;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\NamedObjectType;
 use Mago\Sdk\SourceLocation;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function implode;
 use function in_array;
 use function ltrim;
 use function preg_match;
+use function str_contains;
 use function str_starts_with;
 use function strtolower;
+
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * Reports a property, parameter or return type documented as a union of a
@@ -34,6 +38,9 @@ use function strtolower;
  * type to use instead.
  *
  * @internal
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class ProphecyUnionHook implements NodeAnalysisHook
 {
@@ -66,7 +73,7 @@ final class ProphecyUnionHook implements NodeAnalysisHook
     public function analyze(NodeAnalysisContext $context): void
     {
         $file = $context->source;
-        if (preg_match(self::UNION_TAG, $file->getText($context->node->span)) !== 1) {
+        if (!self::documentsUnion($file->contents, $context->node->span)) {
             return;
         }
 
@@ -93,6 +100,25 @@ final class ProphecyUnionHook implements NodeAnalysisHook
             $name = $method->originalName ?? $method->method->member;
             self::check($reporter, "{$name}()", $method->returnType?->type, $method->nameLocation);
         }
+    }
+
+    /**
+     * Whether a docblock inside the span documents a union with a prophecy.
+     * The match runs on the file's text from the span's start, so the class
+     * text is not copied.
+     */
+    private static function documentsUnion(string $contents, Span $span): bool
+    {
+        if (!str_contains($contents, 'Prophecy')) {
+            return false;
+        }
+
+        $matches = [];
+        if (preg_match(self::UNION_TAG, $contents, $matches, PREG_OFFSET_CAPTURE, $span->start) !== 1) {
+            return false;
+        }
+
+        return $matches[0][1] < $span->end;
     }
 
     private static function check(Reporter $reporter, string $what, ?Type $type, ?SourceLocation $where): void

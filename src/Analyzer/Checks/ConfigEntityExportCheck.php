@@ -31,9 +31,9 @@ final class ConfigEntityExportCheck implements MetadataCheck
         private readonly Closure $index,
     ) {}
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void

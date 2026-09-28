@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
+use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;
 use Mago\Sdk\Analyzer\MethodTarget;
 use Mago\Sdk\Analyzer\ReturnTypeProviderContext;
 use Mago\Sdk\Analyzer\Type;
 
+use function in_array;
 use function strtolower;
 
 /**
@@ -27,7 +29,9 @@ use function strtolower;
  */
 final class MachineNameKeysProvider implements MethodReturnTypeProvider
 {
-    private const ENTITY_TYPE_MANAGER = 'Drupal\Core\Entity\EntityTypeManagerInterface';
+    private const ENTITY_TYPE_MANAGER = 'drupal\core\entity\entitytypemanagerinterface';
+
+    private const DISCOVERY = 'Drupal\Component\Plugin\Discovery\DiscoveryInterface';
 
     private const FIELDABLE_ENTITY = 'Drupal\Core\Entity\FieldableEntityInterface';
 
@@ -49,7 +53,10 @@ final class MachineNameKeysProvider implements MethodReturnTypeProvider
     public function getTargets(): array
     {
         return [
-            MethodTarget::exact(self::ENTITY_TYPE_MANAGER, 'getDefinitions'),
+            // `EntityTypeManager` gets `getDefinitions()` from
+            // `DefaultPluginManager`, so the call on it is matched through
+            // the discovery interface and checked against the receiver.
+            MethodTarget::exact(self::DISCOVERY, 'getDefinitions'),
             MethodTarget::exact(self::FIELDABLE_ENTITY, 'getFields'),
             MethodTarget::exact(self::FIELDABLE_ENTITY, 'getTranslatableFields'),
             MethodTarget::exact(self::FIELDABLE_ENTITY, 'getFieldDefinitions'),
@@ -61,8 +68,32 @@ final class MachineNameKeysProvider implements MethodReturnTypeProvider
 
     public function getReturnType(ReturnTypeProviderContext $context): ?Type
     {
-        $value = self::VALUES[strtolower($context->invocation->name)] ?? null;
+        $name = strtolower($context->invocation->name);
+        $value = self::VALUES[$name] ?? null;
+        if ($value === null || $name === 'getdefinitions' && !self::onEntityTypeManager($context)) {
+            return null;
+        }
 
-        return $value === null ? null : Type::array(Type::string(), Type::namedObject($value));
+        return Type::array(Type::string(), Type::namedObject($value));
+    }
+
+    /**
+     * Whether every class the receiver may be is an entity type manager,
+     * rather than another plugin manager.
+     */
+    private static function onEntityTypeManager(ReturnTypeProviderContext $context): bool
+    {
+        $names = Types::names($context->invocation->receiverType);
+        foreach ($names === [] ? [] : $context->codebase->getMultipleClassLikes($names) as $class) {
+            if (
+                $class === null
+                || $class->name !== self::ENTITY_TYPE_MANAGER
+                && !in_array(self::ENTITY_TYPE_MANAGER, $class->parentInterfaces, strict: true)
+            ) {
+                return false;
+            }
+        }
+
+        return $names !== [];
     }
 }

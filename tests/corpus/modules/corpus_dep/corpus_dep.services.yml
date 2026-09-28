@@ -1,0 +1,7 @@
+services:
+  corpus_dep.greeter:
+    class: Drupal\corpus_dep\LoudGreeter
+    decorates: corpus.greeter
+  corpus_dep.host:
+    class: Drupal\corpus_dep\LoudHost
+    decorates: corpus.host

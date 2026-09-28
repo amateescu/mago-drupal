@@ -1,0 +1,5 @@
+services:
+  thing:
+    class: Drupal\base\Thing
+  other:
+    class: Drupal\base\Other

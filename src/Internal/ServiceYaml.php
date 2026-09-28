@@ -8,10 +8,13 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 use function array_filter;
-use function array_key_exists;
+use function array_intersect_key;
 use function array_map;
+use function basename;
+use function is_array;
 use function is_string;
 use function str_starts_with;
+use function strstr;
 
 use const ARRAY_FILTER_USE_KEY;
 
@@ -27,6 +30,25 @@ use const ARRAY_FILTER_USE_KEY;
  */
 final class ServiceYaml
 {
+    /**
+     * The key under which load() records the extension whose services file
+     * declared a service: its machine name, or `core`.
+     */
+    public const MODULE = '_module';
+
+    /**
+     * The key under which load() records that the extension declaring a
+     * service is always enabled: core, or a module whose info file says
+     * `required: true`.
+     */
+    public const ALWAYS_ON = '_always_on';
+
+    /**
+     * Keys that decide a definition's visibility without the file's
+     * defaults: its own `public:`, or the parent it copies.
+     */
+    private const OWN_VISIBILITY = ['public' => true, 'parent' => true];
+
     private function __construct() {}
 
     /**
@@ -40,11 +62,20 @@ final class ServiceYaml
         $definitions = [];
         foreach ($paths as $path) {
             try {
-                $definitions = [...$definitions, ...self::definitions(Yaml::parseFile($path, Yaml::PARSE_CUSTOM_TAGS))];
+                $file = self::definitions(Yaml::parseFile($path, Yaml::PARSE_CUSTOM_TAGS));
             } catch (ParseException) {
                 // A broken YAML file is Drupal's problem to report; the index
                 // just goes without that extension's services.
                 continue;
+            }
+
+            // `node.services.yml` belongs to `node`, `core.services.yml` to core.
+            $module = strstr(basename($path), needle: '.services.yml', before_needle: true);
+            $alwaysOn = $module === 'core' || ServiceModuleInfo::required($path);
+            foreach ($file as $id => $definition) {
+                $definitions[$id] = is_array($definition) && $module !== false
+                    ? [...$definition, self::MODULE => $module, self::ALWAYS_ON => $alwaysOn]
+                    : $definition;
             }
         }
 
@@ -87,17 +118,22 @@ final class ServiceYaml
 
     /**
      * One definition of a file whose defaults make it private, unless it says
-     * otherwise itself. The `'@id'` shorthand is an alias, and Drupal keeps
-     * every alias gettable, so it stays as written.
+     * otherwise itself. The `'@id'` shorthand takes the long alias form, the
+     * only one that can carry `public`. A `parent:` child keeps its parent's
+     * visibility, since Symfony resolves a child from its parent and only its
+     * own `public:` wins over that.
      *
      * @return Definition
      */
     private static function privately(mixed $definition): array|string
     {
         $definition = self::asWritten($definition);
+        if (is_string($definition)) {
+            return str_starts_with($definition, '@') ? ['alias' => $definition, 'public' => false] : $definition;
+        }
 
         return (
-            is_string($definition) || array_key_exists('public', $definition)
+            array_intersect_key($definition, self::OWN_VISIBILITY) !== []
                 ? $definition
                 : [...$definition, 'public' => false]
         );

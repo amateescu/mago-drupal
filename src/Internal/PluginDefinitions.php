@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use Mago\Sdk\Analyzer\Codebase;
+use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeMetadata;
 
 use function array_intersect;
@@ -33,6 +34,15 @@ final class PluginDefinitions
         'drupal\ckeditor5\plugin\ckeditor5plugininterface',
     ];
 
+    /**
+     * Plugin bases that plugin types of any kind extend, lowercased.
+     */
+    private const GENERIC_BASES = [
+        'drupal\\component\\plugin\\pluginbase',
+        'drupal\\core\\plugin\\pluginbase',
+        'drupal\\core\\plugin\\configurablepluginbase',
+    ];
+
     private const PLUGIN_ATTRIBUTE = 'drupal\component\plugin\attribute\attributeinterface';
 
     /**
@@ -42,6 +52,31 @@ final class PluginDefinitions
     private const ARRAY_ATTRIBUTE = 'drupal\component\plugin\attribute\attributebase';
 
     private function __construct() {}
+
+    /**
+     * Whether `$this` in the class, or in the classes using the trait, reads
+     * an array definition.
+     *
+     * A class's own definition is an array unless its plugin type has
+     * definition objects, whether or not an interface names the type. The
+     * bases every plugin type extends say nothing, since a subclass of any
+     * type may be `$this` there.
+     */
+    public static function ownAreArrays(Codebase $codebase, ClassLikeMetadata $class): bool
+    {
+        if ($class->kind !== ClassLikeKind::Trait) {
+            return !in_array($class->name, self::GENERIC_BASES, strict: true) && self::areArrays($codebase, $class);
+        }
+
+        $users = TraitUsers::classes($codebase, $class->name);
+        foreach ($users === [] ? [] : $codebase->getMultipleClassLikes($users) as $user) {
+            if ($user === null || !self::ownAreArrays($codebase, $user)) {
+                return false;
+            }
+        }
+
+        return $users !== [];
+    }
 
     public static function areArrays(Codebase $codebase, ClassLikeMetadata $class): bool
     {

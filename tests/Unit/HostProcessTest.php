@@ -14,7 +14,7 @@ final class HostProcessTest extends TestCase
 {
     public function testNamesTheSameProcessTheSameWay(): void
     {
-        self::assertSame(HostProcess::identity(), HostProcess::identity());
+        self::assertSame(HostProcess::identify((int) getmypid()), HostProcess::identify((int) getmypid()));
         self::assertStringStartsWith((string) getmypid() . '-', HostProcess::identify((int) getmypid()));
     }
 
@@ -33,5 +33,18 @@ final class HostProcessTest extends TestCase
     public function testAProcessThatIsGoneHasNoStartTime(): void
     {
         self::assertSame('2147483646-x', HostProcess::identify(2_147_483_646));
+    }
+
+    public function testSharesOnlyWhatTellsRunsApart(): void
+    {
+        // Under `docker exec` the parent is pid 0 or 1, the same in every run.
+        self::assertNull(HostProcess::shareableFor(0));
+        self::assertNull(HostProcess::shareableFor(1));
+        // Without a start time, a pid handed out again looks like the first.
+        self::assertNull(HostProcess::shareableFor(2_147_483_646));
+
+        if (is_dir('/proc/' . (string) getmypid())) {
+            self::assertSame(HostProcess::identify((int) getmypid()), HostProcess::shareableFor((int) getmypid()));
+        }
     }
 }

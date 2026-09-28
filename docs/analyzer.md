@@ -44,14 +44,16 @@ A lookup of a service whose definition carries `deprecated:` is reported as
 `\Drupal::service()` and the class resolver; `has()` is how code probes without instantiating, so it
 is not reported. A string id that no services file or provider defines is reported as
 `drupal/unknown-service`, once core's own services are in the index. So is a private one: a
-`public: false` service, set on it, inherited from its `parent:` or from the file's `_defaults`, and
-the `.inner` id a decorator moves a service to. The compiled container leaves those out, so `get()`
-fails the same way. An alias always works, so an alias of a private service is fine. A `Foo::class`
-id is not checked, since the container registers hook classes and other autowired services under
-their class name without a YAML line, and neither is a lookup passing a behavior other than
-`EXCEPTION_ON_INVALID_REFERENCE`, which asks for null on purpose. Test code, any file under a
-`tests` directory, and hook documentation in `*.api.php` files are left alone for both: tests
-exercise deprecated services on purpose and build their own containers, and hook documentation
+`public: false` service, set on it, inherited from its `parent:` or from the file's `_defaults`,
+and the `.inner` id a decorator moves a service to. The compiled container leaves those out, so
+`get()` fails the same way. An alias works unless it says `public: false` itself or through its
+file's `_defaults`, whatever the service behind it is, so a plain alias of a private service is
+fine. A
+`Foo::class` id is not checked, since the container registers hook classes and other autowired
+services under their class name without a YAML line, and neither is a lookup passing a behavior
+other than `EXCEPTION_ON_INVALID_REFERENCE`, which asks for null on purpose. Test code, any file
+under a `tests` directory, and hook documentation in `*.api.php` files are left alone for both:
+tests exercise deprecated services on purpose and build their own containers, and hook documentation
 uses made-up ids.
 
 ## Where the service index comes from
@@ -78,10 +80,17 @@ decorator's class, and so does every alias of the id. What the id pointed at bef
 `<decorator id>.inner` or the `decoration_inner_name`. When several services decorate one id, the
 highest `decoration_priority` is applied first and the id returns the lowest one; between equal
 priorities, the last one defined wins. A decorator of a missing id is dropped with
-`decoration_on_invalid: ignore` and takes the id over with `decoration_on_invalid: ~`. A decorator
-from a module the run does not analyze is not in the codebase, and the id then keeps the class it
-had: one contrib module decorating a core service would otherwise turn every core caller of that id
-into a bare `object`.
+`decoration_on_invalid: ignore` and takes the id over with `decoration_on_invalid: ~`.
+
+A decorator only replaces a service while the module that declares it is enabled. A decorator from
+core's services file, from a module whose info file says `required: true`, or from the service's own
+module is always there, and the id returns its class. One from another module, such as Workspaces
+decorating `cron`, may be off on the site, so the id gets the type both classes share: the decorated
+class when the decorator extends it, otherwise the most specific classes and interfaces they both
+have (`CronInterface`), as an intersection when there are several, and the declared type when they
+share none. A decorator whose class is not in the codebase, such as one from a module the run does
+not analyze, leaves the class the id had: one contrib module decorating a core service would
+otherwise turn every core caller of that id into a bare `object`.
 
 Not indexed, so the declared type stays: services whose class only exists at runtime (a `factory:`
 without `class:`, a `%parameter%` class), services whose class Mago has not scanned, and anything a
@@ -92,10 +101,12 @@ without `class:`, a `%parameter%` class), services whose class Mago has not scan
 Every class carrying `#[ContentEntityType]`, `#[ConfigEntityType]` or `#[EntityType]` is indexed
 from Mago's class metadata. Vendor code is indexed too, so a contrib workspace sees core's entity
 types. Legacy `@ContentEntityType`, `@ConfigEntityType` and `@EntityType` docblock annotations are
-read too, since contrib still ships them, but only from `src/Entity/*.php` files under the analyzed
-paths; the attribute path has no such limit. A class carrying the attribute has its annotation
-ignored, the way Drupal's discovery does. Not read: classes whose parent chain Mago could not
-resolve, and annotations in vendor code, which a scan hook never sees.
+read too, since contrib still ships them: from the analyzed `src/Entity/*.php` files, and off disk
+for the modules under the Drupal root that the run only includes. A class carrying the attribute
+has its annotation ignored, the way Drupal's discovery does. Two classes declaring one entity type
+id cancel each other out, as plugins do: the id is known, so it is not reported, but it names no
+definition. Not read: classes whose parent chain Mago could not resolve, and annotations in vendor
+code outside the Drupal root.
 
 ```php
 $etm->getStorage('node');                       // Drupal\node\NodeStorage<'node'>
@@ -109,7 +120,7 @@ $etm->getDefinition('node', FALSE);             // Drupal\Core\Entity\ContentEnt
 $etm->getDefinition($id);                       // Drupal\Core\Entity\EntityTypeInterface
 $etm->getHandler($id, 'storage');               // Drupal\Core\Entity\EntityStorageInterface
 $entity_type->getKey('id');                     // string
-$etm->getEntityTypeFromClass(Node::class);      // 'node'
+$typeRepository->getEntityTypeFromClass(Node::class); // 'node'
 $handler->access($entity, 'view');              // bool
 $handler->access($entity, 'view', NULL, TRUE);  // Drupal\Core\Access\AccessResultInterface
 $storage->getEntityTypeId();                    // 'node'
@@ -183,10 +194,12 @@ An entity query executed without `accessCheck()` on its chain is reported as
 `drupal/entity-query-access-check`, unless its entity type is a known config entity type.
 `accessCheck(FALSE)` counts as a decision and is not reported. `$query->accessCheck(TRUE);` as a
 statement of its own retags the variable through a `$this` assertion, so the fluent chain is not
-required. A bare `ConfigEntityStorageInterface` receiver tags the query as config of unknown type,
-which is exempt. The check reads the tags alone, so a query built in one method and executed in
-another is only tracked when the tagged type flows through, and a query the provider never saw
-being created is not reported.
+required. A chain ending in it, such as `$query->condition($group)->accessCheck(TRUE);`, retags the
+chain's result and not `$query`, so a later `$query->execute()` is reported; call `accessCheck()` on
+the variable itself. A bare `ConfigEntityStorageInterface` receiver tags the query as config of
+unknown type, which is exempt. The check reads the tags alone, so a query built in one method and
+executed in another is only tracked when the tagged type flows through, and a query the provider
+never saw being created is not reported.
 
 An entity type id that no indexed entity type declares is reported as `drupal/unknown-entity-type`
 on the entity type manager's handler getters and `getDefinition()`, once the `user` entity type is
@@ -284,18 +297,23 @@ name starts with to be in the codebase, so reading an optional module's config i
 ## Plugins
 
 `$manager->createInstance('id')` returns the plugin class for core's attribute-based managers:
-blocks, actions, conditions, field types, widgets, formatters, layouts, mail, queue workers,
-render elements, typed data, filters, image effects, media sources, REST resources and the other
-managers whose constructor names an attribute class. A contrib manager that extends one of them,
-or a receiver typed by the manager's interface, is recognised through the class ancestry. Plugin
-classes are read from Mago's class metadata: every instantiable class descending from
-`PluginInspectionInterface` that carries one of those attributes or a subclass of one, so vendor
-code counts and field items reach it through `TypedData`. Legacy docblock annotations such as
-`@Block(id = "…")` or `@RenderElement("…")` are read from the analyzed `src/Plugin/**/*.php` and
-`src/Element/*.php` files and mapped to the attribute of the same short name, with `@SearchPlugin`
-and `@FormElement` mapped by hand. An annotation on an abstract class, in a `@code` sample, or on a
-class that also carries the attribute does not count, and two annotated classes claiming one id
-cancel each other out like attributed ones do.
+blocks, actions, conditions, field types, widgets, formatters, layouts, mail, queue workers, render
+elements, typed data, filters, image effects, media sources, REST resources and the other managers
+whose constructor names an attribute class. A contrib manager that extends one of them, or a
+receiver typed by the manager's interface, is recognised through the class ancestry. Plugin classes
+are read from Mago's class metadata: every instantiable class descending from
+`PluginInspectionInterface`, or from the mail, archiver, config action and language negotiation
+method interfaces, which do not extend it, that carries one of those attributes or a subclass of
+one. Vendor code counts, and field items reach the index through `TypedData`. The id is the
+attribute's literal `id`, or the string a class constant it names holds, as in
+`id: LanguageNegotiationUrl::METHOD_ID`. Legacy docblock annotations such as `@Block(id = "…")` or
+`@RenderElement("…")` are read from the `src/Plugin/**/*.php` and `src/Element/*.php` files of every
+extension under the Drupal root, analyzed or in `includes`, off disk through the cache, and mapped
+to the attribute of the same short name, with `@SearchPlugin` and `@FormElement` mapped by hand. So
+are legacy `@ContentEntityType` and `@ConfigEntityType` annotations. An annotated file outside the
+Drupal root is not read, and neither is an editor buffer that has not been saved. An annotation on
+an abstract class, in a `@code` sample, or on a class that also carries the attribute does not
+count, and two annotated classes claiming one id cancel each other out like attributed ones do.
 
 ```php
 $blockManager->createInstance('page_title_block');    // Drupal\Core\Block\Plugin\Block\PageTitleBlock
@@ -306,12 +324,13 @@ $blockManager->createInstance('no_such_block');       // Broken, and reported as
 A `base:derivative` id resolves through its base plugin, the longest one declared, since a base can
 hold a colon itself, as core's `entity:save_action` does. That is wrong for a deriver that sets a
 `class` per derivative. Two classes declaring the same id cancel each other out. On a fallback
-manager (blocks, entity reference selection, filters) an unknown id is typed as the fallback
-plugin, since that is what runs. A plain id that no scanned plugin declares is reported as
-`drupal/unknown-plugin`, but only once a core plugin of that kind is in the index, so a workspace
-that leaves core out of the analyzed code stays quiet, and never in test code, where managers are
-mocked. Not modelled: `hook_*_info_alter()` changes to definitions, managers outside the table, and
-YAML-discovered plugins such as menu links.
+manager (blocks, entity reference selection, filters) an unknown plain id is typed as the fallback
+plugin, since that is what runs; a derivative id whose base nothing declares keeps the declared
+type, since the base may come from YAML or a deriver the index does not read. A plain id that no
+scanned plugin declares is reported as `drupal/unknown-plugin`, but only once a core plugin of that
+kind is in the index, so a workspace that leaves core out of the analyzed code stays quiet, and
+never in test code, where managers are mocked. Not modelled: `hook_*_info_alter()` changes to
+definitions, managers outside the table, and YAML-discovered plugins such as menu links.
 
 ## Deprecation scopes
 
@@ -388,15 +407,15 @@ replacement is in the `@deprecated` text at the declaration.
 
 Mago reports a deprecated function, method, global constant and trait, and a deprecated class where
 it is instantiated or extended. A method is deprecated for Mago only where its own docblock says so,
-so a call to an implementation that says `{@inheritdoc}` goes unreported. The plugin reports the rest of what phpstan-deprecation-rules
-checks, for the symbols Drupal marks `@deprecated`:
+so a call to an implementation that says `{@inheritdoc}` goes unreported. The plugin reports the
+rest of what phpstan-deprecation-rules checks, for the symbols Drupal marks `@deprecated`:
 
 | Code | What it reports |
 | --- | --- |
-| `drupal/deprecated-class` | A class, enum or interface that implements or extends a deprecated interface. A deprecated class-like in a native parameter, return or property type, or in a `catch`. A constant of a deprecated class-like. A static call on a deprecated class-like to a method that is not deprecated itself, which Mago reports. |
+| `drupal/deprecated-class` | A class or enum that implements a deprecated interface; Mago reports an interface extending one itself. A deprecated class-like in a native parameter, return or property type, or in a `catch`. A constant of a deprecated class-like. A static call on a deprecated class-like to a method that is not deprecated itself, which Mago reports. |
 | `drupal/deprecated-class-constant` | A deprecated class constant, read on the class that declares it or on a subclass. |
 | `drupal/deprecated-property` | A read or write of a deprecated property: on `$this`, statically, or on a receiver whose type Mago knows. |
-| `drupal/deprecated-method` | A call to a method that overrides a deprecated method without saying so, as `ConfigEntityBase::trustData()` does for `ConfigEntityInterface::trustData()`. An override whose docblock says `@not-deprecated` is left alone, as PHPStan does. |
+| `drupal/deprecated-method` | A call to a method that implements a deprecated interface method without saying so, as `ConfigEntityBase::trustData()` does for `ConfigEntityInterface::trustData()`, a trait's implementation included. One whose docblock says `@not-deprecated` is left alone, as PHPStan does. A deprecated class method that a subclass overrides silently is not covered: Mago checks every method call against every target, and Drupal deprecates through interfaces. |
 
 ```php
 $file_system->copy($source, $target, FileSystemInterface::EXISTS_REPLACE); // deprecated-class-constant
@@ -420,7 +439,9 @@ them.
 YAML discovery all produce them unless the plugin type opts into a definition class. The plugin
 drops that report on a plugin's own definition, read through the property or the getter, unless
 the class is a layout, Layout Builder section storage or CKEditor 5 plugin, which have definition
-objects in core, or carries a discovery attribute whose `get()` returns an object.
+objects in core, or carries a discovery attribute whose `get()` returns an object. The generic bases
+every plugin type extends (both `PluginBase` classes and `ConfigurablePluginBase`) keep the report,
+since a plugin of any type may be `$this` there.
 
 ```php
 $this->pluginDefinition['label'];       // no invalid-array-access on a block, local task or filter
@@ -571,10 +592,13 @@ check that says nothing about the type.
 
 ## Test assertions
 
-Mago reads `@phpstan-assert`, and PHPUnit carries it on `assertNotNull()` and `assertInstanceOf()`,
+Mago reads `@phpstan-assert`, and PHPUnit 11 carries it on `assertTrue()`, `assertFalse()`,
+`assertNull()`, `assertNotNull()`, `assertInstanceOf()`, `assertSame()` and the `assertIs*()` family,
 so those narrow on their own. `assertNotEmpty()` and `assertEmpty()` carry nothing, and they are
 the two Drupal tests reach for, which leaves a loaded entity nullable for the rest of the test and
-reports every call on it. The plugin supplies the two facts PHPUnit leaves out.
+reports every call on it. The plugin supplies the two facts PHPUnit leaves out. `assertEmpty()` does
+not narrow a `Countable`, `Traversable` or plain `object` value, since an empty collection object
+passes it.
 
 ```php
 $node = Node::load(1);
@@ -660,12 +684,14 @@ $storage->load(1)->willReturn($node);  // MethodProphecy, no non-documented-meth
 $storage->notAMethod();                // still reported
 ```
 
-A prophecy documented as `@var Foo|ProphecyInterface` is left alone. A prophecy is never a `Foo`,
-so the `Foo` half types the call as the real method's result, and the docblock is what needs
-fixing, to `ObjectProphecy<Foo>`. Every call on such a value is reported on one half or the other,
-so the plugin also reports the docblock itself, once, as `phpunit/prophecy-union`, a warning. It
-covers properties, parameters and return types that union `ProphecyInterface` or `ObjectProphecy`
-with another class.
+A prophecy documented as a union with its class, such as `@var Foo|ObjectProphecy`, is typed half
+by half. The bare `ObjectProphecy` names no class, so its half gets a `MethodProphecy`; a
+`ProphecyInterface` half has no such method at all. A prophecy is never a `Foo`, but the `Foo` half
+gets the real method's result, and the docblock is what needs fixing, to `ObjectProphecy<Foo>`.
+Calls on such a value, or the calls chained on them, are reported on one half or the other, so the
+plugin also reports the docblock itself, once, as `phpunit/prophecy-union`, a warning. It covers
+properties, parameters and return types that union `ProphecyInterface` or `ObjectProphecy` with
+another class.
 
 ```php
 /** @var \Drupal\Core\Extension\ModuleHandlerInterface|\Prophecy\Prophecy\ProphecyInterface */
@@ -710,13 +736,15 @@ return NULL;  // no invalid-return-statement
 ```
 
 The comment forms are PHPStan's: `@phpstan-ignore` with comma-separated identifiers and an optional
-reason in parentheses, either at the end of the line or above it, where it covers the next line of
-code; `@phpstan-ignore-next-line`; and `@phpstan-ignore-line`. An identifier drops only the Mago
-codes the plugin lists for it, so `@phpstan-ignore return.type` still lets a missing method on the
-same line through. The two line forms drop every listed code, and an identifier the plugin does not
-list drops nothing. The list covers PHPStan's identifiers for argument, return and property types,
-argument counts, undefined symbols, deprecations, always-true and always-false conditions,
-unreachable code, missing types and offset access, and the deprecation identifiers of
+reason in parentheses after any of them, either at the end of the line or above it, where it covers
+the next line of code; `@phpstan-ignore-next-line`; and `@phpstan-ignore-line`. PHPStan wants that
+code on the very next line and calls a comment with anything in between unused; the plugin skips
+blank lines and other comments, so a `@mago-expect` can sit between the two. An identifier drops
+only the Mago codes the plugin lists for it, so `@phpstan-ignore return.type` still lets a missing
+method on the same line through. The two line forms drop every listed code, and an identifier the
+plugin does not list drops nothing. The list covers PHPStan's identifiers for argument, return and
+property types, argument counts, undefined symbols, deprecations, always-true and always-false
+conditions, unreachable code, missing types and offset access, and the deprecation identifiers of
 phpstan-deprecation-rules; it lives in `PHPStanIgnoreFilter`. phpstan-drupal's identifiers are not
 in it. The `drupal/` and `phpunit/` checks report after Mago runs the plugin, so a comment never
 drops one of them.
@@ -764,6 +792,12 @@ header and every method whose absence a subclass would notice. A restated method
 replaces core's too, `@deprecated` included, so the stubs repeat core's parameter types and
 deprecations. Each file changes one or two members; the rest are there to keep the type intact.
 
+A stub can follow the installed core release. `@stub-deprecated-in 11.2` on a member drops its
+`@deprecated` tag on a core older than 11.2, and `@stub-removed-in 12.0` drops the member on 12.0
+and later, so a stub does not claim a deprecation or a method the installed core does not have. The
+release is read from the root's `Drupal::VERSION`; with no core on disk, the stub is used as
+written.
+
 Not translated from phpstan-drupal's stub directory:
 
 - The generics plumbing of the `TypedData` and `FieldItemList` hierarchies (about 60 files, most of
@@ -803,17 +837,17 @@ ids.
 | `unknown-plugin` | Warning | `createInstance('id')` on a core manager when no scanned plugin declares the id. |
 | `entity-query-access-check` | Error | `execute()` on an entity query chain without `accessCheck()`, unless the entity type is a known config entity type. |
 | `entity-storage-injection` | Warning | A constructor parameter typed as an entity storage. Inject the entity type manager instead. An entity handler is handed its own storage by the entity type manager, so its `$storage` parameter, or `$storage_controller` in views data, is left alone; any other storage it takes is reported. |
-| `entity-storage-property` | Warning | A property whose declared or `@var` type is an entity storage, other than an entity handler's own `$storage`. A trait's property counts too, and the trait's `$storage` is left alone when every class using the trait is a handler. |
+| `entity-storage-property` | Warning | A property whose declared or `@var` type is an entity storage, other than an entity handler's own `$storage` and a promoted constructor parameter, which `entity-storage-injection` reports. A trait's property counts too, and the trait's `$storage` is left alone when every class using the trait is a handler. |
 | `global-drupal-call` | Warning | `\Drupal::…` (or a call on a subclass or instance of `Drupal`) inside an instance method of a class implementing `ContainerInjectionInterface` or `ContainerFactoryPluginInterface`. Static methods and plain services are not checked, and neither is a constructor with a parameter that accepts null: Drupal's deprecation policy adds a new service that way, with a `\Drupal::service()` fallback for callers that do not pass it yet. |
-| `dependency-serialization-property` | Error | A private property, or, before PHP 8.4, a readonly non-scalar property declared below the class composing the trait, in a class that composes `DependencySerializationTrait` itself or descends from one of core's bases that do (forms, plugins, entity handlers; not controllers, plugin forms or views plugins). Promoted constructor parameters count, static properties do not. |
-| `logger-from-factory` | Error | A logger channel fetched from the factory in the constructor of a class using `DependencySerializationTrait`. |
+| `dependency-serialization-property` | Error | A private property, or, before PHP 8.4, a readonly non-scalar property declared below the class composing the trait, in a class that composes `DependencySerializationTrait`, itself or through another trait, or descends from a class under the Drupal root that does (core's forms, plugins and entity handlers among them; not controllers, plugin forms or views plugins, which do not). The composing classes are read off the PHP files; without core on disk, core's three bases stand in. Promoted constructor parameters count, static properties do not. |
+| `logger-from-factory` | Error | A logger channel fetched from the factory and stored on the object (`$this->logger = $factory->get('x')`) in the constructor of a class using `DependencySerializationTrait`. |
 | `deprecated-hook` | Warning | A `#[Hook]` method or a procedural `<module>_<hook>()` implementing a hook whose `hook_*()` is `@deprecated`. |
 | `hook-form-alter-signature` | Error | A form alter hook method whose `$form` is not taken by reference or typed as something other than an array, whose second parameter is typed as something other than `FormStateInterface`, whose third is typed as something other than a string, or which requires a fourth argument. Untyped parameters are only checked for the reference. Taking fewer than three parameters is fine, since PHP drops the extra arguments and core does it in fourteen places. |
 | `hook-entity-operation-cacheability` | Error | `hook_entity_operation` or its alter without the `CacheableMetadata` parameter, once core's api.php declares it. |
 | `test-class-suffix` | Error | A concrete `TestCase` descendant whose name does not end in `Test`. |
 | `internal-class-extension` | Warning | A class extending an `@internal` class owned by another module; a module's tests count as the module. An anonymous class counts too, owned by the module of the class it is written in. |
 | `test-modules-visibility` | Error | A public `$modules` on a test class. |
-| `browser-test-default-theme` | Error | A concrete `BrowserTestBase` descendant whose name ends in `Test`, on a themeless profile, with no `$defaultTheme` set on it or on a base class. Update path tests, which install from a database dump, are left alone, and so are tests on a `NULL` or `FALSE` profile, which install from existing configuration and take its theme. |
+| `browser-test-default-theme` | Error | A concrete `BrowserTestBase` descendant whose name ends in `Test`, on a themeless profile, with no `$defaultTheme` set on it or on a base class. A profile is themeless when it ships no `system.theme` config in `config/sync` or `config/install`, which is what Drupal checks when the test runs. Profiles are read from core, the site's `profiles` directory and the `tests/profiles` directories of core's modules and of extensions; one not found there counts as themeless when it is one of core's themeless test profiles, such as `testing`. Update path tests, which install from a database dump, are left alone, and so are tests on a `NULL` or `FALSE` profile, which install from existing configuration and take its theme. |
 | `list-builder-cacheability` | Error | `getOperations()` or `getDefaultOperations()` without the `CacheableMetadata` parameter, on core 11.3 up to 12.0, which keep the parameter commented out in the interface and read it through `func_get_args()`. Nothing is reported when the core version cannot be read from `core/lib/Drupal.php`. Off in `--core` mode. |
 | `plugin-manager-alter-info` | Warning | A `DefaultPluginManager` subclass in the analyzed code whose constructor, `parent::__construct()` included, never calls `alterInfo()`. |
 | `plugin-manager-cache-backend` | Warning | A `DefaultPluginManager` subclass in the analyzed code whose constructor, `parent::__construct()` included, never calls `setCacheBackend()`. A call without the cache key is Mago's own `too-few-arguments`, since core requires it. |
@@ -833,20 +867,26 @@ class node's span and the file text; the names resolved inside that span say whe
 apply (a `#[Hook]` attribute, an entity storage type, `DependencySerializationTrait`, a config
 entity type, an annotated plugin), and only then is the class looked up in the codebase, with its
 methods and properties fetched on demand. A storage type that only a `@var` tag names is not a
-resolved name, so the class text is searched for such a tag as well. Ancestry comes from the host's
-class-like targets (descendants of `TestCase`, `BrowserTestBase`, `EntityListBuilderInterface` and
-the core bases that compose `DependencySerializationTrait`). The `\Drupal::` and `getStorage()`
-calls and the logger factory `get()` calls come through method-call hooks and are placed in their
-class and method by location. Plugin managers are audited once after analysis from the symbol
-reference graph, which says what their constructors call. Argument types arrive in source order,
-which is the parameter order only while a call stays positional, so the checks that read a string
-out of a multi-string signature (the entity type manager getters, `loadInclude()`, the renderer's
+resolved name, so the class text is searched for such a tag as well. The storage checks also need
+the storage in the constructor's parameters, a property declaration or a `@var` tag, so a method
+parameter such as `postSave()`'s does not bring them in. Ancestry comes from the host's class-like
+targets (descendants of `TestCase`, `BrowserTestBase`, `EntityListBuilderInterface`,
+`DefaultPluginManager` and the classes under the root that compose `DependencySerializationTrait`),
+and a text gate on the class skips the lookup where a check cannot report. The `\Drupal::` calls and
+the logger factory `get()` calls come through method-call hooks and are placed in their class and
+method by location; a call inside an anonymous class belongs to no named class. A plugin manager's
+constructor calls are read off its tokens, so a call in a comment does not count, and a
+`parent::__construct()` call is followed into the parent's constructor off disk, `includes`
+included. Argument types arrive in source order, which is the
+parameter order only while a call stays positional, so the checks that read a string out of a
+multi-string signature (the entity type manager getters, `loadInclude()`, the renderer's
 `addCacheableDependency()`) ask for the call's syntax as well and match `getHandler(handler_type:
 'access', entity_type_id: 'node')` to the right parameter. The others read a position directly,
 because a call naming their parameters out of order puts an int or an array where they expect a
 literal string and they stop there. The internal-class check reads the `@internal` classes off the
-PHP files under `core/lib` and every module's `src` directory before the analysis starts, so the
-host can send only their descendants, and confirms the flag from metadata. Not ported: the
+PHP files under `core/lib`, `core/tests` and the `src` directory of every module, profile and theme
+before the analysis starts, so the host can send only their descendants, and confirms the flag from
+metadata. Not ported: the
 `AccessResult::allowedIf()` condition check (Mago's own analysis reports the always-true
 comparison), and the `module_load_include()` check, whose function is gone in Drupal 11.
 
@@ -867,51 +907,69 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--root=d
 
 Mago runs the worker as a pool of processes, one request at a time per process, and every process
 needs the indexes. The disk-backed ones (the directory walk, services YAML, config schema, hook
-documentation, the `@internal` class list) are parsed once and kept in a cache directory, keyed by
-the modification times and sizes of the files they came from, so an edited file misses the cache and
-nothing goes stale. Files touched in the last two seconds may still be changing, so they are parsed
-without the cache. Entry names also carry a hash of the extension's own code, so an update never
-reads what an older version wrote. The metadata-backed ones (entity types, plugins) cannot outlive a
-run, so within a run the first worker to need one builds it and the others load its result; their
-entries are keyed by the host process, its start time and Mago's generation for the frozen codebase,
-and a new generation's entry replaces the older ones.
+documentation, the `@internal` and `@deprecated` lists, the classes composing
+`DependencySerializationTrait`, annotated plugins) are parsed once and kept in a cache directory,
+keyed by the modification times and sizes of the files they came from, so an edited file misses the
+cache and nothing goes stale. Files touched in the last two seconds may still be changing, so they
+are parsed without the cache. Entry names also carry a hash of the extension's own code, so an
+update never reads what an older version wrote. The metadata-backed ones (entity types, plugins)
+cannot outlive a run, so within a run the first worker to need one builds it and the others load
+its result; their entries are keyed by the host process, its start time and Mago's generation for
+the frozen codebase, and a new generation's entry replaces the older ones.
 
 A watch or editor session analyzes again in the same workers. Every index is dropped when a request
 arrives for a new generation, since Mago reruns the scan hooks of an incremental analysis only when
-a file they target changed, and an edited services file or entity class reaches none of them.
+a file they target changed, and an edited services file or entity class reaches none of them. The
+`@internal` and `@deprecated` lists and the classes composing `DependencySerializationTrait` are the
+exception: the host takes the hooks' targets from them when the worker starts, so a session keeps
+them until its workers restart.
 
 The cache lives under the system temporary directory in `mago-drupal-<uid>/`, and is only used while
 it belongs to that user and nobody else can write to it. Set `MAGO_DRUPAL_CACHE=/some/dir` to move it
 or `MAGO_DRUPAL_CACHE=0` to switch it off. With a warm cache a worker's first request costs a few
-milliseconds of loading plus one metadata build per run; cold, it parses core's 180 services files
-and 180 schema files itself, about half a second.
+dozen milliseconds of loading plus one metadata build per run; cold, it parses core's 180 services
+files and 180 schema files itself, about half a second.
 
-The `@internal` class list is the one index a worker needs before it answers anything, because the
-host takes the class names to watch from the hook's targets when the worker starts. Both the walk
-of the source directories and the class scan are cached: the file listing is reused while every
-directory it read keeps its modification time, and the parsed classes while every file keeps its
-modification time and size. That leaves 39 to 46 ms of startup per worker on a site with 750
-modules, most of it stat calls, and `--core` skips the check and its scan entirely. A lint run pays
+The lists the hook targets come from are read before a worker answers anything. Both the walk of
+the source directories and the scans are cached: the file listing is reused while every directory
+it read keeps its modification time, and the parsed lists while every file keeps its modification
+time and size. The three lists share one check of those times and sizes, which is most of the
+cost: about 25 ms of startup per worker with a warm cache on the sandbox (core and 888 extensions,
+test modules included), and about 0.35 s cold. `--core` skips the `@internal` list. A lint run pays
 it too, since a worker registers its analyzer plugins whatever it is asked to do.
 
 The class-level checks receive every class of the analyzed code as one node span, with no subtree;
 the resolved names in that span, and a search of its text for a `@var` tag naming a storage, decide
 which classes are looked up at all, and each lookup is a few metadata requests, batched by class.
-The file text is already shipped for the other checks that ask for it, so the lifecycle requests on
-core stay at 64.9 MB either way.
+Checks with a text gate, such as the serialization check's `private` or `readonly`, skip the lookup
+when the class text lacks it.
 
-`deprecated-original` sees every property access, because Mago targets node
-kinds and not property names. It asks for nothing but the file text, which other checks already
-ship, and a byte compare on the end of each access sends all but `->original` straight back; only
-those ask the host for the receiver's type. On core it adds 2.5 MB to the 62 MB of lifecycle
-requests and 0.9 s of worker CPU spread over the pool, which does not show in the wall time.
+`deprecated-original` and the constant, property and class-reference deprecation checks see every
+node of their kind, because Mago targets node kinds and not names. They ask for nothing but the file
+text, which other checks already ship, and a compare of the name at the end of each node against
+the list sends almost all of them straight back. The lifecycle requests on core total about 80 MB.
 
-The `@deprecated` symbol list is read like the `@internal` one, from the same files through the same
-cache, and gives the interface and method checks their targets. The constant, property and
-class-reference checks see every class constant fetch, property access, type and static call, and a
-compare of the name against the list sends almost all of them straight back. On core the three add
-about 0.15 s of wall time and 2.5 s of worker CPU across twelve workers.
+A worker started under Xdebug restarts itself once with `XDEBUG_MODE=off`, using the same command
+line, since Xdebug's `develop` mode alone makes a core run about a quarter slower. The restart reads
+the command line from `/proc` and needs the `pcntl` extension, so it happens on Linux; elsewhere the
+worker runs as it started. Setting the mode in the extension host's configuration works everywhere
+and skips the restart:
 
-On core (11,000 files) the extension adds
-about a second to a run that takes two and a half without it; on a contrib module it adds a few
-tenths of a second once the cache is warm.
+```toml
+[extension-hosts.drupal]
+command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
+environment = { XDEBUG_MODE = "off" }
+```
+
+Set `MAGO_DRUPAL_ALLOW_XDEBUG=1` to keep Xdebug, for example to step through a hook.
+
+Measured on the sandbox with a warm cache and Xdebug off in the workers, which Mago ran twelve of,
+with `--reporting-format count`; writing a full report adds to both columns, about 1.3 s for core's
+JSON:
+
+| Analyzed code | Without the extension | With it |
+|---|---|---|
+| Core (11,400 files) | 2.7 s | 3.9 s (4.8 s with Xdebug kept) |
+| Eleven contrib projects (Webform, Paragraphs, Metatag and others) | 1.6 s | 2.2 s |
+| One contrib module (graphql) | 1.3 s | 1.5 s |
+| One contrib module (Trash) | 1.3 s | 1.5 s |

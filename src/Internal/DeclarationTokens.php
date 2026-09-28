@@ -9,6 +9,7 @@ use PhpToken;
 use function count;
 use function in_array;
 
+use const T_ATTRIBUTE;
 use const T_FUNCTION;
 use const T_STRING;
 use const T_VARIABLE;
@@ -80,5 +81,27 @@ final class DeclarationTokens
         }
 
         return null;
+    }
+
+    /**
+     * The index of the `#[` opening the attribute that ends at the index.
+     *
+     * @param list<PhpToken> $tokens
+     */
+    public static function attributeStart(array $tokens, int $index): int
+    {
+        $depth = 0;
+        for ($i = $index; $i > 0; $i--) {
+            $depth += match (true) {
+                $tokens[$i]->text === ']' => 1,
+                $tokens[$i]->text === '[', $tokens[$i]->is(T_ATTRIBUTE) => -1,
+                default => 0,
+            };
+            if ($depth === 0) {
+                return $i;
+            }
+        }
+
+        return 0;
     }
 }

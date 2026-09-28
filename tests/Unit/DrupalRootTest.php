@@ -294,4 +294,22 @@ final class DrupalRootTest extends TestCase
         self::assertSame('11.4.6', DrupalRoot::discover(self::roots() . '/scaffold')->coreVersion());
         self::assertNull(DrupalRoot::at(self::roots() . '/bare')->coreVersion());
     }
+
+    public function testReadsWhichProfilesShipATheme(): void
+    {
+        $themes = DrupalRoot::at(self::roots() . '/profiles')->profileThemes();
+        ksort($themes);
+
+        self::assertSame(
+            [
+                'bare' => false,
+                // A test profile a module ships.
+                'foo_test' => false,
+                // Drupal reads config/sync before config/install.
+                'synced' => true,
+                'themed' => true,
+            ],
+            $themes,
+        );
+    }
 }

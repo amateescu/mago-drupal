@@ -35,6 +35,7 @@ use function str_starts_with;
  * @phpstan-type Graph array<non-empty-string, non-empty-string|ServiceDefinition>
  *
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  * @mago-expect lint:too-many-methods
  */
 final class ServiceResolver
@@ -82,11 +83,12 @@ final class ServiceResolver
      * Resolves every id of the graph to the service its aliases end at. Ids
      * that reach no service are left out.
      *
-     * An id is private when it declares a service with `public: false`, set
-     * on the definition or inherited through `parent:`, or when a decorator
-     * moved a definition to it as `.inner`. Drupal keeps every alias
-     * gettable, so an alias of a private service hands it back under the
-     * alias.
+     * An id is private when its definition says `public: false`, itself, for
+     * a service through `parent:`, or through its file's `_defaults`, or when
+     * a decorator moved a definition to it as `.inner`. An alias is public
+     * otherwise, whatever the service it ends at is: Drupal's `setAlias()`
+     * makes it public, and the YAML loader then applies only the alias's own
+     * `public:` or the file's defaults.
      *
      * @param Graph $graph
      * @param Graph $undecorated The graph before any decorator was applied.
@@ -110,15 +112,14 @@ final class ServiceResolver
                 self::deprecation($id, $definitions),
                 $original !== null && $original !== $service ? $original->class : null,
                 public: !array_key_exists($id, $inners)
-                && self::inherited(
-                    $id,
-                    $definitions,
-                    // Drupal keeps every alias gettable, whatever it says.
-                    static fn(array $definition): ?bool => self::aliasOf($definition) === null
-                        && is_bool($definition['public'] ?? null)
-                            ? $definition['public']
-                            : null,
-                ) !== false,
+                && self::inherited($id, $definitions, static fn(array $definition): ?bool => is_bool(
+                    $definition['public'] ?? null,
+                )
+                        ? $definition['public']
+                        : null) !== false,
+                optionalDecorator: $original !== null
+                && $original !== $service
+                && ServiceDecorators::optional($service, $original, $definitions),
             );
         }
 
@@ -263,17 +264,20 @@ final class ServiceResolver
      */
     private static function deprecation(string $id, array $definitions): ?string
     {
-        $message = self::inherited(
-            $id,
-            $definitions,
-            static fn(array $definition): ?string => (
-                Shape::nonEmptyString($definition['deprecated'] ?? null) ?? Shape::stringAt(
-                    $definition,
-                    'deprecated',
-                    'message',
-                )
-            ),
+        $read = static fn(array $definition): ?string => (
+            Shape::nonEmptyString($definition['deprecated'] ?? null) ?? Shape::stringAt(
+                $definition,
+                'deprecated',
+                'message',
+            )
         );
+        $message = self::inherited($id, $definitions, $read);
+        // An alias without a deprecation of its own raises the one of the
+        // service it ends at, as the container's get() does.
+        $target = $message === null ? self::followAliases($id, $definitions) : null;
+        if ($target !== null && $target !== $id) {
+            [$message, $id] = [self::inherited($target, $definitions, $read), $target];
+        }
 
         return $message === null ? null : str_replace(['%service_id%', '%alias_id%'], $id, $message);
     }

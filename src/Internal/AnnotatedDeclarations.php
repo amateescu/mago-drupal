@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
-use Mago\Sdk\Syntax\Node;
-use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\SourceFile;
-
 use function array_key_exists;
+use function file_get_contents;
+use function is_file;
 use function is_string;
 use function ltrim;
-use function strrchr;
+use function preg_match;
 use function strtolower;
-use function substr;
-use function trim;
 
 /**
  * Entity types and plugins declared with legacy docblock annotations.
  *
  * Attributes replaced annotations in core, but contrib still ships
  * `@ContentEntityType` and `@Block` docblocks. Mago's metadata carries
- * attributes only, so these are read off the class docblocks of scanned files.
+ * attributes only, so these are read off the class docblocks of the extension
+ * source under the Drupal root.
  * A class carrying the attribute of the same name has its annotation ignored,
  * the way Drupal's discovery does.
  *
@@ -29,10 +26,15 @@ use function trim;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
- * @mago-expect lint:too-many-methods
  */
 final class AnnotatedDeclarations
 {
+    /**
+     * A docblock line starting with an annotation, checked before a file is
+     * tokenized.
+     */
+    public const GATE = '/^\s*\*\s*@[A-Z]/m';
+
     private const ENTITY_KINDS = [
         'ContentEntityType' => EntityTypeKind::Content,
         'ConfigEntityType' => EntityTypeKind::Config,
@@ -66,24 +68,45 @@ final class AnnotatedDeclarations
         public readonly array $contextKeyed = [],
     ) {}
 
-    public static function read(SourceFile $file): self
+    /**
+     * Reads the annotated classes of PHP files under the Drupal root off
+     * disk, the analyzed ones included.
+     *
+     * @param list<string> $paths
+     */
+    public static function fromFiles(array $paths): self
+    {
+        $sets = [];
+        foreach ($paths as $path) {
+            $contents = is_file($path) ? file_get_contents($path) : false;
+            if ($contents !== false && preg_match(self::GATE, $contents) === 1) {
+                $sets[] = self::fromClasses(AnnotatedClasses::inContents($contents));
+            }
+        }
+
+        return self::mergeAll($sets);
+    }
+
+    /**
+     * The declarations of classes given as name, docblock, attribute short
+     * names and whether the class is abstract.
+     *
+     * @param list<array{non-empty-string, string, array<string, true>, bool}> $classes
+     */
+    private static function fromClasses(array $classes): self
     {
         $entityTypes = [];
         /** @var array<non-empty-string, array<non-empty-string, non-empty-string|null>> $plugins */
         $plugins = [];
         $contextKeyed = [];
         $attributes = self::pluginAttributesByShortName();
-        foreach ($file->getNodes(NodeKind::Class_) as $class) {
-            $identifier = Nodes::declaredIdentifier($file, $class);
-            $name = $identifier === null ? null : Nodes::resolved($file, $identifier);
-            $docblock = Docblocks::attachedTo($file, $class);
-            if ($name === null || $docblock === null || self::isAbstract($file, $class)) {
+        foreach ($classes as [$name, $docblock, $attributed, $abstract]) {
+            if ($abstract) {
                 continue;
             }
 
-            $attributed = self::attributeShortNames($file, $class);
-            foreach (Annotations::parse($file->getText($docblock)) as $annotation) {
-                $short = self::shortName($annotation->name);
+            foreach (Annotations::parse($docblock) as $annotation) {
+                $short = ClassNames::short($annotation->name);
                 if (array_key_exists($short, $attributed)) {
                     continue;
                 }
@@ -114,15 +137,10 @@ final class AnnotatedDeclarations
         return new self($entityTypes, $plugins, $contextKeyed);
     }
 
-    public function isEmpty(): bool
-    {
-        return $this->entityTypes === [] && $this->plugins === [] && $this->contextKeyed === [];
-    }
-
     /**
      * One set holding everything the given sets declare.
      *
-     * A scan of core produces one set per file, so the sets are folded into
+     * Reading core produces one set per file, so the sets are folded into
      * plain arrays here rather than through a per-set merge that would copy
      * the whole plugin map again for every file.
      *
@@ -218,50 +236,6 @@ final class AnnotatedDeclarations
         return $name === null ? null : Shape::nonEmptyString(ltrim($name, characters: '\\'));
     }
 
-    private static function isAbstract(SourceFile $file, Node $class): bool
-    {
-        foreach ($file->getChildren($class) as $child) {
-            if ($child->kind === NodeKind::Modifier && strtolower(trim($file->getText($child))) === 'abstract') {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Short names of the attributes on the class, as keys.
-     *
-     * @return array<string, true>
-     */
-    private static function attributeShortNames(SourceFile $file, Node $class): array
-    {
-        $names = [];
-        foreach ($file->getChildren($class) as $child) {
-            if ($child->kind !== NodeKind::AttributeList) {
-                continue;
-            }
-
-            foreach ($file->getChildren($child) as $attribute) {
-                if ($attribute->kind !== NodeKind::Attribute) {
-                    continue;
-                }
-
-                // The attribute's first identifier is its class name; the
-                // arguments come after it.
-                foreach ($file->getChildren($attribute) as $part) {
-                    $name = $part->kind === NodeKind::Identifier ? Nodes::resolved($file, $part) : null;
-                    if ($name !== null) {
-                        $names[self::shortName($name)] = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return $names;
-    }
-
     /**
      * Annotation classes and attribute classes share their short name, so
      * `@Block` maps to `Drupal\Core\Block\Attribute\Block`; the renamed ones
@@ -277,19 +251,12 @@ final class AnnotatedDeclarations
 
         $byShortName = self::RENAMED;
         foreach (PluginManagers::ATTRIBUTES as $attribute) {
-            $short = self::shortName($attribute);
+            $short = ClassNames::short($attribute);
             if (!array_key_exists($short, $byShortName)) {
                 $byShortName[$short] = $attribute;
             }
         }
 
         return self::$attributesByShortName = $byShortName;
-    }
-
-    private static function shortName(string $class): string
-    {
-        $tail = strrchr($class, needle: '\\');
-
-        return $tail === false ? $class : substr($tail, offset: 1);
     }
 }

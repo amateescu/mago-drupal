@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Internal;
 
 use PhpToken;
 
+use function preg_replace;
 use function preg_split;
 use function strlen;
 use function strpos;
@@ -56,7 +57,9 @@ final class PHPStanIgnoreTag
      */
     private static function identifiers(string $list): array
     {
-        $identifiers = preg_split('/[ \t]*,[ \t]*/', $list, flags: PREG_SPLIT_NO_EMPTY);
+        // The reasons in parentheses go first, then the list splits on commas.
+        $bare = preg_replace('/[ \t]*\((?:[^()]|\([^()]*\))*\)/', replacement: '', subject: $list) ?? $list;
+        $identifiers = preg_split('/[ \t]*,[ \t]*/', $bare, flags: PREG_SPLIT_NO_EMPTY);
 
         return $identifiers === false ? [] : $identifiers;
     }

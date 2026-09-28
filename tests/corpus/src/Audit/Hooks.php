@@ -27,6 +27,14 @@ final class Hooks {
   }
 
   /**
+   * Drupal only collects public hook methods, so this one never runs.
+   */
+  // @mago-expect analysis:unused-method
+  #[Hook('cron')]
+  private function hiddenCron(): void {
+  }
+
+  /**
    * A well formed form-id specific alter, the form id left off.
    */
   #[Hook('form_node_form_alter')]
@@ -168,3 +176,30 @@ final class NamedOldThing {
   }
 
 }
+
+/**
+ * Declares a method a subclass registers as a hook.
+ */
+abstract class OldThingBase {
+
+  /**
+   * Implements the deprecated hook for the subclasses below.
+   */
+  public function handle(): void {
+  }
+
+}
+
+/**
+ * A class-level hook attribute naming an inherited method.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+#[Hook('old_thing', method: 'handle')]
+final class InheritedOldThing extends OldThingBase {}
+
+/**
+ * A second class naming the same inherited method, reported on its own.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+#[Hook('old_thing', method: 'handle')]
+final class OtherInheritedOldThing extends OldThingBase {}

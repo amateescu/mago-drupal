@@ -10,10 +10,9 @@ use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\NodeAnalysisHook;
 use Mago\Sdk\Syntax\NodeKind;
 
-use function count;
-use function strrpos;
+use function in_array;
+use function preg_match;
 use function strtolower;
-use function substr;
 
 /**
  * Reports a class constant that is deprecated or belongs to a deprecated
@@ -21,10 +20,11 @@ use function substr;
  *
  * Mago reports deprecated global constants but no class constant, so
  * `FileSystemInterface::EXISTS_REPLACE` and every constant of
- * `DateTimeRangeConstantsInterface` go unreported. The constant's name and
- * the class's short name are checked against the symbols marked on disk
- * before anything is resolved. A constant is looked up on the class it is
- * read from and on that class's ancestors.
+ * `DateTimeRangeConstantsInterface` go unreported. The class and constant
+ * are read off the source text: the constant's name is checked against the
+ * ones marked on disk, and the class's resolved name against the deprecated
+ * class-likes, an imported alias included. A constant is looked up on the
+ * class it is read from and on that class's ancestors.
  *
  * @internal
  */
@@ -39,6 +39,15 @@ final class DeprecatedConstantHook implements NodeAnalysisHook
 
     public const CLASS_CODE = 'deprecated-class';
 
+    /**
+     * A class named by a name or a keyword, then the constant. Anything
+     * else before `::`, such as `$object::X`, does not match.
+     */
+    private const ACCESS =
+        '/\A(\\\\?[A-Za-z_][\w\\\\]*)' . DeprecatedUse::GAP . '::' . DeprecatedUse::GAP . '([A-Za-z_]\w*)\z/';
+
+    private const KEYWORDS = ['self', 'static', 'parent'];
+
     public function __construct(
         private readonly DeprecatedSymbols $symbols,
         private readonly DeprecatedUse $use,
@@ -51,40 +60,38 @@ final class DeprecatedConstantHook implements NodeAnalysisHook
 
     public function getRequirements(): array
     {
-        return [FileAnalysisRequirement::SourceText, FileAnalysisRequirement::TargetSubtree];
+        return [FileAnalysisRequirement::SourceText];
     }
 
     public function analyze(NodeAnalysisContext $context): void
     {
-        $source = $context->source;
-        $children = $source->getChildren($context->node);
-        if (count($children) !== 2) {
+        $span = $context->node->span;
+        $matches = [];
+        if (preg_match(self::ACCESS, $context->source->getText($span), $matches) !== 1) {
             return;
         }
 
-        [$class, $selector] = $children;
-        $constant = $source->getText($selector);
-        $prefix = $source->getText($class);
-        $short = substr($prefix, (int) strrpos('\\' . $prefix, needle: '\\'));
+        [, $prefix, $constant] = $matches;
+        $deprecatedName = $this->symbols->hasConstantName($constant);
         if (
             strtolower($constant) === 'class'
-            || !$this->symbols->hasConstantName($constant) && !$this->symbols->hasShortName($short)
+            || !$deprecatedName && in_array(strtolower($prefix), self::KEYWORDS, strict: true)
         ) {
             return;
         }
 
-        $name = DeprecatedUse::className($context, $class);
+        $name = DeprecatedUse::className($context, $prefix, $span->start);
         if ($name === null) {
             return;
         }
 
-        foreach (DeprecatedUse::lineage($context->codebase, $name) as $ancestor) {
+        foreach ($deprecatedName ? DeprecatedUse::lineage($context->codebase, $name) : [] as $ancestor) {
             $text = $this->symbols->constant($ancestor, $constant);
             if ($text !== null) {
                 $this->use->report(
                     $context,
                     self::CODE,
-                    $context->node->span,
+                    $span,
                     'Use of deprecated constant `'
                     . DeprecatedUse::originalName($context->codebase, $ancestor)
                     . "::{$constant}`.",
@@ -100,7 +107,7 @@ final class DeprecatedConstantHook implements NodeAnalysisHook
             $this->use->report(
                 $context,
                 self::CLASS_CODE,
-                $context->node->span,
+                $span,
                 "Use of constant `{$constant}` of deprecated "
                 . DeprecatedUse::describe($context->codebase, $name)
                 . '.',

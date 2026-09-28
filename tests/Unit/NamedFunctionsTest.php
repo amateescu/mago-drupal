@@ -84,6 +84,29 @@ final class NamedFunctionsTest extends TestCase
         self::assertSame(['c', '', 'Suit'], $functions->at(self::at($code, '/* GLOBAL */')));
     }
 
+    /**
+     * A `class:` argument of an attribute declares nothing, so the method
+     * after it stays in its class.
+     */
+    public function testSkipsClassArgumentsOfAttributes(): void
+    {
+        $code = <<<'PHP'
+            <?php
+            namespace Drupal\example\Hook;
+            final class ExampleHooks {
+                #[RemoveHook('help', class: OtherHooks::class, method: 'help')]
+                public function help(): void { /* HELP */ }
+            }
+            PHP;
+
+        $functions = NamedFunctions::of($code);
+
+        self::assertSame(
+            ['help', '', 'Drupal\example\Hook\ExampleHooks'],
+            $functions->at(self::at($code, '/* HELP */')),
+        );
+    }
+
     private static function at(string $code, string $marker): int
     {
         $offset = strpos($code, $marker);

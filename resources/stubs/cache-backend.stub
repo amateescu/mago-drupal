@@ -10,7 +10,9 @@
  * stubbed interface from the stub alone, so the constant and every method have
  * to be restated here even when only two of them change. A restated docblock
  * replaces core's as well, so each one repeats core's parameter types and
- * deprecations.
+ * deprecations. `@stub-deprecated-in` drops a member's `@deprecated` on a
+ * core older than the release that deprecates it, and `@stub-removed-in`
+ * drops the member on the release that removes it and later ones.
  */
 
 namespace Drupal\Core\Cache;
@@ -74,6 +76,8 @@ interface CacheBackendInterface
     /**
      * @deprecated in drupal:11.2.0 and is removed from drupal:12.0.0. Use
      *   CacheBackendInterface::deleteAll() or cache tag invalidation instead.
+     * @stub-deprecated-in 11.2
+     * @stub-removed-in 12.0
      */
     public function invalidateAll();
 

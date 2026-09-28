@@ -35,6 +35,18 @@ final class PluginIndex
     public const PLUGIN_ROOT = 'Drupal\Component\Plugin\PluginInspectionInterface';
 
     /**
+     * Plugin interfaces that do not extend `PluginInspectionInterface`, whose
+     * plugins are read too: mail, archivers, config actions and language
+     * negotiation methods.
+     */
+    public const OTHER_ROOTS = [
+        'Drupal\Core\Mail\MailInterface',
+        'Drupal\Core\Archiver\ArchiverInterface',
+        'Drupal\Core\Config\Action\ConfigActionPluginInterface',
+        'Drupal\language\LanguageNegotiationMethodInterface',
+    ];
+
+    /**
      * Fetch classes from the host in slices of this size.
      */
     private const BATCH = 200;
@@ -66,13 +78,16 @@ final class PluginIndex
 
             return $resolved[$attribute];
         };
+        $constantValue = static fn(string $class, string $constant): ?string => Shape::nonEmptyString(
+            $codebase->getClassConstant($class, $constant)?->inferredType?->getLiteralString(),
+        );
         for ($offset = 0, $total = count($names); $offset < $total; $offset += self::BATCH) {
             foreach ($codebase->getMultipleClasses(array_slice($names, $offset, self::BATCH)) as $class) {
                 if ($class === null) {
                     continue;
                 }
 
-                self::collect($class, $resolver, $plugins);
+                self::collect($class, $resolver, $constantValue, $plugins);
             }
         }
 
@@ -188,10 +203,15 @@ final class PluginIndex
 
     /**
      * @param callable(string): (non-empty-string|null) $resolver
+     * @param callable(string, string): (non-empty-string|null) $constantValue
      * @param array<non-empty-string, array<non-empty-string, non-empty-string|null>> $plugins
      */
-    private static function collect(ClassLikeMetadata $class, callable $resolver, array &$plugins): void
-    {
+    private static function collect(
+        ClassLikeMetadata $class,
+        callable $resolver,
+        callable $constantValue,
+        array &$plugins,
+    ): void {
         $name = Shape::nonEmptyString($class->originalName);
         if ($name === null) {
             return;
@@ -201,7 +221,7 @@ final class PluginIndex
             return;
         }
 
-        foreach (PluginAttribute::read($class->attributes, $resolver) as [$attribute, $id]) {
+        foreach (PluginAttribute::read($class->attributes, $resolver, $constantValue) as [$attribute, $id]) {
             $plugins[$attribute][$id] = self::claimed($plugins[$attribute] ?? [], $id, $name);
         }
     }

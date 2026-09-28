@@ -110,7 +110,7 @@ final class UnknownEntityTypeHook implements MethodCallAnalysisHook
         }
 
         $index = ($this->index)($context->codebase);
-        if ($index->get(self::SENTINEL) === null || $index->get($id) !== null) {
+        if ($index->get(self::SENTINEL) === null || $index->declares($id)) {
             return;
         }
 

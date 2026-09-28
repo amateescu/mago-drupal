@@ -6,7 +6,9 @@ namespace amateescu\MagoDrupal\Internal;
 
 use function in_array;
 use function str_ends_with;
+use function strrchr;
 use function strtolower;
+use function substr;
 
 /**
  * Name-based tests on resolved class names.
@@ -60,5 +62,15 @@ final class ClassNames
         }
 
         return false;
+    }
+
+    /**
+     * The part of a class name after the last backslash.
+     */
+    public static function short(string $name): string
+    {
+        $tail = strrchr($name, needle: '\\');
+
+        return $tail === false ? $name : substr($tail, offset: 1);
     }
 }

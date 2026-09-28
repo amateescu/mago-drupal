@@ -83,4 +83,42 @@ final class StubFilesTest extends TestCase
             public function unsubscribe(int $subscription): void {}
         };
     }
+
+    public function testFollowsTheInstalledCoreRelease(): void
+    {
+        $stub = <<<'PHP'
+            <?php
+
+            interface Api
+            {
+                /**
+                 * Goes away.
+                 *
+                 * @deprecated in drupal:11.2.0 and is removed from drupal:12.0.0. There is
+                 *   no replacement.
+                 * @stub-deprecated-in 11.2
+                 * @stub-removed-in 12.0
+                 */
+                public function old(): void;
+
+                public function kept(): void;
+            }
+            PHP;
+
+        // Before the deprecation, the member stays without its tag.
+        $before = StubFiles::forVersion($stub, '11.1.3');
+        self::assertStringContainsString('function old()', $before);
+        self::assertStringNotContainsString('@deprecated', $before);
+
+        $deprecated = StubFiles::forVersion($stub, '11.2.0');
+        self::assertStringContainsString('function old()', $deprecated);
+        self::assertStringContainsString('@deprecated', $deprecated);
+
+        $removed = StubFiles::forVersion($stub, '12.0.0');
+        self::assertStringNotContainsString('function old()', $removed);
+        self::assertStringContainsString('function kept()', $removed);
+
+        // Without a core to read the release from, the stub is used as written.
+        self::assertSame($stub, StubFiles::forVersion($stub, null));
+    }
 }

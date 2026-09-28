@@ -6,9 +6,11 @@ namespace amateescu\MagoDrupal\Analyzer\Checks;
 
 use amateescu\MagoDrupal\Internal\ClassFacts;
 use amateescu\MagoDrupal\Internal\Types;
+use Closure;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\Metadata\PropertyMetadata;
 
+use function array_key_exists;
 use function in_array;
 use function str_ends_with;
 
@@ -16,9 +18,10 @@ use function str_ends_with;
  * Functional tests have to declare the theme they run with; runs on
  * BrowserTestBase descendants.
  *
- * Ports phpstan-drupal's BrowserTestBaseDefaultThemeRule. `$profile` and
- * `$defaultTheme` are read from the nearest declaration up the class chain,
- * so a base class can set them for the tests below it.
+ * Ports phpstan-drupal's BrowserTestBaseDefaultThemeRule with Drupal's own
+ * rule for which profiles need it: those that ship no `system.theme` config.
+ * `$profile` and `$defaultTheme` are read from the nearest declaration up the
+ * class chain, so a base class can set them for the tests below it.
  *
  * @internal
  */
@@ -40,7 +43,8 @@ final class BrowserTestThemeCheck implements MetadataCheck
     private const MAX_DEPTH = 16;
 
     /**
-     * Profiles that install no theme, so a functional test has to pick one.
+     * Core's profiles that install no theme, for a profile the root does not
+     * have on disk.
      */
     private const THEMELESS_PROFILES = [
         'testing',
@@ -52,9 +56,21 @@ final class BrowserTestThemeCheck implements MetadataCheck
         'testing_requirements',
     ];
 
-    public function mentionsAny(): array
+    /**
+     * @param Closure(): array<string, bool> $profileThemes Each profile under
+     *   the root, with whether it ships `system.theme` config.
+     */
+    public function __construct(
+        private readonly Closure $profileThemes,
+    ) {}
+
+    /**
+     * A class that sets a non-empty `$defaultTheme` itself cannot be
+     * reported, and most core tests do.
+     */
+    public function textGate(): ?string
     {
-        return [];
+        return '/\A(?!.*\$defaultTheme\s*+=\s*+([\'"])(?!\1))/s';
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
@@ -76,7 +92,7 @@ final class BrowserTestThemeCheck implements MetadataCheck
         if (
             Types::includesNull($profile)
             || $profile?->getLiteralBool() === false
-            || $profileName !== null && !in_array($profileName, self::THEMELESS_PROFILES, strict: true)
+            || $profileName !== null && !$this->themeless($profileName)
         ) {
             return;
         }
@@ -92,6 +108,20 @@ final class BrowserTestThemeCheck implements MetadataCheck
             'Functional tests have to declare the theme they run with: protected $defaultTheme = \'stark\';',
             'https://www.drupal.org/node/3083055',
         ));
+    }
+
+    /**
+     * Whether the profile installs no theme: it ships no `system.theme`
+     * config, which is what Drupal checks, or, for a profile not on disk,
+     * it is one of core's themeless ones.
+     */
+    private function themeless(string $profile): bool
+    {
+        $themes = ($this->profileThemes)();
+
+        return array_key_exists($profile, $themes)
+            ? !$themes[$profile]
+            : in_array($profile, self::THEMELESS_PROFILES, strict: true);
     }
 
     /**

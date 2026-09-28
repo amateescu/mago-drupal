@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use Mago\Sdk\Span;
-use ParseError;
 use PhpToken;
 
 use function count;
@@ -77,18 +76,11 @@ final class DeprecationScopes
 
     public static function of(string $contents): self
     {
-        try {
-            $tokens = PhpToken::tokenize($contents);
-
-            // The host analyzes files Mago's own parser accepts, which is not
-            // always what PHP's tokenizer accepts. A file it rejects gets no
-            // scopes rather than taking the worker down.
-            // @mago-expect analysis:avoid-catching-error
-        } catch (ParseError) {
-            return new self([]);
-        }
-
-        return new self(self::scan($tokens));
+        return LastFile::get(
+            self::class,
+            $contents,
+            static fn(): self => new self(self::scan(PhpTokens::of($contents))),
+        );
     }
 
     public function covers(Span $span): bool
@@ -115,10 +107,7 @@ final class DeprecationScopes
         for ($i = 0; $i < $count; $i++) {
             $token = $tokens[$i];
             if ($token->is(T_DOC_COMMENT)) {
-                $marked =
-                    $marked
-                    || str_contains($token->text, self::LEGACY_GROUP)
-                    || str_contains($token->text, self::DEPRECATED);
+                $marked = $marked || str_contains($token->text, self::LEGACY_GROUP) || self::deprecates($token->text);
                 continue;
             }
 
@@ -151,6 +140,15 @@ final class DeprecationScopes
         }
 
         return $ranges;
+    }
+
+    /**
+     * Whether a docblock carries a `@deprecated` tag, by the rule the
+     * deprecation checks use for the text.
+     */
+    private static function deprecates(string $docblock): bool
+    {
+        return str_contains($docblock, self::DEPRECATED) && DeprecatedTag::text($docblock) !== null;
     }
 
     /**

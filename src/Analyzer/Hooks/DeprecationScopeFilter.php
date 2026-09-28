@@ -31,16 +31,6 @@ use Mago\Sdk\Analyzer\IssueFilterHook;
  */
 final class DeprecationScopeFilter implements IssueFilterHook
 {
-    private string $file = '';
-
-    private string $contents = '';
-
-    private ?DeprecationScopes $scopes = null;
-
-    private string $functionsContents = '';
-
-    private ?NamedFunctions $functions = null;
-
     public function getCodes(): array
     {
         return [
@@ -62,62 +52,18 @@ final class DeprecationScopeFilter implements IssueFilterHook
 
         // The first annotation is the one the issue points at.
         $span = $annotations[0]->span;
-        $scopes = $this->scopes($context);
-        if ($scopes !== null && $scopes->covers($span)) {
+        $contents = $context->contents;
+        if (DeprecationScopes::marked($contents) && DeprecationScopes::of($contents)->covers($span)) {
             return IssueFilterDecision::Remove;
         }
 
         // A codebase query suspends this request, and another file's request
         // can replace the cached functions in between, so they are passed on
         // rather than read back.
-        $functions = $this->functions($context->contents);
+        $functions = NamedFunctions::of($contents);
 
         return InheritedDeprecation::covers($context->codebase, $context->file, $functions, $span)
             ? IssueFilterDecision::Remove
             : IssueFilterDecision::Keep;
-    }
-
-    /**
-     * The scopes of the file the issue is in, or null when it marks none.
-     *
-     * The bytes are part of the key, not just the path: an editor session
-     * analyzes the same path again after every edit, and a path-only key
-     * would keep suppressing deprecations in a `@group legacy` class after
-     * the marker was deleted. Comparing them costs one memcmp against the
-     * file the last issue came from, and only for the handful of codes this
-     * hook subscribes to.
-     */
-    private function scopes(IssueFilterContext $context): ?DeprecationScopes
-    {
-        if ($this->file === $context->file && $this->contents === $context->contents) {
-            return $this->scopes;
-        }
-
-        $this->file = $context->file;
-        $this->contents = $context->contents;
-
-        return $this->scopes = self::read($context->contents);
-    }
-
-    /**
-     * The named functions of the file the issue is in, tokenized once for the
-     * issues of that file that reach the codebase check.
-     */
-    private function functions(string $contents): NamedFunctions
-    {
-        if ($this->functions === null || $this->functionsContents !== $contents) {
-            $this->functions = NamedFunctions::of($contents);
-            $this->functionsContents = $contents;
-        }
-
-        return $this->functions;
-    }
-
-    /**
-     * The scopes a file's bytes mark, or null when they mark none.
-     */
-    private static function read(string $contents): ?DeprecationScopes
-    {
-        return DeprecationScopes::marked($contents) ? DeprecationScopes::of($contents) : null;
     }
 }

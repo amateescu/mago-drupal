@@ -15,6 +15,8 @@ use Mago\Sdk\Analyzer\ReturnTypeProviderContext;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\NamedObjectType;
 
+use function str_contains;
+
 /**
  * Types `$manager->createInstance('id')` for core's attribute-based managers.
  *
@@ -52,9 +54,11 @@ final class PluginManagerProvider implements MethodReturnTypeProvider
         $class = $index->classOf($attribute, $id);
         // A fallback manager hands out its fallback plugin for an id nothing
         // declares, instead of throwing, so that is the type. An id two
-        // classes declare is a real plugin whose class is unknown.
+        // classes declare is a real plugin whose class is unknown, and so is
+        // a derivative id: its base may come from YAML or a module the index
+        // does not read.
         $fallback = PluginManagers::FALLBACKS[$attribute] ?? null;
-        if ($class === null && $fallback !== null && !$index->declares($attribute, $id)) {
+        if ($class === null && $fallback !== null && !str_contains($id, ':') && !$index->declares($attribute, $id)) {
             $class = $index->classOf($attribute, $fallback);
         }
 

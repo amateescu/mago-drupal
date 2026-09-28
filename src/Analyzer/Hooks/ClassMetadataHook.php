@@ -47,8 +47,6 @@ use function strtolower;
  */
 final class ClassMetadataHook implements NodeAnalysisHook
 {
-    private const TRAIT = DependencySerializationCheck::TRAIT;
-
     private const CONFIG_ENTITY_TYPE = 'Drupal\Core\Entity\Attribute\ConfigEntityType';
 
     /**
@@ -87,11 +85,15 @@ final class ClassMetadataHook implements NodeAnalysisHook
 
         /** @var list<non-empty-string> $names */
         $names = array_keys($mentions);
-        if (StorageTypes::namedLike($names) || StorageTypes::documentedLike($file->getText($context->node->span))) {
+        $text = $file->getText($context->node->span);
+        if (
+            StorageTypes::namedLike($names) && StorageTypes::declaredLike($text, $file->contents)
+            || StorageTypes::documentedLike($text)
+        ) {
             $checks[] = $this->storage;
         }
 
-        if (array_key_exists(strtolower(self::TRAIT), $mentions)) {
+        if ($this->serialization->namedBy($mentions)) {
             $checks[] = $this->serialization;
         }
 
@@ -119,7 +121,10 @@ final class ClassMetadataHook implements NodeAnalysisHook
         // that only names the trait without using it is nobody's.
         if (
             in_array($this->serialization, $checks, strict: true)
-            && (!$facts->composes(self::TRAIT) || $facts->extendsAny(DependencySerializationCheck::BASES))
+            && (
+                !$facts->composes(DependencySerializationCheck::TRAIT)
+                || $facts->extendsAny($this->serialization->bases())
+            )
         ) {
             $checks = self::without($checks, $this->serialization);
         }
@@ -132,7 +137,8 @@ final class ClassMetadataHook implements NodeAnalysisHook
 
     /**
      * An annotated config entity type carries no attribute to mention, so
-     * the annotation scan's list says whether one of the candidates is one.
+     * the annotated classes read off disk say whether one of the candidates
+     * is one.
      *
      * @param list<non-empty-string> $candidates
      */

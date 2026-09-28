@@ -47,6 +47,11 @@ final class Calls {
    */
   protected LoggerChannelInterface $later;
 
+  /**
+   * Computed from a channel, which is not the channel itself.
+   */
+  protected bool $hasChannel;
+
   public function __construct(
     LoggerChannelFactoryInterface $factory,
     LoggerChannelInterface $channel,
@@ -58,6 +63,10 @@ final class Calls {
     $this->loggerFactory = $factory;
     // @mago-expect analysis:drupal/logger-from-factory
     $this->later = $this->loggerFactory->get('corpus');
+    // A channel held in a local and not kept is fine.
+    $channel = $factory->get('corpus');
+    // So is a value computed from a channel.
+    $this->hasChannel = $factory->get('corpus') instanceof LoggerChannelInterface;
   }
 
   /**
@@ -125,6 +134,13 @@ final class Calls {
    */
   public function loggers(): array {
     return [$this->logger, $this->channel, $this->later, $this->loggerFactory->get('other')];
+  }
+
+  /**
+   * Reads the computed flag so it is not write-only.
+   */
+  public function hasChannel(): bool {
+    return $this->hasChannel;
   }
 
 }

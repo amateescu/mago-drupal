@@ -10,22 +10,20 @@ use amateescu\MagoDrupal\Internal\ClassFacts;
  * One rule that looks at a class through its metadata.
  *
  * Checks read what the codebase knows about the class: attributes, parents,
- * traits, and the members fetched on demand. No source text or syntax tree
- * crosses the worker boundary for them.
+ * traits, and the members fetched on demand. A check can name a text gate,
+ * and then the class's source text is what decides whether it runs.
  *
  * @internal
  */
 interface MetadataCheck
 {
     /**
-     * Class names the class has to mention (extend, implement, use or type)
-     * for the check to apply; an empty list means it always does. The hook
-     * reads the mentions off the node's resolved names, so a class mentioning
-     * none costs no codebase request.
-     *
-     * @return list<non-empty-string>
+     * A pattern the class's source text has to match for the check to apply,
+     * or null when it always applies. The descendant hook checks it before
+     * any codebase request, so a class that cannot be reported costs none.
+     * The class hook gates its checks on the names in the class instead.
      */
-    public function mentionsAny(): array;
+    public function textGate(): ?string;
 
     public function check(ClassFacts $class, Reporter $reporter): void;
 }

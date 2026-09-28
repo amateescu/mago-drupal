@@ -16,6 +16,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
+use Drupal\corpus_dep\DepManagerBase;
 
 /**
  * Sets up discovery the way core managers do.
@@ -71,6 +72,37 @@ final class WiredManager extends WiredManagerBase {
    */
   public function __construct(object $cache) {
     parent::__construct($cache);
+  }
+
+}
+
+/**
+ * Leaves the wiring to a parent that only the includes hold.
+ */
+final class DepWiredManager extends DepManagerBase {
+
+  /**
+   * Hands everything to the parent in the other module.
+   */
+  public function __construct(object $cache) {
+    parent::__construct($cache);
+  }
+
+}
+
+/**
+ * Mentions the calls only in comments.
+ */
+final class CommentedManager extends DefaultPluginManager {
+
+  /**
+   * The calls below are comments, not code.
+   */
+  // @mago-expect analysis:drupal/plugin-manager-alter-info
+  // @mago-expect analysis:drupal/plugin-manager-cache-backend
+  public function __construct(object $cache) {
+    // $this->alterInfo('corpus_commented');
+    // $this->setCacheBackend($cache, 'corpus_commented_plugins');
   }
 
 }

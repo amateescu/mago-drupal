@@ -69,6 +69,14 @@ function hook_oldest_thing(): void {}
 function hook_legacy_thing(): void {}
 
 /**
+ * An old hook that a helper after the scan stop is named like.
+ *
+ * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
+ *   hook_new_thing() instead.
+ */
+function hook_stopped_thing(): void {}
+
+/**
  * An old requirements hook with a procedural implementation kept for old core.
  *
  * @deprecated in drupal:11.3.0 and is removed from drupal:13.0.0. Use

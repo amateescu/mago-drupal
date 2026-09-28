@@ -52,8 +52,8 @@ final class ContainerGetProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        $class = Containers::classFor($context->codebase, ($this->services)($context->codebase)->get($id));
-        if ($class === null) {
+        $type = Containers::typeFor($context->codebase, ($this->services)($context->codebase)->get($id));
+        if ($type === null) {
             return null;
         }
 
@@ -62,7 +62,6 @@ final class ContainerGetProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        $type = Type::namedObject($class);
         $behavior = $invocation->getArgument(1, 'invalidBehavior', 'invalid_behavior');
         if ($behavior === null) {
             return $type;
@@ -74,8 +73,6 @@ final class ContainerGetProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        // The class is checked against the codebase so an unscanned module
-        // cannot inject a name the analyzer would then report as missing.
         return $value === Containers::EXCEPTION_ON_INVALID_REFERENCE ? $type : Type::union($type, Type::null());
     }
 }

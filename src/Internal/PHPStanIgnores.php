@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
-use ParseError;
-use PhpToken;
-
 use function preg_match_all;
 use function str_contains;
 
@@ -21,7 +18,8 @@ use const PREG_SET_ORDER;
  * tag. `@phpstan-ignore` names its identifiers, optionally with a reason in
  * parentheses. It covers its own line when code comes before it there, and
  * otherwise the line of the next code, so other comments in between do not
- * count.
+ * count. PHPStan wants the code on the very next line; skipping blank lines
+ * and comments lets a `@mago-expect` sit in between.
  *
  * @internal
  */
@@ -30,10 +28,10 @@ final class PHPStanIgnores
     private const TAG = '@phpstan-ignore';
 
     /**
-     * The tag, its suffix and the comma-separated identifiers after it, which
-     * stop at a reason in parentheses or the end of the comment.
+     * The tag, its suffix and the comma-separated identifiers after it, each
+     * of which may carry a reason in parentheses, as PHPStan's parser allows.
      */
-    private const TAGS = '/@phpstan-ignore(?<kind>-next-line|-line)?(?![\w-])[ \t]*(?<ids>[A-Za-z][\w.]*(?:[ \t]*,[ \t]*[A-Za-z][\w.]*)*)?/';
+    private const TAGS = '/@phpstan-ignore(?<kind>-next-line|-line)?(?![\w-])[ \t]*(?<ids>[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?(?:[ \t]*,[ \t]*[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?)*)?/';
 
     /**
      * @param list<array{int, int, list<string>|true}> $lines The first and
@@ -53,16 +51,7 @@ final class PHPStanIgnores
             return null;
         }
 
-        try {
-            $tokens = PhpToken::tokenize($contents);
-
-            // The host analyzes files Mago's own parser accepts, which is not
-            // always what PHP's tokenizer accepts. A file it rejects has no
-            // comments rather than taking the worker down.
-            // @mago-expect analysis:avoid-catching-error
-        } catch (ParseError) {
-            return null;
-        }
+        $tokens = PhpTokens::of($contents);
 
         $lines = [];
         foreach ($tokens as $index => $token) {

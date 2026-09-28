@@ -11,6 +11,8 @@ use Revolt\EventLoop\Suspension;
 use Symfony\Component\Yaml\Tag\TaggedValue;
 
 use function array_key_exists;
+use function array_unique;
+use function array_values;
 use function getcwd;
 use function implode;
 use function sha1;
@@ -24,8 +26,8 @@ use function sha1;
  * frozen codebase on the first provider request; one worker per run builds
  * and the others load its result through the cache. Every accessor takes the
  * codebase of the request asking, and starts over when that codebase belongs
- * to a new analysis (see follow()). The scan hooks' results survive that:
- * each scan replaces its own whenever it runs.
+ * to a new analysis (see follow()). The service provider scan's result
+ * survives that: the scan replaces its own whenever it runs.
  *
  * @internal
  *
@@ -61,13 +63,16 @@ final class Indexes
 
     private ?HookFunctions $hookFunctions = null;
 
-    private AnnotatedDeclarations $annotated;
-
     /**
      * The analysis generation the indexes were built for, null before the
      * first request.
      */
     private ?int $generation = null;
+
+    /**
+     * @var array<string, bool>|null
+     */
+    private ?array $profileThemes = null;
 
     /**
      * Fibers waiting for a metadata-backed build in progress, by index name.
@@ -83,9 +88,7 @@ final class Indexes
     public function __construct(
         private readonly ?string $rootPath = null,
         private readonly ?DiskCache $cache = null,
-    ) {
-        $this->annotated = new AnnotatedDeclarations();
-    }
+    ) {}
 
     /**
      * Drops every index and the provider registrations of the last scan. The
@@ -113,69 +116,97 @@ final class Indexes
     public function services(Codebase $codebase): ServiceIndex
     {
         $this->follow($codebase);
-        $yaml = $this->yaml;
-        if ($yaml === null) {
-            $files = $this->root()->serviceFiles();
-            $yaml = $this->root()->cached(
-                'services',
-                $files,
-                static fn(): array => ServiceYaml::load($files),
-                [
-                    TaggedValue::class,
-                ],
-            );
-            $this->yaml = $yaml;
-        }
 
         // Provider ids read off disk have no class, so YAML wins over them and
         // the scanned providers win over YAML, without an id-only entry ever
         // erasing a class.
 
         return $this->services ??= ServiceIndex::fromDefinitions(ServiceDefinitions::merge(
-            ServiceDefinitions::merge($this->root()->providerIds(), $yaml),
+            ServiceDefinitions::merge($this->root()->providerIds(), $this->yaml()),
             $this->provided,
         ));
     }
 
     /**
-     * Takes what the annotation scan found; attributes win over annotations
-     * when a class carries both.
+     * The service definitions of every services file under the root.
+     *
+     * @return array<non-empty-string, Definition>
      */
-    public function setAnnotated(AnnotatedDeclarations $annotated): void
+    private function yaml(): array
     {
-        $this->annotated = $annotated;
-        $this->entityTypes = null;
-        $this->plugins = null;
+        if ($this->yaml === null) {
+            $files = $this->root()->serviceFiles();
+            $this->yaml = $this->root()->cached(
+                'services',
+                [...$files, ...ServiceModuleInfo::infoFiles($files)],
+                static fn(): array => ServiceYaml::load($files),
+                [
+                    TaggedValue::class,
+                ],
+            );
+        }
+
+        return $this->yaml;
     }
 
+    /**
+     * Entity types and plugins declared with a legacy annotation under the
+     * root, analyzed or not.
+     */
     public function annotated(): AnnotatedDeclarations
     {
-        return $this->annotated;
+        return $this->root()->annotatedDeclarations();
     }
 
     public function entityTypes(Codebase $codebase): EntityTypeIndex
     {
         $this->follow($codebase);
-        $this->once('entityTypes', fn(): bool => $this->entityTypes !== null, function () use ($codebase): void {
-            $this->entityTypes = $this->buildEntityTypes($codebase);
+        $generation = $this->generation;
+        $built = $this->once('entityTypes', fn(): bool => $this->entityTypes !== null, function () use (
+            $codebase,
+            $generation,
+        ): EntityTypeIndex {
+            $index = $this->buildEntityTypes($codebase);
+            // A newer analysis may have started while this one built.
+            if ($this->generation === $generation) {
+                $this->entityTypes = $index;
+            }
+
+            return $index;
         });
 
-        return $this->entityTypes ?? $this->buildEntityTypes($codebase);
+        return $built ?? $this->entityTypes ?? $this->buildEntityTypes($codebase);
     }
 
     public function plugins(Codebase $codebase): PluginIndex
     {
         $this->follow($codebase);
-        $this->once('plugins', fn(): bool => $this->plugins !== null, function () use ($codebase): void {
-            $this->plugins = $this->buildPlugins($codebase);
+        $generation = $this->generation;
+        $built = $this->once('plugins', fn(): bool => $this->plugins !== null, function () use (
+            $codebase,
+            $generation,
+        ): PluginIndex {
+            $index = $this->buildPlugins($codebase);
+            // A newer analysis may have started while this one built.
+            if ($this->generation === $generation) {
+                $this->plugins = $index;
+            }
+
+            return $index;
         });
 
-        return $this->plugins ?? $this->buildPlugins($codebase);
+        return $built ?? $this->plugins ?? $this->buildPlugins($codebase);
     }
 
     public function configSchema(Codebase $codebase): ConfigSchema
     {
         $this->follow($codebase);
+
+        return $this->schema();
+    }
+
+    private function schema(): ConfigSchema
+    {
         if ($this->configSchema === null) {
             $files = $this->root()->schemaFiles();
             $this->configSchema = ConfigSchema::fromDefinitions($this->root()->cached(
@@ -208,11 +239,26 @@ final class Indexes
     }
 
     /**
+     * The core version, for a caller that runs before any analysis, such as
+     * the stub files at initialization.
+     */
+    public function installedCoreVersion(): ?string
+    {
+        return $this->root()->coreVersion();
+    }
+
+    /**
      * Hook documentation facts, read from the `*.api.php` files under the root.
      */
     public function hookFunctions(Codebase $codebase): HookFunctions
     {
         $this->follow($codebase);
+
+        return $this->hooks();
+    }
+
+    private function hooks(): HookFunctions
+    {
         if ($this->hookFunctions === null) {
             $files = $this->root()->apiFiles();
             $this->hookFunctions = $this->root()->cached(
@@ -227,12 +273,33 @@ final class Indexes
     }
 
     /**
+     * Install profiles under the root, with whether each ships a theme.
+     *
+     * @return array<string, bool>
+     */
+    public function profileThemes(): array
+    {
+        return $this->profileThemes ??= $this->root()->profileThemes();
+    }
+
+    /**
      * Classes marked `@internal` under the root, for the internal-parent
      * check. Read once at registration, so nothing is kept here.
      */
     public function internalClasses(): InternalClasses
     {
         return $this->root()->internalClasses();
+    }
+
+    /**
+     * The classes under the root that use the trait, for checks that target
+     * their descendants. Read once at registration.
+     *
+     * @param non-empty-string $trait
+     */
+    public function traitComposers(string $trait): TraitComposers
+    {
+        return $this->root()->traitComposers($trait);
     }
 
     /**
@@ -263,12 +330,20 @@ final class Indexes
                     [EntityTypeIndex::class, EntityTypeDefinition::class],
                 );
 
-        return $built->merge($this->annotated->entityTypes);
+        return $built->merge($this->annotated()->entityTypes);
     }
 
     private function buildPlugins(Codebase $codebase): PluginIndex
     {
-        $names = $codebase->getClassDescendants(PluginIndex::PLUGIN_ROOT);
+        $names = [];
+        foreach ($codebase->getMultipleClassDescendants([
+            PluginIndex::PLUGIN_ROOT,
+            ...PluginIndex::OTHER_ROOTS,
+        ]) as $descendants) {
+            $names = [...$names, ...$descendants];
+        }
+
+        $names = array_values(array_unique($names));
         $run = $this->run($names, $codebase);
         $cache = $this->root()->cache();
         $built =
@@ -281,7 +356,7 @@ final class Indexes
                     [PluginIndex::class],
                 );
 
-        return $built->merge($this->annotated->plugins);
+        return $built->merge($this->annotated()->plugins);
     }
 
     /**
@@ -294,20 +369,22 @@ final class Indexes
      * only when a class is added or removed, so an edited entity id, storage
      * handler or plugin attribute leaves them alone.
      *
-     * Null means the generation could not be read, and then there is nothing
-     * to key an entry on that a second analysis would not match. The caller
-     * builds its own index instead of sharing one.
+     * Null means the generation or a host identity that tells runs apart could
+     * not be read, and then there is nothing to key an entry on that a second
+     * analysis would not match. The caller builds its own index instead of
+     * sharing one.
      *
      * @param list<string> $names
      */
     private function run(array $names, Codebase $codebase): ?string
     {
         $generation = AnalysisGeneration::of($codebase);
-        if ($generation === null) {
+        $host = HostProcess::shareable();
+        if ($generation === null || $host === null) {
             return null;
         }
 
-        return HostProcess::identity() . '-g' . (string) $generation . '-' . sha1(implode("\n", $names));
+        return $host . '-g' . (string) $generation . '-' . sha1(implode("\n", $names));
     }
 
     /**
@@ -346,6 +423,7 @@ final class Indexes
         $this->plugins = null;
         $this->configSchema = null;
         $this->hookFunctions = null;
+        $this->profileThemes = null;
     }
 
     private function root(): DrupalRoot
@@ -363,12 +441,16 @@ final class Indexes
      * the same time. The worker runs each request in its own fiber and a
      * codebase query suspends the fiber, so a plain null check lets every
      * concurrent request start its own build; later fibers wait here instead.
-     * A build that throws hands the turn to exactly one waiter.
+     * A build that throws hands the turn to exactly one waiter. Returns what
+     * this request's own build returned, or null when another request built.
+     *
+     * @template T
      *
      * @param Closure(): bool $built
-     * @param Closure(): void $build
+     * @param Closure(): T $build
+     * @return T|null
      */
-    private function once(string $name, Closure $built, Closure $build): void
+    private function once(string $name, Closure $built, Closure $build): mixed
     {
         while (!$built()) {
             if (array_key_exists($name, $this->waiting)) {
@@ -381,7 +463,7 @@ final class Indexes
 
             $this->waiting[$name] = [];
             try {
-                $build();
+                return $build();
             } finally {
                 /** @var list<Suspension<null>> $waiting */
                 $waiting = $this->waiting[$name];
@@ -391,5 +473,7 @@ final class Indexes
                 }
             }
         }
+
+        return null;
     }
 }

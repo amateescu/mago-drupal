@@ -5,7 +5,7 @@ php-version = "8.1"
 paths = ["src"]
 # Signatures for the Drupal functions the fixtures call. Read for symbols, not
 # linted, so the analyzer half of the corpus run has something to check against.
-includes = ["stubs", "modules/corpus_dep/src"]
+includes = ["stubs", "modules/corpus_dep/src", "core/lib/Drupal/Core"]
 # Drupal keeps procedural code in files PHP does not name `.php`, and several
 # rules only fire inside those.
 extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]

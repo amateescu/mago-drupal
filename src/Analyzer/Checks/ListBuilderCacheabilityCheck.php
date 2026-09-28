@@ -8,7 +8,7 @@ use amateescu\MagoDrupal\Internal\ClassFacts;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 
-use function version_compare;
+use function preg_match;
 
 /**
  * Reports list builder operation methods without the CacheableMetadata
@@ -36,9 +36,9 @@ final class ListBuilderCacheabilityCheck implements MetadataCheck
         private readonly Closure $coreVersion,
     ) {}
 
-    public function mentionsAny(): array
+    public function textGate(): ?string
     {
-        return [];
+        return null;
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
@@ -76,10 +76,15 @@ final class ListBuilderCacheabilityCheck implements MetadataCheck
      */
     public static function commentedOut(?string $version): bool
     {
-        return (
-            $version !== null
-            && version_compare($version, version2: '11.3', operator: '>=')
-            && version_compare($version, version2: '12.0', operator: '<')
-        );
+        // Major and minor only: `11.3-dev` is 11.3 for this, which
+        // version_compare() puts below `11.3`.
+        $matches = [];
+        if ($version === null || preg_match('/^(\d+)\.(\d+)/', $version, $matches) !== 1) {
+            return false;
+        }
+
+        $release = ((int) $matches[1] * 1000) + (int) $matches[2];
+
+        return $release >= 11_003 && $release < 12_000;
     }
 }
