@@ -95,6 +95,14 @@ final class CoreTypes {
   }
 
   /**
+   * A claimed queue item is a stdClass, as core's queues build it.
+   */
+  public function queueItemClass(QueueInterface $queue): int|string|null {
+    $item = $queue->claimItem();
+    return $item instanceof \stdClass ? $item->item_id : NULL;
+  }
+
+  /**
    * A scanned file has its URI, filename and name.
    *
    * @return list<string>
@@ -106,6 +114,15 @@ final class CoreTypes {
       $uris[] = $file->uri;
     }
     return $uris;
+  }
+
+  /**
+   * The scanned files may be documented as the stdClass they are.
+   */
+  public function scannedFileObjects(FileSystemInterface $file_system): int {
+    /** @var \stdClass[] $files */
+    $files = $file_system->scanDirectory('public://', '/.*/');
+    return count($files);
   }
 
   /**

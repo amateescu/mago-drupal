@@ -74,6 +74,7 @@ use amateescu\MagoDrupal\Analyzer\Providers\SelfReturnProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\TraitCallProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\TraitPluginDefinitionProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\UninstallReasonsProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\ViewsQueryGroupProvider;
 use amateescu\MagoDrupal\Internal\ClassTargets;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DiskCache;
@@ -274,6 +275,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new QueueItemProvider());
         $registry->registerMethodReturnTypeProvider(new ScannedFilesProvider());
         $registry->registerMethodReturnTypeProvider(new UninstallReasonsProvider());
+        $registry->registerMethodReturnTypeProvider(new ViewsQueryGroupProvider());
     }
 
     /**

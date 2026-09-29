@@ -507,13 +507,14 @@ A few more of core's methods are typed the way the code behaves:
 $setting->id();                          // string|null on a config entity, not int|string|null
 $workspace->id();                        // string|null on a content entity with a string ID field
 $storage->loadMultipleRevisions([$a, $b]); // a list of int|string IDs is accepted
-$queue->claimItem();                     // object{data: mixed, item_id: int|string, created: int|string, ...}|false
-$file_system->scanDirectory($dir, $mask); // array<int|string, object{uri: string, filename: string, name: string, ...}>
-$this->getTestFiles('image');            // list<object{uri: string, filename: string, name: string, ...}>
+$queue->claimItem();                     // (stdClass&object{data: mixed, item_id: int|string, created: int|string, ...})|false
+$file_system->scanDirectory($dir, $mask); // array<int|string, stdClass&object{uri: string, filename: string, name: string, ...}>
+$this->getTestFiles('image');            // list<stdClass&object{uri: string, filename: string, name: string, ...}>
 $installer->validateUninstall(['mod']);  // array<string, list<string|MarkupInterface>>
 static::getEntityTypeEvents();           // array<string, list<array{0: string, 1: int}>>
 parent::create($container);              // static, in a form or controller
 $manager->createHandlerInstance(X::class, $type); // X, not object
+$query->addWhere(0, $field, $value);      // the group may be an int
 ```
 
 - A config entity's ID is its machine name, so passing one on is a question of the null only.
@@ -528,9 +529,15 @@ $manager->createHandlerInstance(X::class, $type); // X, not object
   signature is read from core's own declaration.
 - `claimItem()` is documented `bool|object` and never returns TRUE. The item's properties come
   from the method's description; the database queue reads `item_id` and `created` as strings.
-- The files `scanDirectory()` and `getTestFiles()` find are the objects their descriptions list.
-  Core's image tests pass these to `uploadNodeImage()`, which documents a `FileInterface`, so
-  those calls are reported as `invalid-argument`: the docblock is wrong, not the call.
+  Core's queues build the item as a `stdClass`, and the type says so, since Mago takes an object
+  shape alone for something that can never be one.
+- The files `scanDirectory()` and `getTestFiles()` find are the objects their descriptions list,
+  built as a `stdClass`, which is what `uploadNodeImage()` in core's image tests takes. Core's
+  `previewNodeImage()` documents an `ImageInterface` for the same files, so those calls are
+  reported as `possibly-invalid-argument`: the docblock is wrong, not the call.
+- Views' `Sql::addWhere()`, `addWhereExpression()` and `addHavingExpression()` document `$group`
+  as a string and tell the caller to use 0 for the default group. The groups are array keys, so
+  the parameter takes `int|string`; the others keep their declared types.
 - Uninstall validators return translatable markup, which keeps their placeholders safe to
   render. The `module-uninstall-validator.stub` accepts that on each validator.
 - `EntityTypeEventSubscriberTrait` and `FieldStorageDefinitionEventSubscriberTrait` build a list
@@ -850,6 +857,16 @@ leaves `MockObject` out. PHPStan reports the same calls as undefined methods.
 protected $moduleHandler;
 
 $this->moduleHandler->expects($this->once());  // phpunit/mock-call-on-plain-type
+```
+
+A union mock passed where the mocked type goes is not reported either. Mago checks each member of
+the union against the parameter and reports the `MockObject` half as `possibly-invalid-argument`;
+the plugin drops that report when every other member is the expected type or a class that fits it.
+A `null` member is left to `possibly-null-argument`, and any other member keeps the report. Core
+11.4's `UnitTestCase::getStringTranslationStub()` returns such a union too.
+
+```php
+$this->worker->setStringTranslation($this->getStringTranslationStub());  // no issues
 ```
 
 The other direction stays: calling `invokeAll()` on the union still reports it missing on

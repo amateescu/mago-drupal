@@ -39,6 +39,27 @@ final class MockUnionsTest extends TestCase {
   protected $plain;
 
   /**
+   * A mock of a subclass, documented as a union.
+   *
+   * @var \Drupal\corpus\Audit\SpecialThing|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $special;
+
+  /**
+   * A mock that may be missing, documented as a union.
+   *
+   * @var \Drupal\corpus\Nested\Thing|\PHPUnit\Framework\MockObject\MockObject|null
+   */
+  protected $maybe;
+
+  /**
+   * A mock that may be of an unrelated class, documented as a union.
+   *
+   * @var \Drupal\corpus\Nested\Thing|\Drupal\corpus\Nested\Other|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $either;
+
+  /**
    * Builds the doubles.
    */
   protected function setUp(): void {
@@ -91,6 +112,38 @@ final class MockUnionsTest extends TestCase {
   }
 
   /**
+   * A union mock goes where the mocked type goes.
+   *
+   * So does the union mock of a subclass.
+   */
+  public function testPassedAsArgument(): void {
+    $this->takesThing($this->thing);
+    $this->takesThing($this->special);
+  }
+
+  /**
+   * A union that may hold null is still reported for the null.
+   */
+  public function testNullablePassedAsArgument(): void {
+    // @mago-expect analysis:possibly-null-argument
+    $this->takesThing($this->maybe);
+  }
+
+  /**
+   * A union with an unrelated class keeps the report.
+   */
+  public function testUnrelatedPassedAsArgument(): void {
+    // @mago-expect analysis:possibly-invalid-argument
+    $this->takesThing($this->either);
+  }
+
+  /**
+   * Stands in for code that takes the mocked type.
+   */
+  private function takesThing(Thing $thing): void {
+  }
+
+  /**
    * The stub half of the union has no `expects()`.
    */
   public function testExpectationOnStub(): void {
@@ -99,3 +152,8 @@ final class MockUnionsTest extends TestCase {
   }
 
 }
+
+/**
+ * A subclass of the mocked type.
+ */
+class SpecialThing extends Thing {}

@@ -25,7 +25,7 @@ final class PHPUnitPlugin implements Plugin
         return new PluginDefinition(
             identifier: 'phpunit',
             name: 'PHPUnit',
-            description: 'Narrows emptiness assertions, types mock unions and Prophecy calls, and reports mocks and prophecies documented with the wrong type and assertions that always pass.',
+            description: 'Narrows emptiness assertions, types mock unions and Prophecy calls, accepts mock unions as arguments, and reports mocks and prophecies documented with the wrong type and assertions that always pass.',
         );
     }
 
@@ -34,6 +34,7 @@ final class PHPUnitPlugin implements Plugin
         $registry->enableProviderMemoization();
         $registry->registerMethodAssertionProvider(new AssertionProvider());
         $registry->registerMethodReturnTypeProvider(new MockUnionProvider());
+        $registry->registerIssueFilterHook(new MockUnionArgumentFilter());
         $registry->registerMethodCallAnalysisHook(new PlainMockCallHook('expects'));
         $registry->registerMethodCallAnalysisHook(new PlainMockCallHook('method'));
         foreach (array_keys(RedundantAssertionHook::METHODS) as $method) {
