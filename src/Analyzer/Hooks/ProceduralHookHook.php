@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\DeprecatedHookCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\EntityOperationCacheabilityCheck;
+use amateescu\MagoDrupal\Analyzer\Checks\FormAlterSignatureCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Attributes;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
@@ -30,9 +31,10 @@ use function substr;
  *
  * A function named `<module>_<hook>` implements `hook_<hook>`. Ports the
  * procedural halves of phpstan-drupal's DeprecatedHookImplementation and
- * ProceduralHookEntityOperationCacheabilityRule. The function node's span
- * and the file's resolved names name the function; its metadata gives the
- * signature.
+ * ProceduralHookEntityOperationCacheabilityRule, and checks form alter
+ * signatures as FormAlterSignatureCheck does for methods. The function
+ * node's span and the file's resolved names name the function; its metadata
+ * gives the signature.
  *
  * @internal
  */
@@ -96,8 +98,21 @@ final class ProceduralHookHook implements NodeAnalysisHook
         $reporter = new Reporter($context);
         // The name, rather than the whole function, is what gets marked.
         $where = $function->nameLocation ?? $function->location;
-        if (DeprecatedHookCheck::reports($hooks, $this->target, $hook)) {
-            $reporter->warning(DeprecatedHookCheck::CODE, DeprecatedHookCheck::issue($short, $hook, $where));
+        $documented = DeprecatedHookCheck::reported($hooks, $this->target, $hook);
+        if ($documented !== null) {
+            $reporter->warning(DeprecatedHookCheck::CODE, DeprecatedHookCheck::issue($short, $documented, $where));
+        }
+
+        $problems = FormAlterSignatureCheck::isFormAlter($hook)
+            ? FormAlterSignatureCheck::problems($function->parameters)
+            : [];
+        if ($problems !== []) {
+            $reporter->error(FormAlterSignatureCheck::CODE, FormAlterSignatureCheck::issue(
+                $short,
+                $hook,
+                $problems,
+                $where,
+            ));
         }
 
         $position = EntityOperationCacheabilityCheck::missing($hooks, $hook, $function->parameters);

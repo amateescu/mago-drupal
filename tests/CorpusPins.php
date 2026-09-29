@@ -45,6 +45,7 @@ use function in_array;
 use function is_dir;
 use function json_decode;
 use function mkdir;
+use function preg_grep;
 use function preg_match;
 use function proc_close;
 use function proc_open;
@@ -91,6 +92,11 @@ final class CorpusPins
      */
     private const JSON = ['--reporting-format', 'json'];
 
+    /**
+     * The log line Mago writes when the worker rejects or fails a request.
+     */
+    private const WORKER_FAILURE = '/External analyzer .* failed|extension worker .* rejected request/';
+
     private function __construct() {}
 
     /**
@@ -112,7 +118,7 @@ final class CorpusPins
         try {
             self::copyTree($corpus, $copy);
             self::pointAtWorker($copy . '/mago.toml', dirname(__DIR__) . '/resources/worker.php');
-            $pragmas = self::neutralize($copy . '/src');
+            $pragmas = [...self::neutralize($copy, 'src'), ...self::neutralize($copy, 'modules/corpus_callbacks')];
             $rules = file($corpus . '/expected-rules.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             $codes = implode(',', $rules === false ? [] : $rules);
 
@@ -229,14 +235,16 @@ final class CorpusPins
     }
 
     /**
-     * Reads the pragmas under a directory and renames them in place, so Mago
-     * no longer applies them. The new name still starts with `@mago-`, which
-     * the comment rules treat as a directive, so it adds no issue of its own.
+     * Reads the pragmas under a directory of the workspace and renames them
+     * in place, so Mago does not apply them. The new name still starts
+     * with `@mago-`, which the comment rules treat as a directive, so it adds
+     * no issue of its own.
      *
      * @return list<Pragma>
      */
-    private static function neutralize(string $directory): array
+    private static function neutralize(string $workspace, string $relativeDirectory): array
     {
+        $directory = $workspace . '/' . $relativeDirectory;
         $pragmas = [];
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
             $directory,
@@ -250,7 +258,7 @@ final class CorpusPins
                 continue;
             }
 
-            $relative = 'src/' . substr($path, offset: strlen($directory) + 1);
+            $relative = $relativeDirectory . '/' . substr($path, offset: strlen($directory) + 1);
             $lines = explode("\n", $source);
             $tokens = PhpToken::tokenize($source);
             foreach ($lines as $index => $line) {
@@ -351,17 +359,26 @@ final class CorpusPins
      */
     private static function issues(array $command, string $category): array
     {
-        // A file instead of a pipe, so a large report never blocks Mago.
+        // Files instead of pipes, so a large report never blocks Mago.
         $output = sys_get_temp_dir() . '/mago-drupal-pins-' . (string) getmypid() . '.json';
+        $log = $output . '.log';
         $pipes = [];
-        $process = proc_open($command, [1 => ['file', $output, 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
+        $process = proc_open($command, [1 => ['file', $output, 'w'], 2 => ['file', $log, 'w']], $pipes);
         if ($process === false) {
             throw new RuntimeException('Could not start ' . implode(' ', $command));
         }
 
         proc_close($process);
         $json = (string) file_get_contents($output);
+        $lines = file($log, FILE_IGNORE_NEW_LINES);
+        $failures = preg_grep(self::WORKER_FAILURE, $lines === false ? [] : $lines);
         unlink($output);
+        unlink($log);
+        // Mago falls back to its own analysis when the worker rejects a
+        // request, so a provider the SDK refuses would otherwise pass unseen.
+        if ($failures !== false && $failures !== []) {
+            throw new RuntimeException("The worker failed a request:\n" . implode("\n", $failures));
+        }
 
         $found = [];
         /** @var mixed $issue */

@@ -66,7 +66,8 @@ final class DeprecatedUse
         $contents = $source->contents;
 
         return (
-            DeprecationScopes::marked($contents) && DeprecationScopes::of($contents)->covers($span)
+            DeprecationScopes::marked($contents, $source->path)
+            && DeprecationScopes::of($contents, $source->path)->covers($span)
             || InheritedDeprecation::covers($context->codebase, $source->path, NamedFunctions::of($contents), $span)
         );
     }

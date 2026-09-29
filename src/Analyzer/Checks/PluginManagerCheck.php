@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
 use amateescu\MagoDrupal\Internal\ClassFacts;
+use amateescu\MagoDrupal\Internal\ServiceWiring;
 use amateescu\MagoDrupal\Internal\TestFiles;
+use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\Metadata\MethodFields;
@@ -32,7 +34,9 @@ use const T_STRING;
  * PluginManagerInspectionRule. The calls are read off the constructor's
  * tokens, so a call in a comment does not count. A `parent::__construct()`
  * call is followed into the parent's constructor, read off disk, so a
- * manager that leaves the wiring to its parent is not reported.
+ * manager that leaves the wiring to its parent is not reported. Neither is
+ * one whose service definition makes the call through `calls:`; the service
+ * index is only asked once the constructor misses a call.
  *
  * @internal
  *
@@ -50,6 +54,14 @@ final class PluginManagerCheck implements MetadataCheck
      * How far a `parent::__construct()` chain is followed.
      */
     private const DEPTH = 5;
+
+    /**
+     * @param Closure(Codebase): ServiceWiring $wiring Returns the `calls:`
+     *   of the services of each class.
+     */
+    public function __construct(
+        private readonly Closure $wiring,
+    ) {}
 
     /**
      * Only a class declaring its own constructor is checked.
@@ -74,6 +86,10 @@ final class PluginManagerCheck implements MetadataCheck
         }
 
         $calls = self::calls($class->codebase, $metadata->name, $constructor->location);
+        if (!array_key_exists('alterinfo', $calls) || !array_key_exists('setcachebackend', $calls)) {
+            $calls = [...$calls, ...($this->wiring)($class->codebase)->calls($metadata->name)];
+        }
+
         $name = $class->name();
         if (!array_key_exists('alterinfo', $calls)) {
             $reporter->warning(self::ALTER_CODE, Reporter::issue(

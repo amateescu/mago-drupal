@@ -1,0 +1,19 @@
+parameters:
+  app.root: ''
+  flag: true
+  limit: 30
+  ratio: 0.5
+  options:
+    enabled: false
+  list: [a, b]
+  either: 1
+  nothing: ~
+  copy: '%limit%'
+  path: '%app.root%/files'
+  service: '@thing'
+  escaped: '@@at'
+  tagged: !tagged_iterator a.tag
+  7: numeric
+services:
+  thing:
+    class: Drupal\first\Thing

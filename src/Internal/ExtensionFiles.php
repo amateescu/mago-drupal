@@ -62,7 +62,7 @@ final class ExtensionFiles
     /**
      * Directory names that never hold Drupal extensions and are slow to walk.
      */
-    private const SKIPPED_DIRECTORIES = ['vendor', 'node_modules', 'files', '.git'];
+    public const SKIPPED_DIRECTORIES = ['vendor', 'node_modules', 'files', '.git'];
 
     /**
      * Seconds within which a directory's listing may still be changing.
@@ -84,6 +84,11 @@ final class ExtensionFiles
         $real = realpath($root->path);
         $base = $real === false ? $root->path : $real;
         [$start, $probed] = self::extensionDirectories($base);
+        foreach ($root->outside as $directory) {
+            $probed[$directory] = self::recordedMtime($directory);
+            $start[] = $directory;
+        }
+
         [$services, $schemas, $extensions, $apiFiles, $directories] = self::walk($base, $start);
         $directories = [...$probed, ...$directories];
         sort($services);

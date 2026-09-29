@@ -30,8 +30,9 @@ use const GLOB_ONLYDIR;
  * Mago starts workers in the directory of the effective `mago.toml`, so the
  * search starts from the worker's cwd. The root is found in this order: an
  * explicit path, the Composer scaffold's `web-root`, a well-known subdirectory
- * holding `core/lib/Drupal.php`, and finally the cwd itself. The last fallback
- * keeps a workspace without core usable, such as this package's own corpus.
+ * holding `core/lib/Drupal.php`, core installed as a plain Composer package,
+ * and finally the cwd itself. The last fallback keeps a workspace without
+ * core usable, such as this package's own corpus.
  *
  * @internal
  *
@@ -91,6 +92,11 @@ final class DrupalRoot
     private ?array $providerIds = null;
 
     /**
+     * @var array<non-empty-string, true>|null
+     */
+    private ?array $alteredServiceIds = null;
+
+    /**
      * Fingerprints of the file lists read so far, by a hash of the list.
      *
      * @var array<string, string>
@@ -106,12 +112,17 @@ final class DrupalRoot
 
     private readonly ?DiskCache $cache;
 
+    /**
+     * @param list<string> $outside Extension directories outside the root
+     *   that the walk covers too.
+     */
     private function __construct(
         public readonly string $path,
         ?DiskCache $cache,
+        public readonly array $outside = [],
     ) {
         $real = realpath($path);
-        $this->cache = $cache?->scoped($real === false ? $path : $real);
+        $this->cache = $cache?->scoped(implode("\0", [$real === false ? $path : $real, ...$outside]));
     }
 
     /**
@@ -148,7 +159,50 @@ final class DrupalRoot
             }
         }
 
-        return new self($cwd, $cache);
+        return self::packaged($cwd, $cache) ?? new self($cwd, $cache);
+    }
+
+    /**
+     * The root around a core that Composer installed as a plain package, as
+     * in a module's own repository without composer/installers: the
+     * workspace's `vendor/drupal`, when it holds `core`. The root is that
+     * directory and not the one above the resolved `core`, so a core linked
+     * in from a path repository keeps the packages next to it.
+     */
+    private static function packaged(string $cwd, ?DiskCache $cache): ?self
+    {
+        $root = realpath($cwd . '/vendor/drupal');
+        if ($root === false || !is_file($root . '/core/lib/Drupal.php')) {
+            return null;
+        }
+
+        return new self($root, $cache, self::outside($root, $cwd));
+    }
+
+    /**
+     * The extension directories a packaged core's root leaves out: the
+     * workspace, and the other packages next to core under `vendor/drupal`,
+     * where Composer puts contrib modules without composer/installers. The
+     * walk skips `vendor` directories, so the workspace and the root never
+     * overlap. A package that links back to the workspace is the workspace.
+     *
+     * @return list<string>
+     */
+    private static function outside(string $root, string $cwd): array
+    {
+        $workspace = realpath($cwd);
+        $workspace = $workspace === false ? $cwd : $workspace;
+        $outside = [$workspace];
+        $packages = glob($root . '/*', GLOB_ONLYDIR);
+        foreach ($packages === false ? [] : $packages as $package) {
+            if ($package === $root . '/core' || realpath($package) === $workspace) {
+                continue;
+            }
+
+            $outside[] = $package;
+        }
+
+        return $outside;
     }
 
     /**
@@ -289,6 +343,22 @@ final class DrupalRoot
     }
 
     /**
+     * The classes in the extension source under this root that declare a
+     * `#[TrustedCallback]` method, read through the cache.
+     */
+    public function trustedCallbackClasses(): TrustedCallbackClasses
+    {
+        $files = $this->sourceFiles();
+
+        return $this->cached(
+            'trusted-callbacks',
+            $files,
+            static fn(): TrustedCallbackClasses => TrustedCallbackClasses::fromFiles($files),
+            [TrustedCallbackClasses::class],
+        );
+    }
+
+    /**
      * Class-likes, class constants and properties marked `@deprecated` in the
      * extension source under this root, parsed through the cache like the
      * internal classes.
@@ -331,6 +401,36 @@ final class DrupalRoot
             'provider-ids',
             $files,
             static fn(): array => ServiceDefinitions::idsInFiles($files),
+        );
+    }
+
+    /**
+     * Service ids that the `*ServiceProvider.php` classes and the `*Pass.php`
+     * compiler passes under this root register, fetch or remove by a literal
+     * id. Their code may change a service's arguments after the services
+     * files are loaded.
+     *
+     * @return array<non-empty-string, true>
+     */
+    public function alteredServiceIds(): array
+    {
+        if ($this->alteredServiceIds !== null) {
+            return $this->alteredServiceIds;
+        }
+
+        $files = [];
+        foreach ($this->sourceFiles() as $file) {
+            if (!str_ends_with($file, 'ServiceProvider.php') && !str_ends_with($file, 'Pass.php')) {
+                continue;
+            }
+
+            $files[] = $file;
+        }
+
+        return $this->alteredServiceIds = $this->cached(
+            'altered-services',
+            $files,
+            static fn(): array => ServiceDefinitions::alteredIdsInFiles($files),
         );
     }
 

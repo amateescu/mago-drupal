@@ -1,0 +1,11 @@
+# The file's defaults autowire every service, so none is counted.
+services:
+  _defaults:
+    autowire: true
+  corpus_autowired.defaulted:
+    class: Drupal\corpus\Wiring\Unchecked
+  # A child autowires only when its parent does, whatever the file's defaults
+  # say, so its arguments are counted.
+  corpus_autowired.child:
+    class: Drupal\corpus\Wiring\ChildOfPlainParent
+    parent: corpus_wiring.base

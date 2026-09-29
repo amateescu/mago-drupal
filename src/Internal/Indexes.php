@@ -42,9 +42,13 @@ final class Indexes
     private ?DrupalRoot $root = null;
 
     /**
-     * @var array<non-empty-string, Definition>|null
+     * The service definitions and parameter kinds of every services file.
+     *
+     * @var array{array<non-empty-string, Definition>, array<non-empty-string, array<string, true>>}|null
      */
     private ?array $yaml = null;
+
+    private ?ServiceParameters $parameters = null;
 
     /**
      * Raw definitions from the `*ServiceProvider.php` files of the last scan.
@@ -54,6 +58,8 @@ final class Indexes
     private array $provided = [];
 
     private ?ServiceIndex $services = null;
+
+    private ?ServiceWiring $wiring = null;
 
     private ?EntityTypeIndex $entityTypes = null;
 
@@ -111,26 +117,78 @@ final class Indexes
     {
         $this->provided = $definitions;
         $this->services = null;
+        $this->wiring = null;
     }
 
     public function services(Codebase $codebase): ServiceIndex
     {
         $this->follow($codebase);
 
-        // Provider ids read off disk have no class, so YAML wins over them and
-        // the scanned providers win over YAML, without an id-only entry ever
-        // erasing a class.
-
-        return $this->services ??= ServiceIndex::fromDefinitions(ServiceDefinitions::merge(
-            ServiceDefinitions::merge($this->root()->providerIds(), $this->yaml()),
-            $this->provided,
-        ));
+        return $this->services ??= ServiceIndex::fromDefinitions($this->definitions());
     }
 
     /**
-     * The service definitions of every services file under the root.
+     * The `calls:` and constructor argument counts of the services of each
+     * class.
+     */
+    public function wiring(Codebase $codebase): ServiceWiring
+    {
+        $this->follow($codebase);
+
+        return $this->wiring ??= ServiceWiring::fromDefinitions($this->definitions());
+    }
+
+    /**
+     * Service ids a service provider or compiler pass under the root names
+     * with a literal, see DrupalRoot::alteredServiceIds().
+     *
+     * @return array<non-empty-string, true>
+     */
+    public function alteredServiceIds(Codebase $codebase): array
+    {
+        $this->follow($codebase);
+
+        return $this->root()->alteredServiceIds();
+    }
+
+    /**
+     * The kinds of value the services files give each container parameter.
+     */
+    public function parameters(Codebase $codebase): ServiceParameters
+    {
+        $this->follow($codebase);
+
+        return $this->parameters ??= new ServiceParameters($this->yaml()[1]);
+    }
+
+    /**
+     * The raw definitions of every source.
+     *
+     * Provider ids read off disk have no class, so YAML wins over them and
+     * the scanned providers win over YAML, without an id-only entry ever
+     * erasing a class.
      *
      * @return array<non-empty-string, Definition>
+     */
+    private function definitions(): array
+    {
+        return ServiceDefinitions::merge(
+            ServiceDefinitions::merge($this->root()->providerIds(), $this->yaml()[0]),
+            $this->provided,
+        );
+    }
+
+    /**
+     * The service definitions and parameter kinds of every services file
+     * under the root.
+     *
+     * A site's own `services.yml` under `sites/` is not read. `settings.php`
+     * decides through `container_yamls` which of those files the container
+     * loads, and the worker does not run it. Such a file overrides the values
+     * of core's and the modules' parameters, whose kinds their code relies
+     * on, and a parameter only it defines keeps the declared type.
+     *
+     * @return array{array<non-empty-string, Definition>, array<non-empty-string, array<string, true>>}
      */
     private function yaml(): array
     {
@@ -139,7 +197,7 @@ final class Indexes
             $this->yaml = $this->root()->cached(
                 'services',
                 [...$files, ...ServiceModuleInfo::infoFiles($files)],
-                static fn(): array => ServiceYaml::load($files),
+                static fn(): array => ServiceYaml::read($files),
                 [
                     TaggedValue::class,
                 ],
@@ -303,6 +361,15 @@ final class Indexes
     }
 
     /**
+     * The classes under the root declaring a `#[TrustedCallback]` method, for
+     * the check that targets their descendants. Read once at registration.
+     */
+    public function trustedCallbackClasses(): TrustedCallbackClasses
+    {
+        return $this->root()->trustedCallbackClasses();
+    }
+
+    /**
      * Symbols marked `@deprecated` under the root, for the deprecation checks
      * Mago has none of. Read once at registration.
      */
@@ -418,7 +485,9 @@ final class Indexes
     {
         $this->root = null;
         $this->yaml = null;
+        $this->parameters = null;
         $this->services = null;
+        $this->wiring = null;
         $this->entityTypes = null;
         $this->plugins = null;
         $this->configSchema = null;

@@ -147,14 +147,113 @@ final class Container {
     // @mago-expect analysis:non-existent-method
     $this->container->get('corpus.chained')->missing();
     // @mago-expect analysis:non-existent-method
-    $this->container->get('corpus.defined')->missing();
-    // @mago-expect analysis:non-existent-method
     $this->container->get('corpus.provided_alias')->missing();
     // A literal id with a computed class is a known service of unknown
     // type, so nothing is reported.
     // @mago-expect analysis:possible-method-access-on-null
     // @mago-expect analysis:ambiguous-object-method-access
     $this->container->get('corpus.provided_dynamic')->missing();
+  }
+
+  /**
+   * A definition a provider hands to setDefinition() is private.
+   */
+  public function providedPrivate(): void {
+    // @mago-expect analysis:drupal/unknown-service
+    // @mago-expect analysis:non-existent-method
+    $this->container->get('corpus.defined')->missing();
+  }
+
+  /**
+   * Unless setPublic(TRUE) runs on the chain that builds it.
+   */
+  public function providedPublicChain(): void {
+    $this->container->get('corpus.defined_public')->onlyOnThing();
+  }
+
+  /**
+   * Or on the definition setDefinition() returns.
+   */
+  public function providedPublicResult(): void {
+    $this->container->get('corpus.defined_result')->onlyOnThing();
+  }
+
+  /**
+   * Or on the variable that holds it.
+   */
+  public function providedPublicVariable(): void {
+    $this->container->get('corpus.defined_variable')->onlyOnThing();
+  }
+
+  /**
+   * A variable nothing makes public holds a private definition.
+   */
+  public function providedPrivateVariable(): void {
+    // @mago-expect analysis:drupal/unknown-service
+    $this->container->get('corpus.defined_private_variable')->onlyOnThing();
+  }
+
+  /**
+   * A literal setPublic(FALSE) makes a registered service private.
+   */
+  public function registeredPrivate(): void {
+    // @mago-expect analysis:drupal/unknown-service
+    $this->container->get('corpus.registered_private')->onlyOnThing();
+  }
+
+  /**
+   * A child definition takes its parent's class and visibility.
+   */
+  public function providedChild(): void {
+    // @mago-expect analysis:non-existent-method
+    $this->container->get('corpus.defined_child')->missing();
+  }
+
+  /**
+   * A definition built in another method may be public.
+   */
+  public function providedElsewhere(): void {
+    // @mago-expect analysis:possible-method-access-on-null
+    // @mago-expect analysis:ambiguous-object-method-access
+    $this->container->get('corpus.defined_elsewhere')->missing();
+  }
+
+  /**
+   * So may one another method finishes.
+   */
+  public function providedConfigured(): void {
+    // @mago-expect analysis:possible-method-access-on-null
+    // @mago-expect analysis:ambiguous-object-method-access
+    $this->container->get('corpus.defined_configured')->missing();
+  }
+
+  /**
+   * A variable reused for two definitions makes both public, untyped.
+   */
+  public function providedReused(): void {
+    // @mago-expect analysis:possible-method-access-on-null
+    // @mago-expect analysis:ambiguous-object-method-access
+    $this->container->get('corpus.reused_first')->missing();
+    // @mago-expect analysis:possible-method-access-on-null
+    // @mago-expect analysis:ambiguous-object-method-access
+    $this->container->get('corpus.reused_second')->missing();
+  }
+
+  /**
+   * Public once code the scan does not follow gets the definition.
+   */
+  public function providedPublicLater(): void {
+    $this->container->get('corpus.defined_assigned')->onlyOnThing();
+    $this->container->get('corpus.defined_altered')->onlyOnThing();
+    $this->container->get('corpus.computed_visibility')->onlyOnThing();
+  }
+
+  /**
+   * A literal setPublic(FALSE) makes an alias private.
+   */
+  public function privateAlias(): void {
+    // @mago-expect analysis:drupal/unknown-service
+    $this->container->get('corpus.provided_private_alias')->onlyOnThing();
   }
 
   /**

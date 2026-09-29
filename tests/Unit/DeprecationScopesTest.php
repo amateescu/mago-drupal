@@ -12,10 +12,77 @@ use function strpos;
 
 final class DeprecationScopesTest extends TestCase
 {
+    private const TEST = 'modules/legacy/tests/src/Unit/LegacyTest.php';
+
+    private const RUNTIME = 'modules/legacy/src/Legacy.php';
+
+    /**
+     * A legacy group marks a scope in a test and nowhere else.
+     */
+    private const LEGACY = <<<'PHP'
+        <?php
+        /**
+         * @group legacy
+         */
+        class A {
+            public function b(): void { /* MARKED */ }
+        }
+        PHP;
+
+    public function testLegacyGroupMarksTestFilesOnly(): void
+    {
+        self::assertTrue(DeprecationScopes::marked(self::LEGACY, self::TEST));
+        self::assertTrue(DeprecationScopes::of(self::LEGACY, self::TEST)->covers(self::at(
+            self::LEGACY,
+            '/* MARKED */',
+        )));
+
+        self::assertFalse(DeprecationScopes::marked(self::LEGACY, self::RUNTIME));
+        self::assertFalse(DeprecationScopes::of(self::LEGACY, self::RUNTIME)->covers(self::at(
+            self::LEGACY,
+            '/* MARKED */',
+        )));
+    }
+
+    /**
+     * The same bytes at a test path and at another path are two results,
+     * whichever comes first.
+     */
+    public function testRemembersTestAndRuntimeScopesApart(): void
+    {
+        $marked = self::at(self::LEGACY, '/* MARKED */');
+
+        self::assertFalse(DeprecationScopes::of(self::LEGACY, self::RUNTIME)->covers($marked));
+        self::assertTrue(DeprecationScopes::of(self::LEGACY, self::TEST)->covers($marked));
+        self::assertFalse(DeprecationScopes::of(self::LEGACY, self::RUNTIME)->covers($marked));
+    }
+
+    /**
+     * The other markers do not depend on the path.
+     */
+    public function testOtherMarkersWorkOutsideTests(): void
+    {
+        $code = <<<'PHP'
+            <?php
+            class A {
+                #[IgnoreDeprecations]
+                public function ignored(): void { /* IGNORED */ }
+                /** @deprecated in drupal:11.4.0 and is removed from drupal:12.0.0. */
+                public function retired(): void { /* RETIRED */ }
+            }
+            PHP;
+
+        self::assertTrue(DeprecationScopes::marked($code, self::RUNTIME));
+        $scopes = DeprecationScopes::of($code, self::RUNTIME);
+
+        self::assertTrue($scopes->covers(self::at($code, '/* IGNORED */')));
+        self::assertTrue($scopes->covers(self::at($code, '/* RETIRED */')));
+    }
+
     public function testUnmarkedFileNeedsNoScan(): void
     {
-        self::assertFalse(DeprecationScopes::marked('<?php class A { public function b(): void {} }'));
-        self::assertTrue(DeprecationScopes::marked("<?php\n/** @group legacy */\nclass A {}"));
+        self::assertFalse(DeprecationScopes::marked('<?php class A { public function b(): void {} }', self::TEST));
+        self::assertTrue(DeprecationScopes::marked("<?php\n/** @group legacy */\nclass A {}", self::TEST));
     }
 
     /**
@@ -35,7 +102,7 @@ final class DeprecationScopesTest extends TestCase
             }
             PHP;
 
-        $scopes = DeprecationScopes::of($code);
+        $scopes = DeprecationScopes::of($code, self::TEST);
 
         self::assertTrue($scopes->covers(self::at($code, '/* MARKED */')));
         self::assertFalse($scopes->covers(self::at($code, '/* PLAIN */')));
@@ -55,7 +122,7 @@ final class DeprecationScopesTest extends TestCase
             }
             PHP;
 
-        self::assertFalse(DeprecationScopes::of($code)->covers(self::at($code, '/* PLAIN */')));
+        self::assertFalse(DeprecationScopes::of($code, self::TEST)->covers(self::at($code, '/* PLAIN */')));
     }
 
     /**
@@ -75,8 +142,8 @@ final class DeprecationScopesTest extends TestCase
             }
             PHP;
 
-        self::assertTrue(DeprecationScopes::marked($code));
-        $scopes = DeprecationScopes::of($code);
+        self::assertTrue(DeprecationScopes::marked($code, self::TEST));
+        $scopes = DeprecationScopes::of($code, self::TEST);
 
         self::assertTrue($scopes->covers(self::at($code, '/* MARKED */')));
         self::assertFalse($scopes->covers(self::at($code, '/* PLAIN */')));
@@ -99,7 +166,7 @@ final class DeprecationScopesTest extends TestCase
             }
             PHP;
 
-        $scopes = DeprecationScopes::of($code);
+        $scopes = DeprecationScopes::of($code, self::TEST);
 
         self::assertTrue($scopes->covers(self::at($code, '/* MARKED */')));
         self::assertFalse($scopes->covers(self::at($code, '/* PLAIN */')));
@@ -107,7 +174,7 @@ final class DeprecationScopesTest extends TestCase
 
     public function testBrokenPhpYieldsNoScopes(): void
     {
-        self::assertFalse(DeprecationScopes::of('<?php class {{{ @group legacy')->covers(new Span(0, 1)));
+        self::assertFalse(DeprecationScopes::of('<?php class {{{ @group legacy', self::TEST)->covers(new Span(0, 1)));
     }
 
     private static function at(string $code, string $marker): Span

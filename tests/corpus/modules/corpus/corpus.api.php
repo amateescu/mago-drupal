@@ -83,3 +83,34 @@ function hook_stopped_thing(): void {}
  *   hook_new_thing() instead.
  */
 function hook_legacy_requirements_thing(): void {}
+
+/**
+ * Alter a search query with a tag, named with a placeholder.
+ *
+ * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
+ *   hook_new_thing() instead.
+ */
+function hook_search_query_TAG_alter(): void {}
+
+/**
+ * Respond to an entity of one type being viewed.
+ */
+function hook_ENTITY_TYPE_view(): void {}
+
+/**
+ * Alter the view of an entity of one type.
+ */
+function hook_ENTITY_TYPE_view_alter(): void {}
+
+/**
+ * Alter a single widget element.
+ */
+function hook_field_widget_single_element_WIDGET_TYPE_form_alter(): void {}
+
+/**
+ * Alter a widget, which every single element hook name matches too.
+ *
+ * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
+ *   hook_field_widget_single_element_WIDGET_TYPE_form_alter() instead.
+ */
+function hook_field_widget_WIDGET_TYPE_form_alter(): void {}

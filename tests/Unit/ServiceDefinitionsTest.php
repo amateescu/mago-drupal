@@ -22,6 +22,20 @@ final class ServiceDefinitionsTest extends TestCase
         self::assertSame([], $ids['sample.plain']);
     }
 
+    public function testReadsTheIdsProvidersMayChange(): void
+    {
+        $ids = ServiceDefinitions::alteredIdsInFiles([
+            dirname(__DIR__) . '/fixtures/services/SampleServiceProvider.php',
+            dirname(__DIR__) . '/fixtures/services/MissingServiceProvider.php',
+        ]);
+
+        // An alias and a probe change no definition.
+        self::assertSame(
+            ['sample.plain', 'sample.chained', 'sample.defined', 'sample.altered', 'sample.removed'],
+            array_keys($ids),
+        );
+    }
+
     public function testMergeKeepsAClassOverAnEntryWithout(): void
     {
         $base = ['a' => ['class' => 'A'], 'b' => []];

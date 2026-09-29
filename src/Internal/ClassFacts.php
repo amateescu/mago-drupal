@@ -157,7 +157,7 @@ final class ClassFacts
 
         $properties = [];
         foreach ($identifiers === [] ? [] : $this->codebase->getMultipleProperties($identifiers) as $property) {
-            if ($property === null || !$this->declaresProperty($property)) {
+            if ($property === null || !self::declares($this->class, $property)) {
                 continue;
             }
 
@@ -212,17 +212,18 @@ final class ClassFacts
     }
 
     /**
-     * Whether the property is declared in this class rather than by a trait
-     * or a parent: its name sits in this class's file, inside the class span.
+     * Whether the property is declared in the class's own body rather than
+     * by a trait or a parent: its name sits in the class's file, inside the
+     * class span.
      */
-    private function declaresProperty(PropertyMetadata $property): bool
+    public static function declares(ClassLikeMetadata $class, PropertyMetadata $property): bool
     {
         $location = $property->nameLocation ?? $property->location;
 
         return (
             $location !== null
-            && $location->file === $this->class->location->file
-            && $this->class->location->span->contains($location->span)
+            && $location->file === $class->location->file
+            && $class->location->span->contains($location->span)
         );
     }
 }

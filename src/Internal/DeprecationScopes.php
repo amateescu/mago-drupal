@@ -14,11 +14,12 @@ use function str_ends_with;
 /**
  * The byte ranges of one file where a deprecated call is expected.
  *
- * Four things mark a scope: a `@group legacy` docblock, a `@deprecated`
- * docblock, a PHPUnit `#[IgnoreDeprecations]` attribute and a call to
- * `DeprecationHelper::backwardsCompatibleCall()`. The first three apply to
- * the class or the function they sit on, the last to the call's arguments.
- * Deprecated code may use other deprecated code.
+ * Four things mark a scope: a `@group legacy` docblock in a test file, a
+ * `@deprecated` docblock, a PHPUnit `#[IgnoreDeprecations]` attribute and a
+ * call to `DeprecationHelper::backwardsCompatibleCall()`. The first three
+ * apply to the class or the function they sit on, the last to the call's
+ * arguments. Deprecated code may use other deprecated code. The legacy group
+ * is a test runner convention, so it marks nothing outside the tests.
  *
  * @internal
  *
@@ -64,22 +65,26 @@ final class DeprecationScopes
      * A plain substring screen, so the tokenizer only runs on files that
      * mark one.
      */
-    public static function marked(string $contents): bool
+    public static function marked(string $contents, string $path): bool
     {
         return (
-            str_contains($contents, self::LEGACY_GROUP)
-            || str_contains($contents, self::DEPRECATED)
+            str_contains($contents, self::DEPRECATED)
             || str_contains($contents, self::IGNORE_ATTRIBUTE)
             || str_contains($contents, self::HELPER_CALL)
+            || str_contains($contents, self::LEGACY_GROUP) && TestFiles::isTest($path)
         );
     }
 
-    public static function of(string $contents): self
+    public static function of(string $contents, string $path): self
     {
+        // The scopes depend on the bytes and on whether the path is a test,
+        // so each of the two keeps its own last file.
+        $legacy = TestFiles::isTest($path);
+
         return LastFile::get(
-            self::class,
+            $legacy ? self::class . ':test' : self::class,
             $contents,
-            static fn(): self => new self(self::scan(PhpTokens::of($contents))),
+            static fn(): self => new self(self::scan(PhpTokens::of($contents), $legacy)),
         );
     }
 
@@ -96,10 +101,11 @@ final class DeprecationScopes
 
     /**
      * @param list<PhpToken> $tokens
+     * @param bool $legacy Whether a `@group legacy` docblock marks a scope.
      *
      * @return list<array{int, int}>
      */
-    private static function scan(array $tokens): array
+    private static function scan(array $tokens, bool $legacy): array
     {
         $ranges = [];
         $marked = false;
@@ -107,7 +113,10 @@ final class DeprecationScopes
         for ($i = 0; $i < $count; $i++) {
             $token = $tokens[$i];
             if ($token->is(T_DOC_COMMENT)) {
-                $marked = $marked || str_contains($token->text, self::LEGACY_GROUP) || self::deprecates($token->text);
+                $marked =
+                    $marked
+                    || $legacy && str_contains($token->text, self::LEGACY_GROUP)
+                    || self::deprecates($token->text);
                 continue;
             }
 

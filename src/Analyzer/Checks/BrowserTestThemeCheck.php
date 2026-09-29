@@ -7,12 +7,13 @@ namespace amateescu\MagoDrupal\Analyzer\Checks;
 use amateescu\MagoDrupal\Internal\ClassFacts;
 use amateescu\MagoDrupal\Internal\Types;
 use Closure;
+use Mago\Sdk\Analyzer\Metadata\MemberIdentifier;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
-use Mago\Sdk\Analyzer\Metadata\PropertyMetadata;
 
 use function array_key_exists;
 use function in_array;
 use function str_ends_with;
+use function strtolower;
 
 /**
  * Functional tests have to declare the theme they run with; runs on
@@ -20,8 +21,8 @@ use function str_ends_with;
  *
  * Ports phpstan-drupal's BrowserTestBaseDefaultThemeRule with Drupal's own
  * rule for which profiles need it: those that ship no `system.theme` config.
- * `$profile` and `$defaultTheme` are read from the nearest declaration up the
- * class chain, so a base class can set them for the tests below it.
+ * `$profile` and `$defaultTheme` are read from the declaration the class
+ * gets, so a base class or a trait can set them for the tests using it.
  *
  * @internal
  */
@@ -38,9 +39,10 @@ final class BrowserTestThemeCheck implements MetadataCheck
     private const EXEMPT = ['Drupal\FunctionalTests\Update\UpdatePathTestBase'];
 
     /**
-     * How far up the class chain nearest() looks.
+     * Where core declares the method that installs `$defaultTheme` and throws
+     * when it is not set.
      */
-    private const MAX_DEPTH = 16;
+    private const THEME_INSTALLER = 'drupal\core\test\functionaltestsetuptrait';
 
     /**
      * Core's profiles that install no theme, for a profile the root does not
@@ -66,11 +68,12 @@ final class BrowserTestThemeCheck implements MetadataCheck
 
     /**
      * A class that sets a non-empty `$defaultTheme` itself cannot be
-     * reported, and most core tests do.
+     * reported, and most core tests do. Neither can one that assigns
+     * `$this->defaultTheme`, such as in `setUp()` before the parent's.
      */
     public function textGate(): ?string
     {
-        return '/\A(?!.*\$defaultTheme\s*+=\s*+([\'"])(?!\1))/s';
+        return '/\A(?!.*(?:\$defaultTheme\s*+=\s*+([\'"])(?!\1)|->defaultTheme\s*+=[^=]))/s';
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
@@ -84,10 +87,17 @@ final class BrowserTestThemeCheck implements MetadataCheck
             return;
         }
 
+        // Mago keeps the declaration a class gets for each property: its own,
+        // then a trait's, then a parent's, which is the order PHP applies.
+        [$profileProperty, $themeProperty] = $class->codebase->getMultipleDeclaringProperties([
+            new MemberIdentifier($name, '$profile'),
+            new MemberIdentifier($name, '$defaultTheme'),
+        ]);
+
         // A profile with a theme of its own needs no explicit default theme,
         // and a NULL or FALSE one installs from existing configuration, whose
         // theme the test then takes.
-        $profile = self::nearest($class, '$profile')?->defaultType?->type;
+        $profile = $profileProperty?->defaultType?->type;
         $profileName = $profile?->getLiteralString();
         if (
             Types::includesNull($profile)
@@ -97,8 +107,8 @@ final class BrowserTestThemeCheck implements MetadataCheck
             return;
         }
 
-        $theme = self::nearest($class, '$defaultTheme')?->defaultType?->type->getLiteralString();
-        if ($theme !== null && $theme !== '') {
+        $theme = $themeProperty?->defaultType?->type->getLiteralString();
+        if ($theme !== null && $theme !== '' || self::installsOwnTheme($class)) {
             return;
         }
 
@@ -125,23 +135,20 @@ final class BrowserTestThemeCheck implements MetadataCheck
     }
 
     /**
-     * The property as the nearest class up the chain declares it. Mago's
-     * property lookup sees only a class's own declarations, so a test
-     * inheriting the value from a base class needs the walk.
+     * Whether the class, a base class or a trait overrides the method that
+     * installs the theme, as a trait setting `$this->defaultTheme` at run
+     * time does. What the override does is not known, so the class is not
+     * reported.
      */
-    private static function nearest(ClassFacts $class, string $property): ?PropertyMetadata
+    private static function installsOwnTheme(ClassFacts $class): bool
     {
-        $codebase = $class->codebase;
-        $name = $class->name();
-        for ($depth = 0; $depth < self::MAX_DEPTH && $name !== null; $depth++) {
-            $found = $codebase->getProperty($name, $property);
-            if ($found !== null) {
-                return $found;
-            }
+        $declaring =
+            $class->codebase->findMethods(
+                class: $class->class->name,
+                name: 'installDefaultThemeFromClassProperty',
+                fields: 0,
+            )[0]->identifier->class ?? null;
 
-            $name = $codebase->getClassLike($name)?->directParentClass;
-        }
-
-        return null;
+        return $declaring !== null && strtolower($declaring) !== self::THEME_INSTALLER;
     }
 }

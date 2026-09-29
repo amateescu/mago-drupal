@@ -11,6 +11,7 @@ use amateescu\MagoDrupal\Analyzer\Checks\HookMethods;
 use amateescu\MagoDrupal\Analyzer\Checks\MetadataCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\PluginAnnotationContextCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
+use amateescu\MagoDrupal\Analyzer\Checks\ServiceArgumentsCheck;
 use amateescu\MagoDrupal\Internal\AnnotatedDeclarations;
 use amateescu\MagoDrupal\Internal\ClassFacts;
 use amateescu\MagoDrupal\Internal\ClassNames;
@@ -36,14 +37,16 @@ use function strtolower;
  * The hook asks for no subtree, so every class costs the host one node span.
  * The names resolved inside that span say which checks can apply at all: a
  * hook attribute, a storage type, the serialization trait, a config entity
- * type or an annotated plugin. A storage type that only a `@var` docblock
- * names is not a resolved name, so the class text is searched for one too.
- * Only a class mentioning one of those is looked up in the codebase.
+ * type, an annotated plugin or the class of a service. A storage type that
+ * only a `@var` docblock names is not a resolved name, so the class text is
+ * searched for one too. Only a class mentioning one of those is looked up in
+ * the codebase.
  *
  * @internal
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:excessive-parameter-list
+ * @mago-expect lint:kan-defect
  */
 final class ClassMetadataHook implements NodeAnalysisHook
 {
@@ -60,6 +63,7 @@ final class ClassMetadataHook implements NodeAnalysisHook
         private readonly DependencySerializationCheck $serialization,
         private readonly ConfigEntityExportCheck $export,
         private readonly PluginAnnotationContextCheck $context,
+        private readonly ServiceArgumentsCheck $arguments,
     ) {}
 
     public function getTargets(): array
@@ -104,6 +108,10 @@ final class ClassMetadataHook implements NodeAnalysisHook
 
         if (ClassNames::anyIs($candidates, array_keys(($this->annotated)()->contextKeyed))) {
             $checks[] = $this->context;
+        }
+
+        if ($this->arguments->namedBy($context->codebase, $candidates)) {
+            $checks[] = $this->arguments;
         }
 
         if ($checks === []) {

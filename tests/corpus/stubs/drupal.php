@@ -69,6 +69,19 @@ namespace {
         {
             throw new \RuntimeException('stub');
         }
+
+        public static function formBuilder(): \Drupal\Core\Form\FormBuilderInterface
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        /**
+         * @return \Drupal\Component\DependencyInjection\ContainerInterface
+         */
+        public static function getContainer()
+        {
+            throw new \RuntimeException('stub');
+        }
     }
 }
 
@@ -178,7 +191,13 @@ namespace Symfony\Component\DependencyInjection {
         public const IGNORE_ON_UNINITIALIZED_REFERENCE = 4;
 
         public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object;
+
+        public function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null;
     }
+}
+
+namespace Drupal\Component\DependencyInjection {
+    interface ContainerInterface extends \Symfony\Component\DependencyInjection\ContainerInterface {}
 }
 
 namespace Drupal\Core\DependencyInjection {
@@ -200,6 +219,11 @@ namespace Drupal\Core\DependencyInjection {
         {
             return false;
         }
+
+        public function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null
+        {
+            return null;
+        }
     }
 }
 
@@ -217,11 +241,31 @@ namespace Symfony\Component\DependencyInjection {
         {
             return $this;
         }
+
+        public function setArguments(array $arguments): static
+        {
+            return $this;
+        }
+
+        public function setPublic(bool $boolean): static
+        {
+            return $this;
+        }
+    }
+
+    class ChildDefinition extends Definition
+    {
+        public function __construct(string $parent) {}
     }
 
     class Alias
     {
         public function __construct(string $id, bool $public = false) {}
+
+        public function setPublic(bool $boolean): static
+        {
+            return $this;
+        }
     }
 }
 
@@ -241,6 +285,11 @@ namespace Drupal\Core\DependencyInjection {
         public function setAlias(string $alias, string|\Symfony\Component\DependencyInjection\Alias $id): \Symfony\Component\DependencyInjection\Alias
         {
             return new \Symfony\Component\DependencyInjection\Alias($alias);
+        }
+
+        public function getDefinition(string $id): \Symfony\Component\DependencyInjection\Definition
+        {
+            return new \Symfony\Component\DependencyInjection\Definition();
         }
     }
 

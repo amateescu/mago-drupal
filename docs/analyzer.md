@@ -36,6 +36,23 @@ second argument leaves the declared type alone.
 `\Drupal::classResolver('id')` and `ClassResolverInterface::getInstanceFromDefinition('id')` try the
 argument as a service id first and as a class name second, the order `ClassResolver` uses.
 
+`$container->getParameter('name')` is declared `array|bool|string|int|float|UnitEnum|null`. A
+literal name that a `parameters:` section of the services files defines gets the kind of value
+written there: `string`, `bool`, `int`, `float`, or `array<int|string, mixed>` for a list or a
+mapping. The value itself is never used: `settings.php`, a site's own services file and service
+providers change values, and `app.root` and `site.path` are empty strings the kernel replaces.
+Files that give one name different kinds give the union. A `null`, a value that is one `%name%`
+reference to another parameter, a `'@id'` service reference, a custom tag and a name no file
+defines keep the declared type. This covers every container the service lookups cover, and
+`\Drupal::getContainer()`.
+
+```php
+$container->getParameter('app.root');                   // string
+$container->getParameter('security.enable_super_user'); // bool
+$container->getParameter('renderer.config');            // array<int|string, mixed>
+$container->getParameter('password.algorithm');         // stays the declared union, it is ~ in YAML
+```
+
 `has()` is left alone on purpose. A services file on disk means the module exists, not that it is
 installed, so `if ($container->has('optional.service'))` has to stay a real branch.
 
@@ -45,8 +62,9 @@ A lookup of a service whose definition carries `deprecated:` is reported as
 is not reported. A string id that no services file or provider defines is reported as
 `drupal/unknown-service`, once core's own services are in the index. So is a private one: a
 `public: false` service, set on it, inherited from its `parent:` or from the file's `_defaults`,
-and the `.inner` id a decorator moves a service to. The compiled container leaves those out, so
-`get()` fails the same way. An alias works unless it says `public: false` itself or through its
+the `.inner` id a decorator moves a service to, and a service a provider registers private (see
+[below](#where-the-service-index-comes-from)). The compiled container leaves those out, so `get()`
+fails the same way. An alias works unless it says `public: false` itself or through its
 file's `_defaults`, whatever the service behind it is, so a plain alias of a private service is
 fine. A
 `Foo::class` id is not checked, since the container registers hook classes and other autowired
@@ -65,7 +83,11 @@ The worker reads two sources without booting Drupal:
   templates and test fixture copies. `alias:`, the `'@id'` shorthand, `parent:` inheritance
   (the parent's `deprecated:` included), `abstract:` templates, the class-as-id shorthand and
   `deprecated:` messages are resolved the way the container compiler resolves them. The synthetic
-  `kernel`, `class_loader` and `service_container` services are added as well.
+  `kernel`, `class_loader` and `service_container` services are added as well. The `parameters:`
+  sections of the same files give the parameter kinds. A site's own `services.yml` under `sites/`
+  is not read: `settings.php` picks the files the container loads through `container_yamls`, which
+  the worker does not run, and such a file only overrides values of parameters whose kinds core and
+  the modules already fix.
 - **`*ServiceProvider.php`** classes in the analyzed `[source] paths`, read through Mago's codebase
   scan; the provider files under the root's `core/lib` and extension `src` directories are also read
   off disk for the ids they register, so a core service that only exists in PHP counts as defined in
@@ -74,6 +96,19 @@ The worker reads two sources without booting Drupal:
   `->setAlias('alias', 'id')` are picked up when their arguments are literals. A literal id whose
   class is computed is kept as a service of unknown type, so the id counts as defined. Provider
   registrations override YAML ones, which is the order the container applies them in.
+
+Drupal's `ContainerBuilder::register()` and `setAlias()` make what they create public. A `new
+Definition()` handed to `setDefinition()` keeps Symfony's default, which is private since Symfony
+5.2, so the service is private unless `setPublic(TRUE)` is called on it: on the chain that builds the
+definition, on the definition `setDefinition()` returns, or on the variable that holds it in the
+same function. A literal `setPublic(FALSE)` makes any of them private, a `register()` chain
+included. A `new ChildDefinition('parent')` takes its parent's class and visibility unless it sets
+its own. A definition the scan cannot follow, such as one another method builds or finishes, counts
+as public, and so does a variable reused for several definitions once any of them is made public.
+Visibility is read from the providers in the analyzed paths; the ids read off disk count as public.
+Drupal 9.2 deprecated leaving the visibility out, and since Drupal 10 the definition just stays
+private: core 11.4 raises no deprecation for it, so the only report is the `unknown-service` of a
+lookup.
 
 `decorates:` is applied the way the container compiler applies it. The decorated id returns the
 decorator's class, and so does every alias of the id. What the id pointed at before is reachable as
@@ -337,7 +372,8 @@ definitions, managers outside the table, and YAML-discovered plugins such as men
 Mago reports every call to a deprecated symbol. Drupal has places where that call is the point of
 the code or is allowed, and the plugin drops the report there. Four markers open a scope:
 
-- a `@group legacy` docblock on a class or a method,
+- a `@group legacy` docblock on a class or a method in test code, any file under a `tests`
+  directory; the group is for the test runner, so it marks nothing elsewhere,
 - a `@deprecated` docblock on a class-like or a function, since deprecated code may use other
   deprecated code (phpstan-deprecation-rules skips the same places),
 - a PHPUnit `#[IgnoreDeprecations]` attribute on a class or a method,
@@ -535,6 +571,157 @@ response, such as `: array`, keeps it: PHP throws a `TypeError` on that return b
 the response. Any other returned value stays reported, and so does a `buildForm()` on a class that
 is not a form. The method and the returned types are read from the wording of Mago's report, so a
 reworded report in a later Mago release is shown again rather than hidden.
+
+## Form arguments
+
+`FormBuilderInterface::getForm($form_arg, mixed ...$args)` hands `$args` to the form's
+`buildForm($form, $form_state, ...$args)`. When the first argument names a form class, the plugin
+gives the call that class's `buildForm()` parameters after the form state, so Mago checks the
+arguments as it does on a direct call. The reports carry Mago's own codes, `too-many-arguments`,
+`too-few-arguments`, `invalid-argument`, `invalid-named-argument` and the rest of its argument
+checks such as `possibly-null-argument` and `mixed-argument`, and name the form's method:
+
+```php
+// buildForm(array $form, FormStateInterface $form_state, int $nid = 0)
+$this->formBuilder->getForm(NodeIdForm::class, 'one');      // invalid-argument
+$this->formBuilder->getForm(NodeIdForm::class, 1, 'extra'); // too-many-arguments
+```
+
+The class is named by a `::class` fetch or a single-quoted class name string, as in
+`\Drupal::formBuilder()->getForm('Drupal\x\Form\Foo', $arg)`, and must be a concrete class
+implementing `FormInterface` with every ancestor scanned. Mago asks for the signature before it
+analyzes the arguments, and the request has the call's text but not the file's `use` imports. So a
+relative name such as `Foo::class` counts only when one scanned class, form or not, has that name;
+when two classes are named `Foo`, the call keeps core's signature. An import alias named like
+another scanned form, `use Foo\A as B;` with a form `B` elsewhere, gets that form's parameters. A
+call keeps core's signature too when its first argument is `self::class`, `static::class`, a
+double-quoted string, computed or an object, or when it unpacks an argument.
+
+The count is checked as on a direct call. PHP drops extra arguments to a method, so
+`too-many-arguments` marks one the form never reads. A form whose `buildForm()` takes nothing after
+the form state is the exception: it reads what it is passed from
+`$form_state->getBuildInfo()['args']`, if at all, as core's `ThemeExperimentalConfirmForm` does, and
+alter hooks can read it there too. Its calls keep core's signature and take any number of arguments.
+The arguments are passed by value, since they go through `getForm()`'s variadic, and a named
+argument goes to the `buildForm()` parameter of that name, as `call_user_func_array()` does. The
+types are the parameters' native and docblock types, so a wrong docblock is reported at the
+`getForm()` call, as it would be on a direct call.
+
+## Render and form callbacks
+
+Core runs the callbacks in a render or form array in four ways, and each one fails differently:
+
+- The renderer passes `#pre_render`, `#post_render`, `#lazy_builder` and `#access_callback` through
+  the callable resolver and `doTrustedCallback()`. That call throws an `UntrustedCallbackException`
+  for a method it does not trust. The date elements (`#date_date_callbacks`,
+  `#date_time_callbacks`) and the component element (`#propsAlter`, `#slotsAlter`) call
+  `doTrustedCallback()` on a plain PHP callable.
+- The Form API passes `#validate`, `#submit`, `#element_validate`, `#process`, `#after_build`,
+  `#entity_builders` and the `callback` of `#ajax` through `FormState::prepareCallback()`, which
+  turns `'::method'` into a method of the form object, and then through the callable resolver,
+  which throws for anything it cannot call.
+- `#value_callback` runs only when `is_callable()` accepts it. Otherwise the element's default value
+  callback runs, and nothing says so.
+- The machine name element passes the `exists` of `#machine_name` to `call_user_func()`, and the
+  managed file element calls each of `#file_value_callbacks` as it is. Neither resolves or trusts
+  anything, and both throw for anything PHP cannot call.
+
+The plugin reads the callbacks written under those keys: in an array literal
+(`'#submit' => ['::save']`), in an assignment or an append
+(`$form['actions']['submit']['#submit'][] = '::save'`), in `array_unshift()` and `array_push()` on
+the key, in the literal lists an `array_merge()` takes, in the `callback` of an `#ajax` array and in
+the `exists` of a `#machine_name` array. A callback counts when it names its target literally:
+
+```php
+'::save'                              // a method of the form object
+'mymodule_form_submit'                // a function
+'Drupal\mymodule\Helper::build'       // a class method, a leading backslash allowed
+[Helper::class, 'build']              // the same, also as ['Drupal\mymodule\Helper', 'build']
+[static::class, 'build']              // self::class, __CLASS__, get_class($this) and
+static::class . '::build'             //   get_called_class() work the same way
+[$class, 'build']                     // after $class = get_class($this), or any of the above
+[$this, 'build']                      // an object; [$object, 'build'] when its type is one class
+```
+
+`[$class, 'build']` counts when the function assigns `$class` once, with `=`, and no foreach or
+reference binds it. Otherwise the variable's type decides, as for an object: a class-string naming
+one class, such as a parameter declared `class-string<Helper>`, counts as that class or a subclass.
+
+A `service:method` string is left alone, since the container may hand back a decorator or a lazy
+proxy. So are closures, first-class callables, variables and anything computed. `Foo::class`,
+`self::class` and a string name that exact class. `static::class`, `get_class($this)`, `$this` and
+an object may be a subclass at run time, so the class and every descendant in the codebase are
+asked, and one that has the method, or trusts it, keeps the callback quiet. A class Mago has not
+scanned, or one whose hierarchy it could not resolve, is not checked. Test code and hook
+documentation are left alone: tests build broken callbacks on purpose to exercise core's errors.
+The `form_submit` of a batch set is not read. `_batch_next_set()` checks it with a plain
+`is_callable()` before it resolves it, so a `'::method'` or a `'Class::method'` naming an instance
+method is skipped there without a word.
+
+`drupal/unknown-callback` reports a callback naming a method the class does not have. A method from
+a parent or a trait counts, and a class with `__call()` or `__callStatic()` has every method.
+`'::method'` on a form key is checked in a class that implements `FormInterface`, where the form
+object is that class. In a trait, a hook implementation, a form alter or any other class, the form
+object is some other class. On any other key, `'::method'` names no class at all, since only
+`prepareCallback()` turns it into a method, so it is reported wherever it is written. A plain
+function name is checked on the form keys, on `#value_callback`, on `exists` and on
+`#file_value_callbacks`. On the render, date and component keys `doTrustedCallback()` rejects every
+one, and the lint rule `drupal/render-callback` reports those written in an array literal, such as
+`'#pre_render' => ['my_function']`. One appended or assigned to such a key is not reported. A
+function name is reported only when the function would be in the codebase if it existed: its name
+starts with `<module>_` or `_<module>_` after the module directory the file is in, and no file of
+that module declares it. The module's procedural files and its `.php` files outside `src` are read
+off disk, so a function in a file the run leaves out still counts. A function named after another
+module is left alone, since that module may not be in the run. That includes a module whose longer
+name also starts the function's, such as `foo_bar_submit()` written in `foo` while a `foo_bar`
+module exists. On the form keys, a name the services files define is left alone too, since the
+callable resolver runs a service through its `__invoke()`.
+
+`drupal/non-static-callback` reports an array written as a static call, such as
+`[static::class, 'method']`, that names an instance method. PHP 8 rejects it, so the callable
+resolver throws. A `'Class::method'` string that names an instance method still runs on the render
+and form keys, because the callable resolver instantiates the class for it. It is only reported on
+the date and component keys, which take a PHP callable, on `exists`, on `#file_value_callbacks` and
+on `#value_callback`.
+
+`drupal/non-public-callback` reports a callback naming a protected or private method. Core calls
+every callback from its own classes: the callable resolver, `is_callable()` in the form builder, a
+`callable` parameter of the date and component elements, or the machine name and managed file
+elements. None of them can reach such a method, so the callback throws, or is skipped on
+`#value_callback`. A class with `__call()` or `__callStatic()` is left alone, since PHP sends the
+call there, and so is a class that may be a subclass at run time when a descendant makes the method
+public.
+
+`drupal/untrusted-callback` reports a render callback that core rejects. Core trusts the method when
+the class implements the extra interface the caller passes (`RenderCallbackInterface` for the
+renderer's keys, none for the date and component keys), when the class implements
+`TrustedCallbackInterface` and `trustedCallbacks()` lists the method, or when the method carries
+`#[TrustedCallback]`. Core reads the attribute by reflection off the method the class has, so a
+method that overrides one carrying it without repeating it is not trusted. `trustedCallbacks()` is
+read off its body: `return` with a list of string literals, `parent::trustedCallbacks()` or an
+`array_merge()` of those, or a variable set to one, grown with `$callbacks[] = 'name'` and returned.
+Any other body counts as trusting every method, since its result cannot be known without running
+it. Core compares the names in the list case-sensitively, and so does the check.
+
+`drupal/trusted-callback-override` reports such an override where it is declared: a method whose
+parent's method carries `#[TrustedCallback]` while its own declaration does not, in a class that
+neither implements `RenderCallbackInterface` nor lists the method in a `trustedCallbacks()` it can
+read. It is a warning, since the method may never be a callback on the subclass. The classes and
+traits that declare a method with the attribute are read off the PHP files under the Drupal root
+before the analysis starts, the way the `@internal` classes are. The descendants of those classes
+are checked, and for a trait, the descendants of the classes that use it.
+
+```php
+class Base {
+  #[TrustedCallback]
+  public static function preRender(array $element): array {}
+}
+
+class Child extends Base {
+  // drupal/trusted-callback-override: PHP does not inherit the attribute.
+  public static function preRender(array $element): array {}
+}
+```
 
 ## Calls from traits
 
@@ -820,17 +1007,19 @@ code below is reported as `drupal/<code>`.
 
 Test code, any file under a `tests` directory, is left alone by the lookup checks
 (`deprecated-service`, `unknown-service`, `unknown-entity-type`, `unknown-plugin`, `load-include`,
-`config-unknown-name`),
-by `deprecated-original`, by `global-drupal-call` and by the two plugin manager checks: tests mock
-managers, build their own containers and exercise deprecated code on purpose. The lookup checks and
-`deprecated-original` also skip hook documentation in `*.api.php` files, whose examples use made-up
-ids.
+`config-unknown-name`), by the four callback checks (`unknown-callback`, `non-static-callback`,
+`non-public-callback`, `untrusted-callback`), by `deprecated-original`, by `global-drupal-call`, by
+`service-argument-count` and by the two plugin manager checks: tests mock managers, build their own
+containers, wire broken services on purpose, exercise deprecated code and break callbacks on
+purpose. The lookup checks, the callback checks and `deprecated-original` also skip hook
+documentation in `*.api.php` files, whose examples use made-up ids and names.
 
 | Code | Level | What it reports |
 | --- | --- | --- |
 | `deprecated-original` | Warning | A read, write, `isset()` or `unset()` of the magic `original` property on an entity, deprecated in Drupal 11.2 in favor of `getOriginal()` and `setOriginal()`. An entity class that declares `$original` itself is left alone, and so are the deprecation scopes below. |
 | `deprecated-service` | Warning | `get()`, `\Drupal::service()` or the class resolver asked for a service whose definition says `deprecated:`. |
 | `unknown-service` | Warning | `get()` or `\Drupal::service()` asked for a string id no services file or provider defines, or for a private service the compiled container leaves out. |
+| `service-argument-count` | Error; Warning for extra arguments | A service whose `arguments:` are fewer than its class's constructor requires, which throws an `ArgumentCountError` when the container builds it, or more than it takes, which PHP drops; any argument to a class without a constructor counts as extra. Reported at the constructor, or at the class when the constructor is inherited, naming the service id and its services file. The count follows the container: a `parent:` child's arguments are appended to its parent's and `index_N` replaces one, `!tagged_iterator`, `!tagged_locator` and `!service_closure` count as one argument each, a decorator's `.inner` counts like any other, and the `http_middleware`, `session_handler_proxy` and `service_id_collector` tags add the argument their compiler pass passes. Parameters with defaults make the range, and a variadic one lifts the maximum. The report sits on the service's class, so only a class the run analyzes is checked: a module's services file that names a core or contrib class outside the run is not. Extra arguments to a constructor that reads them through `func_get_args()` are not reported. Left alone: autowired services, on the definition or its parent, or through the file's `_defaults` for a definition without a parent; named arguments; factories; synthetic and abstract services; services a provider registers; ids a `*ServiceProvider.php` or `*Pass.php` file under the root registers, fetches or removes with a literal id; classes with a non-public constructor or an ancestor Mago has not scanned. |
 | `unknown-entity-type` | Warning | An entity type manager getter asked for an id no entity type declares. |
 | `config-unknown-key` | Error | `$config->get('key')` for a key a fully validatable schema does not list. Update code is skipped: an `.install` file and a `.post_update.php` read the keys an older version of the module wrote. |
 | `config-unknown-name` | Warning | `\Drupal::config()`, a config factory's `get()` or `getEditable()`, or a config form's `config()` asked for a literal name no schema describes, wildcards included. Only a name whose module is in the codebase is checked, since a module reading an optional module's config cannot expect its schema. Update code is skipped, like for `config-unknown-key`. |
@@ -839,25 +1028,33 @@ ids.
 | `entity-storage-injection` | Warning | A constructor parameter typed as an entity storage. Inject the entity type manager instead. An entity handler is handed its own storage by the entity type manager, so its `$storage` parameter, or `$storage_controller` in views data, is left alone; any other storage it takes is reported. |
 | `entity-storage-property` | Warning | A property whose declared or `@var` type is an entity storage, other than an entity handler's own `$storage` and a promoted constructor parameter, which `entity-storage-injection` reports. A trait's property counts too, and the trait's `$storage` is left alone when every class using the trait is a handler. |
 | `global-drupal-call` | Warning | `\Drupal::…` (or a call on a subclass or instance of `Drupal`) inside an instance method of a class implementing `ContainerInjectionInterface` or `ContainerFactoryPluginInterface`. Static methods and plain services are not checked, and neither is a constructor with a parameter that accepts null: Drupal's deprecation policy adds a new service that way, with a `\Drupal::service()` fallback for callers that do not pass it yet. |
-| `dependency-serialization-property` | Error | A private property, or, before PHP 8.4, a readonly non-scalar property declared below the class composing the trait, in a class that composes `DependencySerializationTrait`, itself or through another trait, or descends from a class under the Drupal root that does (core's forms, plugins and entity handlers among them; not controllers, plugin forms or views plugins, which do not). The composing classes are read off the PHP files; without core on disk, core's three bases stand in. Promoted constructor parameters count, static properties do not. |
+| `dependency-serialization-property` | Error | A private property, or, before PHP 8.4, a readonly non-scalar property declared below the class composing the trait, in a class that composes `DependencySerializationTrait`, itself or through another trait, or descends from a class under the Drupal root that does (core's forms, plugins and entity handlers among them; not controllers, plugin forms or views plugins, which do not). The composing classes are read off the PHP files; without core on disk, core's three bases stand in. Promoted constructor parameters count, static properties do not. The trait's `__sleep()` lists the properties `get_object_vars()` sees in the composing class, so a class that composes the trait itself, below parents that do not, is also reported once for each private property of those parents, naming the parent, and before PHP 8.4 for each readonly non-scalar one, which the trait's `__wakeup()` cannot write. A property a trait in the `Drupal\` namespace brings into a parent counts as the parent's. Parents and traits outside that namespace, such as Symfony's session handler base, PHPUnit's `TestCase` or Prophecy's trait, are left alone, since the module cannot change them. The parents' properties are not reported for a class with a `__sleep()` of its own or a `__serialize()`, which PHP calls instead of the trait's `__sleep()`. |
 | `logger-from-factory` | Error | A logger channel fetched from the factory and stored on the object (`$this->logger = $factory->get('x')`) in the constructor of a class using `DependencySerializationTrait`. |
-| `deprecated-hook` | Warning | A `#[Hook]` method or a procedural `<module>_<hook>()` implementing a hook whose `hook_*()` is `@deprecated`. |
-| `hook-form-alter-signature` | Error | A form alter hook method whose `$form` is not taken by reference or typed as something other than an array, whose second parameter is typed as something other than `FormStateInterface`, whose third is typed as something other than a string, or which requires a fourth argument. Untyped parameters are only checked for the reference. Taking fewer than three parameters is fine, since PHP drops the extra arguments and core does it in fourteen places. |
+| `deprecated-hook` | Warning | A `#[Hook]` method or a procedural `<module>_<hook>()` implementing a hook whose `hook_*()` is `@deprecated`. A hook with no `hook_*()` of its own name is matched against the ones named with an uppercase placeholder, so `search_api_query_foo_alter` counts under `hook_search_api_query_TAG_alter`. A name can match several, as `search_api_query_foo_view_alter` also matches core's `hook_ENTITY_TYPE_view_alter`. The match with the most text outside its placeholders decides, and when several tie, the hook is reported only if all of them are deprecated. |
+| `hook-form-alter-signature` | Error | A form alter hook implementation (a `#[Hook]` method, or a procedural `<module>_form_alter()` or `<module>_form_<form_id>_alter()`) whose `$form` is not taken by reference or typed as something other than an array, whose second parameter is typed as something other than `FormStateInterface`, whose third is typed as something other than a string, or which requires a fourth argument. Untyped parameters are only checked for the reference, and `mixed`, or `object` for the form state, is accepted. A variadic fourth parameter is fine. Taking fewer than three parameters is fine, since PHP drops the extra arguments and core does it in fourteen places. |
 | `hook-entity-operation-cacheability` | Error | `hook_entity_operation` or its alter without the `CacheableMetadata` parameter, once core's api.php declares it. |
+| `unknown-callback` | Error | A render or form callback naming a method its class does not have, a `'::method'` handler its form class does not have, a `'::method'` on a key other than the form keys, or a function named after the module that no file of the module declares. A warning on `#value_callback`, which core skips without a word. See [Render and form callbacks](#render-and-form-callbacks). |
+| `non-static-callback` | Error | A callback written as a static call, such as `[static::class, 'method']`, naming an instance method, which PHP 8 rejects. A warning on `#value_callback`. |
+| `non-public-callback` | Error | A callback naming a protected or private method, which core cannot call from its own classes. A warning on `#value_callback`. |
+| `untrusted-callback` | Error | A `#pre_render`, `#post_render`, `#lazy_builder`, `#access_callback`, date or component callback naming a method core does not trust, so it throws an `UntrustedCallbackException`. |
+| `trusted-callback-override` | Warning | A method overriding one that carries `#[TrustedCallback]`, declared in a parent or in a trait a parent uses, without repeating the attribute, in a class that does not trust the method otherwise. |
 | `test-class-suffix` | Error | A concrete `TestCase` descendant whose name does not end in `Test`. |
+| `component-test-core-base` | Error | A class in the `Drupal\Tests\Component` namespace that extends `UnitTestCase`, `KernelTestBase`, `BuildTestBase` or `BrowserTestBase`, directly or through its parents. Component tests run without Drupal, which core's own `ComponentTestDoesNotExtendCoreTest` PHPStan rule enforces. The class whose own parent lies outside the component tests is reported, so a component test base extending a core one is reported once and not again on the tests below it. |
 | `internal-class-extension` | Warning | A class extending an `@internal` class owned by another module; a module's tests count as the module. An anonymous class counts too, owned by the module of the class it is written in. |
 | `test-modules-visibility` | Error | A public `$modules` on a test class. |
-| `browser-test-default-theme` | Error | A concrete `BrowserTestBase` descendant whose name ends in `Test`, on a themeless profile, with no `$defaultTheme` set on it or on a base class. A profile is themeless when it ships no `system.theme` config in `config/sync` or `config/install`, which is what Drupal checks when the test runs. Profiles are read from core, the site's `profiles` directory and the `tests/profiles` directories of core's modules and of extensions; one not found there counts as themeless when it is one of core's themeless test profiles, such as `testing`. Update path tests, which install from a database dump, are left alone, and so are tests on a `NULL` or `FALSE` profile, which install from existing configuration and take its theme. |
+| `browser-test-default-theme` | Error | A concrete `BrowserTestBase` descendant whose name ends in `Test`, on a themeless profile, with no `$defaultTheme` set on it, on a base class or by a trait either of them uses; `$profile` is read the same way. A class that overrides `installDefaultThemeFromClassProperty()`, itself, through a base class or through a trait, is left alone, since the override may set the theme at run time. A profile is themeless when it ships no `system.theme` config in `config/sync` or `config/install`, which is what Drupal checks when the test runs. Profiles are read from core, the site's `profiles` directory and the `tests/profiles` directories of core's modules and of extensions; one not found there counts as themeless when it is one of core's themeless test profiles, such as `testing`. Update path tests, which install from a database dump, are left alone, and so are tests on a `NULL` or `FALSE` profile, which install from existing configuration and take its theme. |
 | `list-builder-cacheability` | Error | `getOperations()` or `getDefaultOperations()` without the `CacheableMetadata` parameter, on core 11.3 up to 12.0, which keep the parameter commented out in the interface and read it through `func_get_args()`. Nothing is reported when the core version cannot be read from `core/lib/Drupal.php`. Off in `--core` mode. |
-| `plugin-manager-alter-info` | Warning | A `DefaultPluginManager` subclass in the analyzed code whose constructor, `parent::__construct()` included, never calls `alterInfo()`. |
-| `plugin-manager-cache-backend` | Warning | A `DefaultPluginManager` subclass in the analyzed code whose constructor, `parent::__construct()` included, never calls `setCacheBackend()`. A call without the cache key is Mago's own `too-few-arguments`, since core requires it. |
+| `plugin-manager-alter-info` | Warning | A `DefaultPluginManager` subclass in the analyzed code whose constructor, `parent::__construct()` included, never calls `alterInfo()`, and no service of that class calls it through `calls:`, its `parent:` service's included. |
+| `plugin-manager-cache-backend` | Warning | A `DefaultPluginManager` subclass in the analyzed code whose constructor, `parent::__construct()` included, never calls `setCacheBackend()`, and no service of that class calls it through `calls:`, its `parent:` service's included. A call without the cache key is Mago's own `too-few-arguments`, since core requires it. |
 | `config-entity-export` | Error | A config entity type in the entity type index, from a `#[ConfigEntityType]` attribute or `@ConfigEntityType` annotation, without `config_export`. |
 | `plugin-annotation-context` | Error | A plugin annotation declaring its contexts under `context`, which Drupal 9 renamed to `context_definitions`. |
 | `load-include` | Error | `loadInclude()` naming a file that does not exist in the module directory; Warning when the module is unknown. |
 | `cacheable-dependency` | Warning | `addCacheableDependency()` handed a value that cannot implement `CacheableDependencyInterface`, which drops the thing it was added to to max-age 0. Reported for a scalar, an array, null and a final class that does not implement it; `mixed`, a bare `object`, an interface, an unscanned class and any class that can be extended stay quiet, since the value passed may be a subclass that implements it, as core's `CacheableHttpException` does. |
 
 Three more ports are linter rules, since they need no types: `drupal/discouraged-function`,
-`drupal/symfony-yaml-parse` and `drupal/render-callback`; see [rules.md](rules.md).
+`drupal/symfony-yaml-parse` and `drupal/render-callback`; see [rules.md](rules.md). The half of
+phpstan-drupal's render callback rule that needs the class, whether core trusts the method, is
+`untrusted-callback` above.
 
 The deprecation checks that fill in for Mago's own are described under
 [Deprecations Mago does not report](#deprecations-mago-does-not-report).
@@ -865,28 +1062,33 @@ The deprecation checks that fill in for Mago's own are described under
 The checks read Mago's class metadata, not the source. A class-level hook asks the host for the
 class node's span and the file text; the names resolved inside that span say whether any check can
 apply (a `#[Hook]` attribute, an entity storage type, `DependencySerializationTrait`, a config
-entity type, an annotated plugin), and only then is the class looked up in the codebase, with its
-methods and properties fetched on demand. A storage type that only a `@var` tag names is not a
-resolved name, so the class text is searched for such a tag as well. The storage checks also need
+entity type, an annotated plugin, the class of a service whose arguments can be counted), and only
+then is the class looked up in the codebase, with its methods and properties fetched on demand. A
+storage type that only a `@var` tag names is not a resolved name, so the class text is searched for
+such a tag as well. The storage checks also need
 the storage in the constructor's parameters, a property declaration or a `@var` tag, so a method
 parameter such as `postSave()`'s does not bring them in. Ancestry comes from the host's class-like
 targets (descendants of `TestCase`, `BrowserTestBase`, `EntityListBuilderInterface`,
-`DefaultPluginManager` and the classes under the root that compose `DependencySerializationTrait`),
-and a text gate on the class skips the lookup where a check cannot report. The `\Drupal::` calls and
-the logger factory `get()` calls come through method-call hooks and are placed in their class and
-method by location; a call inside an anonymous class belongs to no named class. A plugin manager's
-constructor calls are read off its tokens, so a call in a comment does not count, and a
-`parent::__construct()` call is followed into the parent's constructor off disk, `includes`
-included. Argument types arrive in source order, which is the
-parameter order only while a call stays positional, so the checks that read a string out of a
-multi-string signature (the entity type manager getters, `loadInclude()`, the renderer's
-`addCacheableDependency()`) ask for the call's syntax as well and match `getHandler(handler_type:
-'access', entity_type_id: 'node')` to the right parameter. The others read a position directly,
-because a call naming their parameters out of order puts an int or an array where they expect a
-literal string and they stop there. The internal-class check reads the `@internal` classes off the
-PHP files under `core/lib`, `core/tests` and the `src` directory of every module, profile and theme
-before the analysis starts, so the host can send only their descendants, and confirms the flag from
-metadata. Not ported: the
+`DefaultPluginManager`, the classes under the root that compose `DependencySerializationTrait` and
+those that declare a `#[TrustedCallback]` method), and a text gate on the class skips the lookup
+where a check cannot report. The callback checks take each file as one node; a regex over the file
+text for a quoted callback key sends almost every file straight back, and only a file with one has
+its syntax fetched from the host. A callback that names a class costs a few metadata requests, and
+the descendants of a class are only asked about a callback that would be reported otherwise. The
+`\Drupal::` calls and the logger factory `get()` calls come through method-call hooks and are
+placed in their class and method by location; a call inside an anonymous class belongs to no named
+class. A plugin manager's constructor calls are read off its tokens, so a call in a comment does
+not count, and a `parent::__construct()` call is followed into the parent's constructor off disk,
+`includes` included. Only a manager that misses a call there asks the service index for the `calls:`
+of its services. Argument types arrive in source order, which is the parameter order only while a
+call stays positional, so the checks that read a string out of a multi-string signature (the
+entity type manager getters, `loadInclude()`, the renderer's `addCacheableDependency()`) ask for
+the call's syntax as well and match `getHandler(handler_type: 'access', entity_type_id: 'node')` to
+the right parameter. The others read a position directly, because a call naming their parameters
+out of order puts an int or an array where they expect a literal string and they stop there. The
+internal-class check reads the `@internal` classes off the PHP files under `core/lib`, `core/tests`
+and the `src` directory of every module, profile and theme before the analysis starts, so the host
+can send only their descendants, and confirms the flag from metadata. Not ported: the
 `AccessResult::allowedIf()` condition check (Mago's own analysis reports the always-true
 comparison), and the `module_load_include()` check, whose function is gone in Drupal 11.
 
@@ -895,8 +1097,16 @@ comparison), and the `module_load_include()` check, whose function is gone in Dr
 Mago starts workers in the directory of the effective `mago.toml`. From there the worker uses, in
 order: the `--root=PATH` worker argument, `extra.drupal-scaffold.locations.web-root` from
 `composer.json`, then the directory itself, `web/`, `docroot/`, `html/` and `public/`, taking the
-first that holds `core/lib/Drupal.php`. A workspace without core falls back to the directory
-itself and still indexes any paired services files under it.
+first that holds `core/lib/Drupal.php`. After those comes `vendor/drupal`, when Composer installed
+core there as a plain package. A workspace without core falls back to the directory itself and
+still indexes any paired services files under it.
+
+A packaged core is the layout of a module's own repository in CI, where Composer runs without
+composer/installers. The root then holds core alone, so the worker also walks the directory itself
+and the other packages under `vendor/drupal`, where Composer puts contrib modules in that layout. A
+core linked in from a path repository counts too, and the root stays `vendor/drupal`. Their services, config schema, hook documentation, module
+directories and `src` files are indexed next to core's; the directory's own `vendor` is not
+walked. Packages outside `vendor/drupal` are not read. With `--root`, only the root is walked.
 
 ```toml
 [extension-hosts.drupal]
@@ -906,9 +1116,10 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--root=d
 ## Cost
 
 Mago runs the worker as a pool of processes, one request at a time per process, and every process
-needs the indexes. The disk-backed ones (the directory walk, services YAML, config schema, hook
-documentation, the `@internal` and `@deprecated` lists, the classes composing
-`DependencySerializationTrait`, annotated plugins) are parsed once and kept in a cache directory,
+needs the indexes. The disk-backed ones (the directory walk, services YAML with its parameters,
+config schema, hook documentation, the `@internal` and `@deprecated` lists, the classes composing
+`DependencySerializationTrait` or declaring a `#[TrustedCallback]` method, annotated plugins, the
+service ids providers and compiler passes name) are parsed once and kept in a cache directory,
 keyed by the modification times and sizes of the files they came from, so an edited file misses the
 cache and nothing goes stale. Files touched in the last two seconds may still be changing, so they
 are parsed without the cache. Entry names also carry a hash of the extension's own code, so an
@@ -920,9 +1131,9 @@ the frozen codebase, and a new generation's entry replaces the older ones.
 A watch or editor session analyzes again in the same workers. Every index is dropped when a request
 arrives for a new generation, since Mago reruns the scan hooks of an incremental analysis only when
 a file they target changed, and an edited services file or entity class reaches none of them. The
-`@internal` and `@deprecated` lists and the classes composing `DependencySerializationTrait` are the
-exception: the host takes the hooks' targets from them when the worker starts, so a session keeps
-them until its workers restart.
+`@internal` and `@deprecated` lists and the classes composing `DependencySerializationTrait` or
+declaring a `#[TrustedCallback]` method are the exception: the host takes the hooks' targets from
+them when the worker starts, so a session keeps them until its workers restart.
 
 The cache lives under the system temporary directory in `mago-drupal-<uid>/`, and is only used while
 it belongs to that user and nobody else can write to it. Set `MAGO_DRUPAL_CACHE=/some/dir` to move it
@@ -933,7 +1144,7 @@ files and 180 schema files itself, about half a second.
 The lists the hook targets come from are read before a worker answers anything. Both the walk of
 the source directories and the scans are cached: the file listing is reused while every directory
 it read keeps its modification time, and the parsed lists while every file keeps its modification
-time and size. The three lists share one check of those times and sizes, which is most of the
+time and size. The lists share one check of those times and sizes, which is most of the
 cost: about 25 ms of startup per worker with a warm cache on the sandbox (core and 888 extensions,
 test modules included), and about 0.35 s cold. `--core` skips the `@internal` list. A lint run pays
 it too, since a worker registers its analyzer plugins whatever it is asked to do.

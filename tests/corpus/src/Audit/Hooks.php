@@ -145,6 +145,36 @@ final class Hooks {
   public function newThing(): void {
   }
 
+  /**
+   * Implements a deprecated hook named with a placeholder.
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('search_query_node_access_alter')]
+  public function nodeAccessSearchQueryAlter(): void {
+  }
+
+  /**
+   * Implements a hook named with a placeholder that is not deprecated.
+   */
+  #[Hook('node_view')]
+  public function nodeView(): void {
+  }
+
+  /**
+   * Implements the deprecated tag hook for a tag that ends in "view".
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('search_query_node_view_alter')]
+  public function nodeViewSearchQueryAlter(): void {
+  }
+
+  /**
+   * Matches the deprecated widget hook and the current single element one.
+   */
+  #[Hook('field_widget_single_element_string_textfield_form_alter')]
+  public function textfieldElementAlter(): void {
+  }
+
 }
 
 /**

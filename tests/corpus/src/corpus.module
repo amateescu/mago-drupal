@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\ProceduralHookScanStop;
 
 // @mago-expect lint:drupal/constant-prefix
@@ -84,6 +85,112 @@ function corpus_new_thing(): void {
 function corpus_later_thing(): void {
   // Drupal 13 removes the hook, so the corpus worker's --deprecations=12
   // leaves this implementation alone.
+}
+
+/**
+ * Implements hook_search_query_TAG_alter().
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_search_query_node_access_alter(): void {
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function corpus_node_view(): void {
+}
+
+/**
+ * Implements hook_search_query_TAG_alter() for a tag ending in "view".
+ *
+ * The entity view alter hook matches the name too, with less text outside its
+ * placeholder.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_search_query_node_view_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_WIDGET_TYPE_form_alter().
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_field_widget_string_textfield_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_single_element_WIDGET_TYPE_form_alter().
+ */
+function corpus_field_widget_single_element_string_textfield_form_alter(): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for system_site_information_settings().
+ */
+function corpus_form_system_site_information_settings_alter(
+  array &$form,
+  FormStateInterface $form_state,
+  string $form_id,
+): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for node_form().
+ *
+ * The form is not taken by reference.
+ */
+// @mago-expect analysis:drupal/hook-form-alter-signature
+function corpus_form_node_form_alter(array $form, FormStateInterface $form_state): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for user_form().
+ *
+ * Untyped parameters are only checked for the reference.
+ */
+function corpus_form_user_form_alter(&$form, $form_state): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for user_login_form().
+ *
+ * Fewer parameters than the module handler passes is fine.
+ */
+function corpus_form_user_login_form_alter(array &$form): void {
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node_article_form().
+ *
+ * A required fourth parameter is never passed.
+ */
+// @mago-expect analysis:drupal/hook-form-alter-signature
+function corpus_form_node_article_form_alter(
+  array &$form,
+  FormStateInterface $form_state,
+  string $form_id,
+  int $extra,
+): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for node_page_form().
+ *
+ * A variadic fourth parameter takes no argument.
+ */
+function corpus_form_node_page_form_alter(
+  array &$form,
+  FormStateInterface $form_state,
+  string $form_id,
+  mixed ...$rest,
+): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for user_register_form().
+ *
+ * Types that take anything the module handler passes are fine.
+ */
+function corpus_form_user_register_form_alter(mixed &$form, object $form_state, mixed $form_id): void {
 }
 
 /**

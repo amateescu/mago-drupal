@@ -20,4 +20,10 @@ class SampleServiceProvider extends ServiceProviderBase
         $container->setAlias('sample.alias', 'sample.plain');
         $container->register($this->dynamicId(), Dynamic::class);
     }
+
+    public function alter(ContainerBuilder $container) {
+        $container->getDefinition('sample.altered')->addArgument(1);
+        $container->removeDefinition('sample.removed');
+        $container->hasDefinition('sample.probed');
+    }
 }

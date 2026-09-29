@@ -97,7 +97,7 @@ final class DiskCacheTest extends TestCase
         /** @var mixed $hooks */
         $hooks = $cache->get('hooks', 'a', [HookFunctions::class]);
         self::assertInstanceOf(HookFunctions::class, $hooks);
-        self::assertSame('in drupal:11.1.0.', $hooks->deprecation('hook_x'));
+        self::assertSame(['hook_x', 'in drupal:11.1.0.'], $hooks->deprecation('hook_x'));
         self::assertNotInstanceOf(HookFunctions::class, $cache->get('hooks', 'a'));
     }
 

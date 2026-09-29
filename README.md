@@ -28,12 +28,14 @@ apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-pu
 `long-description-punctuation`, because core's `phpcs.xml.dist` turns off the checks that they
 port.
 
-Add `"--root=PATH"` when the Drupal document root is somewhere other than the project directory,
-`web/`, `docroot/`, `html/`, `public/` or the Composer scaffold's `web-root`. Add
-`"--deprecations=12"` to report only the Drupal deprecations removed in Drupal 12 or earlier (see
-[docs/analyzer.md](docs/analyzer.md#deprecation-target)). Parsed indexes are cached under the system
-temporary directory; `MAGO_DRUPAL_CACHE=/dir` moves the cache and `MAGO_DRUPAL_CACHE=0` turns it off
-(see [docs/analyzer.md](docs/analyzer.md#cost)).
+Add `"--root=PATH"` when the Drupal document root is somewhere other than the
+project directory, `web/`, `docroot/`, `html/`, `public/`, the Composer scaffold's `web-root` or
+`vendor/drupal` when Composer installed core there as a package
+(see [docs/analyzer.md](docs/analyzer.md#finding-the-drupal-root)).
+Add `"--deprecations=12"` to report only the Drupal deprecations removed in Drupal 12 or earlier
+(see [docs/analyzer.md](docs/analyzer.md#deprecation-target)).
+Parsed indexes are cached under the system temporary directory; `MAGO_DRUPAL_CACHE=/dir` moves the
+cache and `MAGO_DRUPAL_CACHE=0` turns it off (see [docs/analyzer.md](docs/analyzer.md#cost)).
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:
@@ -87,8 +89,9 @@ name.
 The `drupal` analyzer plugin types what Drupal's runtime wiring hands back, without booting Drupal:
 
 - **Container lookups**: `$container->get('entity_type.manager')` and `\Drupal::service('renderer')`
-  return the service's class instead of `?object`, read from every `*.services.yml` and
-  `*ServiceProvider.php` in the project. Deprecated and unknown services are reported on lookup.
+  return the service's class instead of `?object`, and `$container->getParameter('app.root')` the
+  kind of its `parameters:` value, read from every `*.services.yml` and `*ServiceProvider.php` in the
+  project. Deprecated and unknown services are reported on lookup.
 - **Entity handlers and entities**: `getStorage('node')->load(1)` is a `Node|null`, read from the
   `#[ContentEntityType]` and `#[ConfigEntityType]` attributes Mago has scanned, and an id no entity
   type declares is reported.
@@ -102,6 +105,8 @@ The `drupal` analyzer plugin types what Drupal's runtime wiring hands back, with
   `ContentEntityBase::__get()` and `FieldItemBase::__get()` behave at runtime.
 - **Form responses**: a `Response` returned from `buildForm()` is not an invalid return, since the
   form builder sends it instead of the page.
+- **Form arguments**: `getForm(NodeIdForm::class, $nid)` checks `$nid` against the form's
+  `buildForm()` parameters after the form state, as Mago checks a direct call.
 - **Calls from traits**: `$this->getEntity()` in a trait is typed from the classes that use the
   trait, the way PHPStan checks a trait's body in each of them, and `$this->container` is not
   reported as missing when they all have it.

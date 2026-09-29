@@ -127,6 +127,40 @@ final class ServiceResolver
     }
 
     /**
+     * The definition of an id followed by the definitions up its `parent:`
+     * chain, the way a child definition inherits from its parent. Null when
+     * the id is no definition, or a parent is missing or loops.
+     *
+     * @param non-empty-string $id
+     * @param array<non-empty-string, Definition> $definitions
+     * @return non-empty-list<array<array-key, mixed>>|null
+     */
+    public static function lineage(string $id, array $definitions): ?array
+    {
+        $lineage = [];
+        for ($depth = 0; $depth < self::MAX_DEPTH; $depth++) {
+            $definition = $definitions[$id] ?? null;
+            if (!is_array($definition)) {
+                return null;
+            }
+
+            $lineage[] = $definition;
+            if (Shape::nonEmptyString($definition['parent'] ?? null) === null) {
+                return $lineage;
+            }
+
+            $parent = self::parentOf($definition, $definitions);
+            if ($parent === null) {
+                return null;
+            }
+
+            $id = $parent;
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the service a chain of aliases in the graph ends at.
      *
      * @param non-empty-string $id

@@ -16,16 +16,17 @@ use Drupal\corpus\Legacy\RetiredThing;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 
 /**
- * A class covering deprecated behaviour on purpose.
+ * A legacy group is for the test runner, so outside tests it marks nothing.
  *
  * @group legacy
  */
 final class LegacyDeprecations {
 
   /**
-   * The whole class is in scope, so nothing here is reported.
+   * Not a test, so the group does not cover this.
    */
   public function anywhere(): void {
+    // @mago-expect analysis:deprecated-class
     (new RetiredThing())->stillHere();
   }
 
@@ -35,15 +36,6 @@ final class LegacyDeprecations {
  * One method at a time.
  */
 final class Deprecations {
-
-  /**
-   * A legacy group on the method covers only this body.
-   *
-   * @group legacy
-   */
-  public function grouped(): void {
-    (new RetiredThing())->stillHere();
-  }
 
   /**
    * The PHPUnit attribute does the same.

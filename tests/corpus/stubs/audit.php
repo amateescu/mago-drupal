@@ -16,6 +16,13 @@ namespace Drupal\corpus\Nested {
     }
 }
 
+namespace Vendor\Library {
+    trait KeepsCache
+    {
+        private array $cache = [];
+    }
+}
+
 namespace PHPUnit\Framework {
     interface Test {}
 
@@ -186,9 +193,20 @@ namespace {
     class CorpusMarker {}
 }
 
+namespace Drupal\Core\Test {
+    trait FunctionalTestSetupTrait
+    {
+        protected function installDefaultThemeFromClassProperty(
+            \Symfony\Component\DependencyInjection\ContainerInterface $container,
+        ) {}
+    }
+}
+
 namespace Drupal\Tests {
     abstract class BrowserTestBase extends \PHPUnit\Framework\TestCase
     {
+        use \Drupal\Core\Test\FunctionalTestSetupTrait;
+
         protected $profile = 'testing';
 
         protected $defaultTheme;
@@ -197,6 +215,14 @@ namespace Drupal\Tests {
 
 namespace Drupal\FunctionalTests\Update {
     abstract class UpdatePathTestBase extends \Drupal\Tests\BrowserTestBase {}
+}
+
+namespace Drupal\Tests {
+    abstract class UnitTestCase extends \PHPUnit\Framework\TestCase {}
+}
+
+namespace Drupal\KernelTests {
+    abstract class KernelTestBase extends \PHPUnit\Framework\TestCase {}
 }
 
 namespace Drupal\Core\Form {
@@ -284,6 +310,18 @@ namespace Drupal\Core\KeyValueStore {
 
 namespace Symfony\Component\HttpFoundation\Session\Storage {
     interface SessionStorageInterface {}
+}
+
+namespace Symfony\Component\HttpFoundation\Session\Storage\Handler {
+    abstract class AbstractSessionHandler
+    {
+        private string $sessionName = '';
+
+        public function sessionName(): string
+        {
+            return $this->sessionName;
+        }
+    }
 }
 
 namespace Drupal\Core\TypedData {

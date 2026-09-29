@@ -14,6 +14,7 @@ use Drupal\FunctionalTests\Update\UpdatePathTestBase;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\corpus\LooseTestBase;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Named like a test, wired like one.
@@ -161,3 +162,119 @@ abstract class ExistingConfigTestBase extends BrowserTestBase {
  * Takes the theme from the configuration it installs.
  */
 final class ExistingConfigTest extends ExistingConfigTestBase {}
+
+/**
+ * Sets the theme for the tests using it.
+ */
+trait ThemeTrait {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+}
+
+/**
+ * Takes its theme from a trait.
+ */
+final class TraitThemeTest extends BrowserTestBase {
+
+  use ThemeTrait;
+
+}
+
+/**
+ * Hands its trait's theme down.
+ */
+abstract class TraitThemeTestBase extends BrowserTestBase {
+
+  use ThemeTrait;
+
+}
+
+/**
+ * Takes its theme from the trait of its base class.
+ */
+final class InheritedTraitThemeTest extends TraitThemeTestBase {}
+
+/**
+ * Installs a profile that ships a theme.
+ */
+trait StandardProfileTrait {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $profile = 'standard';
+
+}
+
+/**
+ * Takes a themed profile from a trait.
+ */
+final class TraitProfileTest extends BrowserTestBase {
+
+  use StandardProfileTrait;
+
+}
+
+/**
+ * Installs a themeless profile and sets no theme.
+ */
+trait TestingProfileTrait {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $profile = 'testing';
+
+}
+
+/**
+ * Its trait names a profile, but no theme.
+ */
+// @mago-expect analysis:drupal/browser-test-default-theme
+final class TraitThemelessProfileTest extends BrowserTestBase {
+
+  use TestingProfileTrait;
+
+}
+
+/**
+ * Sets the theme when the test installs it.
+ */
+trait RuntimeThemeTrait {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function installDefaultThemeFromClassProperty(ContainerInterface $container) {
+    $this->defaultTheme ??= 'stark';
+  }
+
+}
+
+/**
+ * Takes its theme from a trait at run time.
+ */
+final class RuntimeThemeTest extends BrowserTestBase {
+
+  use RuntimeThemeTrait;
+
+}
+
+/**
+ * Sets the theme in setUp(), before the parent installs it.
+ */
+final class SetUpThemeTest extends BrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    $this->defaultTheme = 'stark';
+    parent::setUp();
+  }
+
+}

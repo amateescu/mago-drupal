@@ -15,6 +15,8 @@ use amateescu\MagoDrupal\Analyzer\Checks\ListBuilderCacheabilityCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\MetadataCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\PluginAnnotationContextCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\PluginManagerCheck;
+use amateescu\MagoDrupal\Analyzer\Checks\ServiceArgumentsCheck;
+use amateescu\MagoDrupal\Analyzer\Checks\TrustedCallbackOverrideCheck;
 use amateescu\MagoDrupal\Analyzer\Hooks\AnonymousInternalParentHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\CacheableDependencyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ClassMetadataHook;
@@ -22,6 +24,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownKeyHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownNameHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedServiceHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DescendantMetadataHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\ElementCallbackHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityMagicPropertyFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityQueryAccessCheckHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\FormResponseReturnFilter;
@@ -45,6 +48,7 @@ use amateescu\MagoDrupal\Analyzer\Providers\ConfigGetProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigStorageProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ContainerGetProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ContainerInjectionProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\ContainerParameterProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityAccessProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityFieldProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityIdListParameterProvider;
@@ -57,6 +61,7 @@ use amateescu\MagoDrupal\Analyzer\Providers\EntityStorageProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityTypeManagerProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\EventListProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\FieldItemPropertyProvider;
+use amateescu\MagoDrupal\Analyzer\Providers\FormArgumentsProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\HandlerInstanceProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\LanguageKeysProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ListBuilderOperationsProvider;
@@ -74,6 +79,7 @@ use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DiskCache;
 use amateescu\MagoDrupal\Internal\Indexes;
 use amateescu\MagoDrupal\Internal\TraitRoots;
+use amateescu\MagoDrupal\Internal\TrustedCallbacks;
 use Mago\Sdk\Analyzer\Plugin;
 use Mago\Sdk\Analyzer\PluginDefinition;
 use Mago\Sdk\Analyzer\PluginRegistry;
@@ -162,6 +168,7 @@ final class DrupalPlugin implements Plugin
     private function registerClassChecks(PluginRegistry $registry, TraitRoots $traitRoots): void
     {
         $hooks = $this->indexes->hookFunctions(...);
+        $trusted = new TrustedCallbacks();
         $storage = new EntityStorageInjectionCheck($traitRoots);
         $serialization =
             new DependencySerializationCheck($this->indexes->traitComposers(DependencySerializationCheck::TRAIT));
@@ -177,7 +184,11 @@ final class DrupalPlugin implements Plugin
                 $serialization,
                 new ConfigEntityExportCheck($this->indexes->entityTypes(...)),
                 new PluginAnnotationContextCheck($this->indexes->annotated(...)),
+                new ServiceArgumentsCheck($this->indexes->wiring(...), $this->indexes->alteredServiceIds(...)),
             ),
+        );
+        $registry->registerNodeAnalysisHook(
+            new ElementCallbackHook($this->indexes->modules(...), $this->indexes->services(...), $trusted),
         );
         $registry->registerNodeAnalysisHook(new TraitStorageHook($storage));
         $registry->registerNodeAnalysisHook(new ProceduralHookHook($hooks, $this->deprecations));
@@ -203,14 +214,24 @@ final class DrupalPlugin implements Plugin
         }
 
         $this->registerDescendantCheck($registry, $serialization->bases(), $serialization);
+        $overridden = $this->indexes->trustedCallbackClasses();
+        $this->registerDescendantCheck(
+            $registry,
+            TrustedCallbackOverrideCheck::ancestors($overridden, $this->indexes->traitComposers(...)),
+            new TrustedCallbackOverrideCheck($trusted, $overridden->methods),
+        );
         $registry->registerClassLikeAnalysisHook(
-            new DescendantMetadataHook(PluginManagerCheck::ANCESTORS, new PluginManagerCheck()),
+            new DescendantMetadataHook(
+                PluginManagerCheck::ANCESTORS,
+                new PluginManagerCheck($this->indexes->wiring(...)),
+            ),
         );
     }
 
     /**
-     * The container providers typing services from the services files and
-     * providers, and the hooks reporting deprecated and unknown ids.
+     * The container providers typing services and parameters from the
+     * services files and providers, and the hooks reporting deprecated and
+     * unknown ids.
      */
     private function registerServiceHooks(PluginRegistry $registry): void
     {
@@ -218,6 +239,7 @@ final class DrupalPlugin implements Plugin
         $services = $indexes->services(...);
         $registry->registerCodebaseScanHook(new ServiceProviderScan($indexes->reset(...), $indexes->setProvided(...)));
         $registry->registerMethodReturnTypeProvider(new ContainerGetProvider($services));
+        $registry->registerMethodReturnTypeProvider(new ContainerParameterProvider($indexes->parameters(...)));
         $registry->registerMethodReturnTypeProvider(new ClassResolverProvider($services));
         $registry->registerMethodCallAnalysisHook(new DeprecatedServiceHook($services, $this->deprecations));
         $registry->registerMethodCallAnalysisHook(new UnknownServiceHook($services));
@@ -248,6 +270,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new ContainerInjectionProvider());
         $registry->registerMethodReturnTypeProvider(new EntityIdListParameterProvider());
         $registry->registerMethodReturnTypeProvider(new EventListProvider());
+        $registry->registerMethodReturnTypeProvider(new FormArgumentsProvider());
         $registry->registerMethodReturnTypeProvider(new QueueItemProvider());
         $registry->registerMethodReturnTypeProvider(new ScannedFilesProvider());
         $registry->registerMethodReturnTypeProvider(new UninstallReasonsProvider());

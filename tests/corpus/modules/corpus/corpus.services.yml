@@ -1,4 +1,17 @@
 # Shapes the container return-type fixture resolves through.
+parameters:
+  corpus.flag: true
+  corpus.limit: 30
+  corpus.ratio: 0.5
+  corpus.options:
+    enabled: false
+  corpus.list: [a, b]
+  corpus.mixed: 1
+  corpus.copy: '%corpus.limit%'
+  corpus.path: '%app.root%/files'
+  corpus.reference: '@corpus.thing'
+  corpus.escaped: '@@corpus'
+  corpus.tagged: !tagged_iterator corpus.tag
 services:
   _defaults:
     autoconfigure: true

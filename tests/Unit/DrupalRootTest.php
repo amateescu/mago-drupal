@@ -18,10 +18,12 @@ use function file_put_contents;
 use function glob;
 use function ksort;
 use function mkdir;
+use function realpath;
 use function serialize;
 use function sort;
 use function str_replace;
 use function strlen;
+use function symlink;
 use function sys_get_temp_dir;
 use function touch;
 use function uniqid;
@@ -50,6 +52,85 @@ final class DrupalRootTest extends TestCase
     public function testFallsBackToTheWorkingDirectory(): void
     {
         self::assertSame(self::roots() . '/bare', DrupalRoot::discover(self::roots() . '/bare')->path);
+        self::assertSame([], DrupalRoot::discover(self::roots() . '/bare')->outside);
+    }
+
+    /**
+     * A module's own repository, where Composer installed core under
+     * `vendor/drupal/core` without composer/installers.
+     */
+    public function testFindsCoreInstalledAsAPackage(): void
+    {
+        $packaged = (string) realpath(self::roots() . '/packaged');
+        $root = DrupalRoot::discover(self::roots() . '/packaged');
+
+        self::assertSame($packaged . '/vendor/drupal', $root->path);
+        // The workspace holds the module, and the packages next to core are
+        // where Composer puts contrib modules in that layout.
+        self::assertSame(
+            [$packaged, $packaged . '/vendor/drupal/core-composer-scaffold', $packaged . '/vendor/drupal/pathauto'],
+            $root->outside,
+        );
+        self::assertSame([], DrupalRoot::discover(self::roots() . '/scaffold')->outside);
+    }
+
+    /**
+     * A core linked in from a path repository keeps `vendor/drupal` as the
+     * root, so the packages next to it are still read, and a package that
+     * links back to the workspace is not read twice.
+     */
+    public function testKeepsThePackagesNextToALinkedCore(): void
+    {
+        $temporary = sys_get_temp_dir() . '/mago-drupal-test-' . uniqid();
+        mkdir($temporary . '/repo/vendor/drupal/token', recursive: true);
+        touch($temporary . '/repo/vendor/drupal/token/token.info.yml');
+        symlink(self::roots() . '/packaged/vendor/drupal/core', $temporary . '/repo/vendor/drupal/core');
+        symlink($temporary . '/repo', $temporary . '/repo/vendor/drupal/repo');
+        $repo = (string) realpath($temporary . '/repo');
+
+        $root = DrupalRoot::discover($temporary . '/repo');
+
+        self::assertSame($repo . '/vendor/drupal', $root->path);
+        self::assertSame([$repo, $repo . '/vendor/drupal/token'], $root->outside);
+
+        DiskCacheTest::remove($temporary);
+    }
+
+    /**
+     * Core's services come first, then those of the extensions outside the
+     * root; packages outside `vendor/drupal` are left out.
+     */
+    public function testWalksTheExtensionsAroundAPackagedCore(): void
+    {
+        $packaged = (string) realpath(self::roots() . '/packaged');
+        $root = DrupalRoot::discover(self::roots() . '/packaged');
+        $relative = static fn(string $path): string => str_replace($packaged . '/', replace: '', subject: $path);
+
+        self::assertSame(
+            [
+                'vendor/drupal/core/core.services.yml',
+                'packaged.services.yml',
+                'vendor/drupal/core/modules/system/system.services.yml',
+                'vendor/drupal/pathauto/pathauto.services.yml',
+            ],
+            array_map($relative, $root->serviceFiles()),
+        );
+
+        $modules = array_map($relative, $root->modules());
+        ksort($modules);
+        self::assertSame(
+            [
+                'packaged' => $packaged,
+                'pathauto' => 'vendor/drupal/pathauto',
+                'system' => 'vendor/drupal/core/modules/system',
+            ],
+            $modules,
+        );
+
+        // Their `src` directories are read with core's.
+        $internal = $root->internalClasses()->names();
+        sort($internal);
+        self::assertSame(['Drupal\packaged\Packaged', 'Drupal\pathauto\Pathauto'], $internal);
     }
 
     public function testHonoursAnExplicitRoot(): void

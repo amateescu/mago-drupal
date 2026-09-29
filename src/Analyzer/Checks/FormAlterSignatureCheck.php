@@ -7,7 +7,13 @@ namespace amateescu\MagoDrupal\Analyzer\Checks;
 use amateescu\MagoDrupal\Internal\ClassFacts;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
-use Mago\Sdk\Analyzer\Metadata\MethodMetadataProjection;
+use Mago\Sdk\Analyzer\Metadata\ParameterMetadata;
+use Mago\Sdk\Analyzer\Type;
+use Mago\Sdk\Analyzer\Type\AnyObjectType;
+use Mago\Sdk\Analyzer\Type\MixedType;
+use Mago\Sdk\Reporting\Issue;
+use Mago\Sdk\SourceLocation;
+use Mago\Sdk\Span;
 
 use function implode;
 use function preg_match;
@@ -18,7 +24,9 @@ use function preg_match;
  * Ports phpstan-drupal's HookFormAlterRule. The module handler calls every
  * variant as `(array &$form, FormStateInterface $form_state, string $form_id)`
  * and trailing parameters may be left off; a required fourth one breaks the
- * call. Types are checked only where the method declares them.
+ * call. Types are checked only where the method declares them, and `mixed`,
+ * or `object` for the form state, takes what the module handler passes.
+ * ProceduralHookHook runs the same check on procedural implementations.
  *
  * @internal
  *
@@ -38,35 +46,41 @@ final class FormAlterSignatureCheck implements MetadataCheck
     public function check(ClassFacts $class, Reporter $reporter): void
     {
         foreach (HookMethods::of($class) as [$hook, $method, $location]) {
-            if (preg_match('/^form(_[A-Za-z0-9_]+)?_alter$/', $hook) !== 1) {
+            if (!self::isFormAlter($hook)) {
                 continue;
             }
 
-            $problems = self::problems($method);
-            if ($problems === []) {
-                continue;
+            $problems = self::problems(HookMethods::parameters($method));
+            if ($problems !== []) {
+                $reporter->error(self::CODE, self::issue(HookMethods::label($method), $hook, $problems, $location));
             }
-
-            $name = HookMethods::label($method);
-            $reporter->error(self::CODE, Reporter::issue(
-                "{$name}() implements hook_{$hook} with the wrong signature: " . implode(', ', $problems) . '.',
-                $location,
-                'The module handler calls it as (array &$form, FormStateInterface $form_state, string $form_id); trailing parameters may be left off.',
-            ));
         }
     }
 
     /**
-     * Everything wrong with one alter method's parameter list.
+     * Whether the hook is `hook_form_alter` or one of its form ID variants.
+     */
+    public static function isFormAlter(string $hook): bool
+    {
+        return preg_match('/^form(_[A-Za-z0-9_]+)?_alter$/', $hook) === 1;
+    }
+
+    /**
+     * Everything wrong with one alter implementation's parameter list.
+     *
+     * @param list<ParameterMetadata> $parameters
      *
      * @return list<string>
      */
-    private static function problems(MethodMetadataProjection $method): array
+    public static function problems(array $parameters): array
     {
-        $parameters = HookMethods::parameters($method);
         $problems = [];
         $fourth = $parameters[3] ?? null;
-        if ($fourth !== null && !$fourth->flags->contains(MetadataFlags::HAS_DEFAULT)) {
+        if (
+            $fourth !== null
+            && !$fourth->flags->contains(MetadataFlags::HAS_DEFAULT)
+            && !$fourth->flags->contains(MetadataFlags::VARIADIC)
+        ) {
             $problems[] = 'it requires more than the three arguments the module handler passes';
         }
 
@@ -75,20 +89,71 @@ final class FormAlterSignatureCheck implements MetadataCheck
             $problems[] = 'the first parameter must be taken by reference';
         }
 
-        if ($form?->declaredType !== null && !Types::isArray($form->declaredType->type)) {
+        $formType = $form?->declaredType?->type;
+        if ($formType !== null && !Types::isArray($formType) && !self::wide($formType)) {
             $problems[] = 'the first parameter must be an array';
         }
 
         $formState = $parameters[1] ?? null;
-        if ($formState?->declaredType !== null && !HookMethods::typed($formState, self::FORM_STATE)) {
+        $formStateType = $formState?->declaredType?->type;
+        if (
+            $formStateType !== null
+            && !HookMethods::typed($formState, self::FORM_STATE)
+            && !self::wide($formStateType)
+            && !self::anyObject($formStateType)
+        ) {
             $problems[] = 'the second parameter must be a FormStateInterface';
         }
 
         $formId = $parameters[2] ?? null;
-        if ($formId?->declaredType !== null && !Types::isString($formId->declaredType->type)) {
+        $formIdType = $formId?->declaredType?->type;
+        if ($formIdType !== null && !Types::isString($formIdType) && !self::wide($formIdType)) {
             $problems[] = 'the third parameter must be a string';
         }
 
         return $problems;
+    }
+
+    /**
+     * Whether the type takes any value, so the module handler's argument fits.
+     */
+    private static function wide(Type $type): bool
+    {
+        foreach ($type->atomicTypes as $atomic) {
+            if ($atomic instanceof MixedType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the type takes any object, which is enough for the form state.
+     */
+    private static function anyObject(Type $type): bool
+    {
+        foreach ($type->atomicTypes as $atomic) {
+            if ($atomic instanceof AnyObjectType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The issue for a function or method that implements a form alter hook
+     * with the wrong signature.
+     *
+     * @param non-empty-list<string> $problems
+     */
+    public static function issue(string $name, string $hook, array $problems, Span|SourceLocation $where): Issue
+    {
+        return Reporter::issue(
+            "{$name}() implements hook_{$hook} with the wrong signature: " . implode(', ', $problems) . '.',
+            $where,
+            'The module handler calls it as (array &$form, FormStateInterface $form_state, string $form_id); trailing parameters may be left off.',
+        );
     }
 }

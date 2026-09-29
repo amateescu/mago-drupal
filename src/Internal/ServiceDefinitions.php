@@ -23,6 +23,12 @@ final class ServiceDefinitions
      */
     private const REGISTRATION = '/->\s*(?:register|setDefinition|setAlias)\s*\(\s*([\'"])([^\'"]+)\1/';
 
+    /**
+     * A container builder call with a literal id that can replace or change
+     * a definition, its arguments included.
+     */
+    private const ALTERATION = '/->\s*(?:register|autowire|setDefinition|getDefinition|findDefinition|removeDefinition)\s*\(\s*([\'"])([^\'"]+)\1/';
+
     private function __construct() {}
 
     /**
@@ -56,21 +62,47 @@ final class ServiceDefinitions
     public static function idsInFiles(array $files): array
     {
         $definitions = [];
+        foreach (self::literalIds($files, self::REGISTRATION) as $id => $_) {
+            $definitions[$id] = [];
+        }
+
+        return $definitions;
+    }
+
+    /**
+     * The ids that provider or compiler pass files on disk register, fetch
+     * or remove by a literal, as a match by text.
+     *
+     * @param list<string> $files
+     * @return array<non-empty-string, true>
+     */
+    public static function alteredIdsInFiles(array $files): array
+    {
+        return self::literalIds($files, self::ALTERATION);
+    }
+
+    /**
+     * @param list<string> $files
+     * @return array<non-empty-string, true>
+     */
+    private static function literalIds(array $files, string $pattern): array
+    {
+        $ids = [];
         foreach ($files as $file) {
             $source = is_file($file) ? file_get_contents($file) : false;
             $matches = [];
-            if ($source === false || preg_match_all(self::REGISTRATION, $source, $matches) === 0) {
+            if ($source === false || preg_match_all($pattern, $source, $matches) === 0) {
                 continue;
             }
 
             foreach ($matches[2] as $match) {
                 $id = Shape::nonEmptyString($match);
                 if ($id !== null) {
-                    $definitions[$id] = [];
+                    $ids[$id] = true;
                 }
             }
         }
 
-        return $definitions;
+        return $ids;
     }
 }

@@ -15,6 +15,11 @@ use function strtolower;
  */
 final class Attributes
 {
+    /**
+     * The attribute that marks a hook implementation.
+     */
+    public const HOOK = 'Drupal\Core\Hook\Attribute\Hook';
+
     private function __construct() {}
 
     /**

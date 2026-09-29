@@ -19,14 +19,18 @@ use function strstr;
 use const ARRAY_FILTER_USE_KEY;
 
 /**
- * Reads the `services:` sections out of Drupal's `*.services.yml` files.
+ * Reads the `services:` and `parameters:` sections out of Drupal's
+ * `*.services.yml` files.
  *
  * Each definition is either the `'@id'` alias shorthand string or the mapping
- * as written, untouched. Resolution happens in ServiceResolver.
+ * as written, with the file's `_defaults` and the declaring extension added.
+ * Resolution happens in ServiceResolver.
  *
  * @internal
  *
  * @phpstan-type Definition array<array-key, mixed>|string
+ *
+ * @mago-expect lint:cyclomatic-complexity
  */
 final class ServiceYaml
 {
@@ -49,6 +53,12 @@ final class ServiceYaml
      */
     private const OWN_VISIBILITY = ['public' => true, 'parent' => true];
 
+    /**
+     * Keys that decide whether a definition autowires without the file's
+     * defaults: its own `autowire:`, or the parent it copies.
+     */
+    private const OWN_AUTOWIRING = ['autowire' => true, 'parent' => true];
+
     private function __construct() {}
 
     /**
@@ -59,27 +69,47 @@ final class ServiceYaml
      */
     public static function load(array $paths): array
     {
+        return self::read($paths)[0];
+    }
+
+    /**
+     * Reads the services and the parameter kinds of every file in one parse.
+     *
+     * Later files override earlier service ids. A parameter keeps the kinds
+     * of every file that defines it, see ServiceParameters.
+     *
+     * @param list<string> $paths
+     * @return array{array<non-empty-string, Definition>, array<non-empty-string, array<string, true>>}
+     */
+    public static function read(array $paths): array
+    {
         $definitions = [];
+        $parameters = [];
         foreach ($paths as $path) {
             try {
-                $file = self::definitions(Yaml::parseFile($path, Yaml::PARSE_CUSTOM_TAGS));
+                /** @var mixed $document */
+                $document = Yaml::parseFile($path, Yaml::PARSE_CUSTOM_TAGS);
             } catch (ParseException) {
                 // A broken YAML file is Drupal's problem to report; the index
                 // just goes without that extension's services.
                 continue;
             }
 
+            foreach (ServiceParameters::kindsIn($document) as $name => $kind) {
+                $parameters[$name][$kind] = true;
+            }
+
             // `node.services.yml` belongs to `node`, `core.services.yml` to core.
             $module = strstr(basename($path), needle: '.services.yml', before_needle: true);
             $alwaysOn = $module === 'core' || ServiceModuleInfo::required($path);
-            foreach ($file as $id => $definition) {
+            foreach (self::definitions($document) as $id => $definition) {
                 $definitions[$id] = is_array($definition) && $module !== false
                     ? [...$definition, self::MODULE => $module, self::ALWAYS_ON => $alwaysOn]
                     : $definition;
             }
         }
 
-        return $definitions;
+        return [$definitions, $parameters];
     }
 
     /**
@@ -98,12 +128,35 @@ final class ServiceYaml
         );
 
         // `_defaults: {public: false}` makes every service of the file private
-        // unless it says otherwise. The defaults do not outlive the file, so
-        // each definition keeps its own copy.
-        $private = (Shape::arrayAt($document, 'services', '_defaults')['public'] ?? null) === false;
+        // unless it says otherwise, and `autowire: true` autowires them. The
+        // defaults do not outlive the file, so each definition keeps its own
+        // copy.
+        $defaults = Shape::arrayAt($document, 'services', '_defaults');
+        /** @var array<non-empty-string, Definition> $definitions */
+        $definitions = array_map(
+            ($defaults['public'] ?? null) === false ? self::privately(...) : self::asWritten(...),
+            $named,
+        );
 
-        /** @var array<non-empty-string, Definition> */
-        return array_map($private ? self::privately(...) : self::asWritten(...), $named);
+        return ($defaults['autowire'] ?? null) === true ? array_map(self::autowired(...), $definitions) : $definitions;
+    }
+
+    /**
+     * One definition of a file whose defaults autowire it, unless it says
+     * otherwise itself. A `parent:` child is left alone: Drupal's loader
+     * resets a child's changes after the defaults, so the child autowires
+     * only when its parent does.
+     *
+     * @param Definition $definition
+     * @return Definition
+     */
+    private static function autowired(array|string $definition): array|string
+    {
+        return (
+            is_array($definition) && array_intersect_key($definition, self::OWN_AUTOWIRING) === []
+                ? [...$definition, 'autowire' => true]
+                : $definition
+        );
     }
 
     /**

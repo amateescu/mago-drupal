@@ -14,8 +14,8 @@ use Mago\Sdk\Analyzer\IssueFilterHook;
 /**
  * Drops deprecation issues where a deprecated call is expected.
  *
- * Drupal marks those places four ways: a `@group legacy` test, a PHPUnit
- * `#[IgnoreDeprecations]` attribute,
+ * Drupal marks those places four ways: a `@group legacy` test in a test file,
+ * a PHPUnit `#[IgnoreDeprecations]` attribute,
  * `DeprecationHelper::backwardsCompatibleCall()`, which runs the deprecated
  * branch on older core, and a `@deprecated` function or class, since
  * deprecated code may use other deprecated code. The scopes are read from the
@@ -53,7 +53,8 @@ final class DeprecationScopeFilter implements IssueFilterHook
         // The first annotation is the one the issue points at.
         $span = $annotations[0]->span;
         $contents = $context->contents;
-        if (DeprecationScopes::marked($contents) && DeprecationScopes::of($contents)->covers($span)) {
+        $path = $context->file;
+        if (DeprecationScopes::marked($contents, $path) && DeprecationScopes::of($contents, $path)->covers($span)) {
             return IssueFilterDecision::Remove;
         }
 
@@ -62,7 +63,7 @@ final class DeprecationScopeFilter implements IssueFilterHook
         // rather than read back.
         $functions = NamedFunctions::of($contents);
 
-        return InheritedDeprecation::covers($context->codebase, $context->file, $functions, $span)
+        return InheritedDeprecation::covers($context->codebase, $path, $functions, $span)
             ? IssueFilterDecision::Remove
             : IssueFilterDecision::Keep;
     }

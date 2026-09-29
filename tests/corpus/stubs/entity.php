@@ -443,6 +443,24 @@ namespace Drupal\Core\Form {
          */
         public function buildForm(array $form, FormStateInterface $form_state);
     }
+
+    interface FormBuilderInterface
+    {
+        /**
+         * @param \Drupal\Core\Form\FormInterface|string $form_arg
+         * @param mixed ...$args
+         * @return array
+         */
+        public function getForm($form_arg, mixed ...$args);
+    }
+
+    class FormBuilder implements FormBuilderInterface
+    {
+        public function getForm($form_arg, mixed ...$args)
+        {
+            return [];
+        }
+    }
 }
 
 namespace Drupal\corpus\Entity {

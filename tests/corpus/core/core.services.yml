@@ -1,3 +1,8 @@
+parameters:
+  # The kernel sets these two; the empty strings only say they are strings.
+  app.root: ''
+  site.path: ''
+  password.algorithm: ~
 services:
   entity_type.manager:
     class: Drupal\Core\Entity\EntityTypeManager

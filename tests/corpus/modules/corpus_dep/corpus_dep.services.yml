@@ -1,3 +1,6 @@
+parameters:
+  # corpus.services.yml says 1, so the parameter is either kind.
+  corpus.mixed: one
 services:
   corpus_dep.greeter:
     class: Drupal\corpus_dep\LoudGreeter

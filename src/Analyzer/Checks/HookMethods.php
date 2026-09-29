@@ -21,7 +21,7 @@ use Mago\Sdk\SourceLocation;
  */
 final class HookMethods
 {
-    public const ATTRIBUTE = 'Drupal\Core\Hook\Attribute\Hook';
+    public const ATTRIBUTE = Attributes::HOOK;
 
     private function __construct() {}
 

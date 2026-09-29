@@ -58,8 +58,25 @@ final class DeprecationScopeFilterTest extends TestCase
         self::assertSame(IssueFilterDecision::Keep, $filter->filterIssue(self::context($edited)));
     }
 
-    private static function context(string $contents): IssueFilterContext
+    /**
+     * The legacy group is a test runner convention, so it marks nothing in
+     * runtime code, even right after the same bytes did in a test.
+     */
+    public function testKeepsADeprecationUnderALegacyGroupOutsideTests(): void
     {
+        $filter = new DeprecationScopeFilter();
+        $filter->filterIssue(self::context(self::MARKED));
+
+        self::assertSame(
+            IssueFilterDecision::Keep,
+            $filter->filterIssue(self::context(self::MARKED, 'modules/legacy/legacy.module')),
+        );
+    }
+
+    private static function context(
+        string $contents,
+        string $path = 'modules/legacy/tests/src/Unit/LegacyTest.php',
+    ): IssueFilterContext {
         $stream = fopen('php://memory', mode: 'w');
         self::assertIsResource($stream);
         $host = new HostClient(new FrameCodec(), new ResourceWriter($stream));
@@ -72,7 +89,7 @@ final class DeprecationScopeFilterTest extends TestCase
             $codebase,
             new TypeComparator($host, 1, new SignalCancellationToken(), new MetadataCache(1)),
             new SignalCancellationToken(),
-            'modules/legacy/tests/src/Unit/LegacyTest.php',
+            $path,
             $contents,
             new ReportedIssue(
                 Level::Error,
