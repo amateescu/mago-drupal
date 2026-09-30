@@ -231,6 +231,15 @@ namespace Drupal\Core\Form {
     abstract class FormBase implements \Drupal\Core\DependencyInjection\ContainerInjectionInterface
     {
         use \Drupal\Core\DependencyInjection\AutowireTrait;
+
+        /**
+         * @param string $name
+         * @return \Drupal\Core\Config\ImmutableConfig
+         */
+        protected function config($name)
+        {
+            throw new \RuntimeException('stub');
+        }
         use \Drupal\Core\DependencyInjection\DependencySerializationTrait;
     }
 }
@@ -276,6 +285,17 @@ namespace Drupal\Core\Controller {
     abstract class ControllerBase implements \Drupal\Core\DependencyInjection\ContainerInjectionInterface
     {
         use \Drupal\Core\DependencyInjection\AutowireTrait;
+
+        /**
+         * Core documents the editable class, but hands out an immutable one.
+         *
+         * @param string $name
+         * @return \Drupal\Core\Config\Config
+         */
+        protected function config($name)
+        {
+            throw new \RuntimeException('stub');
+        }
     }
 }
 

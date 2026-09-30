@@ -30,8 +30,9 @@ final class ConfigFactoryProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        // `\Drupal::config()` and `$factory->get()` hand out immutable configs,
-        // and `getEditable()` hands out editable ones. A form's `config()`
+        // `\Drupal::config()`, `$factory->get()` and the `config()` helper of
+        // `ControllerBase` and `FormBase` hand out immutable configs, and
+        // `getEditable()` hands out editable ones. A config form's `config()`
         // hands out an editable one for the names in
         // `getEditableConfigNames()` and an immutable one otherwise, so it gets
         // `Config`, which both extend or are. No schema is needed, so every

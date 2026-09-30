@@ -29,6 +29,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\EntityMagicPropertyFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityQueryAccessCheckHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\FormResponseReturnFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\GlobalDrupalCallHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\ImplicitTransactionCommitHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\InternalParentHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\LoadIncludeHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\LoggerFromFactoryHook;
@@ -154,6 +155,7 @@ final class DrupalPlugin implements Plugin
         $this->registerClassChecks($registry, $traitRoots);
         $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook());
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
+        $registry->registerMethodCallAnalysisHook(new ImplicitTransactionCommitHook());
         $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::REFINABLE));
         $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::RENDERER));
 

@@ -340,12 +340,17 @@ final class Container {
    * Unknown ids that are not reported: a null probe and a class name.
    *
    * The container registers hook classes and other autowired services under
-   * their class name without a YAML line.
+   * their class name without a YAML line, so a class name id gets that class,
+   * and `null` too when the behavior asks for it.
    */
   public function unknownButAllowed(): ?object {
-    // @mago-expect analysis:possible-method-access-on-null
-    // @mago-expect analysis:ambiguous-object-method-access
+    // @mago-expect analysis:non-existent-method
     $this->container->get(Other::class)->missing();
+    // @mago-expect analysis:non-existent-method
+    \Drupal::service(Other::class)->missing();
+    // @mago-expect analysis:possible-method-access-on-null
+    // @mago-expect analysis:non-existent-method
+    $this->container->get(Other::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)->missing();
 
     return $this->container->get('corpus.not_defined', ContainerInterface::NULL_ON_INVALID_REFERENCE);
   }

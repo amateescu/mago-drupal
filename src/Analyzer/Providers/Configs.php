@@ -49,6 +49,8 @@ final class Configs
             MethodTarget::exact(self::FACTORY, 'getEditable'),
             MethodTarget::exact('Drupal', 'config'),
             MethodTarget::exact(self::FORM_TRAIT, 'config'),
+            MethodTarget::exact('Drupal\Core\Controller\ControllerBase', 'config'),
+            MethodTarget::exact('Drupal\Core\Form\FormBase', 'config'),
         ];
     }
 

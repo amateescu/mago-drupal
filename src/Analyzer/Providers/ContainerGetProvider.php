@@ -19,7 +19,10 @@ use Mago\Sdk\Analyzer\Type;
  * `$container->get('entity_type.manager')` is declared `?object`. When the id
  * is a literal that the index knows, the call gets the service's class
  * instead. Lookups by `Foo::class` resolve through the same map, since Drupal
- * registers interface aliases under the class name.
+ * registers interface aliases under the class name. An id the index does not
+ * know but that names a class gets that class: the container registers hook
+ * classes and other autowired services under their class name without a YAML
+ * line, and `get()` returns that service or throws.
  *
  * @internal
  */
@@ -52,7 +55,7 @@ final class ContainerGetProvider implements MethodReturnTypeProvider
             return null;
         }
 
-        $type = Containers::typeFor($context->codebase, ($this->services)($context->codebase)->get($id));
+        $type = Containers::typeFor($context->codebase, ($this->services)($context->codebase)->get($id), $id);
         if ($type === null) {
             return null;
         }

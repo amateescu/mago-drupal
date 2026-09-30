@@ -21,17 +21,29 @@ implementation of Symfony's `ContainerInterface`, so Drupal's container interfac
 `\Drupal::service()`. A variable typed only as PSR-11's `ContainerInterface` is left alone, since
 other libraries implement that interface for containers of their own.
 
+An id that no services file or provider defines but that names a class gets that class. The
+container registers hook classes and other autowired services under their class name without a
+YAML line, and `get()` returns that service or throws.
+
 ```php
 $container->get('entity_type.manager');            // Drupal\Core\Entity\EntityTypeManager
 $container->get(EntityTypeManagerInterface::class); // same, through the interface alias
 $container->get('cache.default');                   // Drupal\Core\Cache\CacheBackendInterface
 $container->get('kernel');                          // Drupal\Core\DrupalKernelInterface
+$container->get(MyModuleHooks::class);              // MyModuleHooks, with no YAML line for it
 $container->get('no.such.service');                 // stays ?object
 ```
 
 A literal second argument other than `EXCEPTION_ON_INVALID_REFERENCE` keeps `null` in the type,
 since the container returns null for a missing service under every other behavior. A computed
 second argument leaves the declared type alone.
+
+Leave Mago's own `psr-container` plugin off. Mago asks its built-in plugins before the extension,
+so with it on, every `get(Foo::class)` on a Drupal container is typed `Foo` by that plugin
+instead. It reads only the first argument, so the `null` a second argument adds is lost. It also
+skips the service index: an alias gets the interface it is named after instead of the service's
+class, and a service decorated from an optional module keeps its own class instead of the type it
+shares with the decorator.
 
 `\Drupal::classResolver('id')` and `ClassResolverInterface::getInstanceFromDefinition('id')` try the
 argument as a service id first and as a class name second, the order `ClassResolver` uses.
@@ -281,8 +293,10 @@ report, and so does a `@property` tag on any other interface.
 ## Config
 
 `\Drupal::config('name')`, `$configFactory->get('name')`, `getEditable('name')` and the
-`$this->config('name')` of a class using `ConfigFormBaseTrait` return a config object tagged with
-its name, for example `ImmutableConfig<'system.maintenance'>`. `->get('key')` on it is typed from
+`$this->config('name')` of a class using `ConfigFormBaseTrait` or extending `ControllerBase` or
+`FormBase` return a config object tagged with its name, for example
+`ImmutableConfig<'system.maintenance'>`. The controller and plain form helpers hand out an immutable
+object, whatever `ControllerBase` documents. `->get('key')` on it is typed from
 the config schema, read from `core/config/schema/` and from the `config/schema/` directory of every
 module, profile and theme under the root, test extensions included.
 
@@ -1039,7 +1053,7 @@ documentation in `*.api.php` files, whose examples use made-up ids and names.
 | `service-argument-count` | Error; Warning for extra arguments | A service whose `arguments:` are fewer than its class's constructor requires, which throws an `ArgumentCountError` when the container builds it, or more than it takes, which PHP drops; any argument to a class without a constructor counts as extra. Reported at the constructor, or at the class when the constructor is inherited, naming the service id and its services file. The count follows the container: a `parent:` child's arguments are appended to its parent's and `index_N` replaces one, `!tagged_iterator`, `!tagged_locator` and `!service_closure` count as one argument each, a decorator's `.inner` counts like any other, and the `http_middleware`, `session_handler_proxy` and `service_id_collector` tags add the argument their compiler pass passes. Parameters with defaults make the range, and a variadic one lifts the maximum. The report sits on the service's class, so only a class the run analyzes is checked: a module's services file that names a core or contrib class outside the run is not. Extra arguments to a constructor that reads them through `func_get_args()` are not reported. Left alone: autowired services, on the definition or its parent, or through the file's `_defaults` for a definition without a parent; named arguments; factories; synthetic and abstract services; services a provider registers; ids a `*ServiceProvider.php` or `*Pass.php` file under the root registers, fetches or removes with a literal id; classes with a non-public constructor or an ancestor Mago has not scanned. |
 | `unknown-entity-type` | Warning | An entity type manager getter asked for an id no entity type declares. |
 | `config-unknown-key` | Error | `$config->get('key')` for a key a fully validatable schema does not list. Update code is skipped: an `.install` file and a `.post_update.php` read the keys an older version of the module wrote. |
-| `config-unknown-name` | Warning | `\Drupal::config()`, a config factory's `get()` or `getEditable()`, or a config form's `config()` asked for a literal name no schema describes, wildcards included. Only a name whose module is in the codebase is checked, since a module reading an optional module's config cannot expect its schema. Update code is skipped, like for `config-unknown-key`. |
+| `config-unknown-name` | Warning | `\Drupal::config()`, a config factory's `get()` or `getEditable()`, or the `config()` of a config form, a controller or a plain form asked for a literal name no schema describes, wildcards included. Only a name whose module is in the codebase is checked, since a module reading an optional module's config cannot expect its schema. Update code is skipped, like for `config-unknown-key`. |
 | `unknown-plugin` | Warning | `createInstance('id')` on a core manager when no scanned plugin declares the id. |
 | `entity-query-access-check` | Error | `execute()` on an entity query chain without `accessCheck()`, unless the entity type is a known config entity type. |
 | `entity-storage-injection` | Warning | A constructor parameter typed as an entity storage. Inject the entity type manager instead. An entity handler is handed its own storage by the entity type manager, so its `$storage` parameter, or `$storage_controller` in views data, is left alone; any other storage it takes is reported. |
@@ -1047,6 +1061,7 @@ documentation in `*.api.php` files, whose examples use made-up ids and names.
 | `global-drupal-call` | Warning | `\Drupal::…` (or a call on a subclass or instance of `Drupal`) inside an instance method of a class implementing `ContainerInjectionInterface` or `ContainerFactoryPluginInterface`. Static methods and plain services are not checked, and neither is a constructor with a parameter that accepts null: Drupal's deprecation policy adds a new service that way, with a `\Drupal::service()` fallback for callers that do not pass it yet. |
 | `dependency-serialization-property` | Error | A private property, or, before PHP 8.4, a readonly non-scalar property declared below the class composing the trait, in a class that composes `DependencySerializationTrait`, itself or through another trait, or descends from a class under the Drupal root that does (core's forms, plugins and entity handlers among them; not controllers, plugin forms or views plugins, which do not). The composing classes are read off the PHP files; without core on disk, core's three bases stand in. Promoted constructor parameters count, static properties do not. The trait's `__sleep()` lists the properties `get_object_vars()` sees in the composing class, so a class that composes the trait itself, below parents that do not, is also reported once for each private property of those parents, naming the parent, and before PHP 8.4 for each readonly non-scalar one, which the trait's `__wakeup()` cannot write. A property a trait in the `Drupal\` namespace brings into a parent counts as the parent's. Parents and traits outside that namespace, such as Symfony's session handler base, PHPUnit's `TestCase` or Prophecy's trait, are left alone, since the module cannot change them. The parents' properties are not reported for a class with a `__sleep()` of its own or a `__serialize()`, which PHP calls instead of the trait's `__sleep()`. |
 | `logger-from-factory` | Error | A logger channel fetched from the factory and stored on the object (`$this->logger = $factory->get('x')`) in the constructor of a class using `DependencySerializationTrait`. |
+| `implicit-transaction-commit` | Warning | A database transaction committed by going out of scope, which Drupal 11.5 deprecates in favor of `commitOrRelease()`: a `startTransaction()` result that is thrown away, which commits at once, or one kept in a local variable that the function, method or closure never calls `commitOrRelease()` on. Unsetting or overwriting the variable commits it the same way. A variable that is returned, passed to a call, stored elsewhere or captured by a closure is left alone, since other code may commit it, and so is a transaction stored on a property. Only reported when the codebase has `Transaction::commitOrRelease()` (Drupal 11.3 and later); tests, which exercise the destructor on purpose, and `*.api.php` files are left alone. |
 | `deprecated-hook` | Warning | A `#[Hook]` method or a procedural `<module>_<hook>()` implementing a hook whose `hook_*()` is `@deprecated`. A hook with no `hook_*()` of its own name is matched against the ones named with an uppercase placeholder, so `search_api_query_foo_alter` counts under `hook_search_api_query_TAG_alter`. A name can match several, as `search_api_query_foo_view_alter` also matches core's `hook_ENTITY_TYPE_view_alter`. The match with the most text outside its placeholders decides, and when several tie, the hook is reported only if all of them are deprecated. |
 | `hook-form-alter-signature` | Error | A form alter hook implementation (a `#[Hook]` method, or a procedural `<module>_form_alter()` or `<module>_form_<form_id>_alter()`) whose `$form` is not taken by reference or typed as something other than an array, whose second parameter is typed as something other than `FormStateInterface`, whose third is typed as something other than a string, or which requires a fourth argument. Untyped parameters are only checked for the reference, and `mixed`, or `object` for the form state, is accepted. A variadic fourth parameter is fine. Taking fewer than three parameters is fine, since PHP drops the extra arguments and core does it in fourteen places. |
 | `hook-entity-operation-cacheability` | Error | `hook_entity_operation` or its alter without the `CacheableMetadata` parameter, once core's api.php declares it. |
