@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
 use amateescu\MagoDrupal\Internal\ConfigSchema;
+use amateescu\MagoDrupal\Internal\Types;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;
@@ -47,12 +48,13 @@ final class ConfigGetProvider implements MethodReturnTypeProvider
 
         // The schema only vouches for fully validatable configs; the index
         // returns null for the rest. An empty key is the whole object, which
-        // is always there; any other key can be absent, so null stays in.
+        // is always there; any other key can be absent, so null stays in. A
+        // key the schema marks nullable already has it.
         $type = ($this->schema)($context->codebase)->typeOf($name, $key);
         if ($type === null) {
             return null;
         }
 
-        return $key === '' ? $type : Type::union($type, Type::null());
+        return $key === '' || Types::includesNull($type) ? $type : Type::union($type, Type::null());
     }
 }
