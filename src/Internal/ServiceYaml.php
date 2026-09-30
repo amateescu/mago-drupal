@@ -9,6 +9,7 @@ use Symfony\Component\Yaml\Yaml;
 
 use function array_filter;
 use function array_intersect_key;
+use function array_key_exists;
 use function array_map;
 use function basename;
 use function is_array;
@@ -85,6 +86,9 @@ final class ServiceYaml
     {
         $definitions = [];
         $parameters = [];
+        // Ids a test module's services file defined, which a later file from
+        // outside the tests may still replace.
+        $fromTests = [];
         foreach ($paths as $path) {
             try {
                 /** @var mixed $document */
@@ -102,10 +106,21 @@ final class ServiceYaml
             // `node.services.yml` belongs to `node`, `core.services.yml` to core.
             $module = strstr(basename($path), needle: '.services.yml', before_needle: true);
             $alwaysOn = $module === 'core' || ServiceModuleInfo::required($path);
+            // A test module that redefines a service, such as a fake clock,
+            // only replaces it in the tests that install the module.
+            $test = TestFiles::isTest($path);
             foreach (self::definitions($document) as $id => $definition) {
+                if ($test && array_key_exists($id, $definitions) && !array_key_exists($id, $fromTests)) {
+                    continue;
+                }
+
                 $definitions[$id] = is_array($definition) && $module !== false
                     ? [...$definition, self::MODULE => $module, self::ALWAYS_ON => $alwaysOn]
                     : $definition;
+                unset($fromTests[$id]);
+                if ($test) {
+                    $fromTests[$id] = true;
+                }
             }
         }
 

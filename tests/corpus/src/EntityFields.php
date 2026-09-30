@@ -33,6 +33,28 @@ final class EntityFields {
   }
 
   /**
+   * Checking whether an undeclared property is set is not redundant.
+   *
+   * The name may be no field of this entity, only a plain value such as an
+   * ad hoc flag.
+   */
+  public function adHocProperty(CorpusThing $thing): mixed {
+    if (isset($thing->in_preview) || !empty($thing->is_preview)) {
+      return 'preview';
+    }
+
+    return $thing->label_override ?? 'none';
+  }
+
+  /**
+   * A name no field can have reads as a plain value of any type.
+   */
+  public function nonFieldName(CorpusThing $thing): void {
+    // @mago-expect analysis:mixed-argument
+    $this->wantsList($thing->passRaw);
+  }
+
+  /**
    * Writing a field takes any value, the way `__set()` does.
    */
   public function writeField(CorpusThing $thing): void {

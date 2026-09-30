@@ -32,7 +32,9 @@ use function strtolower;
  * `ContentEntityInterface` is not.
  *
  * The target is `EntityInterface::id()` because core declares `id()` there
- * and on `EntityBase`, and the host matches on the declaring class.
+ * and on `EntityBase`, and the host matches on the declaring class. An
+ * override that declares a type without an integer in it, such as
+ * `: string`, keeps its own type.
  *
  * @internal
  */
@@ -73,7 +75,10 @@ final class EntityIdProvider implements MethodReturnTypeProvider
     public function getReturnType(ReturnTypeProviderContext $context): ?Type
     {
         $receiver = $context->invocation->receiverType;
-        if ($receiver === null) {
+        if (
+            $receiver === null
+            || EntityIdField::declaredWithoutInteger($context->codebase, $context->invocation->declaringClass)
+        ) {
             return null;
         }
 

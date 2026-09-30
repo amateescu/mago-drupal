@@ -9,6 +9,7 @@ use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\AnyObjectType;
 use Mago\Sdk\Analyzer\Type\KeyedArrayType;
 use Mago\Sdk\Analyzer\Type\ListType;
+use Mago\Sdk\Analyzer\Type\MixedType;
 use Mago\Sdk\Analyzer\Type\NamedObjectType;
 use Mago\Sdk\Analyzer\Type\ScalarType;
 use Mago\Sdk\Analyzer\Type\ScalarTypeKind;
@@ -18,6 +19,7 @@ use Mago\Sdk\Analyzer\Type\SimpleAtomicTypeKind;
 use function array_slice;
 use function array_values;
 use function count;
+use function in_array;
 
 /**
  * Questions the checks ask of a declared type.
@@ -30,6 +32,16 @@ use function count;
  */
 final class Types
 {
+    /**
+     * Scalar kinds that include the integers.
+     */
+    private const INTEGER_KINDS = [
+        ScalarTypeKind::Scalar,
+        ScalarTypeKind::Numeric,
+        ScalarTypeKind::ArrayKey,
+        ScalarTypeKind::Integer,
+    ];
+
     private function __construct() {}
 
     /**
@@ -72,6 +84,24 @@ final class Types
     {
         foreach ($type === null ? [] : $type->atomicTypes as $atomic) {
             if ($atomic instanceof ScalarType && $atomic->kind === ScalarTypeKind::String) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the type can hold an integer: `int`, `array-key`, `numeric`,
+     * `scalar` or `mixed`, alone or in a union.
+     */
+    public static function mayHoldInteger(Type $type): bool
+    {
+        foreach ($type->atomicTypes as $atomic) {
+            if (
+                $atomic instanceof MixedType
+                || $atomic instanceof ScalarType && in_array($atomic->kind, self::INTEGER_KINDS, strict: true)
+            ) {
                 return true;
             }
         }

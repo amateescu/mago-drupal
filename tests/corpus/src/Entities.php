@@ -110,6 +110,26 @@ final class Entities {
   }
 
   /**
+   * A lookup after `hasDefinition()` on the same id is left alone.
+   *
+   * Code that talks to an optional module checks its entity type that way,
+   * around the lookup or with an early return.
+   */
+  public function guardedType(): void {
+    if ($this->entityTypeManager->hasDefinition('corpus_optional')) {
+      $this->entityTypeManager->getStorage('corpus_optional');
+    }
+
+    if (!$this->entityTypeManager->hasDefinition('corpus_other')) {
+      return;
+    }
+
+    $this->entityTypeManager->getStorage('corpus_other');
+    // @mago-expect analysis:drupal/unknown-entity-type
+    $this->entityTypeManager->getStorage('corpus_typo');
+  }
+
+  /**
    * A named argument fills its parameter wherever it is written.
    */
   public function namedArguments(): void {

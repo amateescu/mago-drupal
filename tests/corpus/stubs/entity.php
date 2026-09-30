@@ -13,6 +13,10 @@ namespace Drupal\Core\Entity {
         public function id(): string|int|null;
 
         public function label(): string|null;
+
+        public function getOriginal(): ?static;
+
+        public function setOriginal(?EntityInterface $original): static;
     }
 
     interface FieldableEntityInterface extends EntityInterface
@@ -104,6 +108,8 @@ namespace Drupal\Core\Entity {
     interface EntityTypeManagerInterface extends \Drupal\Component\Plugin\PluginManagerInterface
     {
         public function getStorage(string $entity_type_id): EntityStorageInterface;
+
+        public function hasDefinition(string $entity_type_id): bool;
 
         public function getAccessControlHandler(string $entity_type_id): EntityAccessControlHandlerInterface;
 
@@ -241,6 +247,16 @@ namespace Drupal\Core\Entity {
         public function id(): string|int|null
         {
             return null;
+        }
+
+        public function getOriginal(): ?static
+        {
+            return null;
+        }
+
+        public function setOriginal(?EntityInterface $original): static
+        {
+            return $this;
         }
 
         public function __get(string $name): mixed
@@ -473,6 +489,17 @@ namespace Drupal\corpus\Entity {
         public function onlyOnSetting(): void {}
     }
 
+    /**
+     * A config entity whose `id()` declares that the ID is always set.
+     */
+    class CorpusNamedSetting extends CorpusSetting
+    {
+        public function id(): string
+        {
+            return 'named';
+        }
+    }
+
     interface CorpusThingStorageInterface extends \Drupal\Core\Entity\EntityStorageInterface {}
 
     class CorpusThingStorage extends \Drupal\Core\Entity\Sql\SqlContentEntityStorage implements CorpusThingStorageInterface
@@ -499,6 +526,16 @@ namespace Drupal\corpus\Entity {
         public function label(): string|null
         {
             return null;
+        }
+
+        public function getOriginal(): ?static
+        {
+            return null;
+        }
+
+        public function setOriginal(?\Drupal\Core\Entity\EntityInterface $original): static
+        {
+            return $this;
         }
     }
 

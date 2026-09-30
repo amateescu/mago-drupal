@@ -89,6 +89,9 @@ final class CorpusServiceProvider extends ServiceProviderBase {
    */
   public function alter(ContainerBuilder $container): void {
     $container->getDefinition('corpus.defined_altered')->setPublic(TRUE);
+    // What alter() registers is not indexed, so the class register() gave
+    // stays.
+    $container->register('corpus.provided', Other::class);
   }
 
   /**

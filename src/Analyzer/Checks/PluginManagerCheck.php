@@ -86,6 +86,10 @@ final class PluginManagerCheck implements MetadataCheck
         }
 
         $calls = self::calls($class->codebase, $metadata->name, $constructor->location);
+        if ($calls === null) {
+            return;
+        }
+
         if (!array_key_exists('alterinfo', $calls) || !array_key_exists('setcachebackend', $calls)) {
             $calls = [...$calls, ...($this->wiring)($class->codebase)->calls($metadata->name)];
         }
@@ -110,16 +114,21 @@ final class PluginManagerCheck implements MetadataCheck
 
     /**
      * Lowercased names of the methods a constructor calls, with those of
-     * the parent constructors it calls in turn.
+     * the parent constructors it calls in turn, or null when one of those
+     * constructors cannot be read.
      *
      * @param string $class The class declaring the constructor.
-     * @return array<string, true>
+     * @return array<string, true>|null
      */
-    private static function calls(Codebase $codebase, string $class, SourceLocation $constructor, int $depth = 0): array
-    {
+    private static function calls(
+        Codebase $codebase,
+        string $class,
+        SourceLocation $constructor,
+        int $depth = 0,
+    ): ?array {
         $calls = self::methodCalls($constructor);
         $parent = $codebase->getClassLike($class)?->directParentClass;
-        if (!array_key_exists('__construct', $calls) || $parent === null || $depth >= self::DEPTH) {
+        if ($calls === null || !array_key_exists('__construct', $calls) || $parent === null || $depth >= self::DEPTH) {
             return $calls;
         }
 
@@ -130,20 +139,28 @@ final class PluginManagerCheck implements MetadataCheck
             return $calls;
         }
 
-        return [...$calls, ...self::calls($codebase, $declaring, $inherited->location, $depth + 1)];
+        $parentCalls = self::calls($codebase, $declaring, $inherited->location, $depth + 1);
+
+        return $parentCalls === null ? null : [...$calls, ...$parentCalls];
     }
 
     /**
-     * Lowercased names called with `->`, `?->` or `::` in the method's text.
+     * Lowercased names called with `->`, `?->` or `::` in the method's text,
+     * or null when the file cannot be read.
      *
-     * @return array<string, true>
+     * Mago names a file in the workspace relative to it, and the worker reads
+     * that name from its own working directory, so a worker started elsewhere
+     * cannot read it. The check then says nothing about the class rather
+     * than report calls it could not see.
+     *
+     * @return array<string, true>|null
      */
-    private static function methodCalls(SourceLocation $method): array
+    private static function methodCalls(SourceLocation $method): ?array
     {
         $file = $method->file;
         $contents = $file !== null && is_file($file) ? file_get_contents($file) : false;
         if ($contents === false) {
-            return [];
+            return null;
         }
 
         $tokens = PhpToken::tokenize('<?php ' . substr($contents, $method->span->start, $method->span->length()));

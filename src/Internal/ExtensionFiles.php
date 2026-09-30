@@ -326,11 +326,15 @@ final class ExtensionFiles
                     $name = substr($entry, offset: 0, length: -9);
                     // The walk order is not fixed, so a duplicate machine name
                     // resolves to the copy outside a tests directory.
+                    // Files are matched to modules by their resolved path, so
+                    // a module linked in from a path repository is stored
+                    // resolved too.
                     if (
                         !array_key_exists($name, $extensions)
                         || self::inTests($extensions[$name]) && !self::inTests($path)
                     ) {
-                        $extensions[$name] = $current;
+                        $resolved = realpath($current);
+                        $extensions[$name] = $resolved === false ? $current : $resolved;
                     }
                 }
             }

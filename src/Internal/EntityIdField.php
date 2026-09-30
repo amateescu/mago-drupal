@@ -54,6 +54,18 @@ final class EntityIdField
     }
 
     /**
+     * Whether the `id()` a class declares or inherits has a return type that
+     * holds no integer, such as an override typed `: string`. No class means
+     * no such declaration.
+     */
+    public static function declaredWithoutInteger(Codebase $codebase, ?string $class): bool
+    {
+        $type = $class === null ? null : $codebase->getDeclaringMethod($class, 'id')?->returnType?->type;
+
+        return $type !== null && !Types::mayHoldInteger($type);
+    }
+
+    /**
      * The field type, or null when no method on the way sets it. Read once
      * per class and analysis, since the file is read from disk.
      */

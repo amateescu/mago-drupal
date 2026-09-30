@@ -150,7 +150,8 @@ final class ServiceArgumentsCheck implements MetadataCheck
 
     /**
      * Whether the constructor reads its arguments with `func_get_args()` or
-     * `func_get_arg()`, read off disk.
+     * `func_get_arg()`, read off disk. A constructor that cannot be read
+     * counts as reading them, so its arguments are not counted.
      */
     private static function readsAnyArguments(MethodMetadataProjection $constructor): bool
     {
@@ -158,9 +159,9 @@ final class ServiceArgumentsCheck implements MetadataCheck
         $file = $location?->file;
         $contents = $file !== null && is_file($file) ? file_get_contents($file) : false;
 
-        return $location !== null
-        && $contents !== false
-        && str_contains(substr($contents, $location->span->start, $location->span->length()), 'func_get_arg');
+        return $location === null
+        || $contents === false
+        || str_contains(substr($contents, $location->span->start, $location->span->length()), 'func_get_arg');
     }
 
     /**

@@ -100,6 +100,7 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'missingType.property' => ['missing-property-type'],
         'missingType.return' => ['missing-return-type'],
         'new.deprecated' => self::DEPRECATED_CLASS,
+        'new.deprecatedClass' => self::DEPRECATED_CLASS,
         'offsetAccess.invalidOffset' => ['invalid-array-index', 'mismatched-array-index', 'mixed-array-index'],
         'offsetAccess.nonOffsetAccessible' => [
             'false-array-access',

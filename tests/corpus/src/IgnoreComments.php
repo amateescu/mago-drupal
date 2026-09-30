@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
+use Drupal\corpus\Legacy\RetiredThing;
+
 /**
  * Returns a string where an integer is declared, under each comment form.
  */
@@ -60,6 +62,14 @@ final class IgnoreComments {
     // @phpstan-ignore argument.type
     // @mago-expect analysis:invalid-return-statement
     return 'not an integer';
+  }
+
+  /**
+   * PHPStan 2 names a deprecated class after where it is used.
+   */
+  public function deprecatedClass(): void {
+    // @phpstan-ignore new.deprecatedClass
+    (new RetiredThing())->stillHere();
   }
 
   /**

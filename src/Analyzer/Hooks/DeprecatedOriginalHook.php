@@ -33,7 +33,8 @@ use function substr_compare;
  * the receiver's type is fetched from the host, and only an entity that does
  * not declare `$original` itself is reported. The deprecation scopes Mago's
  * own deprecation codes get apply here too, `backwardsCompatibleCall()` and
- * overrides of deprecated methods included.
+ * overrides of deprecated methods included. Nothing is reported on a core
+ * without `EntityInterface::getOriginal()`, which Drupal 11.2 added.
  *
  * @internal
  */
@@ -96,8 +97,14 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
             return;
         }
 
+        // Before Drupal 11.2 the property is the only API: there is no
+        // getOriginal() to call instead.
         $receiver = self::receiver($contents, $span, $length);
-        if ($receiver === null || TestFiles::isTestOrHookDocumentation($context->analysis->file)) {
+        if (
+            $receiver === null
+            || TestFiles::isTestOrHookDocumentation($context->analysis->file)
+            || !$context->codebase->methodExists(self::ENTITY, 'getOriginal')
+        ) {
             return;
         }
 

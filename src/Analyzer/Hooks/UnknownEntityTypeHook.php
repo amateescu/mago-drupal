@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Internal\Arguments;
 use amateescu\MagoDrupal\Internal\EntityTypeIndex;
+use amateescu\MagoDrupal\Internal\Expressions;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
@@ -15,12 +16,20 @@ use Mago\Sdk\Analyzer\MethodTarget;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\NodeKind;
+
+use function preg_match;
+use function preg_quote;
+use function substr;
 
 /**
  * Reports entity type manager lookups of an id no entity type declares.
  *
  * `getDefinition($id, FALSE)` asks for null instead of an exception, so it is
- * a probe and is left alone. Test code is skipped, since tests mock the
+ * a probe and is left alone, and so is a lookup after a `hasDefinition()`
+ * call on the same literal id in the same function: code that talks to an
+ * optional module checks that its entity type exists, around the lookup or
+ * with an early return. Test code is skipped, since tests mock the
  * manager. The plugin registers one hook for the getters that take the id
  * alone and one for those with a second parameter, since only the second
  * kind needs the call's syntax.
@@ -110,7 +119,7 @@ final class UnknownEntityTypeHook implements MethodCallAnalysisHook
         }
 
         $index = ($this->index)($context->codebase);
-        if ($index->get(self::SENTINEL) === null || $index->declares($id)) {
+        if ($index->get(self::SENTINEL) === null || $index->declares($id) || self::guarded($context, $id)) {
             return;
         }
 
@@ -125,5 +134,23 @@ final class UnknownEntityTypeHook implements MethodCallAnalysisHook
                 'Check the id against the entity classes, or make sure the module providing it is part of the analyzed code.',
             ),
         );
+    }
+
+    /**
+     * Whether the code before the call, in the function that holds it, calls
+     * `hasDefinition()` with the id as a literal.
+     */
+    private static function guarded(NodeAnalysisContext $context, string $id): bool
+    {
+        $file = $context->analysis->getSourceFile();
+        $call = Expressions::at($file, NodeKind::MethodCall, $context->node->span);
+        if ($call === null) {
+            return false;
+        }
+
+        $scope = Expressions::scopeOf($file, $call);
+        $before = substr($file->contents, $scope->span->start, $call->span->start - $scope->span->start);
+
+        return preg_match('/\bhasDefinition\(\s*([\'"])' . preg_quote($id, delimiter: '/') . '\1\s*\)/', $before) === 1;
     }
 }

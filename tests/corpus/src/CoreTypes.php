@@ -21,6 +21,7 @@ use Drupal\Core\Extension\ModuleUninstallValidatorInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Queue\QueueInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\corpus\Entity\CorpusNamedSetting;
 use Drupal\corpus\Entity\CorpusSetting;
 use Drupal\corpus\Entity\CorpusStringItemInterface;
 use Drupal\corpus\Entity\CorpusThing;
@@ -41,6 +42,13 @@ final class CoreTypes {
    */
   public function configEntityId(CorpusSetting $setting): int {
     // @mago-expect analysis:possibly-null-argument
+    return strlen($setting->id());
+  }
+
+  /**
+   * An override that declares a narrower type keeps it.
+   */
+  public function namedSettingId(CorpusNamedSetting $setting): int {
     return strlen($setting->id());
   }
 

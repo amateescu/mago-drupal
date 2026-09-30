@@ -142,6 +142,7 @@ final class Container {
   public function provided(): void {
     // @mago-expect analysis:non-existent-method
     $this->container->get('corpus.provided')->missing();
+    $this->container->get('corpus.provided')->onlyOnThing();
     // @mago-expect analysis:non-existent-method
     $this->container->get('corpus.provided_string')->missing();
     // @mago-expect analysis:non-existent-method

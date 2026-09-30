@@ -224,6 +224,25 @@ final class DrupalRootTest extends TestCase
         );
     }
 
+    /**
+     * A module linked in from a path repository maps to the directory the
+     * link resolves to, which is the path of its files.
+     */
+    public function testMapsALinkedModuleToItsResolvedDirectory(): void
+    {
+        $temporary = sys_get_temp_dir() . '/mago-drupal-test-' . uniqid();
+        mkdir($temporary . '/elsewhere/linked', recursive: true);
+        mkdir($temporary . '/site/modules', recursive: true);
+        touch($temporary . '/elsewhere/linked/linked.info.yml');
+        symlink($temporary . '/elsewhere/linked', $temporary . '/site/modules/linked');
+
+        $modules = DrupalRoot::discover($temporary . '/site')->modules();
+
+        self::assertSame(['linked' => realpath($temporary . '/elsewhere/linked')], $modules);
+
+        DiskCacheTest::remove($temporary);
+    }
+
     public function testListsApiFilesCoreFirst(): void
     {
         self::assertSame(

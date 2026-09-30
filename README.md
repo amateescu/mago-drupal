@@ -101,12 +101,13 @@ The `drupal` analyzer plugin types what Drupal's runtime wiring hands back, with
 - **Sharper core signatures**: `$url->toString()` is a `string` and `$url->toString(TRUE)` a
   `GeneratedUrl`; a cache item is a shape, not a bare `object`.
 - **Magic entity fields**: `$node->field_thing` is a `FieldItemListInterface`, and neither
-  `$node->field_thing->value` nor `$item->value` reads as an undefined property, the way
+  `$node->field_thing->value` nor `$item->value` is reported as an undefined property, the way
   `ContentEntityBase::__get()` and `FieldItemBase::__get()` behave at runtime.
 - **Form responses**: a `Response` returned from `buildForm()` is not an invalid return, since the
   form builder sends it instead of the page.
-- **Form arguments**: `getForm(NodeIdForm::class, $nid)` checks `$nid` against the form's
-  `buildForm()` parameters after the form state, as Mago checks a direct call.
+- **Form arguments**: `getForm('Drupal\mymodule\Form\NodeIdForm', $nid)` checks `$nid` against the
+  form's `buildForm()` parameters after the form state, as Mago checks a direct call. The form is
+  named by a string or a fully qualified `::class`.
 - **Calls from traits**: `$this->getEntity()` in a trait is typed from the classes that use the
   trait, the way PHPStan checks a trait's body in each of them, and `$this->container` is not
   reported as missing when they all have it.

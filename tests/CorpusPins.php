@@ -316,7 +316,8 @@ final class CorpusPins
 
     /**
      * The line of the `;` or `{` that ends the statement or declaration header
-     * starting on the given line, outside any bracket.
+     * starting on the given line, outside any bracket, or of the `,` that
+     * ends an array element, an argument or a match arm.
      *
      * @param list<PhpToken> $tokens
      */
@@ -329,16 +330,17 @@ final class CorpusPins
                 continue;
             }
 
-            $end = $token->line;
-            // `{$x}` and `${x}` open inside a string and close with a plain `}`.
-            $interpolation = $token->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES]);
-            if ($depth === 0 && !$interpolation && ($token->text === ';' || $token->text === '{')) {
+            // The block, array or argument list around the line closes first,
+            // so the line holds its last element: the range ends with it.
+            if ($depth === 0 && in_array($token->text, [')', ']', '}'], strict: true)) {
                 return $end;
             }
 
-            // The block around the statement closes before the statement ends.
-            if ($depth === 0 && $token->text === '}') {
-                return $start;
+            $end = $token->line;
+            // `{$x}` and `${x}` open inside a string and close with a plain `}`.
+            $interpolation = $token->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES]);
+            if ($depth === 0 && !$interpolation && in_array($token->text, [';', '{', ','], strict: true)) {
+                return $end;
             }
 
             $depth += match (true) {

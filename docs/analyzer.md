@@ -141,7 +141,10 @@ otherwise turn every core caller of that id into a bare `object`.
 
 Not indexed, so the declared type stays: services whose class only exists at runtime (a `factory:`
 without `class:`, a `%parameter%` class), services whose class Mago has not scanned, and anything a
-`ServiceModifierInterface::alter()` changes.
+`ServiceModifierInterface::alter()` changes. Only the providers Drupal registers are read: core's
+`CoreServiceProvider` and a module's `src/<Module>ServiceProvider.php`. The installer's providers
+run only during an install, and a test module's provider only in tests. A test module's services
+file adds its own services but does not replace one that core or another module defines.
 
 ## Entity types
 
@@ -251,7 +254,9 @@ never saw being created is not reported.
 An entity type id that no indexed entity type declares is reported as `drupal/unknown-entity-type`
 on the entity type manager's handler getters and `getDefinition()`, once the `user` entity type is
 in the index; `getDefinition($id, FALSE)` asks for null and is not reported, and test code is
-skipped.
+skipped. A lookup is not reported either when the code before it in the same function calls
+`hasDefinition()` with the same literal id, as code does around a lookup of an optional module's
+entity type or before returning early.
 
 Not modelled, so the attribute's classes stand: `hook_entity_type_build()` and
 `hook_entity_type_alter()` implementations that swap handlers or entity classes. A handler class
@@ -260,7 +265,7 @@ Mago has not scanned keeps the declared interface type.
 ## Magic entity fields
 
 `ContentEntityBase::__get()` hands back a field item list for any field name, so an undeclared
-property on a `FieldableEntityInterface` descendant reads as
+property on a `FieldableEntityInterface` descendant is typed as
 `Drupal\Core\Field\FieldItemListInterface`. `FieldItemList::__get()` forwards to the first item,
 and `FieldItemBase::__get()` reads the properties the field type defines, so an undeclared property
 on a field item list or on a field item is accepted as `mixed`: the field type decides what comes
@@ -274,10 +279,17 @@ $node->field_thing = 'a string'; // allowed, the way __set() is
 $node->original;                 // Drupal\Core\Entity\EntityInterface|null, reported as deprecated
 ```
 
+Any other name reads the entity's plain values, which code uses for ad hoc flags such as
+`$comment->in_preview`, and `__isset()` checks those values. So the field type counts as possibly
+undefined: `isset()`, `empty()` and `??` on such a property are not reported as redundant. A name
+no field can have, one with an uppercase letter such as `$account->passRaw`, is `mixed`. A plain
+truthiness test or a concatenation of a lowercase ad hoc property still sees a field item list.
+
 Writing a field stays `mixed`, because `$node->field_thing = 'x'` is valid Drupal. `original` is
 typed as the entity before the save rather than as a field, on config entities too. Drupal 11.2
 deprecates the magic property in favor of `getOriginal()` and `setOriginal()`, and every read,
-write, `isset()` and `unset()` of it is reported as `drupal/deprecated-original`.
+write, `isset()` and `unset()` of it is reported as `drupal/deprecated-original`, once core has
+`getOriginal()`.
 
 A property PHP itself resolves keeps its own type: a declared property, an inherited one and a
 `@property` tag all win over the field type.
@@ -317,7 +329,8 @@ inherits, a config name without an exact definition falls back to wildcard names
 to `string` (`string`, `label`, `text`, `path`, `uri`, `email`, `uuid`, `langcode` and the other
 string-like types), `int` (`integer`, `weight`, `timestamp`), `float`, `bool`, `array<int|string, T>`
 for a sequence, and an array shape for a mapping. The shape lists every key of the mapping, required
-unless it says `requiredKey: false`, with `null` added for `nullable: true`; Drupal rejects keys a
+unless it says `requiredKey: false` or is marked `deprecated:`, with `null` added for
+`nullable: true`; Drupal rejects keys a
 fully validatable mapping does not list, so the shape holds no others. A mapping that lists no keys
 is `array<string, mixed>`. A key passed to `->get()` can always be absent, so `null` stays in the
 union; `->get()` with no key is the whole object's shape.
@@ -1143,6 +1156,17 @@ walked. Packages outside `vendor/drupal` are not read. With `--root`, only the r
 ```toml
 [extension-hosts.drupal]
 command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--root=docroot"]
+```
+
+Some checks read a method's text off disk, and Mago names a file in the workspace relative to the
+workspace. The worker reads that name from its own working directory, so keep `mago.toml` in the
+workspace, or, for a config kept elsewhere, set `working-directory` to the workspace. When the
+file cannot be read, the check that needs it says nothing about that class or method.
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "/path/to/mago-drupal/resources/worker.php", "--root=/path/to/drupal"]
+working-directory = "/path/to/workspace"
 ```
 
 ## Cost

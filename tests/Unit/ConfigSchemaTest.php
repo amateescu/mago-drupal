@@ -166,6 +166,22 @@ final class ConfigSchemaTest extends TestCase
         self::assertFalse($schema->keyExists('corpus.settings', 'items.first.nope'));
     }
 
+    public function testDeprecatedKeysAreOptional(): void
+    {
+        $schema = ConfigSchema::fromDefinitions([
+            'review.settings' => [
+                'type' => 'mapping',
+                'constraints' => ['FullyValidatable' => null],
+                'mapping' => [
+                    'kept' => ['type' => 'string'],
+                    'old' => ['type' => 'string', 'deprecated' => 'Use kept instead.'],
+                ],
+            ],
+        ]);
+
+        self::assertSame('array{kept: string, old?: string}', self::render($schema->typeOf('review.settings', '')));
+    }
+
     public function testKeepsNullableSequenceElementsThroughInheritance(): void
     {
         $schema = ConfigSchema::fromDefinitions([

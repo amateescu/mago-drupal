@@ -11,11 +11,16 @@ use Mago\Sdk\Syntax\SourceFile;
 use function array_intersect_assoc;
 use function array_key_exists;
 use function array_slice;
+use function count;
+use function explode;
 use function in_array;
 use function is_array;
 use function ltrim;
+use function str_ends_with;
+use function str_replace;
 use function strtolower;
 use function trim;
+use function ucwords;
 
 /**
  * Reads service registrations out of `*ServiceProvider.php` classes.
@@ -53,12 +58,51 @@ final class ServiceProviders
 
     private const CHILD_DEFINITION = 'symfony\component\dependencyinjection\childdefinition';
 
+    private const CORE_PROVIDER = 'core/lib/Drupal/Core/CoreServiceProvider.php';
+
+    /**
+     * Lowercased names of the container methods that add a service.
+     */
+    private const REGISTRATIONS = ['register', 'setdefinition', 'setalias'];
+
     /**
      * Nodes a local variable can be declared in.
      */
     private const FUNCTION_LIKE = [NodeKind::Method, NodeKind::Function, NodeKind::Closure, NodeKind::ArrowFunction];
 
     private function __construct() {}
+
+    /**
+     * Whether Drupal registers the provider in this file: core's own, or a
+     * module's `src/<Module>ServiceProvider.php` outside a tests directory. A
+     * workspace that is the module itself names the file `src/…`, without
+     * the module directory, so any provider there counts.
+     */
+    public static function discovered(string $path): bool
+    {
+        if (TestFiles::isTest($path)) {
+            return false;
+        }
+
+        if (str_ends_with($path, self::CORE_PROVIDER)) {
+            return true;
+        }
+
+        $parts = explode('/', $path);
+        $count = count($parts);
+        if ($count < 2 || $parts[$count - 2] !== 'src') {
+            return false;
+        }
+
+        if ($count === 2) {
+            return true;
+        }
+
+        $words = ucwords(str_replace(search: '_', replace: ' ', subject: $parts[$count - 3]));
+        $camelized = str_replace(search: ' ', replace: '', subject: $words);
+
+        return $parts[$count - 1] === $camelized . 'ServiceProvider.php';
+    }
 
     /**
      * @return array<non-empty-string, Definition>
@@ -83,6 +127,10 @@ final class ServiceProviders
                 continue;
             }
 
+            if (in_array($name, self::REGISTRATIONS, strict: true) && self::inAlter($file, $call)) {
+                continue;
+            }
+
             $entry = match ($name) {
                 'register' => self::fromRegister($file, $call, $invocation),
                 'setdefinition' => self::fromSetDefinition($file, $call, $invocation),
@@ -98,6 +146,21 @@ final class ServiceProviders
         }
 
         return self::withVisibility($definitions, $visibility);
+    }
+
+    /**
+     * Whether the call sits in a provider's `alter()`, which changes the
+     * services every provider registered. Those changes are not indexed.
+     */
+    private static function inAlter(SourceFile $file, Node $call): bool
+    {
+        foreach ($file->getAncestors($call) as $ancestor) {
+            if ($ancestor->kind === NodeKind::Method) {
+                return strtolower((string) Nodes::declaredName($file, $ancestor)) === 'alter';
+            }
+        }
+
+        return false;
     }
 
     /**

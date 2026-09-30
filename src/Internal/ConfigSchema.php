@@ -465,8 +465,8 @@ final class ConfigSchema
      * The keys of a mapping as an array shape.
      *
      * Types are only handed out under `FullyValidatable`, where every key is
-     * required unless it says `requiredKey: false` and Drupal rejects keys the
-     * mapping does not list, so the shape is sealed. A mapping that lists no
+     * required unless it says `requiredKey: false` or is deprecated, and
+     * Drupal rejects keys the mapping does not list, so the shape is sealed. A mapping that lists no
      * keys can hold anything.
      *
      * @param Definition $definition
@@ -477,11 +477,13 @@ final class ConfigSchema
         $items = [];
         foreach (array_keys($mapping) as $key) {
             $child = Shape::array($mapping[$key]) ?? [];
-            $resolved = $this->resolve($child, depth: 0);
             $type = $this->typeIn($child, [], $depth + 1) ?? Type::mixed();
+            // `Mapping::processRequiredKeyFlags()` reads the key as written,
+            // and a deprecated key is optional unless it says otherwise.
+            $optional = ($child['requiredKey'] ?? !array_key_exists('deprecated', $child)) === false;
             $items[] = new ArrayItem(
                 is_int($key) ? new ArrayKey(ArrayKeyKind::Integer, $key) : new ArrayKey(ArrayKeyKind::String, $key),
-                ($resolved['requiredKey'] ?? true) === false,
+                $optional,
                 $type,
             );
         }

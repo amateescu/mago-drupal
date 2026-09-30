@@ -20,6 +20,12 @@ use Mago\Sdk\Analyzer\CodebaseScanHook;
  * changed. So the first batch drops the registrations of the last scan, and
  * Indexes notices every other new analysis by its generation.
  *
+ * Only the providers Drupal registers count: core's own and a module's
+ * `src/<Module>ServiceProvider.php`, named after the module the way
+ * `DrupalKernel::discoverServiceProviders()` builds the class name. The
+ * installer adds its providers only while it runs, and a test module's
+ * provider only runs in tests, so neither changes the classes a site gets.
+ *
  * @internal
  *
  * @phpstan-import-type Definition from \amateescu\MagoDrupal\Internal\ServiceYaml
@@ -54,6 +60,10 @@ final class ServiceProviderScan implements CodebaseScanHook
         }
 
         foreach ($context->files as $file) {
+            if (!ServiceProviders::discovered($file->path)) {
+                continue;
+            }
+
             $this->definitions = ServiceDefinitions::merge($this->definitions, ServiceProviders::definitions($file));
         }
 

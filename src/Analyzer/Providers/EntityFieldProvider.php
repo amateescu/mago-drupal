@@ -9,6 +9,9 @@ use Mago\Sdk\Analyzer\PropertyType;
 use Mago\Sdk\Analyzer\PropertyTypeProvider;
 use Mago\Sdk\Analyzer\PropertyTypeProviderContext;
 use Mago\Sdk\Analyzer\Type;
+use Mago\Sdk\Analyzer\Type\TypeFlags;
+
+use function preg_match;
 
 /**
  * Types the magic field properties of a fieldable entity.
@@ -17,6 +20,12 @@ use Mago\Sdk\Analyzer\Type;
  * name, so `$node->field_thing` reads as a `FieldItemListInterface`. Writing
  * stays `mixed`, because `$node->field_thing = 'x'` is valid Drupal: `__set()`
  * forwards the value to the field's main property.
+ *
+ * Any other name reads the entity's plain values, which code uses for ad hoc
+ * flags such as `in_preview`, and `__isset()` checks those. So the field type
+ * is marked as possibly undefined, which keeps `isset()`, `empty()` and `??`
+ * meaningful, and a name no field can have, such as `passRaw`, is typed as
+ * `mixed`.
  *
  * @internal
  */
@@ -27,6 +36,11 @@ final class EntityFieldProvider implements PropertyTypeProvider
     private const ENTITY = 'Drupal\Core\Entity\EntityInterface';
 
     private const FIELD_ITEM_LIST = 'Drupal\Core\Field\FieldItemListInterface';
+
+    /**
+     * Field names are lowercase letters, digits and underscores.
+     */
+    private const FIELD_NAME = '/^[a-z_][a-z0-9_]*$/';
 
     public function getTargets(): array
     {
@@ -52,6 +66,12 @@ final class EntityFieldProvider implements PropertyTypeProvider
             return new PropertyType($original, $original);
         }
 
-        return new PropertyType(Type::namedObject(self::FIELD_ITEM_LIST), Type::mixed());
+        if (preg_match(self::FIELD_NAME, $access->property) !== 1) {
+            return new PropertyType(Type::mixed(), Type::mixed());
+        }
+
+        $field = Type::namedObject(self::FIELD_ITEM_LIST)->withFlags(new TypeFlags(possiblyUndefined: true));
+
+        return new PropertyType($field, Type::mixed());
     }
 }
