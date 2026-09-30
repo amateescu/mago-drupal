@@ -286,7 +286,7 @@ final class DrupalRootTest extends TestCase
         self::assertInstanceOf(ExtensionFileSet::class, $planted);
         file_put_contents(
             $entries[0],
-            serialize(new ExtensionFileSet([], [], ['planted' => $root], [], $planted->directories)),
+            serialize(new ExtensionFileSet([], [], ['planted' => $root], [], [], [], $planted->directories)),
         );
         self::assertSame(['planted'], array_keys(DrupalRoot::at($root, $cache)->modules()));
 

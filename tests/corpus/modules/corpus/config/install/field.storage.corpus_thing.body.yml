@@ -1,0 +1,6 @@
+langcode: en
+status: true
+id: corpus_thing.body
+field_name: body
+entity_type: corpus_thing
+type: text_with_summary

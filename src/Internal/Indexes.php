@@ -256,6 +256,16 @@ final class Indexes
         return $built ?? $this->plugins ?? $this->buildPlugins($codebase);
     }
 
+    /**
+     * The names some code or config under the root defines a field with.
+     */
+    public function fieldNames(Codebase $codebase): FieldNames
+    {
+        $this->follow($codebase);
+
+        return $this->root()->fieldNames();
+    }
+
     public function configSchema(Codebase $codebase): ConfigSchema
     {
         $this->follow($codebase);

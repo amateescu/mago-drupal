@@ -86,6 +86,8 @@ final class DrupalRoot
 
     private ?AnnotatedDeclarations $annotated = null;
 
+    private ?FieldNames $fieldNames = null;
+
     /**
      * @var array<non-empty-string, Definition>|null
      */
@@ -372,6 +374,37 @@ final class DrupalRoot
             $files,
             static fn(): DeprecatedSymbols => DeprecatedSymbolScan::files($files),
             [DeprecatedSymbols::class],
+        );
+    }
+
+    /**
+     * The names that code or config under this root defines a field with,
+     * read through the cache. Covers every PHP file of the extensions and
+     * `core/tests`, since tests define their own fields.
+     */
+    public function fieldNames(): FieldNames
+    {
+        if ($this->fieldNames !== null) {
+            return $this->fieldNames;
+        }
+
+        $sources = $this->files()->php;
+        $tests = $this->path . '/core/tests/';
+        foreach ($this->sourceFiles() as $file) {
+            if (!str_starts_with($file, $tests)) {
+                continue;
+            }
+
+            $sources[] = $file;
+        }
+
+        $configs = $this->files()->fieldConfigs;
+
+        return $this->fieldNames = $this->cached(
+            'field-names',
+            [...$sources, ...$configs],
+            static fn(): FieldNames => FieldNames::fromFiles($sources, $configs),
+            [FieldNames::class],
         );
     }
 

@@ -34,17 +34,47 @@ final class EntityFields {
   }
 
   /**
-   * Checking whether an undeclared property is set is not redundant.
+   * Checking whether a field is set is not redundant.
    *
-   * The name may be no field of this entity, only a plain value such as an
-   * ad hoc flag.
+   * Field names are not split by entity type, so the name may be no field of
+   * this entity, only a plain value that was never set.
    */
-  public function adHocProperty(CorpusThing $thing): mixed {
-    if (isset($thing->in_preview) || !empty($thing->is_preview)) {
+  public function fieldIsset(CorpusThing $thing): mixed {
+    if (isset($thing->moderation_state) || !empty($thing->body)) {
+      return 'set';
+    }
+
+    return $thing->field_label ?? 'none';
+  }
+
+  /**
+   * A field some module or config defines is a field item list.
+   *
+   * An object is always true, and a field item list has no `__toString()`.
+   */
+  public function definedField(CorpusThing $thing): string {
+    // @mago-expect analysis:redundant-condition
+    if ($thing->moderation_state) {
+      return 'moderated';
+    }
+
+    // @mago-expect analysis:invalid-operand
+    return 'Body: ' . $thing->body;
+  }
+
+  /**
+   * A name no code or config defines a field with is a plain value.
+   *
+   * So a check on it is not redundant, and a string built from it gets the
+   * usual report for a value of unknown type.
+   */
+  public function adHocProperty(CorpusThing $thing): string {
+    if ($thing->in_preview) {
       return 'preview';
     }
 
-    return $thing->label_override ?? 'none';
+    // @mago-expect analysis:mixed-operand
+    return 'Password: ' . $thing->pass_raw;
   }
 
   /**

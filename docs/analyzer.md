@@ -281,11 +281,34 @@ $node->field_thing = 'a string'; // allowed, the way __set() is
 $node->original;                 // Drupal\Core\Entity\EntityInterface|null, reported as deprecated
 ```
 
-Any other name reads the entity's plain values, which code uses for ad hoc flags such as
-`$comment->in_preview`, and `__isset()` checks those values. So the field type counts as possibly
-undefined: `isset()`, `empty()` and `??` on such a property are not reported as redundant. A name
-no field can have, one with an uppercase letter such as `$account->passRaw`, is `mixed`. A plain
-truthiness test or a concatenation of a lowercase ad hoc property still sees a field item list.
+Any other name reads the entity's plain values, which code uses for ad hoc properties such as
+`$comment->in_preview` or the `$account->pass_raw` tests set, and `__isset()` checks those values.
+So a name is typed as a field only when some code or config under the Drupal root defines a field
+with it, and any other name is `mixed`. `if ($comment->in_preview)` is then not an always-true
+condition, and `'x' . $account->pass_raw` gets Mago's usual report for a `mixed` operand rather
+than one for an object without `__toString()`. The plugin reads the field names off every PHP file
+of the extensions and of `core/tests`:
+
+- string keys given a `BaseFieldDefinition`, `BundleFieldDefinition`, `FieldDefinition` or
+  `FieldStorageDefinition`, as in `baseFieldDefinitions()` and the field info hooks;
+- `'field_name' => '...'` values, as in `FieldStorageConfig::create()`;
+- the literal a test keeps its field name in, such as `$field_name = 'images'` or
+  `$this->fieldName = 'test_text'`, and the first argument of helpers such as
+  `createImageField('images', ...)`;
+- `installFieldStorageDefinition('...')` calls in update hooks;
+- the values of `entity_keys` and `revision_metadata_keys`, whose fields `ContentEntityBase` and
+  its traits create.
+
+The file names of `field.storage.*` and `field.field.*` config in the extensions add theirs, and a
+name starting with `field_`, the Field UI's prefix, is a field too, since a site's active config is
+not read. The names are not split by entity type, so a field of one entity type is typed as a
+field on every entity. That keeps the field type possibly undefined: `isset()`, `empty()` and `??`
+on such a property are not reported as redundant. With no field definition found at all, as in a
+workspace without a Drupal root, every lowercase name counts as a field.
+
+A field some code defines with a name built at runtime, such as `$fields[$name]`, one a migration
+creates from its source data, or one only a site's active config has without the `field_` prefix,
+is typed as `mixed`.
 
 Writing a field stays `mixed`, because `$node->field_thing = 'x'` is valid Drupal. `original` is
 typed as the entity before the save rather than as a field, on config entities too. Drupal 11.2
@@ -300,7 +323,7 @@ When the receiver's static type is an interface, such as `NodeInterface`, Mago r
 accesses as `missing-magic-method`, since an interface declares no `__get()` or `__set()`. The
 plugin drops that report on any interface extending `FieldableEntityInterface`: every content
 entity class extends `ContentEntityBase`, whose magic methods read and write fields and any other
-name, including the `$account->passRaw` tests set. It drops it for `original` on any entity
+name, including the `$account->pass_raw` tests set. It drops it for `original` on any entity
 interface, since `EntityBase` serves that one. A concrete class without the magic method keeps the
 report, and so does a `@property` tag on any other interface.
 

@@ -307,7 +307,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodCallAnalysisHook(new EntityQueryAccessCheckHook());
         $registry->registerMethodReturnTypeProvider(new EntityAccessProvider());
         $registry->registerMethodReturnTypeProvider(new EntityKeyProvider());
-        $registry->registerPropertyTypeProvider(new EntityFieldProvider());
+        $registry->registerPropertyTypeProvider(new EntityFieldProvider($this->indexes->fieldNames(...)));
         $registry->registerPropertyTypeProvider(new FieldItemPropertyProvider());
     }
 

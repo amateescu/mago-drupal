@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
+use amateescu\MagoDrupal\Internal\FieldNames;
+use Closure;
+use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\PropertyTarget;
 use Mago\Sdk\Analyzer\PropertyType;
 use Mago\Sdk\Analyzer\PropertyTypeProvider;
@@ -22,10 +25,12 @@ use function preg_match;
  * `__set()` forwards the value to the field's main property.
  *
  * Any other name reads the entity's plain values, which code uses for ad hoc
- * flags such as `in_preview`, and `__isset()` checks those. So the field type
- * is marked as possibly undefined, which keeps `isset()`, `empty()` and `??`
- * meaningful, and a name no field can have, such as `passRaw`, is typed as
- * `mixed`.
+ * flags such as `in_preview`, and `__isset()` checks those. So only a name
+ * that some code or config under the Drupal root defines a field with is
+ * typed as a field, and any other name, such as `pass_raw` or `passRaw`, is
+ * typed as `mixed`. The field type is marked as possibly undefined, since
+ * the name may be a field of another entity type, which keeps `isset()`,
+ * `empty()` and `??` meaningful.
  *
  * @internal
  */
@@ -41,6 +46,13 @@ final class EntityFieldProvider implements PropertyTypeProvider
      * Field names are lowercase letters, digits and underscores.
      */
     private const FIELD_NAME = '/^[a-z_][a-z0-9_]*$/';
+
+    /**
+     * @param Closure(Codebase): FieldNames $fieldNames
+     */
+    public function __construct(
+        private readonly Closure $fieldNames,
+    ) {}
 
     public function getTargets(): array
     {
@@ -66,7 +78,10 @@ final class EntityFieldProvider implements PropertyTypeProvider
             return new PropertyType($original, $original);
         }
 
-        if (preg_match(self::FIELD_NAME, $access->property) !== 1) {
+        if (
+            preg_match(self::FIELD_NAME, $access->property) !== 1
+            || !($this->fieldNames)($context->codebase)->has($access->property)
+        ) {
             return new PropertyType(Type::mixed(), Type::mixed());
         }
 

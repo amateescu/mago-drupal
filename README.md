@@ -102,7 +102,8 @@ The `drupal` analyzer plugin types what Drupal's runtime wiring hands back, with
   `GeneratedUrl`; a cache item is a shape, not a bare `object`.
 - **Magic entity fields**: `$node->field_thing` is a `FieldItemListInterface`, and neither
   `$node->field_thing->value` nor `$item->value` is reported as an undefined property, the way
-  `ContentEntityBase::__get()` and `FieldItemBase::__get()` behave at runtime.
+  `ContentEntityBase::__get()` and `FieldItemBase::__get()` behave at runtime. A name that no
+  code or config defines a field with, such as `$comment->in_preview`, is a plain `mixed` value.
 - **Form responses**: a `Response` returned from `buildForm()` is not an invalid return, since the
   form builder sends it instead of the page.
 - **Form arguments**: `getForm('Drupal\mymodule\Form\NodeIdForm', $nid)` checks `$nid` against the

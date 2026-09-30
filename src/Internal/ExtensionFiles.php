@@ -65,6 +65,11 @@ final class ExtensionFiles
     public const SKIPPED_DIRECTORIES = ['vendor', 'node_modules', 'files', '.git'];
 
     /**
+     * File name endings Drupal keeps PHP code under.
+     */
+    private const PHP_ENDINGS = ['.php', '.module', '.install', '.inc', '.theme', '.profile', '.engine'];
+
+    /**
      * Seconds within which a directory's listing may still be changing.
      */
     private const SETTLING = 2;
@@ -89,7 +94,7 @@ final class ExtensionFiles
             $start[] = $directory;
         }
 
-        [$services, $schemas, $extensions, $apiFiles, $directories] = self::walk($base, $start);
+        [$services, $schemas, $extensions, $apiFiles, $php, $fieldConfigs, $directories] = self::walk($base, $start);
         $directories = [...$probed, ...$directories];
         sort($services);
         sort($schemas);
@@ -121,6 +126,8 @@ final class ExtensionFiles
             array_values(array_unique($schemas)),
             $extensions,
             array_values(array_unique($apiFiles)),
+            $php,
+            $fieldConfigs,
             $directories,
         );
     }
@@ -254,9 +261,10 @@ final class ExtensionFiles
      *
      * @param string $root Real path of the Drupal root.
      * @param list<string> $directories
-     * @return array{list<string>, list<string>, array<string, string>, list<string>, array<string, int>}
-     *   Services, schemas, module machine name to directory, api files, and
-     *   the directories read with their modification times.
+     * @return array{list<string>, list<string>, array<string, string>, list<string>, list<string>, list<string>, array<string, int>}
+     *   Services, schemas, module machine name to directory, api files, PHP
+     *   files, field config files, and the directories read with their
+     *   modification times.
      */
     private static function walk(string $root, array $directories): array
     {
@@ -264,6 +272,8 @@ final class ExtensionFiles
         $schemas = [];
         $extensions = [];
         $apiFiles = [];
+        $php = [];
+        $fieldConfigs = [];
         $read = [];
         $pending = $directories;
         // Symlinked module directories (Composer path repositories) point
@@ -322,6 +332,19 @@ final class ExtensionFiles
                     continue;
                 }
 
+                if (self::isPhp($entry)) {
+                    $php[] = $path;
+                    continue;
+                }
+
+                if (
+                    (str_starts_with($entry, 'field.storage.') || str_starts_with($entry, 'field.field.'))
+                    && str_ends_with($entry, '.yml')
+                ) {
+                    $fieldConfigs[] = $path;
+                    continue;
+                }
+
                 if (str_ends_with($entry, '.info.yml') && self::isModuleDirectory($current)) {
                     $name = substr($entry, offset: 0, length: -9);
                     // The walk order is not fixed, so a duplicate machine name
@@ -340,7 +363,21 @@ final class ExtensionFiles
             }
         }
 
-        return [$services, $schemas, $extensions, $apiFiles, $read];
+        return [$services, $schemas, $extensions, $apiFiles, $php, $fieldConfigs, $read];
+    }
+
+    /**
+     * Whether the file name has one of the endings Drupal keeps PHP code under.
+     */
+    private static function isPhp(string $entry): bool
+    {
+        foreach (self::PHP_ENDINGS as $ending) {
+            if (str_ends_with($entry, $ending)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
