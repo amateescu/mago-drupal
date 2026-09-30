@@ -79,16 +79,38 @@ namespace Drupal\Component\Plugin\Factory {
 }
 
 namespace Drupal\Component\Plugin\Attribute {
+    interface AttributeInterface
+    {
+        public function get(): mixed;
+    }
+
     #[\Attribute(\Attribute::TARGET_CLASS)]
-    abstract class AttributeBase
+    abstract class AttributeBase implements AttributeInterface
     {
         public function __construct(
             public readonly string $id,
         ) {}
+
+        public function get(): array|object
+        {
+            return [];
+        }
     }
 
     #[\Attribute(\Attribute::TARGET_CLASS)]
     class Plugin extends AttributeBase {}
+
+    /**
+     * Views plugins name only their id, and get() returns an array.
+     */
+    #[\Attribute(\Attribute::TARGET_CLASS)]
+    class PluginID extends AttributeBase
+    {
+        public function get(): array
+        {
+            return [];
+        }
+    }
 }
 
 namespace Drupal\Core\Plugin {

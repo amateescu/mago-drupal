@@ -185,6 +185,21 @@ final class ProvidingClass {
 }
 
 /**
+ * Reads a property that no class provides.
+ */
+trait UnusedTrait {
+
+  /**
+   * No class uses the trait, so nothing vouches for the property.
+   */
+  public function unused(): mixed {
+    // @mago-expect analysis:non-existent-property
+    return $this->nowhere;
+  }
+
+}
+
+/**
  * Calls a method its users declare with different signatures.
  */
 trait ArityTrait {
@@ -207,6 +222,10 @@ trait ArityTrait {
     // @mago-expect analysis:too-few-arguments
     $this->collide('a');
     $this->collide('a', 'b');
+    // Both users are variadic, and the longer one needs two arguments.
+    // @mago-expect analysis:too-few-arguments
+    $this->varied(1);
+    $this->varied(1, 2, 3);
   }
 
 }
@@ -253,6 +272,13 @@ final class AAritySpacious {
     return implode('', $arg1);
   }
 
+  /**
+   * Takes any number of integers.
+   */
+  public function varied(int ...$numbers): int {
+    return array_sum($numbers);
+  }
+
 }
 
 /**
@@ -295,6 +321,13 @@ final class BArityStrict {
    */
   public function collide(string $a, string $b): string {
     return $a . $b;
+  }
+
+  /**
+   * Takes two integers or more.
+   */
+  public function varied(int $first, int $second, int ...$rest): int {
+    return $first + $second + array_sum($rest);
   }
 
 }

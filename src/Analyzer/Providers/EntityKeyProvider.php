@@ -20,7 +20,8 @@ use function in_array;
  * `revision_translation_affected` with their own names, so those five are
  * always there, and `getKey()` returns an empty string for an absent one
  * rather than FALSE. Core requires an `id` key of every entity type that can
- * be saved to storage.
+ * be saved to storage, so `id` counts as always there too, although an
+ * entity type that is never saved can leave it out and get FALSE.
  *
  * @internal
  */

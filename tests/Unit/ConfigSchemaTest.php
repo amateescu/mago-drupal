@@ -239,6 +239,11 @@ final class ConfigSchemaTest extends TestCase
                 $items[] = (string) $item->key->value . ($item->optional ? '?' : '') . ': ' . self::render($item->type);
             }
 
+            // A shape that allows other keys has a key type for them.
+            if ($atomic->keyType !== null) {
+                $items[] = '...';
+            }
+
             $parts[] = 'array{' . implode(', ', $items) . '}';
         }
 

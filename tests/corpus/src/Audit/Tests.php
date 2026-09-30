@@ -55,6 +55,14 @@ final class WellFormedTest extends TestCase {
     return $items->count();
   }
 
+  /**
+   * A plain object may be Countable too.
+   */
+  public function emptyObject(object $items): object {
+    $this->assertEmpty($items);
+    return $items;
+  }
+
 }
 
 /**
@@ -276,5 +284,33 @@ final class SetUpThemeTest extends BrowserTestBase {
     $this->defaultTheme = 'stark';
     parent::setUp();
   }
+
+}
+
+/**
+ * Sets the theme from a constant.
+ */
+final class ConstantThemeTest extends BrowserTestBase {
+
+  private const THEME = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = self::THEME;
+
+}
+
+/**
+ * Names its profile with a constant, which the check cannot read.
+ */
+final class ConstantProfileTest extends BrowserTestBase {
+
+  private const PROFILE = 'testing';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $profile = self::PROFILE;
 
 }

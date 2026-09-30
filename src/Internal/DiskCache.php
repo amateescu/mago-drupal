@@ -33,6 +33,7 @@ use function mkdir;
 use function posix_geteuid;
 use function preg_match;
 use function preg_quote;
+use function preg_replace;
 use function rename;
 use function restore_error_handler;
 use function rmdir;
@@ -244,7 +245,7 @@ final class DiskCache
 
         $file = $this->file($kind, $fingerprint);
         if (!str_starts_with($fingerprint, self::RUN_PREFIX)) {
-            $stale = glob($this->directory . '/' . $kind . '-*.cache');
+            $stale = glob(self::literal($this->directory . '/' . $kind) . '-*.cache');
             foreach ($stale === false ? [] : $stale as $entry) {
                 // The rename below replaces the entry for this key in one
                 // step, so a reader never finds it missing.
@@ -494,7 +495,7 @@ final class DiskCache
         $current = [];
         $generations = preg_match('/^(run-\d+-[^-]+)-g(\d+)-/', $key, $current) === 1;
         $older = $generations ? '/^' . preg_quote($current[1], delimiter: '/') . '-g(\d+)-/' : null;
-        $entries = glob($this->directory . '/' . $kind . '-' . self::RUN_PREFIX . '*');
+        $entries = glob(self::literal($this->directory . '/' . $kind) . '-' . self::RUN_PREFIX . '*');
         $liveness = is_dir('/proc');
         $stale = time() - self::RUN_FRESHNESS;
         $host = [];
@@ -525,7 +526,7 @@ final class DiskCache
      */
     private function dropOrphanedTemporaries(string $kind): void
     {
-        $temporaries = glob($this->directory . '/' . $kind . '-*.tmp');
+        $temporaries = glob(self::literal($this->directory . '/' . $kind) . '-*.tmp');
         $liveness = is_dir('/proc');
         $stale = time() - self::RUN_FRESHNESS;
         $writer = [];
@@ -540,6 +541,15 @@ final class DiskCache
                 self::quietly(static fn(): bool => unlink($temporary));
             }
         }
+    }
+
+    /**
+     * The text as a glob pattern that matches only itself. A kind can hold a
+     * class name, and glob() reads its backslashes as escapes.
+     */
+    private static function literal(string $text): string
+    {
+        return (string) preg_replace('/[\\\\*?\[\]]/', replacement: '\\\\$0', subject: $text);
     }
 
     private function file(string $kind, string $fingerprint): string

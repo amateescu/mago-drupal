@@ -10,6 +10,7 @@ use ErrorException;
 use PHPUnit\Framework\TestCase;
 use Revolt\EventLoop;
 
+use function array_filter;
 use function chmod;
 use function file_put_contents;
 use function fileperms;
@@ -27,6 +28,7 @@ use function restore_error_handler;
 use function rmdir;
 use function scandir;
 use function set_error_handler;
+use function str_ends_with;
 use function strlen;
 use function substr;
 use function symlink;
@@ -87,6 +89,23 @@ final class DiskCacheTest extends TestCase
         $cache->set('services', 'b', ['y' => []]);
         self::assertNull($cache->get('services', 'a'));
         self::assertSame(['y' => []], $cache->get('services', 'b'));
+    }
+
+    /**
+     * A kind can hold a class name, whose backslashes are glob escapes.
+     */
+    public function testReplacesOlderEntriesOfAKindNamedAfterAClass(): void
+    {
+        $cache = new DiskCache($this->directory);
+        $cache->set('composers-drupal\core\thing', 'a', ['x']);
+        $cache->set('composers-drupal\core\thing', 'b', ['y']);
+        $cache->set('composers-drupal\core\thing', 'c', ['z']);
+
+        $names = scandir($this->directory);
+        $names = $names === false ? [] : $names;
+        $entries = array_filter($names, static fn(string $name): bool => str_ends_with($name, '.cache'));
+        self::assertCount(1, $entries);
+        self::assertSame(['z'], $cache->get('composers-drupal\core\thing', 'c'));
     }
 
     public function testOnlyAllowedClassesComeBackAsObjects(): void

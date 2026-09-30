@@ -15,8 +15,12 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\CallArgument;
 
+use function array_keys;
+use function implode;
 use function ltrim;
 use function preg_match;
+use function strlen;
+use function substr;
 
 /**
  * Reports a PHPUnit assertion that always passes, given the type Mago
@@ -100,13 +104,15 @@ final class RedundantAssertionHook implements MethodCallAnalysisHook
             return;
         }
 
-        // Mago describes a literal `true` as `bool`, so these three name the
-        // one value that passes them.
-        $already = match ($this->method) {
-            'assertTrue' => 'always `true`',
-            'assertFalse' => 'always `false`',
-            'assertNull' => 'always `null`',
-            default => "already `{$value}`",
+        // Mago describes a literal `true` as `bool`, so these three, and a
+        // literal bool passed to any other, name the one value it is.
+        $literal = $value->getLiteralBool();
+        $already = match (true) {
+            $this->method === 'assertTrue' => 'always `true`',
+            $this->method === 'assertFalse' => 'always `false`',
+            $this->method === 'assertNull' => 'always `null`',
+            $literal !== null => $literal ? 'always `true`' : 'always `false`',
+            default => 'already `' . self::describe((string) $value) . '`',
         };
         $context->report(
             Level::Warning,
@@ -119,6 +125,32 @@ final class RedundantAssertionHook implements MethodCallAnalysisHook
                 'Remove the assertion, or assert something about the value that its type does not already say.',
             ),
         );
+    }
+
+    /**
+     * The type's description with each top-level member once: Mago can
+     * describe a union it did not simplify, such as `int|int`.
+     */
+    private static function describe(string $description): string
+    {
+        $members = [];
+        $depth = 0;
+        $start = 0;
+        $length = strlen($description);
+        for ($i = 0; $i <= $length; $i++) {
+            $char = $i < $length ? $description[$i] : '|';
+            $depth += match ($char) {
+                '<', '{', '(' => 1,
+                '>', '}', ')' => -1,
+                default => 0,
+            };
+            if ($char === '|' && $depth === 0) {
+                $members[substr($description, $start, $i - $start)] = true;
+                $start = $i + 1;
+            }
+        }
+
+        return implode('|', array_keys($members));
     }
 
     /**

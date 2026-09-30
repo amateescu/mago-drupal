@@ -219,7 +219,7 @@ function corpus_helpers(): void {
 }
 
 /**
- * A helper Drupal's hook collector never reads as an implementation.
+ * A helper Drupal's hook collector never takes for an implementation.
  */
 function corpus_stopped_thing(): void {
 }

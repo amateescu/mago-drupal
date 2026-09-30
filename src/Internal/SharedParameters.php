@@ -12,6 +12,7 @@ use Mago\Sdk\Analyzer\Type\CallableParameter;
 
 use function array_key_exists;
 use function count;
+use function max;
 use function min;
 
 use const PHP_INT_MAX;
@@ -20,10 +21,11 @@ use const PHP_INT_MAX;
  * The parameters of a call that several declarations of one method must all
  * accept, as a trait's `$this->method()` call does for the classes using it.
  *
- * As many as the shortest declaration without a variadic takes, optional
- * only where every declaration gives a default and nothing required follows,
- * by reference where any declaration takes one, and typed only where every
- * declaration gives the same type. The SDK rejects a variadic with a
+ * As many as the shortest declaration without a variadic takes, or the
+ * longest one when every declaration is variadic, optional only where every
+ * declaration gives a default and nothing required follows, by reference
+ * where any declaration takes one, and typed only where every declaration
+ * gives the same type. The SDK rejects a variadic with a
  * default, a name used twice and a required parameter after an optional one,
  * so none of those is built.
  *
@@ -42,11 +44,16 @@ final class SharedParameters
     public static function of(array $methods): array
     {
         $count = PHP_INT_MAX;
+        $longest = 0;
         foreach ($methods as $method) {
             $count = self::isVariadic($method) ? $count : min($count, count($method->parameters));
+            $longest = max($longest, count($method->parameters));
         }
 
-        $count = $count === PHP_INT_MAX ? count($methods[0]->parameters) : $count;
+        // When every declaration is variadic, the longest one decides, and
+        // the variadic of each shorter one covers the positions after its
+        // own.
+        $count = $count === PHP_INT_MAX ? $longest : $count;
         $optional = [];
         $required = false;
         for ($position = $count - 1; $position >= 0; $position--) {

@@ -31,6 +31,11 @@ namespace Drupal\Core\Entity {
 
     interface ContentEntityInterface extends FieldableEntityInterface {}
 
+    /**
+     * A fieldable entity class without the magic methods.
+     */
+    abstract class CorpusFieldless implements FieldableEntityInterface {}
+
     interface EntityTypeInterface
     {
         /**

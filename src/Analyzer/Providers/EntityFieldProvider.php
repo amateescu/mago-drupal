@@ -17,9 +17,9 @@ use function preg_match;
  * Types the magic field properties of a fieldable entity.
  *
  * `ContentEntityBase::__get()` hands back the field item list for any field
- * name, so `$node->field_thing` reads as a `FieldItemListInterface`. Writing
- * stays `mixed`, because `$node->field_thing = 'x'` is valid Drupal: `__set()`
- * forwards the value to the field's main property.
+ * name, so `$node->field_thing` is typed as a `FieldItemListInterface`.
+ * Writing stays `mixed`, because `$node->field_thing = 'x'` is valid Drupal:
+ * `__set()` forwards the value to the field's main property.
  *
  * Any other name reads the entity's plain values, which code uses for ad hoc
  * flags such as `in_preview`, and `__isset()` checks those. So the field type

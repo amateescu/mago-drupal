@@ -18,8 +18,9 @@ use Mago\Sdk\Analyzer\Type\NamedObjectType;
 final class Configs
 {
     /**
-     * Where `get()` is declared. Method targets match on the declaring class,
-     * so the subclasses would never match.
+     * The widest class that declares `get()`. A target matches a call whose
+     * method is declared on this class or a subclass, so it covers
+     * `Config::get()`, which overrides it, too.
      */
     public const BASE = 'Drupal\Core\Config\ConfigBase';
 

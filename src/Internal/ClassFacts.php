@@ -11,8 +11,11 @@ use Mago\Sdk\Analyzer\Metadata\MethodFields;
 use Mago\Sdk\Analyzer\Metadata\MethodMetadataProjection;
 use Mago\Sdk\Analyzer\Metadata\PropertyMetadata;
 
+use function array_filter;
 use function array_key_exists;
+use function array_values;
 use function in_array;
+use function str_starts_with;
 use function strtolower;
 
 /**
@@ -165,6 +168,52 @@ final class ClassFacts
         }
 
         return $this->properties = $properties;
+    }
+
+    /**
+     * The properties that the traits in Drupal's namespace named in the class
+     * body bring in, each with its trait. PHP copies them into the class, so
+     * they are the class's own at runtime.
+     *
+     * @return list<array{ClassLikeMetadata, PropertyMetadata}>
+     */
+    public function traitProperties(): array
+    {
+        $named = array_values(array_filter(
+            $this->class->usedTraits,
+            fn(string $trait): bool => str_starts_with($trait, 'drupal\\') && $this->mentions($trait),
+        ));
+        $traits = [];
+        foreach ($named === [] ? [] : $this->codebase->getMultipleClassLikes($named) as $trait) {
+            if ($trait === null) {
+                continue;
+            }
+
+            $traits[] = $trait;
+        }
+
+        $identifiers = [];
+        foreach ($traits === [] ? [] : $this->class->properties as $name) {
+            $identifiers[] = new MemberIdentifier($this->class->name, $name);
+        }
+
+        $found = [];
+        foreach ($identifiers === [] ? [] : $this->codebase->getMultipleProperties($identifiers) as $property) {
+            if ($property === null) {
+                continue;
+            }
+
+            foreach ($traits as $trait) {
+                if (!self::declares($trait, $property)) {
+                    continue;
+                }
+
+                $found[] = [$trait, $property];
+                break;
+            }
+        }
+
+        return $found;
     }
 
     public function property(string $name): ?PropertyMetadata

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\corpus\Audit;
 
 use Drupal\corpus\Nested\Thing;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -135,6 +136,17 @@ final class MockUnionsTest extends TestCase {
   public function testUnrelatedPassedAsArgument(): void {
     // @mago-expect analysis:possibly-invalid-argument
     $this->takesThing($this->either);
+  }
+
+  /**
+   * A scalar next to the mock half keeps the report too.
+   *
+   * @param \Drupal\corpus\Nested\Thing|\PHPUnit\Framework\MockObject\MockObject|int $value
+   *   A mock, or a number.
+   */
+  public function testScalarPassedAsArgument(Thing|MockObject|int $value): void {
+    // @mago-expect analysis:possibly-invalid-argument
+    $this->takesThing($value);
   }
 
   /**

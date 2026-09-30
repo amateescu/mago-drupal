@@ -10,6 +10,7 @@ use amateescu\MagoDrupal\Internal\DeprecatedTag;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
+use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
 use Mago\Sdk\Analyzer\MethodTarget;
@@ -28,8 +29,9 @@ use function strtolower;
  * implementation says `@not-deprecated`, and so does this check. The host
  * sends only the calls to the interface methods marked on disk and their
  * implementations; a method Mago flags itself is left to Mago's
- * `deprecated-method`. The interface is looked for above the receiver's
- * class, so an implementation a trait provides counts too.
+ * `deprecated-method`. The interface is looked for above the declaring
+ * class, or above the receiver's class for an implementation a trait
+ * provides.
  *
  * Only interface methods are targets: the host checks every method call
  * against every target's class before its name, so each target costs time
@@ -105,7 +107,7 @@ final class DeprecatedOverrideHook implements MethodCallAnalysisHook
                 continue;
             }
 
-            foreach (DeprecatedUse::lineage($codebase, $class) as $ancestor) {
+            foreach (DeprecatedUse::lineage($codebase, self::implementer($codebase, $class, $declaring)) as $ancestor) {
                 $text = $this->symbols->method($ancestor, $name);
                 if ($text === null) {
                     continue;
@@ -122,6 +124,17 @@ final class DeprecatedOverrideHook implements MethodCallAnalysisHook
                 return;
             }
         }
+    }
+
+    /**
+     * The class whose interfaces the method implements: the declaring class,
+     * or, for a method a trait provides, the receiver's class. A parent that
+     * declares the method implements only its own interfaces, not the ones a
+     * subclass adds.
+     */
+    private static function implementer(Codebase $codebase, string $receiver, string $declaring): string
+    {
+        return $codebase->getClassLike($declaring)?->kind === ClassLikeKind::Trait ? $receiver : $declaring;
     }
 
     /**

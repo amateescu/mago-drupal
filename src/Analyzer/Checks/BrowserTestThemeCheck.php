@@ -96,19 +96,20 @@ final class BrowserTestThemeCheck implements MetadataCheck
 
         // A profile with a theme of its own needs no explicit default theme,
         // and a NULL or FALSE one installs from existing configuration, whose
-        // theme the test then takes.
+        // theme the test then takes. A profile read from a constant cannot be
+        // checked, so it is left alone.
         $profile = $profileProperty?->defaultType?->type;
         $profileName = $profile?->getLiteralString();
         if (
             Types::includesNull($profile)
             || $profile?->getLiteralBool() === false
+            || $profile !== null && $profileName === null
             || $profileName !== null && !$this->themeless($profileName)
         ) {
             return;
         }
 
-        $theme = $themeProperty?->defaultType?->type->getLiteralString();
-        if ($theme !== null && $theme !== '' || self::installsOwnTheme($class)) {
+        if (Types::holdsValue($themeProperty?->defaultType?->type) || self::installsOwnTheme($class)) {
             return;
         }
 

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
+use Drupal\Component\Plugin\Attribute\PluginID;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Block\BlockBase;
@@ -33,6 +34,21 @@ abstract class PluginDefinitionReads extends PluginBase {
   public function held(): mixed {
     $definition = $this->getPluginDefinition();
     return $definition['label'];
+  }
+
+}
+
+/**
+ * A plugin named by an attribute whose get() returns an array.
+ */
+#[PluginID('corpus_views_field')]
+abstract class CorpusViewsField extends PluginBase {
+
+  /**
+   * Reads a key of the array definition.
+   */
+  public function title(): mixed {
+    return $this->pluginDefinition['title'];
   }
 
 }

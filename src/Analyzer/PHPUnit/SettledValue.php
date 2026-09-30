@@ -15,6 +15,7 @@ use Mago\Sdk\Syntax\SourceFile;
 use function count;
 use function in_array;
 use function preg_match;
+use function preg_quote;
 
 /**
  * Whether the type Mago has for an asserted value holds at the assertion.
@@ -26,7 +27,9 @@ use function preg_match;
  * too, and a magic property, with no declaration, never does. An `isset()`
  * tests `__isset()` or `ArrayAccess`, which types do not describe. So does an
  * offset read: Mago's `ArrayAccess` stub types `offsetGet()` without the null
- * an empty field item list returns for `$items[0]`.
+ * an empty field item list returns for `$items[0]`. A `!` in front of any of
+ * these is looked through, and a variable that a `static` or `global`
+ * statement declares does not count either.
  *
  * @internal
  */
@@ -45,13 +48,45 @@ final class SettledValue
      */
     public static function holds(NodeAnalysisContext $context, Node $value, Closure $passes): bool
     {
-        $node = self::unwrap($context->source, $value);
+        $value = self::unwrap($context->source, $value);
+        $node = self::withoutNegation($context->source, $value);
 
+        // The declared type of a negated property says nothing about the
+        // negation, so it cannot vouch for it.
         return match ($node->kind) {
             NodeKind::IssetConstruct, NodeKind::StaticPropertyAccess, NodeKind::ArrayAccess => false,
-            NodeKind::PropertyAccess, NodeKind::NullSafePropertyAccess => self::declared($context, $node, $passes),
+            NodeKind::PropertyAccess, NodeKind::NullSafePropertyAccess => $node->id === $value->id
+                && self::declared($context, $node, $passes),
+            NodeKind::Variable => !self::shared($context->source, $node),
             default => true,
         };
+    }
+
+    /**
+     * The operand of a `!`, so `!isset()` gets the same answer as `isset()`.
+     */
+    private static function withoutNegation(SourceFile $source, Node $node): Node
+    {
+        $children = $source->getChildren($node);
+        if ($node->kind !== NodeKind::UnaryPrefix || count($children) !== 2 || $source->getText($children[0]) !== '!') {
+            return $node;
+        }
+
+        return self::unwrap($source, $children[1]);
+    }
+
+    /**
+     * Whether a `static` or `global` statement in the file declares the
+     * variable. Its value then carries over from an earlier call or changes
+     * elsewhere, which Mago does not follow. Any such statement in the file
+     * counts, not only one in the function around the call.
+     */
+    private static function shared(SourceFile $source, Node $variable): bool
+    {
+        $name = preg_quote($source->getText($variable), delimiter: '/');
+        $pattern = '/\b(?:static|global)\s+(?:\$\w+[^;,]*,\s*)*' . $name . '\b/';
+
+        return preg_match($pattern, $source->contents) === 1;
     }
 
     /**

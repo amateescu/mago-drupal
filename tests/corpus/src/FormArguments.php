@@ -269,9 +269,10 @@ namespace Drupal\corpus {
     }
 
     /**
-     * The imported LoneForm is no form, so the call is not checked.
+     * A relative `::class` is never read, so the call is not checked.
      *
-     * A form of the same short name lives in another namespace.
+     * The provider cannot see the file's imports, and a form of the same
+     * short name lives in another namespace.
      */
     public function sharedWithPlainClass(): array {
       return $this->formBuilder->getForm(LoneForm::class, 'one');
@@ -285,7 +286,7 @@ namespace Drupal\corpus {
     }
 
     /**
-     * Two form classes are named TwinForm, so the call is not checked.
+     * The same for a short name two form classes share.
      */
     public function ambiguous(): array {
       return $this->formBuilder->getForm(TwinForm::class, 'one', 'two');

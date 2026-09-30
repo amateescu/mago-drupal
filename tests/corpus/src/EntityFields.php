@@ -11,6 +11,7 @@ namespace Drupal\corpus;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\CorpusFieldless;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -47,7 +48,7 @@ final class EntityFields {
   }
 
   /**
-   * A name no field can have reads as a plain value of any type.
+   * A name no field can have is a plain value of any type.
    */
   public function nonFieldName(CorpusThing $thing): void {
     // @mago-expect analysis:mixed-argument
@@ -97,6 +98,14 @@ final class EntityFields {
   public function interfaceField(ContentEntityInterface $entity): void {
     $entity->field_thing->onlyOnFieldItemList();
     $entity->field_thing = 'a plain string';
+  }
+
+  /**
+   * A class without `__get()` keeps the report, even a fieldable one.
+   */
+  public function concreteField(CorpusFieldless $entity): mixed {
+    // @mago-expect analysis:missing-magic-method
+    return $entity->field_thing;
   }
 
   /**

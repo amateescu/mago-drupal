@@ -23,10 +23,10 @@ extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
 command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
-Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-punctuation` and
-`long-description-punctuation`, because core's `phpcs.xml.dist` turns off the checks that they
-port.
+Add `"--core"` to the command when analysing Drupal core itself, which turns off the two checks
+that do not apply there: `internal-class-extension` and `list-builder-cacheability`. It also turns
+off `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`,
+because core's `phpcs.xml.dist` turns off the checks that they port.
 
 Add `"--root=PATH"` when the Drupal document root is somewhere other than the
 project directory, `web/`, `docroot/`, `html/`, `public/`, the Composer scaffold's `web-root` or

@@ -209,6 +209,47 @@ final class Transactions {
   }
 
   /**
+   * A closure's own variable of the same name is another transaction.
+   */
+  public function nestedOwnVariable(): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    $this->run(function (): void {
+      $transaction = $this->database->startTransaction('inner');
+      $transaction->commitOrRelease();
+    });
+    $transaction->name();
+  }
+
+  /**
+   * An arrow function shares the variable, so it commits this transaction.
+   */
+  public function arrowCommits(): void {
+    $transaction = $this->database->startTransaction();
+    $commit = fn () => $transaction->commitOrRelease();
+    $commit();
+  }
+
+  /**
+   * A rollback before the start belongs to the earlier transaction.
+   */
+  public function rolledBackThenRestarted(): void {
+    $transaction = $this->database->startTransaction();
+    $transaction->rollBack();
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction('second');
+    $this->work();
+  }
+
+  /**
+   * A nullsafe call whose result nobody keeps commits at once too.
+   */
+  public function nullsafeDiscarded(?Connection $connection): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $connection?->startTransaction();
+  }
+
+  /**
    * Does the work of a transaction.
    */
   private function work(): void {

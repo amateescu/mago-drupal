@@ -49,6 +49,17 @@ final class InjectionFallback implements ContainerInjectionInterface {
     return $this->thing;
   }
 
+  /**
+   * A fallback outside the constructor is a missed injection.
+   *
+   * Only a constructor falls back for old callers. Any other method could
+   * use the service the constructor takes.
+   */
+  public function other(?Thing $thing = NULL): Thing {
+    // @mago-expect analysis:drupal/global-drupal-call
+    return $thing ?? \Drupal::service('corpus.thing');
+  }
+
 }
 
 /**

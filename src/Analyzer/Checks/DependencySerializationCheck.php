@@ -105,11 +105,12 @@ final class DependencySerializationCheck implements MetadataCheck
     }
 
     /**
-     * Only a private or readonly property can be reported.
+     * Only a private or readonly property can be reported, declared in the
+     * class body or brought in by a trait it uses.
      */
     public function textGate(): ?string
     {
-        return '/\b(?:private|readonly)\b/i';
+        return '/\b(?:private|readonly)\b|\buse\s+[\\\\\w]+\s*[;,{]/i';
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
@@ -129,6 +130,8 @@ final class DependencySerializationCheck implements MetadataCheck
         if ($composesTrait && !$class->extendsAny($this->bases())) {
             $this->checkParents($class, $reporter);
         }
+
+        self::checkTraitProperties($class, $reporter);
 
         foreach ($class->properties() as $property) {
             $location = $property->nameLocation ?? $property->location;
@@ -162,6 +165,30 @@ final class DependencySerializationCheck implements MetadataCheck
                 "The readonly property {$property->name} cannot be restored by a parent's DependencySerializationTrait before PHP 8.4.",
                 $location,
                 'Use the trait in this class directly, or drop readonly.',
+                self::LINK,
+            ));
+        }
+    }
+
+    /**
+     * Reports the private properties that a trait named in the class body
+     * brings in, at the class, since the trait's file serves other classes.
+     */
+    private static function checkTraitProperties(ClassFacts $class, Reporter $reporter): void
+    {
+        $where = $class->class->nameLocation ?? $class->class->location;
+        foreach ($class->traitProperties() as [$trait, $property]) {
+            if (
+                $property->readVisibility !== Visibility::Private
+                || $property->flags->contains(MetadataFlags::STATIC)
+            ) {
+                continue;
+            }
+
+            $reporter->error(self::CODE, Reporter::issue(
+                "DependencySerializationTrait does not support the private property {$property->name}, which {$trait->originalName} brings into {$class->name()}.",
+                $where,
+                'Make it protected, or serialize the class another way.',
                 self::LINK,
             ));
         }

@@ -47,7 +47,8 @@ final class PluginDefinitions
 
     /**
      * Where the base plugin attribute declares `get()`, which returns an
-     * array, lowercased.
+     * array, lowercased. An attribute that overrides `get()` returns an
+     * array only when its return type says so.
      */
     private const ARRAY_ATTRIBUTE = 'drupal\component\plugin\attribute\attributebase';
 
@@ -86,7 +87,11 @@ final class PluginDefinitions
 
         foreach (self::pluginAttributes($codebase, $class) as $attribute) {
             $get = $codebase->getDeclaringMethod($attribute->name, 'get');
-            if ($get !== null && strtolower($get->identifier->class ?? '') !== self::ARRAY_ATTRIBUTE) {
+            if (
+                $get !== null
+                && strtolower($get->identifier->class ?? '') !== self::ARRAY_ATTRIBUTE
+                && !Types::onlyArrays($get->returnType?->type)
+            ) {
                 return false;
             }
         }

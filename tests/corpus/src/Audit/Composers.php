@@ -25,12 +25,18 @@ final class RedundantForm extends FormBase {
   use DependencySerializationTrait;
 
   /**
+   * Static, so serialization never sees it.
+   */
+  private static int $count = 0;
+
+  /**
    * Restorable.
    */
   protected readonly Thing $thing;
 
   public function __construct(Thing $thing) {
     $this->thing = $thing;
+    self::$count++;
   }
 
   /**
@@ -45,9 +51,10 @@ final class RedundantForm extends FormBase {
 /**
  * Uses a trait declared in another file.
  *
- * That trait's private and storage properties belong to the trait, not to
- * this class.
+ * PHP copies the trait's properties into this class, so its private one is
+ * lost on serialization like one declared here.
  */
+// @mago-expect analysis:drupal/dependency-serialization-property
 final class CrossUser extends FormBase {
 
   use CrossTrait;

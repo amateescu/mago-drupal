@@ -17,6 +17,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\Context\ContextInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\corpus\Nested\Cacheable;
+use Drupal\corpus\Nested\SealedCacheable;
 use Drupal\corpus\Nested\SealedThing;
 use Drupal\corpus\Nested\Thing;
 
@@ -70,6 +71,15 @@ final class Calls {
   }
 
   /**
+   * Only the constructor is checked.
+   *
+   * A channel fetched later is fetched again after unserialization anyway.
+   */
+  public function refreshLogger(): void {
+    $this->logger = $this->loggerFactory->get('corpus');
+  }
+
+  /**
    * Only objects carrying metadata may be added as dependencies.
    */
   public function cacheability(
@@ -82,6 +92,7 @@ final class Calls {
     mixed $unknown,
   ): void {
     $metadata->addCacheableDependency($cacheable);
+    $metadata->addCacheableDependency(new SealedCacheable());
     // `mixed` might still be a cacheable dependency.
     $metadata->addCacheableDependency($unknown);
     // A subclass of an open class may carry cacheability.

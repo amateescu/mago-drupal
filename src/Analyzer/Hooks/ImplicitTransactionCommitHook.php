@@ -58,6 +58,11 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
 
     private const METHOD_CALLS = [NodeKind::MethodCall, NodeKind::NullSafeMethodCall];
 
+    /**
+     * Nodes with variables of their own.
+     */
+    private const NESTED = [NodeKind::Closure, NodeKind::Function, NodeKind::Method];
+
     public function getTargets(): array
     {
         return [MethodTarget::exact(self::CONNECTION, 'startTransaction')];
@@ -79,7 +84,12 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
         }
 
         $file = $context->analysis->getSourceFile();
-        $call = Expressions::at($file, NodeKind::MethodCall, $context->node->span);
+        $span = $context->node->span;
+        $call = Expressions::at($file, NodeKind::MethodCall, $span) ?? Expressions::at(
+            $file,
+            NodeKind::NullSafeMethodCall,
+            $span,
+        );
         if ($call === null) {
             return;
         }
@@ -147,13 +157,35 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
     private static function handedOnOrCommitted(SourceFile $file, Node $call, Node $target): bool
     {
         $name = $file->getText($target);
-        foreach ($file->getDescendants(Expressions::scopeOf($file, $call), NodeKind::DirectVariable) as $use) {
-            if ($use->id === $target->id || $file->getText($use) !== $name) {
+        $scope = Expressions::scopeOf($file, $call);
+        foreach ($file->getDescendants($scope, NodeKind::DirectVariable) as $use) {
+            if ($use->id === $target->id || $file->getText($use) !== $name || self::nested($file, $use, $scope)) {
                 continue;
             }
 
             [$expression, $parent] = Expressions::unwrap($file, $use);
             if (!self::staysLocal($file, $expression, $parent, $call)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a use sits in a closure, function or method inside the scope,
+     * whose own variable of that name is another one. A capture in a
+     * closure's `use` clause belongs to the scope, and an arrow function
+     * shares its variables.
+     */
+    private static function nested(SourceFile $file, Node $use, Node $scope): bool
+    {
+        foreach ($file->getAncestors($use) as $ancestor) {
+            if ($ancestor->id === $scope->id || $ancestor->kind === NodeKind::ClosureUseClause) {
+                return false;
+            }
+
+            if (in_array($ancestor->kind, self::NESTED, strict: true)) {
                 return true;
             }
         }

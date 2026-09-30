@@ -78,6 +78,34 @@ final class Types
     }
 
     /**
+     * Whether every member of the type is an array. An absent type is none.
+     */
+    public static function onlyArrays(?Type $type): bool
+    {
+        foreach ($type === null ? [] : $type->atomicTypes as $atomic) {
+            if (!$atomic instanceof KeyedArrayType && !$atomic instanceof ListType) {
+                return false;
+            }
+        }
+
+        return $type !== null && $type->atomicTypes !== [];
+    }
+
+    /**
+     * Whether a default holds a value: anything but NULL, FALSE and the empty
+     * string, a constant included. An absent type holds none.
+     */
+    public static function holdsValue(?Type $type): bool
+    {
+        return (
+            $type !== null
+            && !self::includesNull($type)
+            && $type->getLiteralBool() !== false
+            && $type->getLiteralString() !== ''
+        );
+    }
+
+    /**
      * Whether the type is `string`, `?string` or a union holding a string.
      */
     public static function isString(?Type $type): bool

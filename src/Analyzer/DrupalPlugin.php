@@ -100,7 +100,8 @@ final class DrupalPlugin implements Plugin
     private readonly DeprecationTarget $deprecations;
 
     /**
-     * @param bool $core Enables rules that only apply to Drupal core itself.
+     * @param bool $core Turns off the checks that do not apply to Drupal core
+     *   itself.
      * @param string|null $root Drupal document root, absolute or relative to
      *   the worker's cwd. Discovered from the cwd when null.
      * @param DeprecationTarget|null $deprecations The Drupal major whose
@@ -346,7 +347,7 @@ final class DrupalPlugin implements Plugin
     }
 
     /**
-     * Whether the rules that apply only to Drupal core are enabled.
+     * Whether the plugin runs in `--core` mode.
      */
     public function isCore(): bool
     {

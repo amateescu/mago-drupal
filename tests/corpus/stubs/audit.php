@@ -43,6 +43,24 @@ namespace PHPUnit\Framework {
         final public static function assertIsArray(mixed $actual, string $message = ''): void {}
 
         final public static function assertIsString(mixed $actual, string $message = ''): void {}
+
+        final public static function assertNull(mixed $actual, string $message = ''): void {}
+
+        final public static function assertFalse(mixed $condition, string $message = ''): void {}
+
+        final public static function assertNotTrue(mixed $condition, string $message = ''): void {}
+
+        final public static function assertIsBool(mixed $actual, string $message = ''): void {}
+
+        final public static function assertIsFloat(mixed $actual, string $message = ''): void {}
+
+        final public static function assertIsInt(mixed $actual, string $message = ''): void {}
+
+        final public static function assertIsNumeric(mixed $actual, string $message = ''): void {}
+
+        final public static function assertIsObject(mixed $actual, string $message = ''): void {}
+
+        final public static function assertIsScalar(mixed $actual, string $message = ''): void {}
     }
 
     abstract class TestCase extends Assert implements Test
@@ -422,6 +440,8 @@ namespace Symfony\Component\Yaml {
 
 namespace Drupal\corpus\Nested {
     class Cacheable implements \Drupal\Core\Cache\CacheableDependencyInterface {}
+
+    final class SealedCacheable implements \Drupal\Core\Cache\CacheableDependencyInterface {}
 }
 
 namespace {

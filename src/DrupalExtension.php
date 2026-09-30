@@ -155,8 +155,9 @@ final class DrupalExtension
     }
 
     /**
-     * @param bool $core Enables the rules that apply only to Drupal core, and
-     *   turns off by default the rules that core's `phpcs.xml.dist` turns off.
+     * @param bool $core Turns off the checks that do not apply to Drupal core
+     *   itself, and turns off by default the rules that core's
+     *   `phpcs.xml.dist` turns off.
      * @param list<string> $disabled The codes of the rules to turn off by
      *   default.
      * @param string|null $root Drupal document root, absolute or relative to

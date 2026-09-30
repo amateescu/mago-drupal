@@ -14,6 +14,7 @@ use Drupal\corpus_dep\ApiWithDeprecatedMethod;
 use Drupal\corpus_dep\ApiWithDeprecatedMethodInterface;
 use Drupal\corpus_dep\ApiWithLegacyMembers;
 use Drupal\corpus_dep\ApiWithTraitMethod;
+use Drupal\corpus_dep\InheritedTrust;
 use Drupal\corpus_dep\LaterApiInterface;
 use Drupal\corpus_dep\LegacyApiInterface;
 use Drupal\corpus_dep\LegacyApiInterface as OldApi;
@@ -107,6 +108,14 @@ final class LegacyMemberUser extends ApiWithLegacyMembers {
   public function make(): object {
     // @mago-expect analysis:drupal/deprecated-class
     return LegacyFactory::make();
+  }
+
+  /**
+   * A deprecated method of it is Mago's own report.
+   */
+  public function deprecatedMethod(): object {
+    // @mago-expect analysis:deprecated-method
+    return LegacyFactory::makeOld();
   }
 
   /**
@@ -221,6 +230,16 @@ final class DeprecatedMethodCalls {
    */
   public function fromTrait(ApiWithTraitMethod $api): object {
     // @mago-expect analysis:drupal/deprecated-method
+    return $api->trust();
+  }
+
+  /**
+   * A method a parent declares without the interface is left alone.
+   *
+   * The parent implements nothing, so its method is no implementation of the
+   * deprecated one.
+   */
+  public function plainParent(InheritedTrust $api): object {
     return $api->trust();
   }
 
