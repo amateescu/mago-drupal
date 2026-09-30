@@ -232,6 +232,11 @@ final class DiskCacheTest extends TestCase
         self::assertNotNull($cache->get('hooks', 'run-999999-dead', [HookFunctions::class]));
 
         $cache->shared('hooks', '1-alive', $build, [HookFunctions::class]);
+        // Without process liveness, freshness is the fallback.
+        self::assertSame(is_dir('/proc'), $cache->get('hooks', 'run-999999-dead', [HookFunctions::class]) === null);
+
+        touch($this->entry('hooks', 'run-999999-dead'), mtime: time() - 3_600);
+        $cache->shared('hooks', '1-next', $build, [HookFunctions::class]);
         self::assertNull($cache->get('hooks', 'run-999999-dead', [HookFunctions::class]));
         self::assertNotNull($cache->get('hooks', 'run-1-alive', [HookFunctions::class]));
     }
@@ -253,10 +258,14 @@ final class DiskCacheTest extends TestCase
         touch($writing);
 
         $cache->set('hooks', 'b', ['y']);
-        self::assertFileDoesNotExist($dead);
+        self::assertSame(!is_dir('/proc'), is_file($dead));
         self::assertFileDoesNotExist($old);
         self::assertFileExists($writing);
         self::assertSame(['y'], $cache->get('hooks', 'b'));
+
+        touch($dead, mtime: time() - 3_600);
+        $cache->set('hooks', 'c', ['z']);
+        self::assertFileDoesNotExist($dead);
     }
 
     /**

@@ -400,7 +400,11 @@ final class ConfigSchema
         }
 
         if ($parts === []) {
-            return $this->typeOfDefinition($definition, $depth);
+            $type = $this->typeOfDefinition($definition, $depth);
+
+            return $type !== null && ($definition['nullable'] ?? false) === true
+                ? Type::union($type, Type::null())
+                : $type;
         }
 
         if (self::isDynamic($definition)) {
@@ -475,10 +479,6 @@ final class ConfigSchema
             $child = Shape::array($mapping[$key]) ?? [];
             $resolved = $this->resolve($child, depth: 0);
             $type = $this->typeIn($child, [], $depth + 1) ?? Type::mixed();
-            if (($resolved['nullable'] ?? false) === true) {
-                $type = Type::union($type, Type::null());
-            }
-
             $items[] = new ArrayItem(
                 is_int($key) ? new ArrayKey(ArrayKeyKind::Integer, $key) : new ArrayKey(ArrayKeyKind::String, $key),
                 ($resolved['requiredKey'] ?? true) === false,
@@ -514,7 +514,10 @@ final class ConfigSchema
 
         $referenced = $this->definitions[$type] ?? null;
 
-        return $referenced === null ? null : $this->typeIn($referenced, [], $depth + 1);
+        // The caller already resolved the reference's nullable flag with its
+        // own override. Read only the underlying type here, so an inherited
+        // nullable: true does not survive an explicit nullable: false.
+        return $referenced === null ? null : $this->typeOfDefinition($this->resolve($referenced, depth: 0), $depth + 1);
     }
 
     private static function isScalarTypeName(string $type): bool

@@ -62,6 +62,37 @@ final class Configuration {
   }
 
   /**
+   * Sequence elements can be null, including through a named type.
+   */
+  public function nullableSequence(): int {
+    $values = \Drupal::config('corpus.nullable_sequence')->get('values') ?? [];
+    $length = 0;
+    foreach ($values as $value) {
+      // @mago-expect analysis:possibly-null-argument
+      $length += strlen($value);
+    }
+
+    return $length;
+  }
+
+  /**
+   * Storage reads retain the same nullable elements inside the shape.
+   */
+  public function storedNullableSequence(StorageInterface $storage): int {
+    $data = $storage->read('corpus.nullable_sequence');
+    if ($data === FALSE) {
+      return 0;
+    }
+    $length = 0;
+    foreach ($data['values'] as $value) {
+      // @mago-expect analysis:possibly-null-argument
+      $length += strlen($value);
+    }
+
+    return $length;
+  }
+
+  /**
    * Nested mapping keys resolve by dotted path.
    */
   public function front(): string {

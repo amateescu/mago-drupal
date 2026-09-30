@@ -123,6 +123,26 @@ namespace Drupal\corpus\FormArguments {
   }
 }
 
+namespace Drupal\corpus\FormArguments\Aliased {
+  use Drupal\Core\Form\FormBuilderInterface;
+  use Drupal\corpus\FormArguments\NamesForm as NodeIdForm;
+  use Drupal\corpus\FormArguments\NodeIdForm as NamesForm;
+
+  /**
+   * Import aliases do not acquire an unrelated form's parameters.
+   */
+  final class AliasCalls {
+
+    /**
+     * The aliased form takes the arguments, not the class of that short name.
+     */
+    public function fits(FormBuilderInterface $builder): array {
+      return $builder->getForm(NamesForm::class, 42) + $builder->getForm(NodeIdForm::class, 'one', 'two');
+    }
+
+  }
+}
+
 namespace Drupal\corpus\FormArguments\Plain {
   /**
    * Shares its short name with a form, and is no form itself.
@@ -152,12 +172,8 @@ namespace Drupal\corpus\FormArguments\Other {
 namespace Drupal\corpus {
   use Drupal\Core\Form\FormBuilder;
   use Drupal\Core\Form\FormBuilderInterface;
-  use Drupal\corpus\FormArguments\ChildNodeIdForm;
-  use Drupal\corpus\FormArguments\FormArgForm;
-  use Drupal\corpus\FormArguments\NamesForm;
   use Drupal\corpus\FormArguments\NodeIdForm;
   use Drupal\corpus\FormArguments\Plain\LoneForm;
-  use Drupal\corpus\FormArguments\RequiredNodeIdForm;
   use Drupal\corpus\FormArguments\TwinForm;
 
   /**
@@ -175,8 +191,8 @@ namespace Drupal\corpus {
      */
     public function fits(): array {
       return (
-        $this->formBuilder->getForm(NodeIdForm::class, 1, TRUE)
-        + $this->concreteBuilder->getForm(ChildNodeIdForm::class, confirm: TRUE)
+        $this->formBuilder->getForm('Drupal\corpus\FormArguments\NodeIdForm', 1, TRUE)
+        + $this->concreteBuilder->getForm('Drupal\corpus\FormArguments\ChildNodeIdForm', confirm: TRUE)
       );
     }
 
@@ -185,7 +201,7 @@ namespace Drupal\corpus {
      */
     public function tooMany(): array {
       // @mago-expect analysis:too-many-arguments
-      return $this->formBuilder->getForm(NodeIdForm::class, 1, TRUE, 'extra');
+      return $this->formBuilder->getForm('Drupal\corpus\FormArguments\NodeIdForm', 1, TRUE, 'extra');
     }
 
     /**
@@ -193,7 +209,7 @@ namespace Drupal\corpus {
      */
     public function tooFew(): array {
       // @mago-expect analysis:too-few-arguments
-      return $this->formBuilder->getForm(RequiredNodeIdForm::class, 1);
+      return $this->formBuilder->getForm('Drupal\corpus\FormArguments\RequiredNodeIdForm', 1);
     }
 
     /**
@@ -201,7 +217,7 @@ namespace Drupal\corpus {
      */
     public function wrongType(): array {
       // @mago-expect analysis:invalid-argument
-      return $this->formBuilder->getForm(NodeIdForm::class, 'one');
+      return $this->formBuilder->getForm('Drupal\corpus\FormArguments\NodeIdForm', 'one');
     }
 
     /**
@@ -209,7 +225,7 @@ namespace Drupal\corpus {
      */
     public function named(): array {
       // @mago-expect analysis:invalid-argument
-      return $this->concreteBuilder->getForm(ChildNodeIdForm::class, confirm: 'yes');
+      return $this->concreteBuilder->getForm('Drupal\corpus\FormArguments\ChildNodeIdForm', confirm: 'yes');
     }
 
     /**
@@ -217,7 +233,7 @@ namespace Drupal\corpus {
      */
     public function unknownName(): array {
       // @mago-expect analysis:invalid-named-argument
-      return $this->formBuilder->getForm(NodeIdForm::class, node: 1);
+      return $this->formBuilder->getForm('Drupal\corpus\FormArguments\NodeIdForm', node: 1);
     }
 
     /**
@@ -249,7 +265,7 @@ namespace Drupal\corpus {
      */
     public function variadic(): array {
       // @mago-expect analysis:invalid-argument
-      return $this->formBuilder->getForm(NamesForm::class, 'a', 2);
+      return $this->formBuilder->getForm('Drupal\corpus\FormArguments\NamesForm', 'a', 2);
     }
 
     /**
@@ -265,7 +281,7 @@ namespace Drupal\corpus {
      * A form parameter named like getForm()'s first one is not checked.
      */
     public function formArgParameter(): array {
-      return $this->formBuilder->getForm(FormArgForm::class, 'one', 'two');
+      return $this->formBuilder->getForm('Drupal\corpus\FormArguments\FormArgForm', 'one', 'two');
     }
 
     /**

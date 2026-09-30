@@ -62,6 +62,89 @@ final class Transactions {
   }
 
   /**
+   * An explicit rollback ends the transaction without an implicit commit.
+   */
+  public function rolledBack(): void {
+    $transaction = $this->database->startTransaction();
+    $this->work();
+    $transaction->rollBack();
+  }
+
+  /**
+   * Both operations can sit inside the same conditional block.
+   */
+  public function rolledBackInBranch(bool $run): void {
+    if ($run) {
+      $transaction = $this->database->startTransaction();
+      $transaction->rollBack();
+    }
+  }
+
+  /**
+   * Reusing the variable implicitly commits its earlier transaction.
+   */
+  public function overwrittenBeforeRollback(): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    $transaction = $this->database->startTransaction('second');
+    $transaction->rollBack();
+  }
+
+  /**
+   * Unsetting the first transaction also commits it implicitly.
+   */
+  public function unsetBeforeRollback(): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    unset($transaction);
+    $transaction = $this->database->startTransaction('second');
+    $transaction->rollBack();
+  }
+
+  /**
+   * A conditional rollback leaves another path to the destructor.
+   */
+  public function conditionalRollback(bool $rollback): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    if ($rollback) {
+      $transaction->rollBack();
+    }
+  }
+
+  /**
+   * An unbraced conditional rollback is conditional too.
+   */
+  public function unbracedRollback(bool $rollback): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    if ($rollback)
+      $transaction->rollBack();
+  }
+
+  /**
+   * An early return can skip a later rollback in the same block.
+   */
+  public function rollbackAfterEarlyReturn(bool $leave): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    if ($leave) {
+      return;
+    }
+    $transaction->rollBack();
+  }
+
+  /**
+   * A rollback inside a short-circuit expression may never run.
+   */
+  public function shortCircuitRollback(bool $rollback): void {
+    // @mago-expect analysis:drupal/implicit-transaction-commit
+    $transaction = $this->database->startTransaction();
+    // @mago-expect analysis:redundant-logical-operation
+    $rollback && $transaction->rollBack();
+  }
+
+  /**
    * A result nobody keeps commits at once.
    */
   public function discarded(): void {

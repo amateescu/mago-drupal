@@ -12,6 +12,9 @@ use PHPUnit\Framework\TestCase;
 use function dirname;
 use function implode;
 
+/**
+ * @mago-expect lint:too-many-methods
+ */
 final class ConfigSchemaTest extends TestCase
 {
     private static function schema(): ConfigSchema
@@ -161,6 +164,37 @@ final class ConfigSchemaTest extends TestCase
         self::assertFalse($schema->keyExists('corpus.settings', 'page.back'));
         self::assertFalse($schema->keyExists('corpus.settings', 'name.deeper'));
         self::assertFalse($schema->keyExists('corpus.settings', 'items.first.nope'));
+    }
+
+    public function testKeepsNullableSequenceElementsThroughInheritance(): void
+    {
+        $schema = ConfigSchema::fromDefinitions([
+            'nullable_string' => ['type' => 'string', 'nullable' => true],
+            'review.settings' => [
+                'type' => 'mapping',
+                'constraints' => ['FullyValidatable' => null],
+                'mapping' => [
+                    'direct' => ['type' => 'sequence', 'sequence' => ['type' => 'string', 'nullable' => true]],
+                    'inherited' => ['type' => 'sequence', 'sequence' => ['type' => 'nullable_string']],
+                    'required' => [
+                        'type' => 'sequence',
+                        'sequence' => ['type' => 'nullable_string', 'nullable' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertSame('array<int|string, string|null>', self::render($schema->typeOf('review.settings', 'direct')));
+        self::assertSame(
+            'array<int|string, string|null>',
+            self::render($schema->typeOf('review.settings', 'inherited')),
+        );
+        self::assertSame('string|null', self::render($schema->typeOf('review.settings', 'inherited.0')));
+        self::assertSame('array<int|string, string>', self::render($schema->typeOf('review.settings', 'required')));
+        self::assertSame(
+            'array{direct: array<int|string, string|null>, inherited: array<int|string, string|null>, required: array<int|string, string>}',
+            self::render($schema->typeOf('review.settings', '')),
+        );
     }
 
     /**

@@ -38,3 +38,17 @@ corpus.item.*:
   mapping:
     weight:
       type: weight
+
+corpus.nullable_string:
+  type: string
+  nullable: true
+
+corpus.nullable_sequence:
+  type: config_object
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    values:
+      type: sequence
+      sequence:
+        type: corpus.nullable_string

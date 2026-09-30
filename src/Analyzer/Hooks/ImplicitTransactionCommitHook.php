@@ -29,12 +29,15 @@ use function trim;
  * in a local variable is reported when the function never calls
  * `commitOrRelease()` on that variable and never hands the variable on:
  * returning it, passing it to a call, storing it elsewhere or capturing it in
- * a closure all let other code commit it. Without `commitOrRelease()` in the
- * codebase there is nothing better to call, so nothing is reported.
+ * a closure all let other code commit it. A later standalone `rollBack()` in
+ * the same straight-line block ends the transaction too. Without
+ * `commitOrRelease()` in the codebase there is nothing better to call, so
+ * nothing is reported.
  *
  * @internal
  *
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
 {
@@ -138,7 +141,8 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
     }
 
     /**
-     * Whether the scope holding the call commits the variable or hands it on.
+     * Whether the scope holding the call ends the transaction explicitly or
+     * hands the variable on.
      */
     private static function handedOnOrCommitted(SourceFile $file, Node $call, Node $target): bool
     {
@@ -149,7 +153,7 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
             }
 
             [$expression, $parent] = Expressions::unwrap($file, $use);
-            if (!self::staysLocal($file, $expression, $parent)) {
+            if (!self::staysLocal($file, $expression, $parent, $call)) {
                 return true;
             }
         }
@@ -160,9 +164,9 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
     /**
      * Whether one use of the variable neither commits it nor hands it on:
      * unsetting it, checking it with isset(), overwriting it, or calling a
-     * method other than commitOrRelease() on it.
+     * method that leaves the transaction active.
      */
-    private static function staysLocal(SourceFile $file, Node $expression, ?Node $parent): bool
+    private static function staysLocal(SourceFile $file, Node $expression, ?Node $parent, Node $started): bool
     {
         if ($parent === null) {
             return false;
@@ -179,10 +183,110 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
 
         if (in_array($parent->kind, self::METHOD_CALLS, strict: true)) {
             $selector = $children[1] ?? null;
+            $method = $selector === null ? '' : strtolower(trim($file->getText($selector)));
 
-            return $selector === null || strtolower(trim($file->getText($selector))) !== 'commitorrelease';
+            return (
+                $method !== 'commitorrelease'
+                && ($method !== 'rollback' || !self::straightRollback($file, $started, $parent))
+            );
         }
 
         return $parent->kind === NodeKind::Assignment;
+    }
+
+    /**
+     * A standalone rollback after the start, in the same block with no
+     * intervening control flow that might leave it before the rollback.
+     * A rollback in a catch or conditional branch cannot end the transaction
+     * on the other paths, so it keeps the implicit commit report.
+     */
+    private static function straightRollback(SourceFile $file, Node $started, Node $rollback): bool
+    {
+        [, $statement] = Expressions::unwrap($file, $rollback);
+        if (
+            $statement === null
+            || $statement->kind !== NodeKind::ExpressionStatement
+            || $rollback->span->start <= $started->span->start
+        ) {
+            return false;
+        }
+
+        $receiver = Expressions::directVariable($file, $file->getChildren($rollback)[0]);
+        if ($receiver === null) {
+            return false;
+        }
+
+        $name = $file->getText($receiver);
+        $block = self::statementBlock($file, $statement);
+        $startBlock = null;
+        foreach ($file->getAncestors($started) as $ancestor) {
+            if ($ancestor->kind !== NodeKind::ExpressionStatement) {
+                continue;
+            }
+
+            $startBlock = self::statementBlock($file, $ancestor);
+            break;
+        }
+
+        if ($block === null || $block->id !== $startBlock?->id) {
+            return false;
+        }
+
+        foreach ($file->getChildren($block) as $child) {
+            if ($child->span->start <= $started->span->start || $child->span->start >= $statement->span->start) {
+                continue;
+            }
+
+            $node = $child->kind === NodeKind::Statement ? $file->getChildren($child)[0] ?? $child : $child;
+            if ($node->kind !== NodeKind::ExpressionStatement || self::replacesVariable($file, $node, $name)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Overwriting or unsetting the variable ends the earlier transaction by
+     * destruction; a later rollback belongs to a different value.
+     */
+    private static function replacesVariable(SourceFile $file, Node $statement, string $name): bool
+    {
+        foreach ($file->getDescendants($statement, NodeKind::DirectVariable) as $variable) {
+            if ($file->getText($variable) !== $name) {
+                continue;
+            }
+
+            [$value, $parent] = Expressions::unwrap($file, $variable);
+            if ($parent === null) {
+                continue;
+            }
+
+            if (
+                $parent->kind === NodeKind::Unset
+                || $parent->kind === NodeKind::Assignment
+                && ($file->getChildren($parent)[0] ?? null)?->id === $value->id
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The block a statement sits directly in, without a conditional body
+     * between them, or the program for a top-level statement.
+     */
+    private static function statementBlock(SourceFile $file, Node $statement): ?Node
+    {
+        $parent = $file->getParent($statement);
+        if ($parent?->kind === NodeKind::Statement) {
+            $parent = $file->getParent($parent);
+        }
+
+        return $parent !== null && in_array($parent->kind, [NodeKind::Block, NodeKind::Program], strict: true)
+            ? $parent
+            : null;
     }
 }

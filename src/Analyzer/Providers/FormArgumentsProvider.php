@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\AnalysisMemo;
-use amateescu\MagoDrupal\Internal\ClassNames;
 use Mago\Sdk\Analyzer\CallableSignatureOverride;
 use Mago\Sdk\Analyzer\CallableSignatureProviderContext;
 use Mago\Sdk\Analyzer\Codebase;
@@ -24,7 +22,6 @@ use function count;
 use function in_array;
 use function ltrim;
 use function preg_match;
-use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
 use function strtolower;
@@ -62,18 +59,6 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
      * Names in a `::class` fetch that stand for the calling class.
      */
     private const KEYWORDS = ['self', 'static', 'parent'];
-
-    /**
-     * The scanned class-likes, keyed by lowercased short name.
-     *
-     * @var AnalysisMemo<array<string, list<string>>>
-     */
-    private readonly AnalysisMemo $classes;
-
-    public function __construct()
-    {
-        $this->classes = new AnalysisMemo();
-    }
 
     public function getTargets(): array
     {
@@ -132,7 +117,7 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
      */
     private function formClass(Codebase $codebase, string $expression): ?string
     {
-        $name = $this->className($codebase, $expression);
+        $name = self::className($expression);
         $class = $name === null ? null : $codebase->getClass($name);
         if (
             $class === null
@@ -154,12 +139,11 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
      * Mago asks for the signature before it analyzes the arguments, so the
      * class is read off the argument's text. The request carries no file,
      * and the answer is kept for every call with the same text, so the
-     * file's imports cannot be read. A string or a `\Foo\Bar::class` names
-     * the class in full, and a relative `Bar::class` is looked up by name.
-     * An import alias named like another class, `use Foo\A as B;` with a
-     * scanned form `B` elsewhere, gets that form's parameters.
+     * file's imports cannot be read. Only a string or a `\Foo\Bar::class`
+     * names the class in full. A relative name could be an import alias for
+     * any class, even when just one scanned class has that short name.
      */
-    private function className(Codebase $codebase, string $expression): ?string
+    private static function className(string $expression): ?string
     {
         $matches = [];
         if (preg_match(self::CLASS_STRING, $expression, $matches) === 1) {
@@ -175,36 +159,7 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
 
         $name = $matches[1];
 
-        return str_starts_with($name, '\\') ? substr($name, offset: 1) : $this->relative($codebase, $name);
-    }
-
-    /**
-     * The one scanned class-like whose name ends in the relative name, or
-     * null when there are none or several. Any class-like counts, so a name
-     * a file imports stays quiet when another class shares it, even one that
-     * is no form. An import alias cannot be seen, see className().
-     */
-    private function relative(Codebase $codebase, string $name): ?string
-    {
-        $classes = $this->classes->get($codebase, 'classes', static function () use ($codebase): array {
-            $classes = [];
-            foreach ($codebase->getClassLikeNames() as $class) {
-                $classes[strtolower(ClassNames::short($class))][] = $class;
-            }
-
-            return $classes;
-        });
-        $suffix = '\\' . strtolower($name);
-        $found = [];
-        foreach ($classes[strtolower(ClassNames::short($name))] ?? [] as $class) {
-            if (!str_ends_with('\\' . strtolower($class), $suffix)) {
-                continue;
-            }
-
-            $found[] = $class;
-        }
-
-        return count($found) === 1 ? $found[0] : null;
+        return str_starts_with($name, '\\') ? substr($name, offset: 1) : null;
     }
 
     /**
