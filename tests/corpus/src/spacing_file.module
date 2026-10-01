@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Leaves the extra blank line below the file docblock to the formatter.
+ */
+
+
+/**
+ * Implements hook_help().
+ */
+function spacing_file_help(): string
+{
+    return '';
+}

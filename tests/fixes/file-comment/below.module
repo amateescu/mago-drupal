@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Has no blank line below.
+ */
+// A comment.
+$x = 1;

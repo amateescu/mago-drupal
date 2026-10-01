@@ -23,7 +23,9 @@ class InheritdocFix
     {
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function oneLine(): void
     {
     }

@@ -60,7 +60,7 @@ and the line-length check for comments.
 | `drupal/doc-type-namespace` | Warning | A `@param`, `@return`, `@var` or `@throws` type written as an imported short name and not as the fully qualified name. A fix writes the fully qualified name for each such member of the type, when the type starts on the tag's line and the docblock is below the import, in a file with one namespace. |
 | `drupal/expected-exception-tag` | Warning | A legacy PHPUnit `@expectedException*` docblock tag. |
 | `drupal/gender-neutral-comment` | Warning | A gendered pronoun in a comment. |
-| `drupal/inline-comment` | Warning | A `//` comment that starts with a lowercase letter, has no terminal punctuation, or uses `#` and not `//`. |
+| `drupal/inline-comment` | Warning | A `//` comment that starts with a lowercase letter, has no terminal punctuation, or uses `#` and not `//`. Also the space after `//`: one space and no tab, or more to line up with a list item or `@todo` on the line above. A fix sets the space. A line indented deeper than the comment line above for no such reason is reported without a fix. A comment after a `}` on its line, an `@code` example and a `phpcs:` line are skipped. |
 | `drupal/post-statement-comment` | Warning | A `//` comment on the same line as the statement before it. A fix moves the comment to its own line above. It is left out where the move could attach the comment to something else: a line that opens a block or closes a construct, a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement, a line inside a string, a comment that the next line continues, and a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`. |
 | `drupal/todo-comment` | Warning | A to-do comment that does not follow the `@todo Fix problem X here.` format. |
 
@@ -75,11 +75,11 @@ real signature. The group has the rest of `Drupal.Commenting.*`.
 
 | Code | Level | What it reports |
 | --- | --- | --- |
-| `drupal/class-comment` | Error | A class, interface, trait or enum with no docblock, with the wrong comment style, or with a summary that only repeats the name. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
+| `drupal/class-comment` | Error | A class, interface, trait or enum with no docblock, with the wrong comment style, or with a summary that only repeats the name. Also a blank line between the docblock and the declaration, which a fix removes. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/deprecated-tag` | Warning | A `@deprecated` tag that breaks the version-and-reason grammar, or that has no `@see` tag after it. The change-record url is the first line of the `@see` tag. A fix removes the periods after it. |
-| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in the first group. Also a summary that is not capitalized, that has no punctuation, or that spans more than one line, and `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. |
-| `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. A directive such as `// phpcs:ignoreFile` above the docblock is skipped. A fix adds `@file` below the docblock's opener when a blank line parts the docblock from the code. A potentially unsafe fix turns a comment in the wrong style into a docblock with `@file`, see below. |
-| `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized. A `@return` variable name and a `@see` reference are read from the tag's own line. Fixes remove a period after a `@param` name, a variable name after a `@return` type that has a description below, and punctuation after a one-word `@see` reference, and add a full stop to a `@param` description that does not end in a url, a tag or `:`, `,` or `;`. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
+| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in the first group. Also a summary that is not capitalized, that has no punctuation, or that spans more than one line, and `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. Also the docblock's whitespace, each with a fix: text on the line of the opening `/**`, blank lines at its start or end, more than one blank line between the summary and the description, not exactly one blank line before the tags, no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them, more than one after a section, and not exactly one space before the summary or after a tag. |
+| `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. A directive such as `// phpcs:ignoreFile` above the docblock is skipped. A fix adds `@file` below the docblock's opener when a blank line parts the docblock from the code. Another adds that blank line when the code starts right below the docblock. A potentially unsafe fix turns a comment in the wrong style into a docblock with `@file`, see below. |
+| `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized. A `@return` variable name and a `@see` reference are read from the tag's own line. Fixes remove a period after a `@param` name, a variable name after a `@return` type that has a description below, and punctuation after a one-word `@see` reference, and add a full stop to a `@param` description that does not end in a url, a tag or `:`, `,` or `;`. Also, each with a fix: a blank line between the docblock and the function, a `@param` description on the tag's line, not exactly one space between a `@param` type and its variable, and a `@param`, `@return` or `@throws` description that is not indented three spaces from the star. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/hook-comment` | Warning | A hook implementation that is not documented as `Implements hook_foo().`, or that duplicates the `@param` or `@return` documentation. |
 | `drupal/inline-variable-comment` | Warning | An inline `@var` declaration that uses `//` and not `/** */`, or that writes the variable name before the type. A `//` or `#` comment that holds `*/`, such as a commented-out docblock, is skipped. Two fixes are potentially unsafe, because the analyzers start to trust the type: one moves a variable name written first after the type, and the other turns a comment that holds only the tag, alone on its line, into a docblock. |
 | `drupal/variable-comment` | Error | A class property with no `@var` docblock, with the wrong comment style, or with more than one `@var` tag. A fix removes a property name repeated after the `@var` type. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
@@ -112,8 +112,8 @@ rules, a part of the standard is not checked.
 
 ## Parity notes
 
-The two comment groups port the wording and structure checks of `Drupal.Commenting.*`. Most of the
-whitespace sub-codes are not ported. The last paragraphs of this section list them.
+The two comment groups port `Drupal.Commenting.*`, whitespace included. The last paragraphs of this
+section say which whitespace `mago format` covers instead, and where the ports differ from Coder.
 
 `Drupal.Commenting.FunctionComment` compares a docblock against a function's real parameter list
 and return type. Most of those checks are redundant with `mago analyze`. The analyzer reads
@@ -148,12 +148,23 @@ Two `Drupal.Commenting.*` sniffs are pure whitespace and are not ported, because
 produces their result: `DocCommentAlignment` (star spacing and alignment) and `DocCommentStar` (a
 star on a docblock line that has none).
 
-The formatter leaves the rest of a comment's whitespace as written, and no rule here reports it:
-blank lines at the start or end of a docblock, around its summary and between its tag groups, a
-blank line between a docblock and its declaration, the indent of a tag's value and of a `@param` or
-`@return` description, the spaces after a `@param` type, a description on the `@param` line, and
-the space after `//` (`NoSpaceBefore`, `TabBefore` and `SpacingBefore` of
-`Drupal.Commenting.InlineComment`). Core's `phpcs.xml.dist` enables these sub-codes.
+The rules port the rest of the comment whitespace that core's `phpcs.xml.dist` enables, with a fix
+wherever phpcbf has one, and for `TrhowsCommentIndentation` too. The checks read a
+docblock the way Coder does. A tag is any line that starts with `@`, at any indent, and only the
+tags at the column of the first one form the groups that the blank-line checks look at. The
+formatter turns several blank lines into one, so `drupal/file-comment` reports only a file docblock
+with no blank line below it, and leaves `SpacingAfterComment` for more than one to `mago format`.
+`SpacingAfterAtFunctionEnd` of `Drupal.Commenting.InlineComment` is also the formatter's, which
+removes a blank line before a closing brace. `SpacingAfter` of that sniff is not ported, because
+core's `phpcs.xml.dist` excludes it, and neither is the template check of
+`Drupal.Commenting.FileComment`.
+
+A few cases differ from Coder. Text on the line of the opening `/**` is reported once, where Coder
+also reports it as `SpacingBeforeShort`. A tab after spaces after `//` is reported once, as a tab.
+A `@param` line with only trailing whitespace after the variable is not reported. Coder reads that
+whitespace as a description on the tag's line. `drupal/function-comment` skips a constructor, so the
+whitespace in a constructor's docblock is not checked. Coder checks it when the constructor has a
+docblock.
 
 The comment-style fixes of `drupal/function-comment`, `drupal/class-comment`,
 `drupal/variable-comment` and `drupal/file-comment` turn a `//` run or a `/* */` comment right

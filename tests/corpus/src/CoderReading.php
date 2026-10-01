@@ -21,6 +21,7 @@ final class CoderReading
      *
      * @param string $value
      *   The value, which ends here.
+     *
      * phpcs:ignore Drupal.Commenting.FunctionComment.Missing
      */
     public function directiveAfterParam(string $value): void

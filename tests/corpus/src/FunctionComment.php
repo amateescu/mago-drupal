@@ -280,6 +280,8 @@ function prose_after_an_example_still_needs_a_full_stop(array $settings): void
 {
 }
 
+// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/function-comment
 /**
  * Documents a parameter with the example at the star column.
  *

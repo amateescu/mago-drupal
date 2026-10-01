@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Has no blank line below, with CRLF line endings.
+ */
+
+$x = 1;

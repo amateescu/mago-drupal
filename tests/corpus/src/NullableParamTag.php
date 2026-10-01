@@ -38,6 +38,7 @@ function nullable_param_generic($names = null): void
 }
 
 // @mago-expect lint:drupal/nullable-param-tag
+// @mago-expect lint:drupal/function-comment
 /**
  * Splits the type over two lines, so the fix is left out.
  *

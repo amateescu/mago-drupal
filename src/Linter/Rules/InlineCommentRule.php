@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\InlineCommentSpacing;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -24,10 +25,11 @@ use function substr;
 use function trim;
 
 /**
- * Checks the style and wording of a `//` inline comment.
+ * Checks the style, spacing and wording of a `//` inline comment.
  *
- * Ports part of Drupal.Commenting.InlineComment: the wording checks
- * (capitalization, terminal punctuation) and the ban on `#` comments.
+ * Ports part of Drupal.Commenting.InlineComment: the space after `//`, the
+ * wording checks (capitalization, terminal punctuation) and the ban on `#`
+ * comments.
  *
  * Consecutive `//` lines with only their own indentation between them are
  * one logical comment. A paragraph wrapped across several lines is one
@@ -45,10 +47,10 @@ use function trim;
  * `cspell:` or `spell-checker:` directive on any line is exempt from that
  * check too.
  *
- * Not ported: the ban on a docblock in the middle of a statement, the
- * placement of blank lines, and the space after `//`. The formatter removes
- * a blank line before a closing brace, and leaves the rest as written. Mago's
- * own `no-empty-comment` rule already reports an empty comment.
+ * Not ported: the ban on a docblock in the middle of a statement and the
+ * placement of blank lines. The formatter removes a blank line before a
+ * closing brace, and core's `phpcs.xml.dist` excludes the rest. Mago's own
+ * `no-empty-comment` rule already reports an empty comment.
  *
  * A directive comment (`@mago-expect`, `phpcs:ignore`, …) is exempt from
  * the wording checks. It does not join a run either. A directive is a
@@ -64,7 +66,7 @@ final class InlineCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-comment',
             name: 'Inline comment',
-            description: 'Checks that a `//` comment starts with a capital letter, ends with terminal punctuation, and does not use `#`.',
+            description: 'Checks that a `//` comment has one space after `//`, starts with a capital letter, ends with terminal punctuation, and does not use `#`.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -111,6 +113,7 @@ final class InlineCommentRule implements Rule
         }
 
         $this->checkRun($context, $run);
+        InlineCommentSpacing::check($context);
     }
 
     /**

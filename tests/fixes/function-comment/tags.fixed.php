@@ -5,7 +5,8 @@
  *
  * @param string $a
  *   The a.
- * @param string $b The b.
+ * @param string $b
+ *   The b.
  * @param string ...$c...
  *   The c, left alone.
  */

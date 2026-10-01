@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * Sits right on a function.
+ */
+function below_function(): void
+{
+}

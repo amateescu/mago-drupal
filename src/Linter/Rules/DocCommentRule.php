@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocCommentSpacing;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -32,11 +33,10 @@ use function trim;
 /**
  * Checks a docblock's short description, long description and tag order.
  *
- * Ports the semantic half of Drupal.Commenting.DocComment. The rest of that
- * sniff is pure whitespace: star alignment, which `mago format` produces,
- * and blank-line placement and tag-value indentation, which neither the
- * formatter nor this rule checks. A `phpcs:` line inside the docblock is
- * not part of a description, as Coder reads it.
+ * Ports Drupal.Commenting.DocComment. `DocCommentSpacing` holds the checks
+ * on blank lines and on the spaces before a description and after a tag.
+ * Star alignment is left to `mago format`. A `phpcs:` line inside the
+ * docblock is not part of a description, as Coder reads it.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -169,9 +169,12 @@ final class DocCommentRule implements Rule
 
     private function checkDocblock(LintContext $context, Span $span): void
     {
+        DocCommentSpacing::checkEnds($context, $span);
         if ($this->isDocumentationGroup($context, $span)) {
             return;
         }
+
+        DocCommentSpacing::checkBody($context, $span);
 
         $tags = Docblocks::tags($context->file, $span);
         [$summary, $description] = Docblocks::paragraphs($context->file, $span);

@@ -154,6 +154,7 @@ function comment_line_length_docblock(string $value): void
 {
 }
 
+// @mago-expect lint:drupal/function-comment
 /**
  * Shows the lines the length check leaves alone.
  *
@@ -186,6 +187,7 @@ function comment_line_length_mid_line_tag(string $value): void
  */
 function comment_line_length_indented_reference(): void
 {
+    // @mago-expect lint:drupal/inline-comment
     // @mago-expect lint:drupal/comment-line-length
     //   @see an indented reference line, which is measured because the exemption
 }

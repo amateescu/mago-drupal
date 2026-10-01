@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\CommentDocblock;
+use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\LineEnding;
@@ -68,9 +69,13 @@ final class FileCommentRule implements Rule
         }
 
         foreach (Docblocks::tags($context->file, $first->span) as $tag) {
-            if ($tag->name === 'file') {
-                return;
+            if ($tag->name !== 'file') {
+                continue;
             }
+
+            $this->checkBlankLineAfter($context, $first->span);
+
+            return;
         }
 
         $issue = Issue::new('The file docblock must have an @file tag.', $first->span);
@@ -80,6 +85,24 @@ final class FileCommentRule implements Rule
                 ? $issue
                 : $issue->withEdit(TextEdit::insert($opener, LineEnding::of($context->file->contents) . ' * @file')),
         );
+    }
+
+    /**
+     * Reports a file docblock with no blank line below it. `mago format`
+     * already turns several blank lines into one, so only a missing one is
+     * left to report. Coder skips a docblock right above a `?>`.
+     */
+    private function checkBlankLineAfter(LintContext $context, Span $docblock): void
+    {
+        $edit = DocblockGap::blankLine($context->file, $docblock);
+        if ($edit === null || preg_match('/\G\s*\?>/', $context->file->contents, offset: $docblock->end) === 1) {
+            return;
+        }
+
+        $context->report(Issue::new(
+            'Put a blank line after the file docblock.',
+            new Span($docblock->end - 2, $docblock->end),
+        )->withEdit($edit));
     }
 
     /**

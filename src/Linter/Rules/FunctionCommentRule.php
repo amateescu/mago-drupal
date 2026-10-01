@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\CommentDocblock;
+use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -50,7 +52,8 @@ use function trim;
  * they do not resolve as a class. What is left is presence, structure and
  * prose. One signature-dependent check stays: a method with partial
  * `@param` coverage that has no entry for a real parameter. Nothing else
- * reports that.
+ * reports that. `FunctionCommentSpacing` holds the whitespace checks on the
+ * tags.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -115,6 +118,26 @@ final class FunctionCommentRule implements Rule
         $this->checkReturnTags($context, $tags);
         $this->checkThrowsTags($context, $tags);
         $this->checkSeeTags($context, $tags);
+        $this->checkSpacing($context, $closest->span, $tags);
+    }
+
+    /**
+     * The blank lines below the docblock and the whitespace in its tags.
+     * Coder takes a docblock tagged `@file` for the file's, and checks
+     * neither there.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    private function checkSpacing(LintContext $context, Span $docblock, array $tags): void
+    {
+        foreach ($tags as $tag) {
+            if ($tag->name === 'file') {
+                return;
+            }
+        }
+
+        DocblockGap::checkBelow($context, $docblock, 'function');
+        FunctionCommentSpacing::check($context, $docblock);
     }
 
     private function isConstructor(LintContext $context): bool
