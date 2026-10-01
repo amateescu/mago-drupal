@@ -375,6 +375,7 @@ function doc_comment_long_description_must_not_end_with_a_letter(): void
 }
 
 // @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/function-comment
 /**
  * Documents two parameters split apart by an example.
  *
@@ -443,6 +444,7 @@ function deprecated_tag_with_an_example(): void
 {
 }
 
+// @mago-expect lint:drupal/doc-comment
 /**
  * Does something that got replaced, with another tag before the link.
  *

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\CommentDocblock;
+use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\Nodes;
@@ -84,6 +85,7 @@ final class ClassCommentRule implements Rule
             return;
         }
 
+        DocblockGap::checkBelow($context, $closest->span, $keyword);
         $summary = Docblocks::leadingLines($context->file, $closest->span);
         $this->checkShort($context, $summary, $keyword);
     }

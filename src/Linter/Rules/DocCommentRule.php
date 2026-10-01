@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocCommentSpacing;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -32,14 +33,14 @@ use function trim;
 /**
  * Checks a docblock's short description, long description and tag order.
  *
- * Ports the semantic half of Drupal.Commenting.DocComment. The rest of that
- * sniff is pure whitespace: star alignment, which `mago format` produces,
- * and blank-line placement and tag-value indentation, which neither the
- * formatter nor this rule checks. A `phpcs:` line inside the docblock is
- * not part of a description, as Coder reads it.
+ * Ports Drupal.Commenting.DocComment. `DocCommentSpacing` holds the checks
+ * on blank lines and on the spaces before a description and after a tag.
+ * Star alignment is left to `mago format`. A `phpcs:` line inside the
+ * docblock is not part of a description, as Coder reads it.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final class DocCommentRule implements Rule
 {
@@ -79,6 +80,15 @@ final class DocCommentRule implements Rule
      * follow them and still count as first, because they are markup.
      */
     private const PARAM_LEADING_EXEMPT = ['code', 'todo', 'link', 'endlink', 'codingstandardsignorestart'];
+
+    /**
+     * @param bool $core Whether the worker runs on Drupal core. Core's
+     *   `phpcs.xml.dist` turns off the check on the end of a long
+     *   description.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
 
     public function getDefinition(): RuleDefinition
     {
@@ -169,9 +179,12 @@ final class DocCommentRule implements Rule
 
     private function checkDocblock(LintContext $context, Span $span): void
     {
+        DocCommentSpacing::checkEnds($context, $span);
         if ($this->isDocumentationGroup($context, $span)) {
             return;
         }
+
+        DocCommentSpacing::checkBody($context, $span);
 
         $tags = Docblocks::tags($context->file, $span);
         [$summary, $description] = Docblocks::paragraphs($context->file, $span);
@@ -293,6 +306,10 @@ final class DocCommentRule implements Rule
                 "The {$label} must start with a capital letter.",
                 new Span($paragraph[0]->offset, $paragraph[0]->offset + strlen($firstChar)),
             ));
+        }
+
+        if (!$strictPunctuation && $this->core) {
+            return;
         }
 
         $last = $paragraph[count($paragraph) - 1];

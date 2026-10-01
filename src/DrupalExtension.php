@@ -67,7 +67,8 @@ final class DrupalExtension
     private function __construct() {}
 
     /**
-     * @param bool $core Enables the rules that apply only to Drupal core.
+     * @param bool $core Enables the rules that apply only to Drupal core, and
+     *   turns off the comment checks that core's `phpcs.xml.dist` excludes.
      */
     public static function create(bool $core = false): Extension
     {
@@ -84,7 +85,7 @@ final class DrupalExtension
                 new DeprecationMessageRule(),
                 new DiscouragedFunctionRule(),
                 new DocCommentArraySyntaxRule(),
-                new DocCommentRule(),
+                new DocCommentRule(core: $core),
                 new DocTypeNamespaceRule(),
                 new ElseIfRule(),
                 new EmptyInstallHookRule(),
@@ -97,7 +98,7 @@ final class DrupalExtension
                 new GlobalFunctionRule(),
                 new GlobalVariableRule(),
                 new HookCommentRule(),
-                new InlineCommentRule(),
+                new InlineCommentRule(core: $core),
                 new InlineVariableCommentRule(),
                 new InsecureUnserializeRule(),
                 new InstallHookLocationRule(),

@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * Leaves extra blank lines below to the formatter.
+ */
+
+
+$x = 1;

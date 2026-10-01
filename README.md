@@ -24,7 +24,7 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core.
+apply to core and leaves out the comment checks that core's `phpcs.xml.dist` turns off.
 
 ## What it provides
 
@@ -49,9 +49,9 @@ The codes below omit their shared `drupal/` prefix.
 - **Drupal 7 era**. Core's `phpcs.xml.dist` still enables the matching sniffs, so these rules stay:
   `link-text-translatable`, `t-in-hook-menu`, `watchdog-message`.
 
-The two comment groups port the wording and structure checks of `Drupal.Commenting.*`. The
-[parity notes](docs/rules.md#parity-notes) give the details, name the two sniffs that
-`mago format` covers, and list the whitespace sub-codes that nothing checks yet.
+The two comment groups port `Drupal.Commenting.*`, whitespace included. The
+[parity notes](docs/rules.md#parity-notes) give the details and name what `mago format` covers
+instead.
 
 Many rules carry a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
 ones, and `mago fix` applies them until nothing changes. `--potentially-unsafe` adds the fixes that
