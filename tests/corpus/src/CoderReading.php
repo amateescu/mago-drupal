@@ -7,84 +7,77 @@ namespace Drupal\corpus;
 /**
  * Reads tags and descriptions the way Coder does, so none of these report.
  */
-final class CoderReading
-{
-    /**
-     * {@inheritDoc}
-     */
-    public function inheritsInCamelCase(): void
-    {
-    }
+final class CoderReading {
 
-    /**
-     * Ends a parameter description before a phpcs line.
-     *
-     * @param string $value
-     *   The value, which ends here.
-     *
-     * phpcs:ignore Drupal.Commenting.FunctionComment.Missing
-     */
-    public function directiveAfterParam(string $value): void
-    {
-    }
+  /**
+   * {@inheritDoc}
+   */
+  public function inheritsInCamelCase(): void {
+  }
 
-    /**
-     * Has a long description after a directive line.
-     *
-     * phpcs:disable Drupal.Commenting.DocComment.LongNotCapital
-     * Starts with a capital letter.
-     */
-    public function directiveBeforeDescription(): void
-    {
-    }
+  /**
+   * Ends a parameter description before a phpcs line.
+   *
+   * @param string $value
+   *   The value, which ends here.
+   *
+   * phpcs:ignore Drupal.Commenting.FunctionComment.Missing
+   */
+  public function directiveAfterParam(string $value): void {
+  }
 
-    /**
-     * Describes the return value on the line below its type.
-     *
-     * @return $this
-     *   $this, for chaining.
-     */
-    public function returnsItself(): static
-    {
-        return $this;
-    }
+  /**
+   * Has a long description after a directive line.
+   *
+   * phpcs:disable Drupal.Commenting.DocComment.LongNotCapital
+   * Starts with a capital letter.
+   */
+  public function directiveBeforeDescription(): void {
+  }
 
-    /**
-     * Describes a reference on the line below it.
-     *
-     * @see self::returnsItself()
-     *   Which returns the object.
-     */
-    public function seeWithDescription(): void
-    {
-    }
+  /**
+   * Describes the return value on the line below its type.
+   *
+   * @return $this
+   *   $this, for chaining.
+   */
+  public function returnsItself(): static {
+    return $this;
+  }
 
-    /**
-     * Was replaced.
-     *
-     * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
-     *   returnsItself() instead.
-     *
-     * @see https://www.drupal.org/node/3456789
-     *   cspell:ignore returns
-     */
-    public function deprecatedWithNote(): void
-    {
-    }
+  /**
+   * Describes a reference on the line below it.
+   *
+   * @see self::returnsItself()
+   *   Which returns the object.
+   */
+  public function seeWithDescription(): void {
+  }
 
-    /**
-     * Keeps a commented-out docblock and a first-class callable.
-     */
-    public function commentedDocblock(): callable
-    {
-        // /** @var int $old */
-        return \Drupal\corpus\coder_reading_helper(...);
-    }
+  /**
+   * Was replaced.
+   *
+   * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
+   *   returnsItself() instead.
+   *
+   * @see https://www.drupal.org/node/3456789
+   *   cspell:ignore returns
+   */
+  public function deprecatedWithNote(): void {
+  }
+
+  /**
+   * Keeps a commented-out docblock and a first-class callable.
+   */
+  public function commentedDocblock(): callable {
+    // /** @var int $old */
+    return \Drupal\corpus\coder_reading_helper(...);
+  }
+
 }
 
 /**
  * Returns nothing.
  */
-function coder_reading_helper(): void
-{
+function coder_reading_helper(): void {
 }
