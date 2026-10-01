@@ -11,8 +11,7 @@ namespace Drupal\corpus;
  * @param string $rel
  *   (optional) The link relationship type.
  */
-function nullable_param_plain($rel = null): void
-{
+function nullable_param_plain($rel = NULL): void {
 }
 
 // @mago-expect lint:drupal/nullable-param-tag
@@ -22,8 +21,7 @@ function nullable_param_plain($rel = null): void
  * @param int $count
  *   (optional) How many to show.
  */
-function nullable_param_upper($count = NULL): void
-{
+function nullable_param_upper($count = NULL): void {
 }
 
 // @mago-expect lint:drupal/nullable-param-tag
@@ -33,8 +31,7 @@ function nullable_param_upper($count = NULL): void
  * @param array<string|null> $names
  *   (optional) The names, some of them unknown.
  */
-function nullable_param_generic($names = null): void
-{
+function nullable_param_generic($names = NULL): void {
 }
 
 // @mago-expect lint:drupal/nullable-param-tag
@@ -47,8 +44,7 @@ function nullable_param_generic($names = null): void
  * } $options
  *   (optional) The options.
  */
-function nullable_param_two_lines($options = null): void
-{
+function nullable_param_two_lines($options = NULL): void {
 }
 
 // @mago-expect lint:drupal/nullable-param-tag
@@ -58,8 +54,7 @@ function nullable_param_two_lines($options = null): void
  * @param string[] $list
  *   (optional) The list to fill.
  */
-function nullable_param_reference(&$list = \NULL): void
-{
+function nullable_param_reference(&$list = \NULL): void {
 }
 
 /**
@@ -80,8 +75,15 @@ function nullable_param_reference(&$list = \NULL): void
  * @param string $g
  *   A parameter without a NULL default.
  */
-function nullable_param_accepted($a = null, $b = null, $c = null, $d = null, $e = null, ?string $f = null, $g = 'x'): void
-{
+function nullable_param_accepted(
+  $a = NULL,
+  $b = NULL,
+  $c = NULL,
+  $d = NULL,
+  $e = NULL,
+  ?string $f = NULL,
+  $g = 'x',
+): void {
 }
 
 /**
@@ -92,8 +94,7 @@ function nullable_param_accepted($a = null, $b = null, $c = null, $d = null, $e 
  *
  * @template T
  */
-function nullable_param_template($value = null): void
-{
+function nullable_param_template($value = NULL): void {
 }
 
 /**
@@ -104,40 +105,37 @@ function nullable_param_template($value = null): void
  *
  * @phpstan-param string|null $value
  */
-function nullable_param_phpstan($value = null): void
-{
+function nullable_param_phpstan($value = NULL): void {
 }
 
 /**
  * Has a NULL default but no tag for the parameter.
  */
-function nullable_param_undocumented($value = null): void
-{
+function nullable_param_undocumented($value = NULL): void {
 }
 
 /**
  * Stands in for a class whose constructor promotes a property.
  */
-final class NullableParamPromoted
-{
-    // @mago-expect lint:drupal/nullable-param-tag
-    /**
-     * Keeps the label it is given.
-     *
-     * @param string $label
-     *   (optional) The label.
-     */
-    public function __construct(
-        public $label = null,
-    ) {
-    }
+final class NullableParamPromoted {
 
-    /**
-     * Inherits its documentation.
-     *
-     * {@inheritdoc}
-     */
-    public function inherited($value = null): void
-    {
-    }
+  // @mago-expect lint:drupal/nullable-param-tag
+  /**
+   * Keeps the label it is given.
+   *
+   * @param string $label
+   *   (optional) The label.
+   */
+  public function __construct(
+    public $label = NULL,
+  ) {}
+
+  /**
+   * Inherits its documentation.
+   *
+   * {@inheritdoc}
+   */
+  public function inherited($value = NULL): void {
+  }
+
 }
