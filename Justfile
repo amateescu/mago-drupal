@@ -25,9 +25,9 @@ format-check:
     {{mago}} --config mago.toml format --check
     {{mago}} --workspace tests/corpus format --check
 
-# Applies safe fixes from every tool and loops until nothing changes. The
-# extension SDK has no fix API, so only Mago's built-in rules can fix anything.
-# Findings from this extension's own rules need a manual fix.
+# Applies safe fixes from every tool and loops until nothing changes. This
+# repository's mago.toml does not load the extension, so only Mago's built-in
+# rules run here.
 fix:
     {{mago}} --config mago.toml fix
 
