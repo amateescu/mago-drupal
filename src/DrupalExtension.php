@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal;
 
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
-use amateescu\MagoDrupal\Internal\DefaultOffRule;
-use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
+use amateescu\MagoDrupal\Internal\DefaultOffRule;
+use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
@@ -83,6 +83,8 @@ use function trim;
  * typed arguments here, not rule lists that the caller must assemble.
  *
  * @api
+ *
+ * @mago-expect lint:cyclomatic-complexity
  */
 final class DrupalExtension
 {
@@ -115,18 +117,10 @@ final class DrupalExtension
      */
     public static function fromArguments(array $arguments): Extension
     {
+        $strings = array_filter($arguments, is_string(...));
+        $deprecations = self::option($strings, 'deprecations');
         $disabled = [];
-        $root = null;
-        $deprecations = null;
-        foreach (array_filter($arguments, is_string(...)) as $argument) {
-            if (str_starts_with($argument, '--root=')) {
-                $root = substr($argument, offset: strlen('--root='));
-            }
-
-            if (str_starts_with($argument, '--deprecations=')) {
-                $deprecations = substr($argument, offset: strlen('--deprecations='));
-            }
-
+        foreach ($strings as $argument) {
             if (!str_starts_with($argument, '--disable=')) {
                 continue;
             }
@@ -149,7 +143,7 @@ final class DrupalExtension
         return self::create(
             core: in_array('--core', $arguments, strict: true),
             disabled: $disabled,
-            root: $root,
+            root: self::option($strings, 'root'),
             deprecations: $deprecations === null ? null : (int) $deprecations,
         );
     }
@@ -176,8 +170,7 @@ final class DrupalExtension
         array $disabled = [],
         ?string $root = null,
         ?int $deprecations = null,
-    ): Extension
-    {
+    ): Extension {
         $off = array_fill_keys($core ? [...self::CORE_OFF, ...$disabled] : $disabled, value: true);
         $rules = [];
         foreach (self::linterRules() as $rule) {
@@ -203,6 +196,26 @@ final class DrupalExtension
                 new PHPStanIgnoresPlugin(),
             ],
         );
+    }
+
+    /**
+     * The value of the last `--<name>=<value>` argument, or null when there
+     * is none.
+     *
+     * @param array<string> $arguments
+     */
+    private static function option(array $arguments, string $name): ?string
+    {
+        $value = null;
+        foreach ($arguments as $argument) {
+            if (!str_starts_with($argument, "--{$name}=")) {
+                continue;
+            }
+
+            $value = substr($argument, strlen($name) + 3);
+        }
+
+        return $value;
     }
 
     /**
