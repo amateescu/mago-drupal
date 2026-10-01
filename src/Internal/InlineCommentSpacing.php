@@ -26,10 +26,11 @@ use function substr_count;
 use function trim;
 
 /**
- * The whitespace checks of Drupal.Commenting.InlineComment, for
- * `drupal/inline-comment`: one space between `//` and the text, no tab, and
- * more only to continue a list item or a `@todo` on the line above, and no
- * blank line below a comment on its own line.
+ * The whitespace checks of Drupal.Commenting.InlineComment: one space
+ * between `//` and the text, no tab, and more only to continue a list item
+ * or a `@todo` on the line above, for `drupal/inline-comment`, and no blank
+ * line below a comment on its own line, for
+ * `drupal/inline-comment-blank-line`.
  *
  * Each `//` line gets the space check on its own, as Coder does. The blank
  * line check goes by Coder's runs: `//` lines one below the other with
@@ -48,12 +49,33 @@ final class InlineCommentSpacing
     private function __construct() {}
 
     /**
-     * @param array<int, true>|null $classLikeClosers The offsets of the
-     *   closing braces of the file's classes, interfaces, traits and enums,
-     *   for the check on the blank line below a comment. Null leaves that
-     *   check out, as core's `phpcs.xml.dist` does.
+     * Checks the space between `//` and the text of each line.
      */
-    public static function check(LintContext $context, ?array $classLikeClosers): void
+    public static function checkSpaces(LintContext $context): void
+    {
+        self::walk($context, spaces: true, classLikeClosers: null);
+    }
+
+    /**
+     * Checks the blank line below each run.
+     *
+     * @param array<int, true> $classLikeClosers The offsets of the closing
+     *   braces of the file's classes, interfaces, traits and enums.
+     */
+    public static function checkBlankLines(LintContext $context, array $classLikeClosers): void
+    {
+        self::walk($context, spaces: false, classLikeClosers: $classLikeClosers);
+    }
+
+    /**
+     * Reads the comments the way Coder does, and runs the space check, or
+     * the blank line check when $classLikeClosers is not null.
+     *
+     * @param array<int, true>|null $classLikeClosers
+     *
+     * @mago-expect lint:no-boolean-flag-parameter
+     */
+    private static function walk(LintContext $context, bool $spaces, ?array $classLikeClosers): void
     {
         $contents = $context->file->contents;
         $previousEnd = null;
@@ -94,7 +116,9 @@ final class InlineCommentSpacing
             }
 
             $run ??= [$trivia, self::aloneOnLine($contents, $trivia->span->start), $hasText];
-            self::checkLine($context, $trivia, rtrim($text), $above);
+            if ($spaces) {
+                self::checkLine($context, $trivia, rtrim($text), $above);
+            }
         }
 
         self::endRun($context, $run, $classLikeClosers);
