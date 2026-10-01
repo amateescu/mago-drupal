@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * Provides the hooks of a CRLF file.
+ */
+
+function crlf_help(): string {
+  return '';
+}

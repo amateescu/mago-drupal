@@ -4,18 +4,23 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DrupalFile;
+use amateescu\MagoDrupal\Internal\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
+use function strlen;
 use function substr;
 
 /**
@@ -47,15 +52,17 @@ final class FileCommentRule implements Rule
             return;
         }
 
-        $first = $context->file->getTrivia()[0] ?? null;
-        if ($first === null || !$this->atFileStart($context->file->contents, $first->span)) {
+        $first = $this->firstComment($context);
+        if ($first === null) {
             $context->report(Issue::new('The file does not start with a docblock.', new Span(0, 0)));
 
             return;
         }
 
         if ($first->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new('The file docblock must start with "/**".', $first->span));
+            $issue = Issue::new('The file docblock must start with "/**".', $first->span);
+            $fix = CommentDocblock::fileEdit($context->file, $first);
+            $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }
@@ -66,16 +73,59 @@ final class FileCommentRule implements Rule
             }
         }
 
-        $context->report(Issue::new('The file docblock must have an @file tag.', $first->span));
+        $issue = Issue::new('The file docblock must have an @file tag.', $first->span);
+        $opener = $this->fileTagOffset($context->file->contents, $first->span);
+        $context->report(
+            $opener === null
+                ? $issue
+                : $issue->withEdit(TextEdit::insert($opener, LineEnding::of($context->file->contents) . ' * @file')),
+        );
     }
 
     /**
-     * Whether only the opening `<?php` tag and whitespace come before a
-     * comment. That makes it the file's own comment, not a comment on the
-     * code after it.
+     * The file's first comment when only the opening tag and whitespace come
+     * before it, past any directive such as `// phpcs:ignoreFile`. phpcs
+     * reads those as instructions, not comments, so Coder skips them too.
      */
-    private function atFileStart(string $contents, Span $span): bool
+    private function firstComment(LintContext $context): ?Trivia
     {
-        return preg_match('/^<\?php\s*$/', substr($contents, offset: 0, length: $span->start)) === 1;
+        $start = 0;
+        $prefix = '';
+        foreach ($context->file->getTrivia() as $trivia) {
+            $prefix .= substr($context->file->contents, $start, $trivia->span->start - $start);
+            if (preg_match('/^<\?php\s*$/', $prefix) !== 1) {
+                return null;
+            }
+
+            if (!Docblocks::isDirective($context->file, $trivia)) {
+                return $trivia;
+            }
+
+            $start = $trivia->span->end;
+        }
+
+        return null;
+    }
+
+    /**
+     * Where `@file` goes, at the end of the opener line, or null when it
+     * cannot go on a line of its own: the opener line holds text, the
+     * docblock is a group's, or no blank line parts it from the code below.
+     * A docblock right on a function is that function's, which `@file`
+     * would steal.
+     */
+    private function fileTagOffset(string $contents, Span $docblock): ?int
+    {
+        $text = substr($contents, $docblock->start, $docblock->length());
+        $opener = [];
+        if (
+            preg_match('/^\/\*\*[ \t]*(?=\r?\n)/', $text, $opener) !== 1
+            || preg_match('/@(?:defgroup|addtogroup)\b/', $text) === 1
+            || preg_match('/\G\r?\n[ \t]*\r?\n/', $contents, offset: $docblock->end) !== 1
+        ) {
+            return null;
+        }
+
+        return $docblock->start + strlen($opener[0]);
     }
 }

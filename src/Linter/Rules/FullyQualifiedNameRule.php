@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\ImportPlan;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -30,6 +31,12 @@ use function trim;
  * no namespace of its own, such as `\Exception`. Drupal writes those at the
  * call site. The `drupal/redundant-use` rule enforces that from the other
  * side.
+ *
+ * The fix adds the import and writes the short name, see `ImportPlan` for
+ * when it applies.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class FullyQualifiedNameRule implements Rule
 {
@@ -71,6 +78,7 @@ final class FullyQualifiedNameRule implements Rule
             // dispatches do nothing.
             targets: [
                 NodeKind::Program,
+                NodeKind::Namespace,
                 NodeKind::FullyQualifiedIdentifier,
                 NodeKind::QualifiedIdentifier,
                 ...self::SKIPPED,
@@ -95,9 +103,21 @@ final class FullyQualifiedNameRule implements Rule
         // descendants. A skipped construct thus sets the end offset of its
         // names before any of them come up.
         $skipUntil = 0;
+        $reported = [];
+        $uses = [];
+        $namespaces = [];
         foreach ($context->file->getTargetNodes() as $name) {
+            if ($name->kind === NodeKind::Namespace) {
+                $namespaces[] = $name;
+
+                continue;
+            }
+
             if (in_array($name->kind, self::SKIPPED, strict: true)) {
                 $skipUntil = max($skipUntil, $name->span->end);
+                if ($name->kind === NodeKind::Use) {
+                    $uses[] = $name;
+                }
 
                 continue;
             }
@@ -106,28 +126,39 @@ final class FullyQualifiedNameRule implements Rule
                 continue;
             }
 
-            if ($name->span->start >= $skipUntil) {
-                $this->check($context, $name);
+            if ($name->span->start >= $skipUntil && $this->isReported($context->file, $name)) {
+                $reported[] = $name;
             }
+        }
+
+        if ($reported === []) {
+            return;
+        }
+
+        $edits = ImportPlan::edits($context->file, $namespaces, $uses, $reported);
+        foreach ($reported as $name) {
+            $written = ltrim(trim($context->file->getText($name)), characters: '\\');
+            $separator = strrpos($written, needle: '\\');
+            $short = $separator === false ? $written : substr($written, $separator + 1);
+            $issue = Issue::new("Do not write {$written} in full. Import it.", $name->span)->withHelp(
+                "Add a use statement for it and write {$short} here.",
+            );
+            foreach ($edits[$name->span->start] ?? [] as $edit) {
+                $issue = $issue->withEdit($edit);
+            }
+
+            $context->report($issue);
         }
     }
 
     /**
-     * Checks one written name.
+     * Whether a written name is a namespaced name the rule reports.
      */
-    private function check(LintContext $context, Node $name): void
+    private function isReported(SourceFile $file, Node $name): bool
     {
-        $written = ltrim(trim($context->file->getText($name)), characters: '\\');
-        if (!str_contains($written, '\\') || $this->isExempt($context->file, $name)) {
-            return;
-        }
+        $written = ltrim(trim($file->getText($name)), characters: '\\');
 
-        $separator = strrpos($written, needle: '\\');
-        $short = $separator === false ? $written : substr($written, $separator + 1);
-
-        $context->report(Issue::new("Do not write {$written} in full. Import it.", $name->span)->withHelp(
-            "Add a use statement for it and write {$short} here.",
-        ));
+        return str_contains($written, '\\') && !$this->isExempt($file, $name);
     }
 
     /**
@@ -148,7 +179,7 @@ final class FullyQualifiedNameRule implements Rule
                 return false;
             }
 
-            if ($parent->kind === NodeKind::FunctionCall) {
+            if ($parent->kind === NodeKind::FunctionCall || $parent->kind === NodeKind::FunctionPartialApplication) {
                 return $callee;
             }
 

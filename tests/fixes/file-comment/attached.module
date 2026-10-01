@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Documents the function right below it, so it gets no @file tag.
+ */
+function attached_help(): string {
+  return '';
+}

@@ -11,17 +11,20 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function explode;
 use function in_array;
-use function ltrim;
 use function preg_match;
-use function preg_split;
 use function str_contains;
+use function strcspn;
+use function strlen;
 use function strpbrk;
 use function strrpos;
+use function strspn;
 use function substr;
 
 /**
@@ -39,6 +42,11 @@ use function substr;
  * most often a procedural file's own `@file` block. It does not include the
  * unusual case of a `use` statement after code that already refers to the
  * class.
+ *
+ * The fix writes the fully qualified name in place of each imported short
+ * name of the tag's type. It is left out for a type that does not start on
+ * the tag's first line, for a docblock above the import, and for a file with
+ * more than one namespace, whose imports belong to their own block.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -59,7 +67,7 @@ final class DocTypeNamespaceRule implements Rule
             description: 'Reports @param, @return, @var and @throws types written as an imported short name instead of the fully qualified name.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: [NodeKind::Program, NodeKind::Use],
+            targets: [NodeKind::Program, NodeKind::Use, NodeKind::Namespace],
         );
     }
 
@@ -74,6 +82,13 @@ final class DocTypeNamespaceRule implements Rule
             return;
         }
 
+        $namespaces = 0;
+        foreach ($context->file->getTargetNodes() as $node) {
+            $namespaces += $node->kind === NodeKind::Namespace ? 1 : 0;
+        }
+
+        $fixable = $namespaces <= 1;
+
         foreach ($context->file->getTrivia() as $trivia) {
             if ($trivia->kind !== TriviaKind::DocBlockComment) {
                 continue;
@@ -84,16 +99,16 @@ final class DocTypeNamespaceRule implements Rule
                     continue;
                 }
 
-                $this->checkTag($context, $tag, $imports);
+                $this->checkTag($context, $tag, $imports, $fixable);
             }
         }
     }
 
     /**
-     * Returns every single, unaliased import in the file, keyed by the
-     * short name that it introduces.
+     * Returns every single import in the file, keyed by the short name that
+     * it introduces, with the offset where its statement ends.
      *
-     * @return array<string, string>
+     * @return array<string, array{string, int}>
      */
     private function singleImports(LintContext $context): array
     {
@@ -109,7 +124,7 @@ final class DocTypeNamespaceRule implements Rule
             }
 
             [$fullyQualified, $shortName] = $import;
-            $imports[$shortName] = $fullyQualified;
+            $imports[$shortName] = [$fullyQualified, $use->span->end];
         }
 
         return $imports;
@@ -147,51 +162,61 @@ final class DocTypeNamespaceRule implements Rule
     }
 
     /**
-     * @param array<string, string> $imports
+     * Reports the tag once when its type names an imported short name, with
+     * an edit for each such name when the fix applies.
+     *
+     * @param array<string, array{string, int}> $imports
+     * @param bool $fixable Whether the file allows the fix at all.
+     *
+     * @mago-expect lint:no-boolean-flag-parameter
      */
-    private function checkTag(LintContext $context, DocblockTag $tag, array $imports): void
+    private function checkTag(LintContext $context, DocblockTag $tag, array $imports, bool $fixable): void
     {
         [$type] = Docblocks::splitType($tag->content());
         if ($type === null) {
             return;
         }
 
-        // Most types are plain. A plain type is one lookup.
-        if (strpbrk($type, characters: '|<[?') === false) {
-            $this->reportImported($context, $tag, $type, $imports);
+        // The edits need the type's offset, which is known when the type
+        // starts the tag's first line.
+        $line = $tag->lines[0];
+        $indent = strspn($line->text, characters: " \t");
+        $start = $fixable && substr($line->text, $indent, strlen($type)) === $type ? $line->offset + $indent : null;
 
+        $first = null;
+        $edits = [];
+        $position = 0;
+        // Most types are plain, and a plain type is one member.
+        $members = strpbrk($type, characters: '|<[?') === false ? [$type] : explode('|', $type);
+        foreach ($members as $segment) {
+            $nullable = strspn($segment, characters: '?');
+            $member = substr($segment, $nullable, strcspn($segment, characters: '<[', offset: $nullable));
+            $import = $imports[$member] ?? null;
+            if ($import !== null) {
+                [$fullyQualified, $useEnd] = $import;
+                $first ??= [$member, $fullyQualified];
+                if ($start !== null && $tag->nameSpan->start >= $useEnd) {
+                    $offset = $start + $position + $nullable;
+                    $edits[] = TextEdit::replace(new Span($offset, $offset + strlen($member)), '\\' . $fullyQualified);
+                }
+            }
+
+            $position += strlen($segment) + 1;
+        }
+
+        if ($first === null) {
             return;
         }
 
-        $members = preg_split('/\|/', $type);
-        foreach ($members === false ? [] : $members as $member) {
-            $member = ltrim($member, characters: '?');
-            $member = explode('<', $member, limit: 2)[0];
-            $member = explode('[', $member, limit: 2)[0];
-
-            if ($this->reportImported($context, $tag, $member, $imports)) {
-                return;
-            }
-        }
-    }
-
-    /**
-     * Reports a type member that is an imported short name.
-     *
-     * @param array<string, string> $imports
-     */
-    private function reportImported(LintContext $context, DocblockTag $tag, string $member, array $imports): bool
-    {
-        $fullyQualified = $imports[$member] ?? null;
-        if ($fullyQualified === null) {
-            return false;
-        }
-
-        $context->report(Issue::new(
+        [$member, $fullyQualified] = $first;
+        $issue = Issue::new(
             "The @{$tag->name} type must be fully qualified. Use \\{$fullyQualified} instead of {$member}.",
             $tag->contentSpan(),
-        ));
+        );
+        foreach ($edits as $edit) {
+            $issue = $issue->withEdit($edit);
+        }
 
-        return true;
+        $context->report($issue);
     }
 }

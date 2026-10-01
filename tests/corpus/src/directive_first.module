@@ -1,0 +1,7 @@
+<?php
+// phpcs:ignoreFile
+
+/**
+ * @file
+ * Starts with a directive above the file docblock.
+ */

@@ -1,0 +1,7 @@
+<?php
+
+// Provides the example hooks.
+
+function style_help(): string {
+  return '';
+}

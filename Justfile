@@ -37,6 +37,11 @@ test-corpus:
     {{mago}} --workspace tests/corpus lint --only "$(paste -sd, - < tests/corpus/expected-rules.txt)"
     {{mago}} --workspace tests/corpus analyze
 
+# Runs every rule's fix over the before and after pairs in tests/fixes. See
+# tests/FixCases.php for the layout.
+test-fixes:
+    php tests/FixCases.php {{mago}}
+
 check: validate format-check test lint analyze
 
-check-all: check test-corpus
+check-all: check test-corpus test-fixes

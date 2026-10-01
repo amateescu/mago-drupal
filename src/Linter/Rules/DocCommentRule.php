@@ -12,6 +12,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
@@ -32,9 +33,10 @@ use function trim;
  * Checks a docblock's short description, long description and tag order.
  *
  * Ports the semantic half of Drupal.Commenting.DocComment. The rest of that
- * sniff is pure whitespace: star alignment, blank-line placement and
- * tag-value indentation. `mago format --preset drupal` already produces
- * that.
+ * sniff is pure whitespace: star alignment, which `mago format` produces,
+ * and blank-line placement and tag-value indentation, which neither the
+ * formatter nor this rule checks. A `phpcs:` line inside the docblock is
+ * not part of a description, as Coder reads it.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -185,10 +187,17 @@ final class DocCommentRule implements Rule
                 continue;
             }
 
+            // A stray closing brace, as in `@inheritdoc}`, goes into the
+            // replacement too, so the result does not end in two of them.
+            $replaced = $tag->nameSpan;
+            if (($context->file->contents[$replaced->end] ?? '') === '}') {
+                $replaced = new Span($replaced->start, $replaced->end + 1);
+            }
+
             $context->report(Issue::new(
                 'Write @inheritdoc as {@inheritdoc}, with curly braces, to make it an inline tag.',
                 $tag->nameSpan,
-            ));
+            )->withEdit(TextEdit::replace($replaced, '{@inheritdoc}')));
         }
 
         if ($summary === [] && !$this->exemptFromShortDescription($tags)) {
@@ -276,7 +285,7 @@ final class DocCommentRule implements Rule
     ): void {
         $first = $paragraph[0]->text;
         $firstChar = mb_substr($first, start: 0, length: 1);
-        if (rtrim($first) !== '{@inheritdoc}' && $firstChar !== mb_strtoupper($firstChar)) {
+        if (!self::isInheritdoc($first) && $firstChar !== mb_strtoupper($firstChar)) {
             // The span uses the byte length of $firstChar, not a hardcoded 1.
             // With a multi-byte character such as "É" or "€", a 1 puts the
             // span's end in the middle of the character.
@@ -296,13 +305,22 @@ final class DocCommentRule implements Rule
         $unpunctuated = $strictPunctuation
             ? !in_array($lastChar, ['.', '!', '?', ')'], strict: true)
             : preg_match('/[a-zA-Z]/', $lastChar) === 1;
-        if ($trimmed !== '{@inheritdoc}' && $unpunctuated) {
+        if (!self::isInheritdoc($trimmed) && $unpunctuated) {
             $lastCharEnd = $last->offset + strlen($trimmed);
             $context->report(Issue::new(
                 "The {$label} must end with terminal punctuation.",
                 new Span($lastCharEnd - strlen($lastChar), $lastCharEnd),
             ));
         }
+    }
+
+    /**
+     * Whether the text is the inline tag alone, in any case. Coder accepts
+     * `{@inheritDoc}` too.
+     */
+    private static function isInheritdoc(string $text): bool
+    {
+        return strtolower(rtrim($text)) === '{@inheritdoc}';
     }
 
     /**

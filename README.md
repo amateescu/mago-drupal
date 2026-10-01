@@ -49,9 +49,15 @@ The codes below omit their shared `drupal/` prefix.
 - **Drupal 7 era**. Core's `phpcs.xml.dist` still enables the matching sniffs, so these rules stay:
   `link-text-translatable`, `t-in-hook-menu`, `watchdog-message`.
 
-The two comment groups complete `Drupal.Commenting.*`. The
-[parity notes](docs/rules.md#parity-notes) give the details and name the two sniffs that
-`mago format` covers.
+The two comment groups port the wording and structure checks of `Drupal.Commenting.*`. The
+[parity notes](docs/rules.md#parity-notes) give the details, name the two sniffs that
+`mago format` covers, and list the whitespace sub-codes that nothing checks yet.
+
+Many rules carry a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
+ones, and `mago fix` applies them until nothing changes. `--potentially-unsafe` adds the fixes that
+turn a comment into a docblock, which the analyzers then read, and `--unsafe` adds the
+`weak-hash` rewrite, which changes stored digests. `--dry-run` shows the diff first.
+[docs/rules.md](docs/rules.md) says which rules fix what.
 
 Rule codes are stable. Projects that we do not control write them into baselines and into
 `// @mago-expect lint:<code>` comments. For that reason, the codes get no vendor prefix and no new

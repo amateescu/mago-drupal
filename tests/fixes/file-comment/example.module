@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Provides the example hooks.
+ */
+
+function example_help(): string {
+  return '';
+}

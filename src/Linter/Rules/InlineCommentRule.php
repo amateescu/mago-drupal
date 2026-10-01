@@ -45,9 +45,10 @@ use function trim;
  * `cspell:` or `spell-checker:` directive on any line is exempt from that
  * check too.
  *
- * Not ported: the ban on a docblock in the middle of a statement, and the
- * placement of blank lines. `mago format` already controls both. Mago's own
- * `no-empty-comment` rule already reports an empty comment.
+ * Not ported: the ban on a docblock in the middle of a statement, the
+ * placement of blank lines, and the space after `//`. The formatter removes
+ * a blank line before a closing brace, and leaves the rest as written. Mago's
+ * own `no-empty-comment` rule already reports an empty comment.
  *
  * A directive comment (`@mago-expect`, `phpcs:ignore`, …) is exempt from
  * the wording checks. It does not join a run either. A directive is a

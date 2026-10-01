@@ -230,6 +230,10 @@ final class Docblocks
                 break;
             }
 
+            if (self::isDirectiveLine($line->text)) {
+                continue;
+            }
+
             if (trim($line->text) === '') {
                 if ($paragraphs[count($paragraphs) - 1] !== []) {
                     $paragraphs[] = [];
@@ -300,7 +304,7 @@ final class Docblocks
             $lines[] = $line;
 
             if (!self::isTagLine($text)) {
-                if ($name !== null) {
+                if ($name !== null && !self::isDirectiveLine($text)) {
                     $tagLines[] = $line;
                 }
 
@@ -381,6 +385,17 @@ final class Docblocks
         }
 
         return [substr($content, offset: 0, length: $length), trim(substr($content, $length))];
+    }
+
+    /**
+     * Whether a stripped docblock line is a phpcs instruction, such as
+     * `phpcs:ignore Drupal.Commenting.FunctionComment.Missing`. It is part of
+     * neither a description nor the tag above it. Coder skips it the same
+     * way.
+     */
+    private static function isDirectiveLine(string $text): bool
+    {
+        return preg_match('/^\s*phpcs:(?:ignore|disable|enable|set)\b/', $text) === 1;
     }
 
     /**
