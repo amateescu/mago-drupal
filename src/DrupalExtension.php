@@ -32,6 +32,7 @@ use amateescu\MagoDrupal\Linter\Rules\InsecureUnserializeRule;
 use amateescu\MagoDrupal\Linter\Rules\InstallHookLocationRule;
 use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
+use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyNameRule;
@@ -102,6 +103,7 @@ final class DrupalExtension
                 new InstallHookLocationRule(),
                 new LinkTextTranslatableRule(),
                 new MethodVisibilityRule(),
+                new NullableParamTagRule(),
                 new PostStatementCommentRule(),
                 new PregSecurityRule(),
                 new PropertyNameRule(),

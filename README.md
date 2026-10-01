@@ -28,7 +28,7 @@ apply to core.
 
 ## What it provides
 
-44 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
+45 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
 The codes below omit their shared `drupal/` prefix.
 
 - **Bugs and security**: `insecure-unserialize`, `preg-security`, `remote-address`, `weak-hash`.
@@ -45,6 +45,7 @@ The codes below omit their shared `drupal/` prefix.
   `post-statement-comment`, `todo-comment`.
 - **Docblock structure**: `class-comment`, `deprecated-tag`, `doc-comment`, `file-comment`,
   `function-comment`, `hook-comment`, `inline-variable-comment`, `variable-comment`.
+- **Docblock types**: `nullable-param-tag`.
 - **Drupal 7 era**. Core's `phpcs.xml.dist` still enables the matching sniffs, so these rules stay:
   `link-text-translatable`, `t-in-hook-menu`, `watchdog-message`.
 

@@ -84,6 +84,20 @@ real signature. The group has the rest of `Drupal.Commenting.*`.
 | `drupal/inline-variable-comment` | Warning | An inline `@var` declaration that uses `//` and not `/** */`, or that writes the variable name before the type. |
 | `drupal/variable-comment` | Error | A class property with no `@var` docblock, with the wrong comment style, or with more than one `@var` tag. |
 
+## Docblock types
+
+This rule compares a docblock with the declaration's signature. Coder has no matching sniff.
+
+| Code | Level | What it reports |
+| --- | --- | --- |
+| `drupal/nullable-param-tag` | Warning | An untyped parameter with a `NULL` default whose `@param` type has no `null`, such as `@param string $rel` on `toUrl($rel = NULL)`. A union member `null`, a `?T` type, `mixed` and a `@template` name all count. A `null` inside a generic, as in `array<string\|null>`, does not. A `@phpstan-param` or `@psalm-param` tag wins over `@param`. A safe fix appends `\|null` to a type that fits on the tag's first line. |
+
+The docblock is the only type of such a parameter, and tools read it differently. PHPStan adds the
+`null` from the default. Mago accepts the default but keeps the documented type, so it reports an
+explicit `NULL` argument and does not see that the parameter can be null in the body. A parameter
+with a native type is not reported, since every tool reads the native type. After the fix, the
+analyzer sees the `null`, and it may report code in the body that does not handle it.
+
 ## Drupal 7 era
 
 These rules target APIs that Drupal 8 removed, so they do not report on a modern codebase. Core's
