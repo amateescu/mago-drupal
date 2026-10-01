@@ -24,7 +24,7 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core.
+apply to core and leaves out the comment checks that core's `phpcs.xml.dist` turns off.
 
 ## What it provides
 

@@ -58,9 +58,19 @@ use function trim;
  * it as prose, and cannot join it to the sentence next to it.
  *
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class InlineCommentRule implements Rule
 {
+    /**
+     * @param bool $core Whether the worker runs on Drupal core. Core's
+     *   `phpcs.xml.dist` turns off the checks on the end of a comment and on
+     *   a blank line below it.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -69,12 +79,26 @@ final class InlineCommentRule implements Rule
             description: 'Checks that a `//` comment has one space after `//`, starts with a capital letter, ends with terminal punctuation, and does not use `#`.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: [NodeKind::Program],
+            // The class-likes are targets so that the Program pass finds their
+            // closing braces in the file's target-node list. Their own
+            // dispatches do nothing.
+            targets: [
+                NodeKind::Program,
+                NodeKind::Class_,
+                NodeKind::Interface,
+                NodeKind::Trait,
+                NodeKind::Enum,
+                NodeKind::AnonymousClass,
+            ],
         );
     }
 
     public function lint(LintContext $context): void
     {
+        if ($context->node->kind !== NodeKind::Program) {
+            return;
+        }
+
         /** @var list<Trivia> $run */
         $run = [];
         $previous = null;
@@ -113,7 +137,16 @@ final class InlineCommentRule implements Rule
         }
 
         $this->checkRun($context, $run);
-        InlineCommentSpacing::check($context);
+        $closers = [];
+        foreach ($context->file->getTargetNodes() as $node) {
+            if ($node->kind === NodeKind::Program) {
+                continue;
+            }
+
+            $closers[$node->span->end - 1] = true;
+        }
+
+        InlineCommentSpacing::check($context, $this->core ? null : $closers);
     }
 
     /**
@@ -185,8 +218,8 @@ final class InlineCommentRule implements Rule
 
         // A run whose first word starts with "@", a digit or punctuation is
         // exempt from the terminal-punctuation check. A run with a
-        // spell-check directive on any line is exempt too.
-        if ($hasSpellDirective || preg_match('/^\p{L}/u', $words[0]) !== 1) {
+        // spell-check directive on any line is exempt too, and so is core.
+        if ($this->core || $hasSpellDirective || preg_match('/^\p{L}/u', $words[0]) !== 1) {
             return;
         }
 

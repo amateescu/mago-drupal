@@ -40,6 +40,7 @@ use function trim;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final class DocCommentRule implements Rule
 {
@@ -79,6 +80,15 @@ final class DocCommentRule implements Rule
      * follow them and still count as first, because they are markup.
      */
     private const PARAM_LEADING_EXEMPT = ['code', 'todo', 'link', 'endlink', 'codingstandardsignorestart'];
+
+    /**
+     * @param bool $core Whether the worker runs on Drupal core. Core's
+     *   `phpcs.xml.dist` turns off the check on the end of a long
+     *   description.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
 
     public function getDefinition(): RuleDefinition
     {
@@ -296,6 +306,10 @@ final class DocCommentRule implements Rule
                 "The {$label} must start with a capital letter.",
                 new Span($paragraph[0]->offset, $paragraph[0]->offset + strlen($firstChar)),
             ));
+        }
+
+        if (!$strictPunctuation && $this->core) {
+            return;
         }
 
         $last = $paragraph[count($paragraph) - 1];
