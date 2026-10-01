@@ -1,0 +1,10 @@
+<?php
+// phpcs:ignoreFile
+
+/**
+ * Provides the hooks below a directive.
+ */
+
+function directive_help(): string {
+  return '';
+}

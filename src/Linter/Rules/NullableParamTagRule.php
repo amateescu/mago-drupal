@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocType;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -21,7 +22,6 @@ use function in_array;
 use function ltrim;
 use function preg_match;
 use function preg_quote;
-use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 use function stripos;
@@ -43,7 +43,6 @@ use function trim;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
- * @mago-expect lint:too-many-methods
  */
 final class NullableParamTagRule implements Rule
 {
@@ -59,10 +58,6 @@ final class NullableParamTagRule implements Rule
         'phpstan-template',
         'psalm-template',
     ];
-
-    private const OPENING = '<{([';
-
-    private const CLOSING = '>})]';
 
     private const WHITESPACE = " \t\n\r\v\f";
 
@@ -189,7 +184,7 @@ final class NullableParamTagRule implements Rule
                 }
 
                 $content = $tag->content();
-                $type = self::type($content);
+                $type = DocType::leading($content);
                 $rest = ltrim(substr($content, $type === null ? 0 : strlen($type)));
                 if (preg_match($pattern, $rest) === 1) {
                     return [$tag, $type];
@@ -223,30 +218,6 @@ final class NullableParamTagRule implements Rule
     }
 
     /**
-     * The type at the start of a tag's content, or null without one. A type
-     * may hold spaces inside brackets, as in `array<string, int>`, so it
-     * ends at the first whitespace outside them.
-     */
-    private static function type(string $content): ?string
-    {
-        if ($content === '' || $content[0] === '$' || $content[0] === '&') {
-            return null;
-        }
-
-        $depth = 0;
-        $length = strlen($content);
-        for ($i = 0; $i < $length; $i++) {
-            $character = $content[$i];
-            $depth += self::depthChange($character);
-            if ($depth <= 0 && str_contains(self::WHITESPACE, $character)) {
-                return substr($content, offset: 0, length: $i);
-            }
-        }
-
-        return $content;
-    }
-
-    /**
      * Whether a top-level member of the union admits null: `null`, `mixed`,
      * a `?T` shorthand or a template. A null inside a generic, as in
      * `array<string|null>`, does not count.
@@ -255,7 +226,7 @@ final class NullableParamTagRule implements Rule
      */
     private static function admitsNull(string $type, array $templates): bool
     {
-        foreach (self::members($type) as $member) {
+        foreach (DocType::members($type) as $member) {
             if (str_starts_with($member, '(') && str_ends_with($member, ')')) {
                 if (self::admitsNull(substr($member, offset: 1, length: -1), $templates)) {
                     return true;
@@ -274,44 +245,6 @@ final class NullableParamTagRule implements Rule
         }
 
         return false;
-    }
-
-    /**
-     * The members of a union, split at the `|` outside brackets.
-     *
-     * @return list<string>
-     */
-    private static function members(string $type): array
-    {
-        $members = [];
-        $depth = 0;
-        $start = 0;
-        $length = strlen($type);
-        for ($i = 0; $i < $length; $i++) {
-            $character = $type[$i];
-            $depth += self::depthChange($character);
-            if ($character === '|' && $depth === 0) {
-                $members[] = trim(substr($type, $start, $i - $start));
-                $start = $i + 1;
-            }
-        }
-
-        $members[] = trim(substr($type, $start));
-
-        return $members;
-    }
-
-    /**
-     * How a character moves the bracket depth: 1 for an opening bracket,
-     * -1 for a closing one, 0 for anything else.
-     */
-    private static function depthChange(string $character): int
-    {
-        if (str_contains(self::OPENING, $character)) {
-            return 1;
-        }
-
-        return str_contains(self::CLOSING, $character) ? -1 : 0;
     }
 
     /**

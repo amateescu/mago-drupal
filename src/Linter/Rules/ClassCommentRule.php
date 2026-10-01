@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\Nodes;
@@ -65,7 +66,9 @@ final class ClassCommentRule implements Rule
         }
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new("The {$keyword} docblock must start with \"/**\".", $context->node->span));
+            $issue = Issue::new("The {$keyword} docblock must start with \"/**\".", $context->node->span);
+            $fix = CommentDocblock::edit($context->file, $closest, $context->node->span->start);
+            $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }

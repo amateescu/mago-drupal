@@ -8,6 +8,7 @@ use function array_filter;
 use function array_values;
 use function count;
 use function preg_match;
+use function strlen;
 
 /**
  * Checks a deprecation message against Drupal's documented grammar.
@@ -103,5 +104,16 @@ final class DeprecationMessage
         }
 
         return null;
+    }
+
+    /**
+     * How many periods end a change-record url that is correct apart from
+     * them, or 0.
+     */
+    public static function trailingPeriods(string $link): int
+    {
+        $matches = [];
+
+        return preg_match(self::LINK, $link, $matches) === 1 ? strlen($matches[3]) : 0;
     }
 }

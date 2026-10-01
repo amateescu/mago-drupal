@@ -1,0 +1,7 @@
+<?php
+
+/** Provides the hooks on one line. */
+
+function one_line_help(): string {
+  return '';
+}

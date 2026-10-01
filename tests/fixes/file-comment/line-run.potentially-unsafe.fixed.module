@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * @file
+ * Provides the hooks
+ * over two lines.
+ */
+
+function line_run_help(): string {
+  return '';
+}

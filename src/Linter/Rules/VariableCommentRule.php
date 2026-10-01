@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use Mago\Sdk\Linter\LintContext;
@@ -11,13 +12,22 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
+use function array_values;
 use function count;
 use function in_array;
 use function preg_match;
+use function preg_match_all;
+use function preg_quote;
+use function preg_replace;
 use function stripos;
+use function strlen;
+use function strspn;
+use function substr;
 
 /**
  * Checks that a class property has a `@var` docblock.
@@ -57,7 +67,9 @@ final class VariableCommentRule implements Rule
         }
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new('The property docblock must start with "/**".', $context->node->span));
+            $issue = Issue::new('The property docblock must start with "/**".', $context->node->span);
+            $fix = CommentDocblock::edit($context->file, $closest, $context->node->span->start);
+            $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }
@@ -114,11 +126,64 @@ final class VariableCommentRule implements Rule
 
         [$type, $rest] = Docblocks::splitType($content);
         if ($type !== null && preg_match('/^\$/', $rest) === 1) {
-            $context->report(Issue::new(
+            $issue = Issue::new(
                 'Do not repeat the property name after the type in the @var tag.',
                 $firstVar->contentSpan(),
-            ));
+            );
+            $name = self::nameAfterType($firstVar, $type, self::declaredNames($context));
+            $context->report($name === null ? $issue : $issue->withEdit(TextEdit::delete($name)));
         }
+    }
+
+    /**
+     * The span of the name, with the space before it, when it follows the
+     * type on the tag's first line and is the declaration's only property. A
+     * description after the name stays. With another name, or several
+     * properties in one declaration, the analyzers read the tag differently
+     * once the name goes.
+     *
+     * @param list<string> $declared
+     */
+    private static function nameAfterType(DocblockTag $tag, string $type, array $declared): ?Span
+    {
+        if (count($declared) !== 1) {
+            return null;
+        }
+
+        $line = $tag->lines[0];
+        $indent = strspn($line->text, characters: " \t");
+        if (substr($line->text, $indent, strlen($type)) !== $type) {
+            return null;
+        }
+
+        $matches = [];
+        $end = $indent + strlen($type);
+        $pattern = '/\G[ \t]+' . preg_quote($declared[0], delimiter: '/') . '(?=[ \t]|$)/';
+        if (preg_match($pattern, $line->text, $matches, offset: $end) !== 1) {
+            return null;
+        }
+
+        return new Span($line->offset + $end, $line->offset + $end + strlen($matches[0]));
+    }
+
+    /**
+     * The variables the declaration declares, such as `$a` and `$b` in
+     * `public $a = 0, $b = 1;`. Default values hold no variables, and quoted
+     * text is skipped.
+     *
+     * @return list<string>
+     */
+    private static function declaredNames(LintContext $context): array
+    {
+        $text = (string) preg_replace(
+            '/\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*"/s',
+            replacement: '',
+            subject: $context->file->getText($context->node),
+        );
+        $matches = [];
+        preg_match_all('/\$[A-Za-z_\x80-\xff][\w\x80-\xff]*/', $text, $matches);
+
+        return array_values($matches[0]);
     }
 
     /**

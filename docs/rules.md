@@ -40,10 +40,10 @@ These rules report only in `.module` and `.install` files.
 | --- | --- | --- |
 | `drupal/else-if` | Error | An `else if` written as two keywords. Drupal writes `elseif`. A fix joins the keywords. The rule skips a braced `else { if ... }`. |
 | `drupal/enum-case-name` | Error | An enum case that is not UpperCamelCase. |
-| `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call. The rule skips an `.api.php` file completely. |
+| `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. It skips a file with no namespace, several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock type. |
 | `drupal/method-visibility` | Error | A method declared without `public`, `protected` or `private`. A fix adds `public`. |
 | `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
-| `drupal/redundant-use` | Error | A `use` statement that imports a class from the global namespace. |
+| `drupal/redundant-use` | Error | A `use` statement that imports a class from the global namespace. A fix removes the import and writes `\Exception` at every reference, read from the resolved names. It is left out while a docblock in the file names the class without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes the types. |
 | `drupal/use-leading-backslash` | Error | An import whose class name starts with a backslash. A fix removes the backslash. |
 
 ## Comment text
@@ -57,11 +57,11 @@ and the line-length check for comments.
 | `drupal/author-tag` | Warning | An `@author` tag. The tag goes out of date as other people edit the file. |
 | `drupal/comment-line-length` | Warning | A comment line that is longer than 80 characters. |
 | `drupal/doc-comment-array-syntax` | Warning | The `array()` syntax inside a docblock `@code` example. |
-| `drupal/doc-type-namespace` | Warning | A `@param`, `@return`, `@var` or `@throws` type written as an imported short name and not as the fully qualified name. |
+| `drupal/doc-type-namespace` | Warning | A `@param`, `@return`, `@var` or `@throws` type written as an imported short name and not as the fully qualified name. A fix writes the fully qualified name for each such member of the type, when the type starts on the tag's line and the docblock is below the import, in a file with one namespace. |
 | `drupal/expected-exception-tag` | Warning | A legacy PHPUnit `@expectedException*` docblock tag. |
 | `drupal/gender-neutral-comment` | Warning | A gendered pronoun in a comment. |
 | `drupal/inline-comment` | Warning | A `//` comment that starts with a lowercase letter, has no terminal punctuation, or uses `#` and not `//`. |
-| `drupal/post-statement-comment` | Warning | A `//` comment on the same line as the statement before it. |
+| `drupal/post-statement-comment` | Warning | A `//` comment on the same line as the statement before it. A fix moves the comment to its own line above. It is left out where the move could attach the comment to something else: a line that opens a block or closes a construct, a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement, a line inside a string, a comment that the next line continues, and a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`. |
 | `drupal/todo-comment` | Warning | A to-do comment that does not follow the `@todo Fix problem X here.` format. |
 
 Mago's own `tagged-todo` rule must have a `TODO(@user)` or `TODO(#123)` reference. That format is
@@ -75,14 +75,14 @@ real signature. The group has the rest of `Drupal.Commenting.*`.
 
 | Code | Level | What it reports |
 | --- | --- | --- |
-| `drupal/class-comment` | Error | A class, interface, trait or enum with no docblock, with the wrong comment style, or with a summary that only repeats the name. |
-| `drupal/deprecated-tag` | Warning | A `@deprecated` tag that breaks the version-and-reason grammar, or that has no `@see` tag after it. |
-| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in the first group. Also a summary that is not capitalized, that has no punctuation, or that spans more than one line. |
-| `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. |
-| `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized. |
+| `drupal/class-comment` | Error | A class, interface, trait or enum with no docblock, with the wrong comment style, or with a summary that only repeats the name. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
+| `drupal/deprecated-tag` | Warning | A `@deprecated` tag that breaks the version-and-reason grammar, or that has no `@see` tag after it. The change-record url is the first line of the `@see` tag. A fix removes the periods after it. |
+| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in the first group. Also a summary that is not capitalized, that has no punctuation, or that spans more than one line, and `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. |
+| `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. A directive such as `// phpcs:ignoreFile` above the docblock is skipped. A fix adds `@file` below the docblock's opener when a blank line parts the docblock from the code. A potentially unsafe fix turns a comment in the wrong style into a docblock with `@file`, see below. |
+| `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized. A `@return` variable name and a `@see` reference are read from the tag's own line. Fixes remove a period after a `@param` name, a variable name after a `@return` type that has a description below, and punctuation after a one-word `@see` reference, and add a full stop to a `@param` description that does not end in a url, a tag or `:`, `,` or `;`. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/hook-comment` | Warning | A hook implementation that is not documented as `Implements hook_foo().`, or that duplicates the `@param` or `@return` documentation. |
-| `drupal/inline-variable-comment` | Warning | An inline `@var` declaration that uses `//` and not `/** */`, or that writes the variable name before the type. |
-| `drupal/variable-comment` | Error | A class property with no `@var` docblock, with the wrong comment style, or with more than one `@var` tag. |
+| `drupal/inline-variable-comment` | Warning | An inline `@var` declaration that uses `//` and not `/** */`, or that writes the variable name before the type. A `//` or `#` comment that holds `*/`, such as a commented-out docblock, is skipped. Two fixes are potentially unsafe, because the analyzers start to trust the type: one moves a variable name written first after the type, and the other turns a comment that holds only the tag, alone on its line, into a docblock. |
+| `drupal/variable-comment` | Error | A class property with no `@var` docblock, with the wrong comment style, or with more than one `@var` tag. A fix removes a property name repeated after the `@var` type. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 
 ## Docblock types
 
@@ -112,9 +112,8 @@ rules, a part of the standard is not checked.
 
 ## Parity notes
 
-The two comment groups complete `Drupal.Commenting.*`, with two exceptions. `mago format` already
-produces the pure-whitespace sub-codes. The last paragraph of this section describes the
-`DocCommentStar` gap.
+The two comment groups port the wording and structure checks of `Drupal.Commenting.*`. Most of the
+whitespace sub-codes are not ported. The last paragraphs of this section list them.
 
 `Drupal.Commenting.FunctionComment` compares a docblock against a function's real parameter list
 and return type. Most of those checks are redundant with `mago analyze`. The analyzer reads
@@ -145,11 +144,24 @@ frequent case. Also, the rule reports a `/* ... */` line that holds the closing 
 skips it. Such a line ends on a whitespace token and not on a comment token, so the sniff's own
 check never runs on it. Both tools report the lines above the closer.
 
-One `Drupal.Commenting.*` sniff is pure whitespace and is not ported, because `mago format` already
-produces its result: `DocCommentAlignment` (star spacing and alignment). `DocCommentStar` adds a
-star to a docblock line that has none. `mago format` leaves such a line as it is and does not add
-the star. That is a gap in the upstream formatter, and a linter rule cannot fix it. A hand-edited
-docblock line without its `*` stays unfixed either way.
+Two `Drupal.Commenting.*` sniffs are pure whitespace and are not ported, because `mago format`
+produces their result: `DocCommentAlignment` (star spacing and alignment) and `DocCommentStar` (a
+star on a docblock line that has none).
+
+The formatter leaves the rest of a comment's whitespace as written, and no rule here reports it:
+blank lines at the start or end of a docblock, around its summary and between its tag groups, a
+blank line between a docblock and its declaration, the indent of a tag's value and of a `@param` or
+`@return` description, the spaces after a `@param` type, a description on the `@param` line, and
+the space after `//` (`NoSpaceBefore`, `TabBefore` and `SpacingBefore` of
+`Drupal.Commenting.InlineComment`). Core's `phpcs.xml.dist` enables these sub-codes.
+
+The comment-style fixes of `drupal/function-comment`, `drupal/class-comment`,
+`drupal/variable-comment` and `drupal/file-comment` turn a `//` run or a `/* */` comment right
+above the declaration into a docblock, with an `@file` tag for a file. They are potentially unsafe,
+because PHP's reflection returns a docblock and not a comment, so annotation discovery, PHPUnit and
+the analyzers start to read the text. They skip a trailing comment of the line above, a comment that
+a blank line parts from the declaration, a directive, and a line comment that holds `*/`. A file
+comment that already starts with `@file` keeps it once.
 
 ## Ported from phpstan-drupal
 

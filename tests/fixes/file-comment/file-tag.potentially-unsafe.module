@@ -1,0 +1,10 @@
+<?php
+
+/*
+ * @file
+ * Provides the hooks, with a single star by mistake.
+ */
+
+function file_tag_help(): string {
+  return '';
+}

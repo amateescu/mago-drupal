@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\Nodes;
@@ -12,6 +13,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
@@ -62,6 +64,12 @@ final class FunctionCommentRule implements Rule
      */
     private const QUOTED_OR_COMMENT = '/\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*"|\/\*.*?\*\/|(?:\/\/|#(?!\[))[^\n]*/s';
 
+    /**
+     * A variable name right after the `@return` type, with nothing after it
+     * on the line.
+     */
+    private const RETURN_VARIABLE = '/^([ \t]*\S+)([ \t]+\$[A-Za-z_][A-Za-z0-9_]*)[ \t]*$/';
+
     private string $mentionPath = '';
 
     /**
@@ -95,7 +103,9 @@ final class FunctionCommentRule implements Rule
         }
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
-            $context->report(Issue::new('The function docblock must start with "/**".', $context->node->span));
+            $issue = Issue::new('The function docblock must start with "/**".', $context->node->span);
+            $fix = CommentDocblock::edit($context->file, $closest, $context->node->span->start);
+            $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }
@@ -225,7 +235,18 @@ final class FunctionCommentRule implements Rule
         }
 
         if (str_starts_with($rest, '.')) {
-            $context->report(Issue::new('Do not put a period after the @param variable name.', $tag->contentSpan()));
+            $issue = Issue::new('Do not put a period after the @param variable name.', $tag->contentSpan());
+            $line = $tag->lines[0];
+            // One period after the name on the tag's line. `$names...` and
+            // `$a.b` are left alone.
+            $position = strpos($line->text, $variable . '.');
+            $after = $position === false ? null : substr($line->text, $position + strlen($variable) + 1, length: 1);
+            if ($position !== false && in_array($after, ['', ' ', "\t"], strict: true)) {
+                $at = $line->offset + $position + strlen($variable);
+                $issue = $issue->withEdit(TextEdit::delete(new Span($at, $at + 1)));
+            }
+
+            $context->report($issue);
         }
 
         $description = ltrim($rest, characters: ". \t");
@@ -240,7 +261,13 @@ final class FunctionCommentRule implements Rule
         // A description with an example after it ends on the example, not on
         // a sentence. The ported sniff exempts that.
         if (!$this->precedesExample($tags, $tag)) {
-            $this->checkProseEnd($context, $description, $tag->contentSpan(), 'param description');
+            $this->checkProseEnd(
+                $context,
+                $description,
+                $tag->contentSpan(),
+                'param description',
+                self::fullStop($tag),
+            );
         }
     }
 
@@ -321,11 +348,27 @@ final class FunctionCommentRule implements Rule
             return;
         }
 
-        if (str_starts_with($rest, '$')) {
-            $context->report(Issue::new(
-                'Do not put a variable name after the @return type.',
-                $returnTags[0]->contentSpan(),
-            ));
+        // Only the tag's own line can hold a variable name. A description
+        // below it may start with one, as in `$this.`.
+        $tag = $returnTags[0];
+        $line = $tag->lines[0];
+        [, $lineRest] = Docblocks::splitType(ltrim($line->text));
+        if (str_starts_with($lineRest, '$')) {
+            $issue = Issue::new('Do not put a variable name after the @return type.', $tag->contentSpan());
+            $name = [];
+            // The name goes when the line holds only the type and it, and a
+            // description follows. Without one, the name is all the author
+            // wrote about the value.
+            if (
+                count($tag->lines) > 1
+                && trim($tag->lines[1]->text) !== ''
+                && preg_match(self::RETURN_VARIABLE, $line->text, $name) === 1
+            ) {
+                $start = $line->offset + strlen($name[1]);
+                $issue = $issue->withEdit(TextEdit::delete(new Span($start, $start + strlen($name[2]))));
+            }
+
+            $context->report($issue);
 
             return;
         }
@@ -362,19 +405,41 @@ final class FunctionCommentRule implements Rule
      */
     private function checkSeeTags(LintContext $context, array $tags): void
     {
-        foreach ($tags as $tag) {
+        // A `@see` after `@deprecated` holds the change-record url, whose
+        // trailing periods `drupal/deprecated-tag` removes. A second edit
+        // there would overlap that one.
+        $deprecatedAt = null;
+        foreach ($tags as $index => $tag) {
+            if ($tag->name !== 'deprecated') {
+                continue;
+            }
+
+            $deprecatedAt = $index;
+            break;
+        }
+
+        foreach ($tags as $index => $tag) {
             if ($tag->name !== 'see') {
                 continue;
             }
 
-            $content = $tag->content();
-            if ($content === '') {
+            $deprecated = $deprecatedAt !== null && $index > $deprecatedAt;
+
+            if ($tag->content() === '') {
                 $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
 
                 continue;
             }
 
-            [, $rest] = Docblocks::splitType($content);
+            // The reference is the tag's own line, as Coder reads it. The
+            // lines below it are a description, which may end in a period.
+            $line = $tag->lines[0];
+            $reference = rtrim($line->text);
+            if (trim($reference) === '') {
+                continue;
+            }
+
+            [, $rest] = Docblocks::splitType(ltrim($reference));
             if ($rest !== '') {
                 $context->report(Issue::new(
                     'The @see tag must have only a reference, with no other text.',
@@ -382,10 +447,19 @@ final class FunctionCommentRule implements Rule
                 ));
             }
 
-            $lastChar = mb_substr(rtrim($content), -1);
-            if (in_array($lastChar, ['.', '!', '?'], strict: true)) {
-                $context->report(Issue::new('Do not end the @see reference with punctuation.', $tag->contentSpan()));
+            $kept = rtrim($reference, characters: '.!?');
+            if ($kept === $reference) {
+                continue;
             }
+
+            $issue = Issue::new('Do not end the @see reference with punctuation.', $tag->contentSpan());
+            if ($rest === '' && trim($kept) !== '' && !$deprecated) {
+                $issue = $issue->withEdit(TextEdit::delete(
+                    new Span($line->offset + strlen($kept), $line->offset + strlen($reference)),
+                ));
+            }
+
+            $context->report($issue);
         }
     }
 
@@ -430,11 +504,47 @@ final class FunctionCommentRule implements Rule
     /**
      * Checks that free-form text ends with terminal punctuation.
      */
-    private function checkProseEnd(LintContext $context, string $text, Span $span, string $label): void
-    {
+    private function checkProseEnd(
+        LintContext $context,
+        string $text,
+        Span $span,
+        string $label,
+        ?TextEdit $fix = null,
+    ): void {
         $last = mb_substr(rtrim($text), -1);
-        if (!in_array($last, ['.', '!', '?', ')'], strict: true)) {
-            $context->report(Issue::new("The {$label} must end with terminal punctuation.", $span));
+        if (in_array($last, ['.', '!', '?', ')'], strict: true)) {
+            return;
         }
+
+        $issue = Issue::new("The {$label} must end with terminal punctuation.", $span);
+        $context->report($fix === null ? $issue : $issue->withEdit($fix));
+    }
+
+    /**
+     * The edit that adds a full stop to a tag's last line, or null when that
+     * line ends in something a period would spoil: a url, a tag such as an
+     * indented `@see`, or a colon, comma or semicolon that announces more.
+     */
+    private static function fullStop(DocblockTag $tag): ?TextEdit
+    {
+        foreach (array_reverse($tag->lines) as $line) {
+            $text = rtrim($line->text);
+            if ($text === '') {
+                continue;
+            }
+
+            $trimmed = ltrim($text);
+            if (
+                str_starts_with($trimmed, '@')
+                || preg_match('~https?://\S+$~', $text) === 1
+                || preg_match('/[:,;]$|\.["\']$/', $text) === 1
+            ) {
+                return null;
+            }
+
+            return TextEdit::insert($line->offset + strlen($text), '.');
+        }
+
+        return null;
     }
 }

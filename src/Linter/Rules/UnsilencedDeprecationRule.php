@@ -11,11 +11,13 @@ use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\CallExpression;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
+use function in_array;
 use function ltrim;
 use function stripos;
 use function strtoupper;
@@ -64,12 +66,10 @@ final class UnsilencedDeprecationRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new(
-                'Silence a deprecation notice with "@".',
-                $call->span,
-            )->withEdit(TextEdit::insert($call->span->start, text: '@'))->withHelp(
-                'Drupal reports an unsilenced deprecation as a test failure.',
-            ));
+            $context->report(Issue::new('Silence a deprecation notice with "@".', $call->span)->withEdit(self::silence(
+                $context->file->contents,
+                $call->span->start,
+            ))->withHelp('Drupal reports an unsilenced deprecation as a test failure.'));
         }
     }
 
@@ -87,6 +87,25 @@ final class UnsilencedDeprecationRule implements Rule
             $level !== null
             && strtoupper(ltrim(trim($file->getText($level)), characters: '\\')) === 'E_USER_DEPRECATED'
         );
+    }
+
+    /**
+     * The edit that puts an `@` right before the call: it closes the gap
+     * after an `@` that is already there, as in `@ trigger_error()`, and
+     * adds one otherwise.
+     */
+    private static function silence(string $contents, int $start): TextEdit
+    {
+        $gap = 0;
+        while (($start - $gap - 1) >= 0 && in_array($contents[$start - $gap - 1], [' ', "\t"], strict: true)) {
+            $gap++;
+        }
+
+        if ($gap > 0 && ($start - $gap - 1) >= 0 && $contents[$start - $gap - 1] === '@') {
+            return TextEdit::delete(new Span($start - $gap, $start));
+        }
+
+        return TextEdit::insert($start, text: '@');
     }
 
     /**

@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Groups the example hooks.
+ *
+ * @defgroup example Example
+ */
+
+function group_help(): string {
+  return '';
+}

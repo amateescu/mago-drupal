@@ -13,11 +13,17 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function array_slice;
 use function preg_match;
+use function rtrim;
+use function strlen;
+use function strspn;
+use function substr;
 
 /**
  * Checks the wording of a `@deprecated` docblock tag and the `@see` tag
@@ -29,6 +35,9 @@ use function preg_match;
  * tag writes the link as a `@see` tag after it instead.
  *
  * @see https://www.drupal.org/node/2807731
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class DeprecatedTagRule implements Rule
 {
@@ -104,10 +113,28 @@ final class DeprecatedTagRule implements Rule
             return;
         }
 
-        $linkProblem = DeprecationMessage::linkProblem($see->content());
-        if ($linkProblem !== null) {
-            $context->report(Issue::new($linkProblem, $see->contentSpan()));
+        // The url is the tag's first line, which Coder reads too. Lines
+        // below it hold other text.
+        $line = $see->lines[0];
+        $indent = strspn($line->text, characters: " \t");
+        $link = rtrim(substr($line->text, $indent));
+        if ($link === '') {
+            $link = $see->content();
         }
+
+        $linkProblem = DeprecationMessage::linkProblem($link);
+        if ($linkProblem === null) {
+            return;
+        }
+
+        $issue = Issue::new($linkProblem, $see->contentSpan());
+        $periods = $link === rtrim(substr($line->text, $indent)) ? DeprecationMessage::trailingPeriods($link) : 0;
+        if ($periods > 0) {
+            $end = $line->offset + $indent + strlen($link);
+            $issue = $issue->withEdit(TextEdit::delete(new Span($end - $periods, $end)));
+        }
+
+        $context->report($issue);
     }
 
     private function checkLayout(LintContext $context, DocblockTag $tag): void
