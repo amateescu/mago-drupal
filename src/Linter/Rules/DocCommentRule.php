@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\DocCommentSpacing;
+use amateescu\MagoDrupal\Internal\OuterDocblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -16,31 +17,27 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\TriviaKind;
 
 use function count;
-use function explode;
 use function in_array;
-use function max;
 use function mb_strtoupper;
 use function mb_substr;
-use function preg_match;
 use function rtrim;
 use function strlen;
 use function strtolower;
-use function trim;
 
 /**
  * Checks a docblock's short description, long description and tag order.
  *
  * Ports Drupal.Commenting.DocComment. `DocCommentSpacing` holds the checks
  * on blank lines and on the spaces before a description and after a tag.
- * Star alignment is left to `mago format`. A `phpcs:` line inside the
- * docblock is not part of a description, as Coder reads it.
+ * Star alignment is left to `mago format`. The end of the long description
+ * is `drupal/long-description-punctuation`'s, since core's `phpcs.xml.dist`
+ * turns that check off. A `phpcs:` line inside the docblock is not part of
+ * a description, as Coder reads it.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
- * @mago-expect lint:too-many-methods
  */
 final class DocCommentRule implements Rule
 {
@@ -59,18 +56,6 @@ final class DocCommentRule implements Rule
     private const EXEMPT_ONLY_TAGS = ['covers', 'coversdefaultclass', 'file'];
 
     /**
-     * First-line markers of an api.module documentation group. This rule
-     * skips such a group.
-     *
-     * A `@defgroup` or `@addtogroup` block is topic markup, not a
-     * declaration's docblock. Its closing block is a bare `@}`. Coder skips
-     * all of these on the first content token alone. A group block that
-     * also holds `@section` or `@see` markup is thus still exempt. A check
-     * that every tag is exempt reports real api.php group blocks.
-     */
-    private const GROUP_MARKERS = ['@defgroup', '@addtogroup', '@coversdefaultclass', '@}'];
-
-    /**
      * Tags that this rule checks for order. Each must also be in one group.
      */
     private const ORDERED_TAGS = ['param', 'return', 'throws'];
@@ -81,22 +66,10 @@ final class DocCommentRule implements Rule
      */
     private const PARAM_LEADING_EXEMPT = ['code', 'todo', 'link', 'endlink', 'codingstandardsignorestart'];
 
-    /**
-     * @param bool $core Whether the worker runs on Drupal core. Core's
-     *   `phpcs.xml.dist` turns off the check on the end of a long
-     *   description.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
-        // Function and Method are targets. Rust then collects every one of
-        // them into the file's target-node list, and the Program pass below
-        // reads that list at no cost. Their own dispatches do nothing. A
-        // getNodes() call per kind takes about 0.13ms per file per kind on
-        // Drupal core, because each call is a full, unindexed re-scan.
+        // Function and Method are targets for `OuterDocblocks::of()`. Their
+        // own dispatches do nothing.
         return new RuleDefinition(
             code: 'drupal/doc-comment',
             name: 'Doc comment',
@@ -113,74 +86,15 @@ final class DocCommentRule implements Rule
             return;
         }
 
-        // A docblock inside a function-like body belongs to InlineComment,
-        // not to this rule. A local `/** @var Foo $x */` annotation is a
-        // common idiom, not a malformed declaration comment. The rule does
-        // not skip a `Closure`. Coder's own sniff does not skip a top-level
-        // closure either, because it tests only `T_FUNCTION`. A nested
-        // closure is inside a covered body in any case. The rule does not
-        // cover a PHP 8.4 property hook body. Drupal 11 runs on PHP 8.3.
-        //
-        // The target list is in source order. The bodies are thus kept as
-        // two parallel arrays: each start, and the furthest end seen up to
-        // it. A docblock then binary-searches the last body that starts
-        // before it. The docblock is inside a body if that furthest end is
-        // past the docblock. A scan of every body for every docblock is
-        // quadratic on a class with hundreds of methods.
-        $starts = [];
-        $ends = [];
-        $furthest = 0;
-        foreach ($context->file->getTargetNodes() as $node) {
-            if ($node->kind !== NodeKind::Function && $node->kind !== NodeKind::Method) {
-                continue;
-            }
-
-            $furthest = max($furthest, $node->span->end);
-            $starts[] = $node->span->start;
-            $ends[] = $furthest;
+        foreach (OuterDocblocks::of($context->file) as $span) {
+            $this->checkDocblock($context, $span);
         }
-
-        foreach ($context->file->getTrivia() as $trivia) {
-            if ($trivia->kind !== TriviaKind::DocBlockComment) {
-                continue;
-            }
-
-            if ($this->isInsideAFunctionLikeBody($trivia->span, $starts, $ends)) {
-                continue;
-            }
-
-            $this->checkDocblock($context, $trivia->span);
-        }
-    }
-
-    /**
-     * @param list<int> $starts Body starts, ascending.
-     * @param list<int> $ends The furthest body end up to each start.
-     */
-    private function isInsideAFunctionLikeBody(Span $span, array $starts, array $ends): bool
-    {
-        $low = 0;
-        $high = count($starts) - 1;
-        $index = null;
-        while ($low <= $high) {
-            $middle = ($low + $high) >> 1;
-            if ($starts[$middle] > $span->start) {
-                $high = $middle - 1;
-
-                continue;
-            }
-
-            $index = $middle;
-            $low = $middle + 1;
-        }
-
-        return $index !== null && $ends[$index] >= $span->end;
     }
 
     private function checkDocblock(LintContext $context, Span $span): void
     {
         DocCommentSpacing::checkEnds($context, $span);
-        if ($this->isDocumentationGroup($context, $span)) {
+        if (OuterDocblocks::isGroup($context->file, $span)) {
             return;
         }
 
@@ -218,7 +132,8 @@ final class DocCommentRule implements Rule
         }
 
         if ($summary !== []) {
-            $this->checkParagraph($context, $summary, 'short description', strictPunctuation: true);
+            $this->checkCapital($context, $summary, 'short description');
+            $this->checkSummaryEnd($context, $summary);
             if (count($summary) > 1) {
                 $context->report(Issue::new(
                     'A short description must fit on one line. Move the rest to a long description.',
@@ -228,29 +143,10 @@ final class DocCommentRule implements Rule
         }
 
         if ($description !== []) {
-            $this->checkParagraph($context, $description, 'long description', strictPunctuation: false);
+            $this->checkCapital($context, $description, 'long description');
         }
 
         $this->checkTagOrder($context, $tags);
-    }
-
-    /**
-     * Whether a docblock's first content marks it as a documentation group.
-     */
-    private function isDocumentationGroup(LintContext $context, Span $span): bool
-    {
-        foreach (Docblocks::lines($context->file, $span) as $line) {
-            $text = trim($line->text);
-            if ($text === '') {
-                continue;
-            }
-
-            $firstWord = strtolower(explode(' ', $text, limit: 2)[0]);
-
-            return in_array($firstWord, self::GROUP_MARKERS, strict: true);
-        }
-
-        return false;
     }
 
     /**
@@ -275,60 +171,51 @@ final class DocCommentRule implements Rule
     }
 
     /**
-     * Checks that a paragraph's first line starts with a capital letter and
-     * its last line ends with terminal punctuation.
-     *
-     * $strictPunctuation follows the split in Coder's own sniff. A short
-     * description must end in one of a fixed set of terminal marks. A long
-     * description is only reported when it ends with a bare letter. A long
-     * description can end with a colon before a list, a quoted token, or a
-     * digit. A report on those gives dozens of false positives on real
-     * Drupal core docblocks. The flag stays a flag because both callers
-     * share everything else in here, and each call site names it.
+     * Checks that a paragraph's first line starts with a capital letter.
      *
      * @param list<DocblockLine> $paragraph
-     *
-     * @mago-expect lint:no-boolean-flag-parameter
      */
-    private function checkParagraph(
-        LintContext $context,
-        array $paragraph,
-        string $label,
-        bool $strictPunctuation,
-    ): void {
+    private function checkCapital(LintContext $context, array $paragraph, string $label): void
+    {
         $first = $paragraph[0]->text;
         $firstChar = mb_substr($first, start: 0, length: 1);
-        if (!self::isInheritdoc($first) && $firstChar !== mb_strtoupper($firstChar)) {
-            // The span uses the byte length of $firstChar, not a hardcoded 1.
-            // With a multi-byte character such as "É" or "€", a 1 puts the
-            // span's end in the middle of the character.
-            $context->report(Issue::new(
-                "The {$label} must start with a capital letter.",
-                new Span($paragraph[0]->offset, $paragraph[0]->offset + strlen($firstChar)),
-            ));
-        }
-
-        if (!$strictPunctuation && $this->core) {
+        if (self::isInheritdoc($first) || $firstChar === mb_strtoupper($firstChar)) {
             return;
         }
 
-        $last = $paragraph[count($paragraph) - 1];
+        // The span uses the byte length of $firstChar, not a hardcoded 1.
+        // With a multi-byte character such as "É" or "€", a 1 puts the span's
+        // end in the middle of the character.
+        $context->report(Issue::new(
+            "The {$label} must start with a capital letter.",
+            new Span($paragraph[0]->offset, $paragraph[0]->offset + strlen($firstChar)),
+        ));
+    }
+
+    /**
+     * Checks that the short description ends in one of a fixed set of
+     * terminal marks. `drupal/long-description-punctuation` checks the long
+     * description, more loosely.
+     *
+     * @param list<DocblockLine> $summary
+     */
+    private function checkSummaryEnd(LintContext $context, array $summary): void
+    {
+        $last = $summary[count($summary) - 1];
+        // The text is trimmed first. Otherwise a stray trailing space, or a
+        // "\r" that the line splitter keeps under CRLF, makes it look
+        // unexempt.
         $trimmed = rtrim($last->text);
         $lastChar = mb_substr($trimmed, -1);
-        // Both comparisons use the trimmed text. Otherwise a stray trailing
-        // space, or a "\r" that the line splitter keeps under CRLF, makes
-        // the text look unexempt. The last character is judged after the
-        // trim. The exemption for the exact text then fails.
-        $unpunctuated = $strictPunctuation
-            ? !in_array($lastChar, ['.', '!', '?', ')'], strict: true)
-            : preg_match('/[a-zA-Z]/', $lastChar) === 1;
-        if (!self::isInheritdoc($trimmed) && $unpunctuated) {
-            $lastCharEnd = $last->offset + strlen($trimmed);
-            $context->report(Issue::new(
-                "The {$label} must end with terminal punctuation.",
-                new Span($lastCharEnd - strlen($lastChar), $lastCharEnd),
-            ));
+        if (self::isInheritdoc($trimmed) || in_array($lastChar, ['.', '!', '?', ')'], strict: true)) {
+            return;
         }
+
+        $lastCharEnd = $last->offset + strlen($trimmed);
+        $context->report(Issue::new(
+            'The short description must end with terminal punctuation.',
+            new Span($lastCharEnd - strlen($lastChar), $lastCharEnd),
+        ));
     }
 
     /**

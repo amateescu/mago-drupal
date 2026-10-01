@@ -257,7 +257,7 @@ function inline_comment_examples(): void
     // lowercase start.
     $b = 2;
 
-    // @mago-expect lint:drupal/inline-comment
+    // @mago-expect lint:drupal/inline-comment-punctuation
     // No terminal punctuation
     $c = 3;
 
@@ -364,7 +364,7 @@ function doc_comment_long_description_may_end_with_a_colon(): void
 {
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/long-description-punctuation
 /**
  * Fine summary.
  *
@@ -415,7 +415,7 @@ function inline_comment_directive_shapes(): void
     // cspell:ignore corpusword otherword
     $a = 1;
 
-    // @mago-expect lint:drupal/inline-comment
+    // @mago-expect lint:drupal/inline-comment-punctuation
     // This sentence is cut short by the reference below
     // @see https://example.com/reference
     $b = 2;

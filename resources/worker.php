@@ -10,7 +10,9 @@
  *     [extension-hosts.drupal]
  *     command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
  *
- * Pass `--core` as a second argument when you analyze Drupal core.
+ * Add `--core` to the command when you analyze Drupal core. Add
+ * `--disable=<code>,<code>` to turn rules off. Mago does not take this
+ * extension's rule codes under `[linter.rules]`.
  */
 
 declare(strict_types=1);
@@ -43,7 +45,16 @@ use Mago\Sdk\Worker;
             continue;
         }
 
-        (new Worker(DrupalExtension::create(core: in_array('--core', $arguments, strict: true))))->run();
+        try {
+            $extension = DrupalExtension::fromArguments($arguments);
+        } catch (InvalidArgumentException $exception) {
+            // Mago reads stdout as the protocol stream, so a failure goes to
+            // stderr.
+            fwrite(STDERR, "mago-drupal: {$exception->getMessage()}\n");
+            exit(1);
+        }
+
+        (new Worker($extension))->run();
 
         return;
     }

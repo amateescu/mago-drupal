@@ -24,11 +24,24 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core and leaves out the comment checks that core's `phpcs.xml.dist` turns off.
+apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-punctuation` and
+`long-description-punctuation`, because core's `phpcs.xml.dist` turns off the checks that they
+port.
+
+Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
+`"--disable=<code>,<code>"` to the command:
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
+```
+
+A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an
+error when a code names no rule.
 
 ## What it provides
 
-45 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
+48 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
 The codes below omit their shared `drupal/` prefix.
 
 - **Bugs and security**: `insecure-unserialize`, `preg-security`, `remote-address`, `weak-hash`.
@@ -42,6 +55,7 @@ The codes below omit their shared `drupal/` prefix.
   `method-visibility`, `property-name`, `redundant-use`, `use-leading-backslash`.
 - **Comment text**: `author-tag`, `comment-line-length`, `doc-comment-array-syntax`,
   `doc-type-namespace`, `expected-exception-tag`, `gender-neutral-comment`, `inline-comment`,
+  `inline-comment-blank-line`, `inline-comment-punctuation`, `long-description-punctuation`,
   `post-statement-comment`, `todo-comment`.
 - **Docblock structure**: `class-comment`, `deprecated-tag`, `doc-comment`, `file-comment`,
   `function-comment`, `hook-comment`, `inline-variable-comment`, `variable-comment`.

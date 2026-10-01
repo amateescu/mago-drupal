@@ -20,10 +20,13 @@ drupal/global-function
 drupal/global-variable
 drupal/hook-comment
 drupal/inline-comment
+drupal/inline-comment-blank-line
+drupal/inline-comment-punctuation
 drupal/inline-variable-comment
 drupal/insecure-unserialize
 drupal/install-hook-location
 drupal/link-text-translatable
+drupal/long-description-punctuation
 drupal/method-visibility
 drupal/nullable-param-tag
 drupal/post-statement-comment

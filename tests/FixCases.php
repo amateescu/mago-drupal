@@ -9,12 +9,11 @@
  * `.module`, work the same way. A case named `<case>.unsafe.php` or
  * `<case>.potentially-unsafe.php` runs with that safety level allowed. Every
  * other case runs with the safe fixes only, so an unsafe fix that a plain
- * `--fix` applies shows up as a difference. A case named `<case>.core.php`
- * runs with the worker's `--core` argument. A case with no change to make
+ * `--fix` applies shows up as a difference. A case with no change to make
  * has a `.fixed.php` equal to itself.
  *
- * The cases of one rule, safety level and worker argument run together, in a
- * temporary workspace whose config loads this checkout's worker.
+ * The cases of one rule and safety level run together, in a temporary
+ * workspace whose config loads this checkout's worker.
  *
  * Usage: php tests/FixCases.php <mago binary> [--update]
  *
@@ -84,8 +83,7 @@ $root = dirname(__DIR__);
 $worker = $root . '/resources/worker.php';
 
 /**
- * The cases, grouped by rule, by the safety flag they run with, and by the
- * worker's `--core` argument.
+ * The cases, grouped by rule and by the safety flag they run with.
  *
  * @var array<string, list<string>> $groups
  */
@@ -107,8 +105,7 @@ foreach (scandir($root . '/tests/fixes') ?: [] as $rule) {
             str_ends_with($parts[1], '.unsafe') => '--unsafe',
             default => '',
         };
-        $core = str_ends_with($parts[1], '.core') ? '--core' : '';
-        $groups[$rule . "\0" . $flag . "\0" . $core][] = $directory . '/' . $file;
+        $groups[$rule . "\0" . $flag][] = $directory . '/' . $file;
     }
 }
 
@@ -117,20 +114,12 @@ ksort($groups);
 $failures = 0;
 $count = 0;
 foreach ($groups as $key => $cases) {
-    [$rule, $flag, $core] = explode("\0", $key);
-    $workspace =
-        sys_get_temp_dir()
-        . '/mago-drupal-fixes-'
-        . getmypid()
-        . '-'
-        . $rule
-        . ($flag === '' ? '' : '-' . substr($flag, 2))
-        . ($core === '' ? '' : '-core');
+    [$rule, $flag] = explode("\0", $key);
+    $workspace = sys_get_temp_dir() . '/mago-drupal-fixes-' . getmypid() . '-' . $rule . ($flag === '' ? '' : '-' . substr($flag, 2));
     mkdir($workspace, recursive: true);
     file_put_contents($workspace . '/mago.toml', sprintf(
-        "version = \"1\"\nphp-version = \"8.1\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"%s\"%s]\n",
+        "version = \"1\"\nphp-version = \"8.1\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"%s\"]\n",
         $worker,
-        $core === '' ? '' : ', "--core"',
     ));
     foreach ($cases as $case) {
         copy($case, $workspace . '/' . basename($case));
