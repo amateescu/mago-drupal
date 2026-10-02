@@ -10,6 +10,13 @@ namespace Drupal\corpus;
 final class CoderReading
 {
     /**
+     * The label, with its tag one space too deep.
+     *
+     *  @var string
+     */
+    public string $label = '';
+
+    /**
      * {@inheritDoc}
      */
     public function inheritsInCamelCase(): void

@@ -70,8 +70,10 @@ instead.
 Many rules carry a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
 ones, and `mago fix` applies them until nothing changes. `--potentially-unsafe` adds the fixes that
 turn a comment into a docblock, which the analyzers then read, and `--unsafe` adds the
-`weak-hash` rewrite, which changes stored digests. `--dry-run` shows the diff first.
-[docs/rules.md](docs/rules.md) says which rules fix what.
+`weak-hash` rewrite, which changes stored digests. Both flags also apply Mago's own fixes of that
+level, such as `strict: true` from `strict-behavior`, which can change what a loose comparison
+returns. `--dry-run` shows the diff first. [docs/rules.md](docs/rules.md) says which rules fix
+what.
 
 Rule codes are stable. Projects that we do not control write them into baselines and into
 `// @mago-expect lint:<code>` comments. For that reason, the codes get no vendor prefix and no new
@@ -97,6 +99,11 @@ it is generic PHP style that Mago already handles:
 Some of these checks need one line of configuration to match Drupal and not Mago's defaults:
 
 ```toml
+# The lowest PHP version that the project supports. Mago does not read it from composer.json.
+# Without this line, Mago assumes its newest PHP version, and the formatter writes syntax that older
+# versions reject, such as new Foo()->bar().
+php-version = "8.3"
+
 [formatter]
 # Drupal's style for braces, indentation and line length.
 preset = "drupal"
@@ -139,6 +146,10 @@ you disable those rules, you lose no check that phpcs did:
 no-error-control-operator = { enabled = false }
 no-hash-comment = { enabled = false }
 tagged-todo = { enabled = false }
+
+# The no-empty-loop fix deletes a loop whose condition does the work, as in
+# while (--$i >= 0 && ...) {}, and Mago marks that fix safe.
+no-empty-loop = { enabled = false }
 
 # Advice that Drupal's standard does not ask for. Keep the rules that you want.
 assert-description = { enabled = false }

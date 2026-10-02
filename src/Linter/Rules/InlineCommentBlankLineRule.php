@@ -16,8 +16,9 @@ use Mago\Sdk\Syntax\NodeKind;
  *
  * Ports `SpacingAfter` of Drupal.Commenting.InlineComment, which core's
  * `phpcs.xml.dist` turns off. A blank line between a comment and a closing
- * bracket is the formatter's, which removes it, except before the closing
- * brace of a class-like, where Drupal's style keeps one.
+ * bracket is the formatter's. It removes the line before most brackets and
+ * adds one before the closing brace of a class-like with members, so the
+ * rule skips them all.
  */
 final class InlineCommentBlankLineRule implements Rule
 {
@@ -29,35 +30,12 @@ final class InlineCommentBlankLineRule implements Rule
             description: 'Checks that no blank line follows a `//` comment on its own line.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            // The class-likes are targets so that the Program pass finds their
-            // closing braces in the file's target-node list. Their own
-            // dispatches do nothing.
-            targets: [
-                NodeKind::Program,
-                NodeKind::Class_,
-                NodeKind::Interface,
-                NodeKind::Trait,
-                NodeKind::Enum,
-                NodeKind::AnonymousClass,
-            ],
+            targets: [NodeKind::Program],
         );
     }
 
     public function lint(LintContext $context): void
     {
-        if ($context->node->kind !== NodeKind::Program) {
-            return;
-        }
-
-        $closers = [];
-        foreach ($context->file->getTargetNodes() as $node) {
-            if ($node->kind === NodeKind::Program) {
-                continue;
-            }
-
-            $closers[$node->span->end - 1] = true;
-        }
-
-        InlineCommentSpacing::checkBlankLines($context, $closers);
+        InlineCommentSpacing::checkBlankLines($context);
     }
 }

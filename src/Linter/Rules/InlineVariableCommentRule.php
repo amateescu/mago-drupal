@@ -97,10 +97,8 @@ final class InlineVariableCommentRule implements Rule
                     // Mago skips the tag in this order, so the swap gives the
                     // variable a type the analyzers start to trust.
                     if ($swapped !== null) {
-                        $issue = $issue->withEdit(TextEdit::replace(
-                            $tag->contentSpan(),
-                            $swapped,
-                        )->withSafety(Safety::PotentiallyUnsafe));
+                        $edit = TextEdit::replace($tag->contentSpan(), $swapped)->withSafety(Safety::PotentiallyUnsafe);
+                        $issue = $issue->withEdit($edit);
                     }
 
                     $context->report($issue);
@@ -127,10 +125,8 @@ final class InlineVariableCommentRule implements Rule
             if ($docblock !== null) {
                 // Mago and PHPStan ignore the comment and trust the docblock,
                 // so a stale type starts to count. The fix asks first.
-                $issue = $issue->withEdit(TextEdit::replace(
-                    $trivia->span,
-                    $docblock,
-                )->withSafety(Safety::PotentiallyUnsafe));
+                $edit = TextEdit::replace($trivia->span, $docblock)->withSafety(Safety::PotentiallyUnsafe);
+                $issue = $issue->withEdit($edit);
             }
 
             $context->report($issue);

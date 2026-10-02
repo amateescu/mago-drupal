@@ -143,10 +143,9 @@ final class DeprecationMessageRule implements Rule
             return;
         }
 
+        $help = "The message text is: '{$text}'";
         foreach (DeprecationMessage::problems($text, $standard) as $problem) {
-            $context->report(Issue::new($problem, $message->span)->withHelp(
-                "The message text is: '{$text}'",
-            )->withLink(self::LINK));
+            $context->report(Issue::new($problem, $message->span)->withHelp($help)->withLink(self::LINK));
         }
     }
 

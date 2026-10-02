@@ -12,6 +12,7 @@ use Mago\Sdk\Syntax\TriviaKind;
 
 use function array_reverse;
 use function count;
+use function in_array;
 use function intdiv;
 use function preg_match;
 use function preg_match_all;
@@ -67,6 +68,12 @@ final class Docblocks
      * punctuation check.
      */
     public const EXAMPLE_TAGS = ['code', 'endcode'];
+
+    /**
+     * Tags that mark up the text around them. Indented, they stay part of
+     * that text.
+     */
+    private const MARKUP_TAGS = ['code', 'endcode', 'link', 'endlink'];
 
     private function __construct() {}
 
@@ -226,7 +233,7 @@ final class Docblocks
     {
         $paragraphs = [[]];
         foreach (self::lines($file, $span) as $line) {
-            if (self::isTagLine($line->text)) {
+            if (self::isTagLine($line->text, inTag: false)) {
                 break;
             }
 
@@ -303,7 +310,7 @@ final class Docblocks
             $line = new DocblockLine($text, $offset);
             $lines[] = $line;
 
-            if (!self::isTagLine($text)) {
+            if (!self::isTagLine($text, inTag: $name !== null)) {
                 if ($name !== null && !self::isDirectiveLine($text)) {
                     $tagLines[] = $line;
                 }
@@ -317,10 +324,11 @@ final class Docblocks
 
             // The name runs from the `@` over letters, digits, `_` and `-`.
             // One space or tab after it is also part of the marker.
-            $length = 1 + strspn($text, self::TAG_NAME_CHARACTERS, offset: 1);
-            $name = strtolower(substr($text, offset: 1, length: $length - 1));
-            $nameSpan = new Span($offset, $offset + $length);
-            $skip = $length + (($text[$length] ?? '') === ' ' || ($text[$length] ?? '') === "\t" ? 1 : 0);
+            $at = strspn($text, characters: " \t");
+            $end = $at + 1 + strspn($text, self::TAG_NAME_CHARACTERS, offset: $at + 1);
+            $name = strtolower(substr($text, offset: $at + 1, length: $end - $at - 1));
+            $nameSpan = new Span($offset + $at, $offset + $end);
+            $skip = $end + (($text[$end] ?? '') === ' ' || ($text[$end] ?? '') === "\t" ? 1 : 0);
             $tagLines = [new DocblockLine(substr($text, $skip), $offset + $skip)];
         }
 
@@ -341,7 +349,7 @@ final class Docblocks
     {
         $leading = [];
         foreach (self::lines($file, $span) as $line) {
-            if (self::isTagLine($line->text)) {
+            if (self::isTagLine($line->text, inTag: false)) {
                 break;
             }
 
@@ -401,17 +409,25 @@ final class Docblocks
     /**
      * Whether a stripped docblock line starts a `@tag`.
      *
-     * An indented tag inside the description of another tag keeps its
-     * indent in the text, so it does not count.
+     * A tag indented by mistake, as in `*  @var`, still counts, as phpcs
+     * reads it as a tag too. An indented markup tag such as an `@code`
+     * example stays part of the text around it, and so does any tag inside
+     * the description of another tag, indented as deep as that description.
      */
-    private static function isTagLine(string $text): bool
+    private static function isTagLine(string $text, bool $inTag): bool
     {
-        if ($text === '' || $text[0] !== '@') {
+        $at = strspn($text, characters: " \t");
+        $second = substr($text, offset: $at + 1, length: 1);
+        if (($text[$at] ?? '') !== '@' || !($second >= 'a' && $second <= 'z' || $second >= 'A' && $second <= 'Z')) {
             return false;
         }
 
-        $second = substr($text, offset: 1, length: 1);
+        if ($at === 0) {
+            return true;
+        }
 
-        return $second >= 'a' && $second <= 'z' || $second >= 'A' && $second <= 'Z';
+        $name = substr($text, offset: $at + 1, length: strspn($text, self::TAG_NAME_CHARACTERS, offset: $at + 1));
+
+        return !($inTag && $at >= 2) && !in_array(strtolower($name), self::MARKUP_TAGS, strict: true);
     }
 }
