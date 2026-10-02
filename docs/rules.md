@@ -61,7 +61,7 @@ and the line-length check for comments.
 | `drupal/expected-exception-tag` | Warning | A legacy PHPUnit `@expectedException*` docblock tag. |
 | `drupal/gender-neutral-comment` | Warning | A gendered pronoun in a comment. |
 | `drupal/inline-comment` | Warning | A `//` comment that starts with a lowercase letter, or uses `#` and not `//`. Also the space after `//`: one space and no tab, or more to line up with a list item or `@todo` on the line above. A fix sets the space. A line indented deeper than the comment line above for no such reason is reported without a fix. A comment after a `}` on its line, an `@code` example and a `phpcs:` line are skipped. |
-| `drupal/inline-comment-blank-line` | Warning | A blank line below a `//` comment on its own line, which a fix removes. A blank line before a closing bracket is left to `mago format`, except before the closing brace of a class, interface, trait or enum. Off with `--core`, see below. |
+| `drupal/inline-comment-blank-line` | Warning | A blank line below a `//` comment on its own line, which a fix removes. A blank line before a closing bracket is left to `mago format`. Off with `--core`, see below. |
 | `drupal/inline-comment-punctuation` | Warning | A `//` comment that does not end with a full stop, an exclamation mark, a question mark, a colon or a closing parenthesis. A comment whose first word does not start with a letter, one with a `cspell:` line, and a last word that is a url, a tag or a function call are skipped. Off with `--core`, see below. |
 | `drupal/long-description-punctuation` | Warning | A docblock long description that ends with a letter. Off with `--core`, see below. |
 | `drupal/post-statement-comment` | Warning | A `//` comment on the same line as the statement before it. A fix moves the comment to its own line above. It is left out where the move could attach the comment to something else: a line that opens a block or closes a construct, a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement, a line inside a string, a comment that the next line continues, and a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`. |
@@ -156,11 +156,13 @@ The rules port the rest of the comment whitespace, with a fix wherever phpcbf ha
 that starts with `@`, at any indent, and only the tags at the column of the first one form the
 groups that the blank-line checks look at. The formatter turns several blank lines into one, so
 `drupal/file-comment` reports only a file docblock with no blank line below it, and leaves
-`SpacingAfterComment` for more than one to `mago format`. The formatter also removes a blank line
-between a comment and a closing bracket, except before the closing brace of a class, interface,
-trait or enum with members, where Drupal's style keeps one. `drupal/inline-comment-blank-line` leaves those
-blank lines to the formatter, `SpacingAfterAtFunctionEnd` of `Drupal.Commenting.InlineComment`
-included, and reports the rest of `SpacingAfter`. The template check of
+`SpacingAfterComment` for more than one to `mago format`. The formatter also sets the blank line
+between a comment and a closing bracket. It takes the line out, except before the closing brace of a
+class, interface, trait or enum with members, where it always writes one, after a comment too.
+Coder reports that line as `SpacingAfter`, and a fix that removes it would undo the formatter on
+every run. `drupal/inline-comment-blank-line` leaves all of these blank lines to the formatter,
+`SpacingAfterAtFunctionEnd` of `Drupal.Commenting.InlineComment` included, and reports the rest of
+`SpacingAfter`. The template check of
 `Drupal.Commenting.FileComment` is not ported: `drupal/file-comment` reads only procedural files,
 and `.tpl.php` templates are a Drupal 7 format.
 

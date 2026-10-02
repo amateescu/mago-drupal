@@ -41,5 +41,6 @@ function blank_line_below(array $items): array
 class BlankLineBelow
 {
     public int $count = 0;
-    // Before the class's closing brace, where the formatter keeps the blank line.
+    // Before the class's closing brace, which the formatter takes.
+
 }

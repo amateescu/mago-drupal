@@ -11,7 +11,6 @@ use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
-use function array_key_exists;
 use function in_array;
 use function preg_match;
 use function preg_split;
@@ -53,29 +52,24 @@ final class InlineCommentSpacing
      */
     public static function checkSpaces(LintContext $context): void
     {
-        self::walk($context, spaces: true, classLikeClosers: null);
+        self::walk($context, spaces: true);
     }
 
     /**
      * Checks the blank line below each run.
-     *
-     * @param array<int, true> $classLikeClosers The offsets of the closing
-     *   braces of the file's classes, interfaces, traits and enums.
      */
-    public static function checkBlankLines(LintContext $context, array $classLikeClosers): void
+    public static function checkBlankLines(LintContext $context): void
     {
-        self::walk($context, spaces: false, classLikeClosers: $classLikeClosers);
+        self::walk($context, spaces: false);
     }
 
     /**
      * Reads the comments the way Coder does, and runs the space check, or
-     * the blank line check when $classLikeClosers is not null.
-     *
-     * @param array<int, true>|null $classLikeClosers
+     * the blank line check when $spaces is false.
      *
      * @mago-expect lint:no-boolean-flag-parameter
      */
-    private static function walk(LintContext $context, bool $spaces, ?array $classLikeClosers): void
+    private static function walk(LintContext $context, bool $spaces): void
     {
         $contents = $context->file->contents;
         $previousEnd = null;
@@ -110,7 +104,7 @@ final class InlineCommentSpacing
 
             $run = $run !== null && $isLine && self::continuesRun($contents, $run[0], $trivia, $text)
                 ? [$trivia, $run[1], $run[2] || $hasText]
-                : self::endRun($context, $run, $classLikeClosers);
+                : self::endRun($context, $run, $spaces);
             if (!$isLine || $example || self::followsClosingBrace($contents, $trivia->span->start)) {
                 continue;
             }
@@ -121,7 +115,7 @@ final class InlineCommentSpacing
             }
         }
 
-        self::endRun($context, $run, $classLikeClosers);
+        self::endRun($context, $run, $spaces);
     }
 
     /**
@@ -133,18 +127,18 @@ final class InlineCommentSpacing
     }
 
     /**
-     * Checks the blank line below a run that has ended, unless that check is
-     * off.
+     * Checks the blank line below a run that has ended, unless the walk runs
+     * the space check.
      *
      * @param array{Trivia, bool, bool}|null $run
-     * @param array<int, true>|null $classLikeClosers Null when the check is
-     *   off.
      * @return null
+     *
+     * @mago-expect lint:no-boolean-flag-parameter
      */
-    private static function endRun(LintContext $context, ?array $run, ?array $classLikeClosers): ?array
+    private static function endRun(LintContext $context, ?array $run, bool $spaces): ?array
     {
-        if ($classLikeClosers !== null && $run !== null) {
-            self::checkBelow($context, $run, $classLikeClosers);
+        if (!$spaces && $run !== null) {
+            self::checkBelow($context, $run);
         }
 
         return null;
@@ -164,14 +158,13 @@ final class InlineCommentSpacing
     /**
      * Reports a blank line below a run of comment lines, unless the run
      * shares its first line with code, holds no text, or comes right before
-     * a docblock. A blank line before a closing bracket is the formatter's,
-     * which removes it, except before the closing brace of a class-like,
-     * where Drupal's style keeps one.
+     * a docblock. A blank line before a closing bracket is the formatter's.
+     * It removes the line before most brackets and adds one before the
+     * closing brace of a class-like with members.
      *
      * @param array{Trivia, bool, bool} $run
-     * @param array<int, true> $classLikeClosers
      */
-    private static function checkBelow(LintContext $context, array $run, array $classLikeClosers): void
+    private static function checkBelow(LintContext $context, array $run): void
     {
         [$last, $aloneOnLine, $hasText] = $run;
         $contents = $context->file->contents;
@@ -181,7 +174,7 @@ final class InlineCommentSpacing
             !$aloneOnLine
             || !$hasText
             || $next >= strlen($contents)
-            || in_array($contents[$next], ['}', ']', ')'], strict: true) && !array_key_exists($next, $classLikeClosers)
+            || in_array($contents[$next], ['}', ']', ')'], strict: true)
             || substr($contents, $next, length: 3) === '/**' && substr($contents, $next, length: 4) !== '/**/'
         ) {
             return;
