@@ -4,5 +4,5 @@ php-version = "8.1"
 [source]
 # resources/ holds the worker entrypoint that every consuming project runs,
 # so it gets the same checks as the rules that it starts.
-paths = ["src", "tests/Unit", "resources"]
+paths = ["src", "tests/Unit", "tests/CorpusPins.php", "resources"]
 includes = ["vendor"]
