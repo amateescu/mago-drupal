@@ -38,7 +38,14 @@ use function trim;
  */
 final class RenderCallbackRule implements Rule
 {
-    private const LIST_KEYS = ['#pre_render', '#post_render', '#date_time_callbacks', '#date_date_callbacks'];
+    private const LIST_KEYS = [
+        '#pre_render',
+        '#post_render',
+        '#date_time_callbacks',
+        '#date_date_callbacks',
+        '#propsAlter',
+        '#slotsAlter',
+    ];
 
     private const SINGLE_KEYS = ['#access_callback', '#lazy_builder'];
 
