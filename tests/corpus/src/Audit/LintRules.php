@@ -58,6 +58,23 @@ final class LintRules
     }
 
     /**
+     * Component callbacks, which core passes through doTrustedCallback().
+     */
+    public function component(): array
+    {
+        return [
+            '#type' => 'component',
+            '#propsAlter' => [
+                [self::class, 'preRender'],
+                // @mago-expect lint:drupal/render-callback
+                'corpus_props_alter',
+            ],
+            // @mago-expect lint:drupal/render-callback
+            '#slotsAlter' => ['corpus_slots_alter'],
+        ];
+    }
+
+    /**
      * A trusted callback target.
      */
     public static function preRender(array $element): array
