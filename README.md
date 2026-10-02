@@ -39,6 +39,9 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--disabl
 A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an
 error when a code names no rule.
 
+When PHP loads Xdebug, the worker starts again once with `XDEBUG_MODE=off`, because Xdebug slows it
+down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to step through a rule.
+
 ## What it provides
 
 48 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
