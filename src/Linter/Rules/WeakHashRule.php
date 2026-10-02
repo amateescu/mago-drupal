@@ -73,19 +73,15 @@ final class WeakHashRule extends CallRule
      */
     private function reportFunction(LintContext $context, CallExpression $call, string $label): void
     {
-        $issue = Issue::new(
-            "Use hash() with an xxHash algorithm instead of {$label}.",
-            $context->node->span,
-        )->withHelp(self::HELP)->withLink(self::LINK);
+        $message = "Use hash() with an xxHash algorithm instead of {$label}.";
+        $issue = Issue::new($message, $context->node->span)->withHelp(self::HELP)->withLink(self::LINK);
 
         $replacement = $this->buildReplacement($context, $call);
         if ($replacement !== null) {
             // A change of algorithm changes the digest. A stored digest must
             // be migrated, not only computed again.
-            $issue = $issue->withEdit(TextEdit::replace(
-                $context->node->span,
-                $replacement,
-            )->withSafety(Safety::Unsafe));
+            $edit = TextEdit::replace($context->node->span, $replacement)->withSafety(Safety::Unsafe);
+            $issue = $issue->withEdit($edit);
         }
 
         $context->report($issue);
@@ -106,14 +102,12 @@ final class WeakHashRule extends CallRule
             return;
         }
 
+        $edit = TextEdit::replace($algorithm->span, "'" . self::REPLACEMENT . "'")->withSafety(Safety::Unsafe);
         $context->report(
             Issue::new("The '{$name}' algorithm is weak. Use an xxHash algorithm instead.", $algorithm->span)
                 ->withHelp(self::HELP)
                 ->withLink(self::LINK)
-                ->withEdit(TextEdit::replace(
-                    $algorithm->span,
-                    "'" . self::REPLACEMENT . "'",
-                )->withSafety(Safety::Unsafe)),
+                ->withEdit($edit),
         );
     }
 

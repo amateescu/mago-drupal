@@ -281,9 +281,7 @@ final class TranslatableStringRule implements Rule
 
         // A variable or a constant gets here. A call sometimes passes one on
         // purpose, so the message says "where possible".
-        $context->report(Issue::new(
-            'Pass only a string literal to t() where possible.',
-            $message->span,
-        )->withHelp(self::HELP));
+        $issue = Issue::new('Pass only a string literal to t() where possible.', $message->span)->withHelp(self::HELP);
+        $context->report($issue);
     }
 }

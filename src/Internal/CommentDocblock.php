@@ -102,10 +102,9 @@ final class CommentDocblock
             $body .= $line === '' ? "{$indent} *{$eol}" : "{$indent} * {$line}{$eol}";
         }
 
-        return TextEdit::replace(
-            new Span($start, $end),
-            "/**{$eol}{$body}{$indent} */",
-        )->withSafety(Safety::PotentiallyUnsafe);
+        $edit = TextEdit::replace(new Span($start, $end), "/**{$eol}{$body}{$indent} */");
+
+        return $edit->withSafety(Safety::PotentiallyUnsafe);
     }
 
     /**
