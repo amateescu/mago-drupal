@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\ImportPlan;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -24,12 +25,7 @@ use function ltrim;
 use function preg_match;
 use function preg_quote;
 use function str_contains;
-use function strlen;
-use function strpos;
-use function strrpos;
 use function strtolower;
-use function substr;
-use function trim;
 
 /**
  * Reports a use statement that imports a class with no namespace.
@@ -109,19 +105,21 @@ final class RedundantUseRule implements Rule
             }
 
             $aliases = [];
+            $written = [];
             foreach ($global as [, $class, $alias]) {
                 $aliases[strtolower($alias)] = $class;
+                $written[] = $alias;
             }
 
             // A docblock type that names a removed import by its short name
             // would change meaning, so the fix waits. `drupal/doc-type-namespace`
             // reports that type first.
             $resolved ??= $file->getResolvedNames();
-            $edits = self::documented($file, $aliases)
+            $edits = self::documented($file, $written)
                 ? []
                 : [
                     $kept === []
-                        ? self::deleteStatement($file, $use)
+                        ? ImportPlan::deleteStatement($file, $use)
                         : TextEdit::replace($sequence->span, implode(', ', $kept)),
                     ...self::references($file, $uses, $aliases, $resolved),
                 ];
@@ -212,18 +210,20 @@ final class RedundantUseRule implements Rule
     /**
      * Whether a docblock in the file names one of the aliases without a
      * leading backslash, anywhere in its text: a type spread over several
-     * lines, an annotation or prose. Prose only costs the fix.
+     * lines, an annotation or prose. Prose only costs the fix. Only the
+     * alias's own case counts, since the lowercase word is prose, as in
+     * "throws an exception".
      *
-     * @param array<string, string> $aliases
+     * @param list<string> $aliases The names the file uses, as written.
      */
     private static function documented(SourceFile $file, array $aliases): bool
     {
         $names = [];
-        foreach ($aliases as $alias => $_) {
+        foreach ($aliases as $alias) {
             $names[] = preg_quote($alias, delimiter: '/');
         }
 
-        $pattern = '/(?<![\w\\\\$])(?:' . implode('|', $names) . ')(?![\w])/i';
+        $pattern = '/(?<![\w\\\\$])(?:' . implode('|', $names) . ')(?![\w])/';
         foreach ($file->getTrivia() as $trivia) {
             if (
                 $trivia->kind === TriviaKind::DocBlockComment
@@ -234,36 +234,6 @@ final class RedundantUseRule implements Rule
         }
 
         return false;
-    }
-
-    /**
-     * Removes the statement, with its line when nothing else is on it.
-     */
-    private static function deleteStatement(SourceFile $file, Node $use): TextEdit
-    {
-        $contents = $file->contents;
-        $start = $use->span->start;
-        $end = $use->span->end;
-        $lineStart = strrpos(substr($contents, offset: 0, length: $start), needle: "\n");
-        $lineStart = $lineStart === false ? 0 : $lineStart + 1;
-        $before = substr($contents, $lineStart, $start - $lineStart);
-        $lineEnd = strpos($contents, needle: "\n", offset: $end);
-        $after = $lineEnd === false ? substr($contents, $end) : substr($contents, $end, $lineEnd - $end);
-        if (trim($before) === '' && trim($after) === '') {
-            $start = $lineStart;
-            $end = $lineEnd === false ? strlen($contents) : $lineEnd + 1;
-            // The only import between two blank lines leaves them side by
-            // side, so one of them goes too.
-            $below = [];
-            if (
-                preg_match('/\r?\n[ \t]*\r?\n$/', substr($contents, offset: 0, length: $start)) === 1
-                && preg_match('/\G[ \t]*\r?\n/', $contents, $below, offset: $end) === 1
-            ) {
-                $end += strlen($below[0]);
-            }
-        }
-
-        return TextEdit::delete(new Span($start, $end));
     }
 
     /**
