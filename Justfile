@@ -16,11 +16,20 @@ lint:
 analyze:
     {{mago}} --config mago.toml analyze
 
+# The corpus has its own workspace, formatted with Drupal's preset.
 format:
     {{mago}} --config mago.toml format
+    {{mago}} --workspace tests/corpus format
 
 format-check:
     {{mago}} --config mago.toml format --check
+    {{mago}} --workspace tests/corpus format --check
+
+# Applies safe fixes from every tool and loops until nothing changes. This
+# repository's mago.toml does not load the extension, so only Mago's built-in
+# rules run here.
+fix:
+    {{mago}} --config mago.toml fix
 
 # Starts a real worker and checks the inline `@mago-expect` annotations in
 # tests/corpus/src. Mago reports an expectation that is not fulfilled as an

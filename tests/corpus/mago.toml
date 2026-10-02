@@ -10,6 +10,11 @@ includes = ["stubs"]
 # rules only fire inside those.
 extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
 
+# The fixtures stand in for Drupal code, so they follow Drupal's layout: the
+# comment rules measure lines and read comments the way Drupal writes them.
+[formatter]
+preset = "drupal"
+
 [extension-hosts.drupal]
 command = ["php", "../../resources/worker.php"]
 workers = 1
