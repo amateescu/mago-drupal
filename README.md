@@ -5,7 +5,7 @@ knowledge to the linter and analyzer.
 
 ## Requirements
 
-PHP 8.1 or later, and Mago 1.51 or later.
+PHP 8.1 or later, and Mago 1.52 or later.
 
 ## Install
 
