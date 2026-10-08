@@ -128,10 +128,10 @@ final class DeprecatedTagRule implements Rule
         }
 
         $issue = Issue::new($linkProblem, $see->contentSpan());
-        $periods = $link === rtrim(substr($line->text, $indent)) ? DeprecationMessage::trailingPeriods($link) : 0;
-        if ($periods > 0) {
+        $trailing = $link === rtrim(substr($line->text, $indent)) ? DeprecationMessage::trailingPunctuation($link) : 0;
+        if ($trailing > 0) {
             $end = $line->offset + $indent + strlen($link);
-            $issue = $issue->withEdit(TextEdit::delete(new Span($end - $periods, $end)));
+            $issue = $issue->withEdit(TextEdit::delete(new Span($end - $trailing, $end)));
         }
 
         $context->report($issue);

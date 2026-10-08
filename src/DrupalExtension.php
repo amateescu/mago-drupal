@@ -35,6 +35,7 @@ use amateescu\MagoDrupal\Linter\Rules\InsecureUnserializeRule;
 use amateescu\MagoDrupal\Linter\Rules\InstallHookLocationRule;
 use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
+use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
@@ -94,6 +95,7 @@ final class DrupalExtension
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
         'drupal/long-description-punctuation',
+        'drupal/method-name-underscore',
     ];
 
     /**
@@ -195,6 +197,7 @@ final class DrupalExtension
             new InstallHookLocationRule(),
             new LinkTextTranslatableRule(),
             new LongDescriptionPunctuationRule(),
+            new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
             new NullableParamTagRule(),
             new PostStatementCommentRule(),

@@ -82,6 +82,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/install-hook-location' => [Level::Error, true],
             'drupal/link-text-translatable' => [Level::Error, true],
             'drupal/long-description-punctuation' => [Level::Warning, true],
+            'drupal/method-name-underscore' => [Level::Warning, true],
             'drupal/method-visibility' => [Level::Error, true],
             'drupal/nullable-param-tag' => [Level::Warning, true],
             'drupal/post-statement-comment' => [Level::Warning, true],

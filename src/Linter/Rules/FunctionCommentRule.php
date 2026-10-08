@@ -34,6 +34,7 @@ use function rtrim;
 use function str_starts_with;
 use function strlen;
 use function strpos;
+use function strtolower;
 use function substr;
 use function trim;
 
@@ -396,7 +397,8 @@ final class FunctionCommentRule implements Rule
             return;
         }
 
-        if ($rest === '' && !in_array($type, ['$this', 'static'], strict: true)) {
+        // `@return void` needs no description either.
+        if ($rest === '' && !in_array($type, ['$this', 'static'], strict: true) && strtolower($type) !== 'void') {
             $context->report(Issue::new('The @return tag has no description.', $returnTags[0]->contentSpan()));
         }
     }

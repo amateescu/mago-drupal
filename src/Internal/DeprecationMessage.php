@@ -28,7 +28,7 @@ final class DeprecationMessage
      */
     private const VERSION = '/^[a-z\d_]+:(\d{1,2}\.\d{1,2}\.\d{1,2}|\d{1,2}\.x\-\d{1,2}\.\d{1,2})(-[a-z]{1,5}\d{1,2})?$/';
 
-    private const LINK = '#^https?://www\.drupal\.org/(node|project/\w+/issues)/(\d+)(\.*)$#';
+    private const LINK = '#^https?://(?:www\.drupal\.org/(?:node|project/\w+/issues)|git\.drupalcode\.org/project/\w+/-/work_items)/(\d+)([.?;!]*)$#';
 
     private function __construct() {}
 
@@ -93,27 +93,28 @@ final class DeprecationMessage
         if ($matches === []) {
             return (
                 "The change-record url '{$link}' does not match the standard: "
-                . 'https://www.drupal.org/node/n or https://www.drupal.org/project/name/issues/n'
+                . 'https://www.drupal.org/node/n, https://www.drupal.org/project/name/issues/n or '
+                . 'https://git.drupalcode.org/project/name/-/work_items/n'
             );
         }
 
-        // A trailing period is a frequent typo, and the url is correct in all
-        // other ways, so it gets its own message.
-        if (($matches[3] ?? '') !== '') {
-            return "Do not end the change-record url '{$link}' with a period.";
+        // Trailing punctuation is a frequent typo, and the url is correct in
+        // all other ways, so it gets its own message.
+        if (($matches[2] ?? '') !== '') {
+            return "Do not end the change-record url '{$link}' with punctuation.";
         }
 
         return null;
     }
 
     /**
-     * How many periods end a change-record url that is correct apart from
-     * them, or 0.
+     * How many punctuation characters end a change-record url that is
+     * correct apart from them, or 0.
      */
-    public static function trailingPeriods(string $link): int
+    public static function trailingPunctuation(string $link): int
     {
         $matches = [];
 
-        return preg_match(self::LINK, $link, $matches) === 1 ? strlen($matches[3]) : 0;
+        return preg_match(self::LINK, $link, $matches) === 1 ? strlen($matches[2]) : 0;
     }
 }

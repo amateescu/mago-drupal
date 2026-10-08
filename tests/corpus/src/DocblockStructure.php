@@ -248,6 +248,12 @@ class VariableCommentFixture {
   // @mago-expect lint:drupal/variable-comment
   protected $missing;
 
+  // @mago-expect lint:drupal/variable-comment
+  protected string $missingNativeType;
+
+  /**
+   * A native type makes the @var tag optional.
+   */
   protected string $fineNativeType;
 
   // @mago-expect lint:drupal/variable-comment

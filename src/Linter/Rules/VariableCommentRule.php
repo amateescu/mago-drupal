@@ -58,10 +58,10 @@ final class VariableCommentRule implements Rule
     {
         $closest = Docblocks::closest($context->file, $context->node);
 
+        // Coder wants a docblock on a typed property too. The type only makes
+        // its @var tag optional.
         if ($closest === null) {
-            if (!$this->hasNativeType($context)) {
-                $context->report(Issue::new('The property has no docblock.', $context->node->span));
-            }
+            $context->report(Issue::new('The property has no docblock.', $context->node->span));
 
             return;
         }

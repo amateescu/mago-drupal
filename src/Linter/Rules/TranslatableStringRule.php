@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\DocumentStrings;
 use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\Instantiations;
 use amateescu\MagoDrupal\Internal\Invocation;
@@ -33,7 +34,8 @@ use const PREG_OFFSET_CAPTURE;
  * points.
  *
  * Ports Drupal.Semantics.FunctionT. A translatable string must be a whole
- * literal, because the extractor reads the source and does not run it.
+ * literal, because the extractor reads the source and does not run it. A
+ * nowdoc counts as a literal, as in Coder 9; a heredoc does not.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -228,6 +230,17 @@ final class TranslatableStringRule implements Rule
      */
     private function check(LintContext $context, Node $message): void
     {
+        $nowdoc = $message->kind === NodeKind::CompositeString
+            ? DocumentStrings::nowdoc($context->file, $message)
+            : null;
+        if ($nowdoc !== null) {
+            if ($nowdoc === '') {
+                $context->report(Issue::new('Do not pass an empty string to t().', $message->span));
+            }
+
+            return;
+        }
+
         if ($message->kind !== NodeKind::LiteralString) {
             $this->reportNonLiteral($context, $message);
 
@@ -270,7 +283,7 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
-        if ($message->kind === NodeKind::InterpolatedString || $message->kind === NodeKind::CompositeString) {
+        if (DocumentStrings::interpolates($context->file, $message)) {
             $context->report(Issue::new(
                 'Do not interpolate a variable into a translatable string. Use placeholders instead.',
                 $message->span,
@@ -279,8 +292,8 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
-        // A variable or a constant gets here. A call sometimes passes one on
-        // purpose, so the message says "where possible".
+        // A variable, a constant or a heredoc gets here. A call sometimes
+        // passes one on purpose, so the message says "where possible".
         $issue = Issue::new('Pass only a string literal to t() where possible.', $message->span)->withHelp(self::HELP);
         $context->report($issue);
     }
