@@ -57,3 +57,30 @@ function corpus_theme(): array {
 
   return $_corpus_registry + $registry;
 }
+
+/**
+ * Lives in the module file without the module name.
+ */
+// @mago-expect lint:drupal/function-prefix
+function helper_without_prefix(): void {
+}
+
+/**
+ * Starts with an underscore and the module name, which is fine.
+ */
+function _corpus_helper(): void {
+}
+
+/**
+ * Prepares variables for a template, which Coder lets through.
+ */
+function template_preprocess_corpus_page(array &$variables): void {
+  $variables['corpus'] = TRUE;
+}
+
+/**
+ * Has the module name and nothing after its underscore.
+ */
+// @mago-expect lint:drupal/function-prefix
+function corpus_(): void {
+}

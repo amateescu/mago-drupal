@@ -101,3 +101,40 @@ function heredoc_message(): string {
     Save configuration
     TEXT);
 }
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_after(string $name): string {
+  // @mago-expect lint:drupal/translatable-string
+  return t('Name') . ': ' . $name;
+}
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_after_markup(string $name): string {
+  // Coder lets through a string that is only space, markup or a bracket.
+  return t('Name') . ' ' . t('Other') . '<br>' . t('Last') . ' (' . $name;
+}
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_after_method(TranslationManager $translation): string {
+  // @mago-expect lint:drupal/translatable-string
+  return $translation->t('Name') . ' and more';
+}
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_after_variable_message(string $message): string {
+  // Only the non-literal message is reported, as in Coder.
+  // @mago-expect lint:drupal/translatable-string
+  return t($message) . ': ';
+}
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_after_interpolation(string $name): string {
+  // A double-quoted string with a variable is not a constant string.
+  return t('Name') . ": {$name}";
+}
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_after_plural(TranslationManager $translation, int $count): string {
+  // @mago-expect lint:drupal/translatable-string
+  return $translation->formatPlural($count, '1 item', '@count items') . ' left';
+}

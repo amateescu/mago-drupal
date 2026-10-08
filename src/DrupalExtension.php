@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal;
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
+use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
@@ -23,6 +24,7 @@ use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\GenderNeutralCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
@@ -41,6 +43,7 @@ use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyNameRule;
+use amateescu\MagoDrupal\Linter\Rules\PropertyVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
@@ -88,10 +91,11 @@ final class DrupalExtension
     private function __construct() {}
 
     /**
-     * The rules that core's `phpcs.xml.dist` turns off. With `--core`, they
-     * are off by default.
+     * The rules whose checks core's `phpcs.xml.dist` turns off or does not
+     * run. With `--core`, they are off by default.
      */
     private const CORE_OFF = [
+        'drupal/function-prefix',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
         'drupal/long-description-punctuation',
@@ -169,6 +173,7 @@ final class DrupalExtension
     {
         return [
             new AuthorTagRule(),
+            new CaseBreakBlankLineRule(),
             new ClassCommentRule(),
             new CommentLineLengthRule(),
             new ConstantPrefixRule(),
@@ -185,6 +190,7 @@ final class DrupalExtension
             new FileCommentRule(),
             new FullyQualifiedNameRule(),
             new FunctionCommentRule(),
+            new FunctionPrefixRule(),
             new GenderNeutralCommentRule(),
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
@@ -203,6 +209,7 @@ final class DrupalExtension
             new PostStatementCommentRule(),
             new PregSecurityRule(),
             new PropertyNameRule(),
+            new PropertyVisibilityRule(),
             new RedundantUseRule(),
             new RemoteAddressRule(),
             new RenderCallbackRule(),

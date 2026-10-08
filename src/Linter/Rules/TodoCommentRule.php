@@ -11,12 +11,17 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
 use function strlen;
+use function strspn;
+use function substr;
+
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * Reports a to-do comment that does not start with `@todo`.
@@ -25,6 +30,10 @@ use function strlen;
  * for open to-dos and misses the other spellings. The rule reports those
  * spellings: a missing leading `@`, extra dashes or spaces between "to" and
  * "do", and a different case.
+ *
+ * The fix writes `@todo ` in place of the spelling and the dashes, colons
+ * and spaces after it, as phpcbf does. It skips a to-do with no text after
+ * it, and a word that only starts with "todo", such as "todos".
  *
  * @see https://www.drupal.org/node/1354
  */
@@ -89,13 +98,37 @@ final class TodoCommentRule implements Rule
 
     private function check(LintContext $context, string $text, int $offset): void
     {
-        if (preg_match(self::PATTERN, $text) !== 1) {
+        $matches = [];
+        if (preg_match(self::PATTERN, $text, $matches, flags: PREG_OFFSET_CAPTURE) !== 1) {
             return;
         }
 
-        $context->report(Issue::new(
+        $issue = Issue::new(
             'Write a to-do comment in the format "@todo Fix problem X here."',
             new Span($offset, $offset + strlen($text)),
-        )->withLink('https://www.drupal.org/node/1354'));
+        )->withLink('https://www.drupal.org/node/1354');
+
+        // Group 2 is the spelling with the dashes and colons after it, as a
+        // value and byte offset pair. The stub for preg_match() does not
+        // model the offset-capture shape.
+        // @mago-expect analysis:docblock-type-mismatch
+        /** @var array{string, int} $group */
+        $group = $matches[2];
+        [$spelling, $start] = $group;
+        $end = $start + strlen($spelling);
+        $end += strspn($text, characters: " \t", offset: $end);
+        if (
+            preg_match('/^@*to[-\s]*do\w/i', substr($text, $start)) === 1
+            || preg_match('/\G(?!\*\/)\S/', $text, offset: $end) !== 1
+        ) {
+            $context->report($issue);
+
+            return;
+        }
+
+        $context->report($issue->withEdit(TextEdit::replace(
+            new Span($offset + $start, $offset + $end),
+            text: '@todo ',
+        )));
     }
 }

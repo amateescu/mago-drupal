@@ -11,10 +11,18 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
+use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
+use function ltrim;
 use function preg_match;
+use function strlen;
+use function strtoupper;
+use function substr;
 
 /**
  * Checks the style, spacing and first word of a `//` inline comment.
@@ -26,6 +34,8 @@ use function preg_match;
  * checks the end of a comment and `drupal/inline-comment-blank-line` the blank
  * line below it, the two checks of the sniff that core's `phpcs.xml.dist`
  * turns off.
+ *
+ * The capital letter fix uppercases the first letter, as phpcbf does.
  *
  * Not ported: the ban on a docblock in the middle of a statement. Mago's own
  * `no-empty-comment` rule already reports an empty comment.
@@ -61,11 +71,37 @@ final class InlineCommentRule implements Rule
             // A word that has a digit, an underscore or punctuation in it is a
             // machine name or a code reference, not prose. It is exempt from
             // the capitalization check.
-            if ($words !== [] && preg_match('/^[a-z]+$/', $words[0]) === 1) {
-                $context->report(Issue::new('Start an inline comment with a capital letter.', $run[0]->span));
+            if ($words === [] || preg_match('/^[a-z]+$/', $words[0]) !== 1) {
+                continue;
             }
+
+            $issue = Issue::new('Start an inline comment with a capital letter.', $run[0]->span);
+            $edit = self::capitalize($context->file, $run);
+            $context->report($edit === null ? $issue : $issue->withEdit($edit));
         }
 
         InlineCommentSpacing::checkSpaces($context);
+    }
+
+    /**
+     * Uppercases the first letter of the run's text.
+     *
+     * @param list<Trivia> $run
+     */
+    private static function capitalize(SourceFile $file, array $run): ?TextEdit
+    {
+        foreach ($run as $trivia) {
+            $text = substr($file->getText($trivia->span), offset: 2);
+            $word = ltrim($text);
+            if ($word === '') {
+                continue;
+            }
+
+            $start = $trivia->span->start + 2 + strlen($text) - strlen($word);
+
+            return TextEdit::replace(new Span($start, $start + 1), strtoupper($word[0]));
+        }
+
+        return null;
     }
 }

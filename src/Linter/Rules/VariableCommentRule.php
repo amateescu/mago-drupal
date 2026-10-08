@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\TypeNames;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -26,16 +27,12 @@ use function preg_quote;
 use function preg_replace;
 use function stripos;
 use function strlen;
-use function strspn;
-use function substr;
 
 /**
  * Checks that a class property has a `@var` docblock.
  *
- * Ports Drupal.Commenting.VariableComment. `IncorrectVarType` wants a
- * canonical scalar alias such as `bool` instead of `Boolean`. The rule does
- * not port it. A wrong-cased alias is not a real PHP type, so `mago analyze`
- * already reports it as unresolvable.
+ * Ports Drupal.Commenting.VariableComment. `TypeNames` checks the `@var`
+ * type.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -125,6 +122,10 @@ final class VariableCommentRule implements Rule
         }
 
         [$type, $rest] = Docblocks::splitType($content);
+        if ($type !== null) {
+            TypeNames::checkVar($context, $firstVar, $type);
+        }
+
         if ($type !== null && preg_match('/^\$/', $rest) === 1) {
             $issue = Issue::new(
                 'Do not repeat the property name after the type in the @var tag.',
@@ -150,14 +151,14 @@ final class VariableCommentRule implements Rule
             return null;
         }
 
-        $line = $tag->lines[0];
-        $indent = strspn($line->text, characters: " \t");
-        if (substr($line->text, $indent, strlen($type)) !== $type) {
+        $start = $tag->typeStart($type);
+        if ($start === null) {
             return null;
         }
 
+        $line = $tag->lines[0];
         $matches = [];
-        $end = $indent + strlen($type);
+        $end = $start - $line->offset + strlen($type);
         $pattern = '/\G[ \t]+' . preg_quote($declared[0], delimiter: '/') . '(?=[ \t]|$)/';
         if (preg_match($pattern, $line->text, $matches, offset: $end) !== 1) {
             return null;

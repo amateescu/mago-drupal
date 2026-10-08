@@ -10,6 +10,7 @@ use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
 use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\TypeNames;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -49,12 +50,11 @@ use function trim;
  * `@return` as authoritative types when there is no native hint. It thus
  * already reports a `void` return that returns a value, a function with no
  * `return` at all, an `@param` that names an unknown parameter, and a bare
- * tag with no type. It also reports most wrong-cased type aliases, because
- * they do not resolve as a class. What is left is presence, structure and
- * prose. One signature-dependent check stays: a method with partial
- * `@param` coverage that has no entry for a real parameter. Nothing else
- * reports that. `FunctionCommentSpacing` holds the whitespace checks on the
- * tags.
+ * tag with no type. What is left is presence, structure and prose. One
+ * signature-dependent check stays: a method with partial `@param` coverage
+ * that has no entry for a real parameter. Nothing else reports that.
+ * `FunctionCommentSpacing` holds the whitespace checks on the tags, and
+ * `TypeNames` checks the `@param` and `@return` types.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -258,6 +258,8 @@ final class FunctionCommentRule implements Rule
             $context->report(Issue::new('The @param tag has no type.', $tag->contentSpan()));
         }
 
+        TypeNames::checkParam($context, $tag, $type);
+
         if (str_starts_with($rest, '.')) {
             $issue = Issue::new('Do not put a period after the @param variable name.', $tag->contentSpan());
             $line = $tag->lines[0];
@@ -371,6 +373,8 @@ final class FunctionCommentRule implements Rule
             // it as a malformed docblock.
             return;
         }
+
+        TypeNames::checkReturn($context, $returnTags[0], $type);
 
         // Only the tag's own line can hold a variable name. A description
         // below it may start with one, as in `$this.`.

@@ -21,4 +21,7 @@ function inline_variable_delimiters(array $rows): void
     $none = $rows[7];
     // /** @var int $old */
     $old = $rows[8];
+    // Explains the next line.
+    /** @var int $second */
+    $second = $rows[9];
 }

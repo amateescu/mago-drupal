@@ -64,6 +64,11 @@ namespace Drupal\Core\StringTranslation {
         {
             return $string;
         }
+
+        public function formatPlural(int $count, string $singular, string $plural, array $args = []): string
+        {
+            return $count === 1 ? $singular : $plural;
+        }
     }
 }
 
@@ -101,4 +106,6 @@ namespace {
     {
         return $input;
     }
+
+    function ksm(mixed ...$input): void {}
 }

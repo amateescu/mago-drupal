@@ -24,6 +24,8 @@ final class LintRules {
     // @mago-expect lint:drupal/discouraged-function
     dpm($yaml);
     // @mago-expect lint:drupal/discouraged-function
+    ksm($yaml);
+    // @mago-expect lint:drupal/discouraged-function
     fnmatch('*.yml', $yaml);
     DrupalYaml::decode($yaml);
 

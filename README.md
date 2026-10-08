@@ -24,9 +24,9 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-punctuation`,
-`long-description-punctuation` and `method-name-underscore`, because core's `phpcs.xml.dist` turns
-off the checks that they port.
+apply to core. It also turns off `function-prefix`, `inline-comment-blank-line`,
+`inline-comment-punctuation`, `long-description-punctuation` and `method-name-underscore`, because
+core's `phpcs.xml.dist` turns off or does not run the checks that they port.
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:
@@ -44,7 +44,7 @@ down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to s
 
 ## What it provides
 
-48 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
+52 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
 The codes below omit their shared `drupal/` prefix.
 
 - **Bugs and security**: `insecure-unserialize`, `preg-security`, `remote-address`, `weak-hash`.
@@ -52,10 +52,11 @@ The codes below omit their shared `drupal/` prefix.
   `render-callback`, `symfony-yaml-parse`, `translatable-string`, `translated-exception`,
   `unsilenced-deprecation`.
 - **Procedural files**. These rules report only in `.module` and `.install` files:
-  `constant-prefix`, `empty-install-hook`, `global-variable`, `install-hook-location`,
-  `t-in-hook-schema`.
-- **Naming, imports and syntax**: `else-if`, `enum-case-name`, `fully-qualified-name`,
-  `method-visibility`, `property-name`, `redundant-use`, `use-leading-backslash`.
+  `constant-prefix`, `empty-install-hook`, `function-prefix`, `global-variable`,
+  `install-hook-location`, `t-in-hook-schema`.
+- **Naming, imports and syntax**: `case-break-blank-line`, `else-if`, `enum-case-name`,
+  `fully-qualified-name`, `method-name-underscore`, `method-visibility`, `property-name`,
+  `property-visibility`, `redundant-use`, `use-leading-backslash`.
 - **Comment text**: `author-tag`, `comment-line-length`, `doc-comment-array-syntax`,
   `doc-type-namespace`, `expected-exception-tag`, `gender-neutral-comment`, `inline-comment`,
   `inline-comment-blank-line`, `inline-comment-punctuation`, `long-description-punctuation`,
@@ -72,11 +73,11 @@ instead.
 
 Many rules carry a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
 ones, and `mago fix` applies them until nothing changes. `--potentially-unsafe` adds the fixes that
-turn a comment into a docblock, which the analyzers then read, and `--unsafe` adds the
-`weak-hash` rewrite, which changes stored digests. Both flags also apply Mago's own fixes of that
-level, such as `strict: true` from `strict-behavior`, which can change what a loose comparison
-returns. `--dry-run` shows the diff first. [docs/rules.md](docs/rules.md) says which rules fix
-what.
+turn a comment into a docblock, which the analyzers then read, and the `deprecated-tag` rewrite of
+an old deprecation wording. `--unsafe` adds the `weak-hash` rewrite, which changes stored digests.
+Both flags also apply Mago's own fixes of that level, such as `strict: true` from
+`strict-behavior`, which can change what a loose comparison returns. `--dry-run` shows the diff
+first. [docs/rules.md](docs/rules.md) says which rules fix what.
 
 Rule codes are stable. Projects that we do not control write them into baselines and into
 `// @mago-expect lint:<code>` comments. For that reason, the codes get no vendor prefix and no new

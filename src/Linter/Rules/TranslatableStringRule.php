@@ -9,19 +9,25 @@ use amateescu\MagoDrupal\Internal\DocumentStrings;
 use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\Instantiations;
 use amateescu\MagoDrupal\Internal\Invocation;
+use amateescu\MagoDrupal\Internal\SourceText;
 use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
 use function array_key_exists;
 use function count;
+use function ctype_digit;
+use function in_array;
 use function preg_match_all;
+use function strcspn;
+use function strip_tags;
 use function strrpos;
 use function substr;
 use function trim;
@@ -35,7 +41,8 @@ use const PREG_OFFSET_CAPTURE;
  *
  * Ports Drupal.Semantics.FunctionT. A translatable string must be a whole
  * literal, because the extractor reads the source and does not run it. A
- * nowdoc counts as a literal, as in Coder 9; a heredoc does not.
+ * nowdoc counts as a literal, as in Coder 9; a heredoc does not. A string
+ * concatenated after the call is reported too, as in `t('Name') . ':'`.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -43,6 +50,14 @@ use const PREG_OFFSET_CAPTURE;
 final class TranslatableStringRule implements Rule
 {
     private const HELP = 'The string extractor reads the source code, so it sees only whole literals.';
+
+    /**
+     * The strings that may follow a translated call after a `.`, as Coder's
+     * checkConcatString() lists them. They are compared once the quotes,
+     * HTML tags and spaces are gone, and an empty result is fine too. `\n`
+     * is the two characters, as written between the quotes.
+     */
+    private const CONCAT_ALLOWED = ['(', ')', '[', ']', '-', '<', '>', '«', '»', '\\n'];
 
     /**
      * Entry points mapped to the argument positions that hold a translatable
@@ -125,11 +140,21 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
+        // Coder checks the text after the call only when the message starts
+        // with a string literal and is not empty. It returns before the check
+        // for any other message.
+        $literal = true;
         foreach ($positions as $position) {
             $message = $invocation->argument($position);
             if ($message !== null) {
                 $this->check($context, $message);
             }
+
+            $literal = $literal && $message !== null && self::startsWithLiteral($context->file, $message);
+        }
+
+        if ($literal) {
+            $this->checkConcatAfter($context);
         }
     }
 
@@ -264,6 +289,74 @@ final class TranslatableStringRule implements Rule
                 $message->span,
             )->withHelp('Use placeholders for the variable parts instead of padding the literal.'));
         }
+    }
+
+    /**
+     * Whether a message starts with a string literal or a nowdoc, and is not
+     * an empty one on its own, the way Coder reads its first token.
+     */
+    private static function startsWithLiteral(SourceFile $file, Node $message): bool
+    {
+        $first = $message;
+        while ($first->kind === NodeKind::Binary) {
+            $left = $file->getChildren($first)[0] ?? null;
+            if ($left === null) {
+                return false;
+            }
+
+            $first = Values::unwrap($file, $left);
+        }
+
+        $whole = $first->id === $message->id;
+        if ($first->kind === NodeKind::CompositeString) {
+            $nowdoc = DocumentStrings::nowdoc($file, $first);
+
+            return $nowdoc !== null && ($nowdoc !== '' || !$whole);
+        }
+
+        return $first->kind === NodeKind::LiteralString && (!$whole || Values::literalString($file, $first) !== '');
+    }
+
+    /**
+     * Reports a string literal that a `.` joins to the end of the call, as
+     * in `t('Name') . ':'`.
+     *
+     * Ports the ConcatString check of the sniff. Coder reads only the first
+     * line of a string that spans lines. It skips a double-quoted string
+     * with a variable in it, and a `b'...'` binary string.
+     */
+    private function checkConcatAfter(LintContext $context): void
+    {
+        $contents = $context->file->contents;
+        $operator = SourceText::skipBlank($contents, $context->node->span->end);
+        $next = $contents[$operator + 1] ?? '';
+        if (($contents[$operator] ?? '') !== '.' || $next === '=' || $next === '.' || ctype_digit($next)) {
+            return;
+        }
+
+        $start = SourceText::skipBlank($contents, $operator + 1);
+        $end = SourceText::constantStringEnd($contents, $start);
+        if ($end === null) {
+            return;
+        }
+
+        // The first line keeps its line break, so a quote before the break
+        // stays, as in Coder's token.
+        $text = substr($contents, $start, $end - $start);
+        $string = trim(strip_tags(trim(
+            substr($text, offset: 0, length: strcspn($text, characters: "\n") + 1),
+            characters: '"\'',
+        )));
+        if ($string === '' || in_array($string, self::CONCAT_ALLOWED, strict: true)) {
+            return;
+        }
+
+        $context->report(Issue::new(
+            'Do not concatenate a string to a translatable string. Make it part of the translatable string and use placeholders.',
+            new Span($start, $end),
+        )->withHelp(
+            'Translators see only the string inside the call, so they cannot translate or move the added text.',
+        ));
     }
 
     /**

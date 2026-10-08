@@ -30,6 +30,20 @@ function doc_comment_no_punctuation(): void {
 function doc_comment_fine(): void {
 }
 
+// Coder wants an upper-case letter first, and a `#` is not one.
+// @mago-expect lint:drupal/doc-comment
+/**
+ * #123: Starts with an issue number.
+ */
+function doc_comment_hash_start(): void {
+}
+
+/**
+ * élan is fine, since Coder does not test a multi-byte first letter.
+ */
+function doc_comment_multibyte_start(): void {
+}
+
 // @mago-expect lint:drupal/doc-comment
 /**
  * Spans two
