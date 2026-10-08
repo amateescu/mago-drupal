@@ -59,11 +59,26 @@ final class DeprecationMessageTest extends TestCase
         self::assertSame([], DeprecationMessage::problems($message, DeprecationStandard::Strict));
     }
 
-    public function testCallsOutATrailingPeriodOnTheLink(): void
+    public function testCallsOutTrailingPunctuationOnTheLink(): void
     {
-        $problems = DeprecationMessage::problems(self::VALID . '.', DeprecationStandard::Strict);
+        foreach (['.', '?', '..', ';', '!'] as $punctuation) {
+            $problems = DeprecationMessage::problems(self::VALID . $punctuation, DeprecationStandard::Strict);
 
-        self::assertCount(1, $problems);
-        self::assertStringContainsString('with a period', $problems[0]);
+            self::assertCount(1, $problems);
+            self::assertStringContainsString('with punctuation', $problems[0]);
+        }
+    }
+
+    /**
+     * Coder 9 accepts change records on GitLab as well.
+     */
+    public function testAcceptsGitLabWorkItems(): void
+    {
+        $message = 'foo() is deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use bar(). See https://git.drupalcode.org/project/drupal/-/work_items/3000000';
+
+        self::assertSame([], DeprecationMessage::problems($message, DeprecationStandard::Strict));
+        self::assertNotNull(DeprecationMessage::linkProblem(
+            'https://git.drupalcode.org/project/drupal/-/issues/3000000',
+        ));
     }
 }

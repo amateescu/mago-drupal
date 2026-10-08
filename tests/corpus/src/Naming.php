@@ -20,16 +20,31 @@ use function preg_match;
  */
 class Naming {
 
+  /**
+   * A name in lowerCamelCase.
+   */
   public string $goodName = '';
 
   // @mago-expect lint:drupal/property-name
+  /**
+   * A name in snake_case.
+   */
   public string $bad_name = '';
 
   // @mago-expect lint:drupal/property-name
+  /**
+   * A name in UpperCamelCase.
+   */
   public string $BadName = '';
 
+  /**
+   * A thing, typed by its import.
+   */
   protected ?Thing $thing = NULL;
 
+  /**
+   * A thing, typed by an aliased import.
+   */
   protected ?AliasedThing $aliased = NULL;
 
   // @mago-expect lint:drupal/function-comment
@@ -51,6 +66,17 @@ class Naming {
   // @mago-expect lint:drupal/method-visibility
   function withoutVisibility(): bool {
     return TRUE;
+  }
+
+  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/method-name-underscore
+  protected function _helper(): bool {
+    return TRUE;
+  }
+
+  // @mago-expect lint:drupal/function-comment
+  public function __toString(): string {
+    return 'magic';
   }
 
   // @mago-expect lint:drupal/function-comment

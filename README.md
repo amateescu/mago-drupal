@@ -24,9 +24,9 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-punctuation` and
-`long-description-punctuation`, because core's `phpcs.xml.dist` turns off the checks that they
-port.
+apply to core. It also turns off `inline-comment-blank-line`, `inline-comment-punctuation`,
+`long-description-punctuation` and `method-name-underscore`, because core's `phpcs.xml.dist` turns
+off the checks that they port.
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:
@@ -120,6 +120,8 @@ integrations = ["drupal"]
 [linter.rules]
 # Report an interface name without the "Interface" suffix.
 interface-name = { psr = true }
+# Report a trait name without the "Trait" suffix, as Coder 9 does.
+trait-name = { psr = true }
 # Report a file whose name differs from the class that it declares.
 file-name = { enabled = true }
 # Accept snake_case functions and camelCase methods. With the drupal integration, the rule skips

@@ -77,3 +77,27 @@ function nullsafe_method_call(?TranslationManager $translation, string $name): s
   // @mago-expect lint:drupal/translatable-string
   return (string) $translation?->t('Hello ' . $name);
 }
+
+// @mago-expect lint:drupal/function-comment
+function nowdoc_message(): string {
+  // A nowdoc holds no variable, so Coder 9 takes it as a literal.
+  return t(<<<'TEXT'
+    Save configuration
+    TEXT);
+}
+
+// @mago-expect lint:drupal/function-comment
+function empty_nowdoc(): string {
+  // @mago-expect lint:drupal/translatable-string
+  return t(<<<'TEXT'
+
+    TEXT);
+}
+
+// @mago-expect lint:drupal/function-comment
+function heredoc_message(): string {
+  // @mago-expect lint:drupal/translatable-string
+  return t(<<<TEXT
+    Save configuration
+    TEXT);
+}

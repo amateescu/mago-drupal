@@ -3,8 +3,6 @@
 namespace Drupal\example;
 
 use Drupal\Core\Url;
-use Drupal\node\NodeInterface as Node;
-use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Takes imported types.

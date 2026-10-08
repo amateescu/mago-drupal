@@ -112,9 +112,17 @@ function function_comment_missing_return_comment(): string {
 }
 
 /**
- * $this and static returns are exempt from needing a description.
+ * $this, static and void returns are exempt from needing a description.
  */
 class FunctionCommentReturnExemptions {
+
+  /**
+   * Returns nothing, which Coder 9 lets go without a description.
+   *
+   * @return void
+   */
+  public function nothing(): void {
+  }
 
   /**
    * Returns the same instance, typed as static.
