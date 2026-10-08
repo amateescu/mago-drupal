@@ -97,6 +97,7 @@ class HookAttributeFixture {
    */
   // @mago-expect lint:drupal/hook-attribute-name
   public function otherTargets(
+    // @mago-expect analysis:invalid-attribute-target
     #[Hook('hook_form_alter')]
     string $parameter,
   ): void {
@@ -154,6 +155,7 @@ class HookAttributeFixture {
   /**
    * A string below the attribute is not read.
    */
+  // @mago-expect analysis:too-few-arguments
   #[Hook]
   public function noArguments(): string {
     return 'hook_later';

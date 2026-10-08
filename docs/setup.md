@@ -40,6 +40,20 @@ core's `phpcs.xml.dist` turns off or does not run:
 - the rules for info and routing files that core does not run: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`.
 
+It also turns off the two analyzer checks that do not apply to core, `internal-class-extension` and
+`list-builder-cacheability`.
+
+### Finding the Drupal root
+
+Add `"--root=PATH"` when the Drupal document root is somewhere other than the project directory,
+`web/`, `docroot/`, `html/`, `public/`, the Composer scaffold's `web-root`, or `vendor/drupal` when
+Composer installed core there as a package. See [Finding the Drupal root](analyzer.md#finding-the-drupal-root).
+
+### Deprecation target
+
+Add `"--deprecations=12"` to report only the Drupal deprecations that are removed in Drupal 12 or
+earlier. See [Deprecation target](analyzer.md#deprecation-target).
+
 ### Turning rules off
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
@@ -181,3 +195,9 @@ Both flags also apply Mago's own fixes of that level, such as `strict: true` fro
 
 When PHP loads Xdebug, the worker starts again once with `XDEBUG_MODE=off`, because Xdebug slows it
 down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to step through a rule.
+
+## Index cache
+
+The analyzer caches the indexes that it parses under the system temporary directory.
+`MAGO_DRUPAL_CACHE=/dir` moves the cache, and `MAGO_DRUPAL_CACHE=0` turns it off. See
+[Cost](analyzer.md#cost).

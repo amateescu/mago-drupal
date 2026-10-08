@@ -10,6 +10,8 @@ use Composer\InstalledVersions;
 use Mago\Sdk\Reporting\Level;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
+
 final class DrupalExtensionTest extends TestCase
 {
     public function testFactoryOwnsStableRegistration(): void
@@ -19,7 +21,10 @@ final class DrupalExtensionTest extends TestCase
         self::assertSame('amateescu/mago-drupal', $extension->identifier);
         self::assertSame('Drupal', $extension->name);
         self::assertSame(InstalledVersions::getPrettyVersion('amateescu/mago-drupal'), $extension->version);
-        self::assertCount(1, $extension->analyzerPlugins);
+        self::assertSame(
+            ['drupal', 'phpunit', 'phpstan-ignores'],
+            array_map(static fn($plugin): string => $plugin->getDefinition()->identifier, $extension->analyzerPlugins),
+        );
         self::assertNull($extension->workerReducer);
     }
 

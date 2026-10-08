@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormBase;
 
@@ -99,6 +100,8 @@ class GlobalFunctionForm extends FormBase {
  * Calls a procedural wrapper from a class that the container builds.
  */
 class GlobalFunctionInjected implements ContainerInjectionInterface {
+
+  use AutowireTrait;
 
   /**
    * Formats a date.

@@ -24,6 +24,7 @@ nav = [
     { "Drupal 7 era" = "rules/drupal-7.md" },
     { "Ported from phpstan-drupal" = "rules/phpstan-drupal.md" },
   ] },
+  { "Analyzer" = "analyzer.md" },
   { "Coming from Coder" = [
     "coder/index.md",
     { "Drupal standard" = "coder/drupal.md" },

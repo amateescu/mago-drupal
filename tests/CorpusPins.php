@@ -49,6 +49,7 @@ use function preg_grep;
 use function preg_match;
 use function proc_close;
 use function proc_open;
+use function putenv;
 use function rmdir;
 use function str_contains;
 use function str_replace;
@@ -117,10 +118,13 @@ final class CorpusPins
         try {
             self::copyTree($corpus, $copy);
             self::pointAtWorker($copy . '/mago.toml', dirname(__DIR__) . '/resources/worker.php');
-            $pragmas = self::neutralize($copy, 'src');
+            $pragmas = [...self::neutralize($copy, 'src'), ...self::neutralize($copy, 'modules/corpus_callbacks')];
             $rules = file($corpus . '/expected-rules.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             $codes = implode(',', $rules === false ? [] : $rules);
 
+            // The copy lives under a new path each run, so a cache entry keyed
+            // on its root would never be read again.
+            putenv('MAGO_DRUPAL_CACHE=0');
             $found = [
                 ...self::issues([$mago, '--workspace', $copy, 'lint', '--only', $codes, ...self::JSON], 'lint'),
                 ...self::issues([$mago, '--workspace', $copy, 'analyze', ...self::JSON], 'analysis'),

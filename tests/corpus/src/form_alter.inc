@@ -15,9 +15,3 @@ declare(strict_types=1);
  */
 function form_alter_include(array &$form): void {
 }
-
-/**
- * Implements hook_form_alter().
- */
-function corpus_form_alter(array &$form): void {
-}

@@ -36,6 +36,9 @@ It also reports a value that is not an array literal at all, such as
 `PlaceholderGenerator` for `#lazy_builder`, because they pass the key through
 `array_intersect_key()`.
 
+Whether Drupal trusts the class method that a callback names is the analyzer's
+`drupal/untrusted-callback`. See [Render and form callbacks](../analyzer.md#render-and-form-callbacks).
+
 ## drupal/symfony-yaml-parse
 
 - **Level:** warning

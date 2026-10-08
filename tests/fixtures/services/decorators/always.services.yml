@@ -1,0 +1,4 @@
+services:
+  always.other:
+    class: Drupal\always\Other
+    decorates: other

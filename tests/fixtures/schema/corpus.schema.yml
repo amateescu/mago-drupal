@@ -1,0 +1,60 @@
+corpus.settings:
+  type: config_object
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    name:
+      type: label
+    count:
+      type: integer
+    enabled:
+      type: boolean
+    ratio:
+      type: float
+    tags:
+      type: sequence
+      sequence:
+        type: string
+    weights:
+      type: sequence
+      sequence:
+        - type: weight
+    page:
+      type: mapping
+      mapping:
+        front:
+          type: path
+    items:
+      type: sequence
+      sequence:
+        type: corpus.item_settings
+    dynamic:
+      type: corpus.dynamic.[%parent.name]
+    nested:
+      type: corpus.item_settings
+    note:
+      type: string
+      nullable: true
+    flag:
+      type: boolean
+      requiredKey: false
+
+corpus.loose:
+  type: config_object
+  mapping:
+    name:
+      type: string
+
+corpus.item.*:
+  type: config_entity
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    weight:
+      type: weight
+
+corpus.inherited:
+  type: corpus.settings
+  mapping:
+    extra:
+      type: string

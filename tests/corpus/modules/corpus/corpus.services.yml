@@ -1,0 +1,80 @@
+# Shapes the container return-type fixture resolves through.
+parameters:
+  corpus.flag: true
+  corpus.limit: 30
+  corpus.ratio: 0.5
+  corpus.options:
+    enabled: false
+  corpus.list: [a, b]
+  corpus.mixed: 1
+  corpus.copy: '%corpus.limit%'
+  corpus.path: '%app.root%/files'
+  corpus.reference: '@corpus.thing'
+  corpus.escaped: '@@corpus'
+  corpus.tagged: !tagged_iterator corpus.tag
+services:
+  _defaults:
+    autoconfigure: true
+  corpus.thing:
+    class: Drupal\corpus\Nested\Thing
+  plugin.manager.block:
+    class: Drupal\Core\Block\BlockManager
+  corpus.alias: '@corpus.thing'
+  corpus.aliased:
+    alias: corpus.thing
+    deprecated:
+      package: drupal/core
+      version: 11.0.0
+      message: The "%alias_id%" alias is deprecated. Use "corpus.thing" instead.
+  corpus.retiring:
+    class: Drupal\corpus\Nested\Thing
+    deprecated:
+      package: drupal/core
+      version: 11.4.0
+      message: The "%service_id%" service is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. Use "corpus.thing" instead.
+  corpus.retiring_alias: '@corpus.retiring'
+  corpus.leaving:
+    class: Drupal\corpus\Nested\Thing
+    deprecated:
+      package: drupal/core
+      version: 11.3.0
+      message: The "%service_id%" service is deprecated in drupal:11.3.0 and is removed from drupal:12.0.0. Use "corpus.thing" instead.
+  corpus.leaving_alias: '@corpus.leaving'
+  corpus.decorated:
+    class: Drupal\corpus\Nested\Thing
+  corpus.decorated_alias: '@corpus.decorated'
+  corpus.private:
+    class: Drupal\corpus\Nested\Thing
+    public: false
+  corpus.private_alias: '@corpus.private'
+  corpus.closed_alias:
+    alias: corpus.private
+    public: false
+  corpus.decorator:
+    class: Drupal\corpus\Nested\Other
+    decorates: corpus.decorated
+  corpus.greeter:
+    class: Drupal\corpus\Nested\HomeGreeter
+  corpus.host:
+    class: Drupal\corpus\Nested\HomeHost
+  corpus.outside_decorated:
+    class: Drupal\corpus\Nested\Thing
+  corpus.outside_decorator:
+    class: Drupal\outside\Decorator
+    decorates: corpus.outside_decorated
+  corpus.ignored_decorator:
+    class: Drupal\corpus\Nested\Other
+    decorates: corpus.absent
+    decoration_on_invalid: ignore
+  corpus.base:
+    abstract: true
+    class: Drupal\corpus\Nested\Thing
+  corpus.child:
+    parent: corpus.base
+  Drupal\corpus\Nested\Thing: {}
+  corpus.factory_only:
+    factory: ['@corpus.thing', 'make']
+  corpus.placeholder:
+    class: '%corpus.placeholder.class%'
+  corpus.unknown_class:
+    class: Drupal\corpus\NotScannedAnywhere

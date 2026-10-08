@@ -1,0 +1,235 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations the signature checks look at.
+ */
+
+declare(strict_types=1);
+
+namespace Drupal\corpus\Audit;
+
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Hook\Attribute\Hook;
+
+/**
+ * Right and wrong hook signatures side by side.
+ */
+final class Hooks {
+
+  /**
+   * A well formed form alter.
+   */
+  #[Hook('form_alter')]
+  public function formAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  }
+
+  /**
+   * Drupal only collects public hook methods, so this one never runs.
+   */
+  // @mago-expect analysis:unused-method
+  #[Hook('cron')]
+  private function hiddenCron(): void {
+  }
+
+  /**
+   * A well formed form-id specific alter, the form id left off.
+   */
+  #[Hook('form_node_form_alter')]
+  public function nodeFormAlter(array &$form, FormStateInterface $form_state): void {
+  }
+
+  /**
+   * Not by reference and wrong second type.
+   */
+  // @mago-expect analysis:drupal/hook-form-alter-signature
+  #[Hook('form_alter')]
+  public function brokenFormAlter(array $form, array $form_state): void {
+  }
+
+  /**
+   * Untyped parameters are only checked for the reference.
+   */
+  #[Hook('form_user_form_alter')]
+  public function untypedFormAlter(&$form, $form_state): void {
+  }
+
+  /**
+   * Fewer parameters than the module handler passes is fine.
+   */
+  #[Hook('form_alter')]
+  public function shortFormAlter(array &$form): void {
+  }
+
+  /**
+   * The form id is a string.
+   */
+  // @mago-expect analysis:drupal/hook-form-alter-signature
+  #[Hook('form_alter')]
+  public function intFormIdAlter(array &$form, FormStateInterface $form_state, int $form_id): void {
+  }
+
+  /**
+   * A required fourth parameter is never passed.
+   */
+  // @mago-expect analysis:drupal/hook-form-alter-signature
+  #[Hook('form_alter')]
+  public function longFormAlter(array &$form, FormStateInterface $form_state, string $form_id, int $extra): void {
+  }
+
+  /**
+   * An optional fourth parameter is harmless.
+   */
+  #[Hook('form_alter')]
+  public function optionalExtraFormAlter(
+    array &$form,
+    FormStateInterface $form_state,
+    string $form_id,
+    int $extra = 0,
+  ): void {
+  }
+
+  /**
+   * A nullable array is still an array.
+   */
+  #[Hook('form_alter')]
+  public function nullableFormAlter(?array &$form, FormStateInterface $form_state): void {
+  }
+
+  /**
+   * Carries the cacheability parameter.
+   */
+  #[Hook('entity_operation')]
+  public function entityOperation(EntityInterface $entity, CacheableMetadata $cacheability): array {
+    return [];
+  }
+
+  /**
+   * Misses the cacheability parameter.
+   */
+  // @mago-expect analysis:drupal/hook-entity-operation-cacheability
+  #[Hook('entity_operation')]
+  public function oldEntityOperation(EntityInterface $entity): array {
+    return [];
+  }
+
+  /**
+   * Alter without cacheability at position three.
+   */
+  // @mago-expect analysis:drupal/hook-entity-operation-cacheability
+  #[Hook('entity_operation_alter')]
+  public function oldEntityOperationAlter(array &$operations, EntityInterface $entity): void {
+  }
+
+  /**
+   * Implements a deprecated hook.
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('old_thing')]
+  public function oldThing(): void {
+  }
+
+  /**
+   * Implements a hook that Drupal 13 removes, which --deprecations=12 skips.
+   */
+  #[Hook('later_thing')]
+  public function laterThing(): void {
+  }
+
+  /**
+   * Implements the replacement.
+   */
+  #[Hook('new_thing')]
+  public function newThing(): void {
+  }
+
+  /**
+   * Implements a deprecated hook named with a placeholder.
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('search_query_node_access_alter')]
+  public function nodeAccessSearchQueryAlter(): void {
+  }
+
+  /**
+   * Implements a hook named with a placeholder that is not deprecated.
+   */
+  #[Hook('node_view')]
+  public function nodeView(): void {
+  }
+
+  /**
+   * Implements the deprecated tag hook for a tag that ends in "view".
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('search_query_node_view_alter')]
+  public function nodeViewSearchQueryAlter(): void {
+  }
+
+  /**
+   * Matches the deprecated widget hook and the current single element one.
+   */
+  #[Hook('field_widget_single_element_string_textfield_form_alter')]
+  public function textfieldElementAlter(): void {
+  }
+
+}
+
+/**
+ * A class-level hook attribute names the method, __invoke() by default.
+ */
+#[Hook('form_alter')]
+final class InvokedFormAlter {
+
+  /**
+   * Not by reference.
+   */
+  // @mago-expect analysis:drupal/hook-form-alter-signature
+  public function __invoke(array $form, FormStateInterface $form_state): void {
+  }
+
+}
+
+/**
+ * A class-level hook attribute with an explicit method.
+ */
+#[Hook('old_thing', method: 'run')]
+final class NamedOldThing {
+
+  /**
+   * Implements the deprecated hook.
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  public function run(): void {
+  }
+
+}
+
+/**
+ * Declares a method a subclass registers as a hook.
+ */
+abstract class OldThingBase {
+
+  /**
+   * Implements the deprecated hook for the subclasses below.
+   */
+  public function handle(): void {
+  }
+
+}
+
+/**
+ * A class-level hook attribute naming an inherited method.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+#[Hook('old_thing', method: 'handle')]
+final class InheritedOldThing extends OldThingBase {}
+
+/**
+ * A second class naming the same inherited method, reported on its own.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+#[Hook('old_thing', method: 'handle')]
+final class OtherInheritedOldThing extends OldThingBase {}

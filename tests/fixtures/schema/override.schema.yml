@@ -1,0 +1,43 @@
+corpus.loose:
+  type: config_object
+  mapping:
+    name:
+      type: integer
+
+cycle.a:
+  type: cycle.b
+cycle.b:
+  type: cycle.a
+
+condition.plugin:
+  type: mapping
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    id:
+      type: string
+condition.plugin.entity_bundle:*:
+  type: condition.plugin
+  mapping:
+    bundles:
+      type: sequence
+      sequence:
+        type: string
+
+breakpoint.breakpoint.*:
+  type: mapping
+  mapping:
+    label:
+      type: label
+
+untyped.holder:
+  type: mapping
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    bare_mapping:
+      type: mapping
+    ignored:
+      type: ignore
+    undefined:
+      type: no_such_type

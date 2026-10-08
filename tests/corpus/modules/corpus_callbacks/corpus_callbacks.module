@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * Form handlers named as plain functions.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function corpus_callbacks_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  $form['#validate'] = [
+    // Declared below.
+    'corpus_callbacks_form_validate',
+    // Declared in a file of this module the run leaves out.
+    'corpus_callbacks_pages_validate',
+    // Named after another module, whose files may not be in the run.
+    'other_module_validate',
+    // Named after corpus_callbacks_ui, a module with a longer name.
+    'corpus_callbacks_ui_validate',
+    // A service the callable resolver invokes.
+    'corpus_callbacks_invokable',
+    // The form object is the altered form, not a class of this file.
+    '::validateForm',
+  ];
+  // Named after this module, but declared nowhere in it.
+  // @mago-expect analysis:drupal/unknown-callback
+  $form['#submit'] = ['corpus_callbacks_form_submitt'];
+}
+
+/**
+ * Validates the altered form.
+ */
+function corpus_callbacks_form_validate(array &$form, FormStateInterface $form_state): void {
+}
+
+/**
+ * Builds an element with a form object callback outside a form class.
+ */
+function _corpus_callbacks_pre_render_element(): array {
+  return [
+    // Only the form API turns "::method" into a method of the form object.
+    // @mago-expect analysis:drupal/unknown-callback
+    '#pre_render' => ['::preRender'],
+  ];
+}
+
+/**
+ * Builds a file element whose value callback is missing.
+ */
+function _corpus_callbacks_file_element(): array {
+  return [
+    // A file value callback is called as it is, so the function has to
+    // exist.
+    // @mago-expect analysis:drupal/unknown-callback
+    '#file_value_callbacks' => ['corpus_callbacks_file_value'],
+  ];
+}
+
+/**
+ * Builds an element whose value callback names a service.
+ */
+function _corpus_callbacks_value_element(): array {
+  return [
+    // is_callable() does not look services up.
+    // @mago-expect analysis:drupal/unknown-callback
+    '#value_callback' => 'corpus_callbacks_invokable',
+  ];
+}

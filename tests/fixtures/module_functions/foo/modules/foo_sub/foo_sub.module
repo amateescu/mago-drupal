@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * A submodule inside the fixture module.
+ */
+
+function foo_sub_submit(array &$form, $form_state) {
+}

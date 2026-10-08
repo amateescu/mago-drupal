@@ -1,0 +1,28 @@
+config_object:
+  type: mapping
+  mapping:
+    _core:
+      requiredKey: false
+      type: mapping
+      mapping:
+        default_config_hash:
+          type: string
+    langcode:
+      requiredKey: false
+      type: langcode
+
+config_entity:
+  type: mapping
+  mapping:
+    uuid:
+      type: uuid
+    status:
+      type: boolean
+    dependencies:
+      type: mapping
+
+corpus.item_settings:
+  type: mapping
+  mapping:
+    limit:
+      type: integer

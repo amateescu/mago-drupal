@@ -11,8 +11,12 @@
  *     command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
  *
  * Add `--core` to the command when you analyze Drupal core. Add
- * `--disable=<code>,<code>` to turn rules off. Mago does not take this
- * extension's rule codes under `[linter.rules]`.
+ * `--root=PATH` when the Drupal document root is not the cwd, `web/`,
+ * `docroot/`, `html/`, `public/`, the Composer scaffold's `web-root` or
+ * `vendor/drupal` when Composer installed core there as a package. Add
+ * `--deprecations=12` to report only the Drupal deprecations removed in
+ * Drupal 12 or earlier. Add `--disable=<code>,<code>` to turn rules off.
+ * Mago does not take this extension's rule codes under `[linter.rules]`.
  */
 
 declare(strict_types=1);

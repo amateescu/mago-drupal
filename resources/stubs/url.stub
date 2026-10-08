@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Drupal documents `Url::toString()` as `string|GeneratedUrl`; which one comes
+ * back is decided by the argument.
+ *
+ * A stub replaces the class header, so `implements` and every constant have to
+ * be restated here.
+ */
+
+namespace Drupal\Core;
+
+use Drupal\Core\Security\TrustedCallbackInterface;
+
+class Url implements TrustedCallbackInterface
+{
+    /**
+     * @param bool $collect_bubbleable_metadata
+     * @return ($collect_bubbleable_metadata is true ? \Drupal\Core\GeneratedUrl : string)
+     */
+    public function toString($collect_bubbleable_metadata = false)
+    {
+    }
+}

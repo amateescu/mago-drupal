@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Drupal\corpus\Audit;
 
 use Drupal\Component\Serialization\Yaml as DrupalYaml;
+use Drupal\Core\Security\Attribute\TrustedCallback;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -55,6 +56,9 @@ final class LintRules {
       '#pre_render' => [
         [self::class, 'preRender'],
         [$this, 'preRender'],
+        // Only the form API turns "::method" into a method of the form
+        // object.
+        // @mago-expect analysis:drupal/unknown-callback
         '::preRender',
         $callback,
         'corpus.thing:render',
@@ -90,6 +94,7 @@ final class LintRules {
   /**
    * A trusted callback target.
    */
+  #[TrustedCallback]
   public static function preRender(array $element): array {
     return $element;
   }
