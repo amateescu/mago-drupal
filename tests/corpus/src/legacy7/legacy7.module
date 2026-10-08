@@ -28,7 +28,7 @@ final class Legacy7Greeting {
    * Returns the greeting.
    */
   public function text(): string {
-    return t('Hello');
+    return (string) t('Hello');
   }
 
 }

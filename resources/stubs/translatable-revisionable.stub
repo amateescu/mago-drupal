@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * Drupal documents `isRevisionTranslationAffected()` as returning a bool, but
+ * `ContentEntityBase` returns the raw field value: `'1'` or `'0'` from MySQL,
+ * an int from SQLite, the bool a setter stored, or NULL when the flag is not
+ * set. A `(bool)` cast on the result is needed, not redundant.
+ *
+ * A stub replaces the interface header and Mago builds the descendants of a
+ * stubbed interface from the stub alone, so the header and every method are
+ * restated here even though only one of them changes.
+ */
+
+namespace Drupal\Core\Entity;
+
+interface TranslatableRevisionableInterface extends TranslatableInterface, RevisionableInterface
+{
+    /**
+     * @return bool
+     */
+    public function isLatestTranslationAffectedRevision();
+
+    /**
+     * @param bool|null $affected
+     * @return $this
+     */
+    public function setRevisionTranslationAffected($affected);
+
+    /**
+     * @return bool|int|string|null
+     */
+    public function isRevisionTranslationAffected();
+
+    /**
+     * @return bool
+     *
+     * @internal
+     */
+    public function isRevisionTranslationAffectedEnforced();
+
+    /**
+     * @param bool $enforced
+     * @return $this
+     *
+     * @internal
+     */
+    public function setRevisionTranslationAffectedEnforced($enforced);
+
+    /**
+     * @return bool
+     */
+    public function isDefaultTranslationAffectedOnly();
+}

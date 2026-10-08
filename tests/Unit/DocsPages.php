@@ -39,6 +39,9 @@ final class DocsPages
         'coder/drupal.md',
         'coder/other-standards.md',
         'coder/drupal-practice.md',
+        CheckPages::INDEX,
+        'phpstan/phpstan-drupal.md',
+        'phpstan/identifiers.md',
     ];
 
     private const REGION = '/(<!-- docs-gen:([a-z0-9-]+) -->\n).*?(<!-- \/docs-gen -->)/s';
@@ -135,7 +138,13 @@ final class DocsPages
             }
         }
 
+        $pages += (new CheckPages($this, $this->root))->entryPages();
         $tables = new CoderTables($this->map(), $pages);
+        $phpstan = new PHPStanPages(
+            PHPStanDrupalMap::load($this->root . '/tests/phpstan-drupal-map.json'),
+            $this,
+            $pages,
+        );
 
         return match ($name) {
             'rules' => $this->rules(),
@@ -143,6 +152,10 @@ final class DocsPages
             'coder-other' => $tables->otherStandards(),
             'coder-practice' => $tables->drupalPractice(),
             'coder-drupal7' => $tables->drupal7(),
+            'checks' => (new CheckPages($this, $this->root))->index(),
+            'phpstan-drupal-rules' => $phpstan->rules(),
+            'phpstan-drupal-extensions' => $phpstan->extensions(),
+            'phpstan-identifiers' => $phpstan->identifiers(),
             default => throw new RuntimeException("No generated part is named {$name}."),
         };
     }

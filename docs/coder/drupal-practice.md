@@ -2,7 +2,8 @@
 
 Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`,
 `NamespacedDependency` and part of `VariableAnalysis` from this standard. The worker's
-[`--core` argument](../setup.md#checking-drupal-core) turns off the rules that port the other sniffs.
+[`--core` argument](../setup.md#checking-drupal-core) turns off the rules that port the other
+sniffs.
 
 <!-- docs-gen:coder-practice -->
 
@@ -24,7 +25,7 @@ Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunc
 | `DrupalPractice.InfoFiles.Description` | [`drupal/info-description`](../rules/info-and-routing-files.md#drupalinfo-description) |  |
 | `DrupalPractice.InfoFiles.NamespacedDependency` | [`drupal/info-namespaced-dependency`](../rules/info-and-routing-files.md#drupalinfo-namespaced-dependency) |  |
 | `DrupalPractice.Objects.GlobalClass` | Nothing | A static `Node::load()` style call in a class that can have the storage injected. Not ported: it needs the analyzer. |
-| `DrupalPractice.Objects.GlobalDrupal` | The analyzer (not released), partly | Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer half, on the `analyzer` branch, needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, so it skips services and a `BlockBase` plugin without `create()`. |
+| `DrupalPractice.Objects.GlobalDrupal` | [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call), partly | Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer check needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, or a `#[Hook]` on the class or one of its methods, so it skips other services and a `BlockBase` plugin without `create()`. |
 | `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |  |
 | `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |  |
 | `DrupalPractice.Objects.UnusedPrivateMethod` | `mago analyze` (`unused-method`) | The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer reports none of them. |

@@ -1,0 +1,107 @@
+<?php
+
+/**
+ * Types the placeholder arguments as `formattable-markup.stub` explains.
+ *
+ * A stub replaces the class header, and the descendants of a stubbed class
+ * inherit only the members the stub declares, so the header and every member
+ * are restated here even though only the constructor changes.
+ */
+
+namespace Drupal\Core\StringTranslation;
+
+use Drupal\Component\Render\FormattableMarkup;
+
+class TranslatableMarkup extends FormattableMarkup
+{
+    /**
+     * @var string
+     */
+    protected $translatedMarkup;
+
+    /**
+     * @var array
+     */
+    protected $options;
+
+    /**
+     * @var \Drupal\Core\StringTranslation\TranslationInterface
+     */
+    protected $stringTranslation;
+
+    /**
+     * @param string $string
+     * @param array<string, scalar|\Stringable> $arguments
+     * @param array $options
+     * @param \Drupal\Core\StringTranslation\TranslationInterface|null $string_translation
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function __construct($string, array $arguments = [], array $options = [], ?TranslationInterface $string_translation = null)
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function getUntranslatedString()
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getOption($name)
+    {
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getOptions()
+    {
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getArguments()
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function render()
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+    }
+
+    /**
+     * @return \Drupal\Core\StringTranslation\TranslationInterface
+     */
+    protected function getStringTranslation()
+    {
+    }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+    }
+}

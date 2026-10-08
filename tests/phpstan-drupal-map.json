@@ -1,0 +1,268 @@
+{
+    "version": "2.2.2",
+    "rules": [
+        {
+            "rule": "AccessResultConditionRule",
+            "where": ["analyze:redundant-comparison"],
+            "note": "Mago reports a strict comparison that is always true or always false anywhere, not only as the condition of `AccessResult::allowedIf()` or `forbiddenIf()`.",
+            "identifiers": [
+                {"identifier": "identical.alwaysFalse", "status": "ported"},
+                {"identifier": "notIdentical.alwaysFalse", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "BrowserTestBaseDefaultThemeRule",
+            "where": ["check:drupal/browser-test-default-theme"],
+            "identifiers": [
+                {"identifier": "BrowserTestBase.defaultThemeRequired", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "CacheableDependencyRule",
+            "where": ["check:drupal/cacheable-dependency"],
+            "identifiers": [
+                {"identifier": "cacheable.dependency", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "ClassExtendsInternalClassRule",
+            "where": ["check:drupal/internal-class-extension"],
+            "identifiers": [
+                {"identifier": "classExtendsInternalClass.classExtendsInternalClass", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "ConfigEntityConfigExportRule",
+            "where": ["check:drupal/config-entity-export"],
+            "identifiers": [
+                {"identifier": "configEntityConfigExport.noConfigExportKey", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "ConfigGetUnknownKeyRule",
+            "default": "off",
+            "where": ["check:drupal/config-unknown-key"],
+            "identifiers": [
+                {"identifier": "drupal.configGetUnknownKey", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "DependencySerializationTraitPropertyRule",
+            "where": ["check:drupal/dependency-serialization-property"],
+            "identifiers": [
+                {"identifier": "dependencySerializationTraitProperty.unsupportedPrivateProperty", "status": "ported"},
+                {"identifier": "dependencySerializationTraitProperty.unsupportedReadOnlyProperty", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "DeprecatedHookImplementation",
+            "default": "manual",
+            "where": ["check:drupal/deprecated-hook"],
+            "identifiers": [
+                {"identifier": "deprecatedHookImplementation.other", "status": "ported"},
+                {"identifier": "deprecatedHookImplementation.useHookFieldWidgetCompleteFormAlter", "status": "gap", "where": ["none"], "note": "Drupal 10 removed the documentation of `hook_field_widget_multivalue_form_alter()`, and phpstan-drupal reports its implementations from a list of its own."},
+                {"identifier": "deprecatedHookImplementation.useHookFieldWidgetMulitValueWidgetTypeFormAlter", "status": "gap", "where": ["none"], "note": "The same for `hook_field_widget_multivalue_WIDGET_TYPE_form_alter()`."}
+            ]
+        },
+        {
+            "rule": "DiscouragedFunctionsRule",
+            "where": ["ext:drupal/discouraged-function"],
+            "identifiers": [
+                {"identifier": "discouragedFunctions.discouragedFunctionCalled", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "EntityListBuilderOperationsCacheabilityRule",
+            "where": ["check:drupal/list-builder-cacheability"],
+            "identifiers": [
+                {"identifier": "drupal.entityListBuilderMissingCacheabilityParameter", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "EntityQueryHasAccessCheckRule",
+            "where": ["check:drupal/entity-query-access-check"],
+            "identifiers": [
+                {"identifier": "entityQueryHasAccessCheck.noAccessCheck", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "EntityStorageDirectInjectionRule",
+            "where": ["check:drupal/entity-storage-injection"],
+            "identifiers": [
+                {"identifier": "drupal.entityStorageDirectInjection", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "EntityStoragePropertyAssignmentRule",
+            "where": ["check:drupal/entity-storage-property"],
+            "identifiers": [
+                {"identifier": "drupal.entityStoragePropertyAssignment", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "GetDeprecatedServiceRule",
+            "where": ["check:drupal/deprecated-service"],
+            "identifiers": [
+                {"identifier": "getDeprecatedService.deprecated", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "GlobalDrupalDependencyInjectionRule",
+            "where": ["check:drupal/global-drupal-call"],
+            "identifiers": [
+                {"identifier": "globalDrupalDependencyInjection.useDependencyInjection", "status": "partial"}
+            ]
+        },
+        {
+            "rule": "HookEntityOperationCacheabilityRule",
+            "where": ["check:drupal/hook-entity-operation-cacheability"],
+            "identifiers": [
+                {"identifier": "drupal.hookEntityOperationAlterMissingCacheabilityParameter", "status": "ported"},
+                {"identifier": "drupal.hookEntityOperationMissingCacheabilityParameter", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "HookFormAlterRule",
+            "where": ["check:drupal/hook-form-alter-signature"],
+            "identifiers": [
+                {"identifier": "hookFormAlter.formParameterNotByRef", "status": "ported"},
+                {"identifier": "hookFormAlter.invalidFormIdParameterType", "status": "ported"},
+                {"identifier": "hookFormAlter.invalidFormParameterType", "status": "ported"},
+                {"identifier": "hookFormAlter.invalidFormStateParameterType", "status": "ported"},
+                {"identifier": "hookFormAlter.invalidParameterCount", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "LoadIncludes",
+            "where": ["check:drupal/load-include"],
+            "identifiers": [
+                {"identifier": "loadIncludes.fileNotLoadable", "status": "ported"},
+                {"identifier": "loadIncludes.moduleNotFound", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "LoggerFromFactoryPropertyAssignmentRule",
+            "where": ["check:drupal/logger-from-factory"],
+            "identifiers": [
+                {"identifier": "loggerFromFactory.propertyAssignment", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "ModuleLoadInclude",
+            "where": ["none"],
+            "note": "Drupal 11 removed `module_load_include()`.",
+            "identifiers": [
+                {"identifier": "moduleLoadInclude.moduleNotFound", "status": "gap"},
+                {"identifier": "moduleLoadInclude.moduleNotLoadable", "status": "gap"}
+            ]
+        },
+        {
+            "rule": "PluginAnnotationContextDefinitionsRule",
+            "where": ["check:drupal/plugin-annotation-context"],
+            "identifiers": [
+                {"identifier": "pluginAnnotationContextDefinitions.useContextDefinitionsKey", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "PluginManagerInspectionRule",
+            "default": "off",
+            "where": ["check:drupal/plugin-manager-alter-info"],
+            "identifiers": [
+                {"identifier": "pluginManagerInspection.alterInfoMissing", "status": "ported"},
+                {"identifier": "pluginManagerInspection.yamlPluginManagersInvokesParentConstructor", "status": "gap", "where": ["none"], "note": "A plugin manager with YAML discovery that calls `parent::__construct()`."}
+            ]
+        },
+        {
+            "rule": "PluginManagerSetsCacheBackendRule",
+            "where": ["check:drupal/plugin-manager-cache-backend"],
+            "identifiers": [
+                {"identifier": "pluginManagerSetsCacheBackend.missingCacheBackend", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "ProceduralHookEntityOperationCacheabilityRule",
+            "where": ["check:drupal/hook-entity-operation-cacheability"],
+            "identifiers": [
+                {"identifier": "drupal.proceduralHookEntityOperationAlterMissingCacheabilityParameter", "status": "ported"},
+                {"identifier": "drupal.proceduralHookEntityOperationMissingCacheabilityParameter", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "RenderCallbackRule",
+            "where": ["ext:drupal/render-callback"],
+            "identifiers": [
+                {"identifier": "renderCallback.callbackNotImplementsTrustedCallback", "status": "ported", "where": ["check:drupal/untrusted-callback"]},
+                {"identifier": "renderCallback.callbackNotImplementsTrustedCallbackInterface", "status": "ported", "where": ["check:drupal/untrusted-callback"]},
+                {"identifier": "renderCallback.containsClosure", "status": "ported", "where": ["check:drupal/form-closure-callback"]},
+                {"identifier": "renderCallback.expectsArrayOfCallbacks", "status": "ported"},
+                {"identifier": "renderCallback.expectsCallableArrayWithArguments", "status": "ported"},
+                {"identifier": "renderCallback.invalidKeyValue", "status": "gap", "where": ["none"], "note": "A callback whose type is not known to be callable, such as a number or a string variable."},
+                {"identifier": "renderCallback.nonCallableCallback", "status": "ported", "where": ["check:drupal/unknown-callback"]},
+                {"identifier": "renderCallback.nonTrustedCallback", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "StaticServiceDeprecatedServiceRule",
+            "where": ["check:drupal/deprecated-service"],
+            "identifiers": [
+                {"identifier": "staticServiceDeprecatedService.deprecated", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "SymfonyYamlParseRule",
+            "where": ["ext:drupal/symfony-yaml-parse"],
+            "identifiers": [
+                {"identifier": "drupal.symfonyYamlParse", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "TestClassesProtectedPropertyModulesRule",
+            "where": ["check:drupal/test-modules-visibility"],
+            "identifiers": [
+                {"identifier": "testClass.propertyModulesNonProtected", "status": "ported"}
+            ]
+        },
+        {
+            "rule": "TestClassSuffixNameRule",
+            "where": ["ext:drupal/test-class-suffix"],
+            "identifiers": [
+                {"identifier": "nonAbstractTestClass.NameNoSuffixTest", "status": "partial"}
+            ]
+        },
+        {
+            "rule": "TodoCommentWithIssueUrlRule",
+            "default": "manual",
+            "where": ["ext:drupal/todo-current-issue"],
+            "identifiers": [
+                {"identifier": "drupal.todoCurrentIssue", "status": "ported"}
+            ]
+        }
+    ],
+    "extensions": [
+        {"extension": "AccessCheckTypeSpecifyingExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
+        {"extension": "ConfigGetDynamicReturnTypeExtension", "default": "off", "status": "ported", "where": ["doc:analyzer/config.md#config-objects"]},
+        {"extension": "ContainerDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/services.md#container-lookups"]},
+        {"extension": "DeprecationHelperScope", "status": "ported", "where": ["doc:analyzer/deprecations.md#deprecation-scopes"]},
+        {"extension": "DrupalClassResolverDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/services.md#container-lookups"]},
+        {"extension": "DrupalClassResolverDynamicStaticReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/services.md#container-lookups"]},
+        {"extension": "DrupalServiceDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/services.md#container-lookups"]},
+        {"extension": "DrupalStaticEntityQueryDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
+        {"extension": "DrupalStubFilesExtension", "status": "partial", "where": ["doc:analyzer/core-types.md#stub-files"], "note": "Not every stub is translated, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal)."},
+        {"extension": "EntityAccessControlHandlerReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#access-checks"]},
+        {"extension": "EntityFieldMethodsViaMagicReflectionExtension", "status": "ported", "where": ["doc:analyzer/entities.md#magic-entity-fields"]},
+        {"extension": "EntityFieldsViaMagicReflectionExtension", "status": "ported", "where": ["doc:analyzer/entities.md#magic-entity-fields"]},
+        {"extension": "EntityIdNarrowedByNew", "status": "gap", "where": ["none"], "note": "`id()` is not null once `isNew()` is false, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal)."},
+        {"extension": "EntityQueryAccessCheckDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
+        {"extension": "EntityQueryDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
+        {"extension": "EntityRepositoryReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
+        {"extension": "EntityStorageDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
+        {"extension": "EntityTypeIdTypeNodeResolverExtension", "status": "gap", "where": ["none"], "note": "The `entity-type-id` docblock type."},
+        {"extension": "EntityTypeKeyByExistence", "status": "partial", "where": ["doc:analyzer/entities.md#entity-type-keys"], "note": "`getKey()` is a string for the keys that every entity type has. It is not narrowed by a `hasKey()` call for the same key."},
+        {"extension": "EntityTypeLinkTemplateByExistence", "status": "gap", "where": ["none"], "note": "`getLinkTemplate()` is not false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal)."},
+        {"extension": "EntityTypeManagerGetStorageDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
+        {"extension": "GetQueryReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
+        {"extension": "GroupLegacyScope", "status": "ported", "where": ["doc:analyzer/deprecations.md#deprecation-scopes"]},
+        {"extension": "IgnoreDeprecationsScope", "status": "ported", "where": ["doc:analyzer/deprecations.md#deprecation-scopes"]},
+        {"extension": "InspectorTypeExtension", "status": "ported", "where": ["doc:analyzer/core-types.md#inspector-assertions"]}
+    ]
+}

@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Types the placeholder arguments as `formattable-markup.stub` explains.
+ *
+ * A stub replaces the interface header and Mago builds the descendants of a
+ * stubbed interface from the stub alone, so every method is restated here.
+ */
+
+namespace Drupal\Core\StringTranslation;
+
+interface TranslationInterface
+{
+    /**
+     * @param string $string
+     * @param array<string, scalar|\Stringable> $args
+     * @param array $options
+     * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+     */
+    public function translate($string, array $args = [], array $options = []);
+
+    /**
+     * @param \Drupal\Core\StringTranslation\TranslatableMarkup $translated_string
+     * @return string
+     */
+    public function translateString(TranslatableMarkup $translated_string);
+
+    /**
+     * @param int $count
+     * @param string $singular
+     * @param string $plural
+     * @param array<string, scalar|\Stringable> $args
+     * @param array $options
+     * @return \Drupal\Core\StringTranslation\PluralTranslatableMarkup
+     */
+    public function formatPlural($count, $singular, $plural, array $args = [], array $options = []);
+}

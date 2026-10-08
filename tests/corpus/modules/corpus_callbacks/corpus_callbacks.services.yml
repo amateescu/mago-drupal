@@ -1,0 +1,5 @@
+services:
+  # The callable resolver runs a callback without a colon that names a
+  # service through the service's __invoke().
+  corpus_callbacks_invokable:
+    class: Drupal\corpus\Audit\CallbackHelper

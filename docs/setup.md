@@ -1,12 +1,15 @@
 # Setup
 
+This page covers the install, the worker's arguments, the Mago configuration that matches Drupal's
+standard, and the fix levels.
+
 ## Install
 
 ```shell
 composer require --dev carthage-software/mago amateescu/mago-drupal
 ```
 
-Then register the shipped worker in `mago.toml` and widen the scanned extensions:
+Then register the package's worker in `mago.toml`, and add Drupal's file extensions:
 
 ```toml
 [source]
@@ -17,13 +20,25 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 `yml` lets the rules for [info and routing files](rules/info-and-routing-files.md) read
-`.info.yml` and `.routing.yml` files. Mago reads a file without a PHP open tag as text outside PHP.
-The [configuration below](#configure-mago-for-drupal) keeps the formatter and the analyzer out of
+`.info.yml` and `.routing.yml` files. Mago reads a file without a PHP open tag as text outside PHP,
+so the [configuration below](#configure-mago-for-drupal) keeps the formatter and the analyzer out of
 YAML files.
 
-Coder also checks `.test` files, a Drupal 7 format. Add `test` to the extensions to check them too.
+Coder also checks `.test` files, a Drupal 7 format. To check them too, add `test` to the
+extensions.
+
+The same worker adds the [analyzer plugins](analyzer/index.md) to `mago analyze`. They are on by
+default and need no configuration.
+
+Run Mago as `vendor/bin/mago`. The worker loads the PHP SDK from the same Composer package, and the
+analyzer plugins need the SDK and the Mago binary to speak the same protocol version. A Mago
+installed another way, such as with Homebrew, can speak another version. `mago analyze` then stops
+with `Unsupported analyzer protocol version`. The linter rules work either way.
 
 ## Worker arguments
+
+The worker takes its arguments from the `command` of its extension host. Add each one as another
+string after the path of `worker.php`.
 
 ### Checking Drupal core
 
@@ -33,12 +48,47 @@ core's `phpcs.xml.dist` turns off or does not run:
 - `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
   `method-name-underscore` and `short-list`;
 - `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
-- `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](rules/drupal-practice.md):
+- `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](rules/drupal-practice.md)
   `class-prefix`, `curl-ssl-verify`, `form-alter-comment`, `global-constant`,
-  `request-superglobal`, `strict-config-schema` and `untranslated-options`. All of them port
+  `request-superglobal`, `strict-config-schema` and `untranslated-options`, which all port
   DrupalPractice sniffs;
 - the rules for info and routing files that core does not run: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`.
+
+It also turns off the two analyzer checks that do not apply to core,
+[`drupal/internal-class-extension`](analyzer/hooks.md#drupalinternal-class-extension) and
+[`drupal/list-builder-cacheability`](analyzer/entities.md#drupallist-builder-cacheability), and
+makes [`drupal/unknown-service`](analyzer/services.md#drupalunknown-service) check every service id,
+since core looks up only its own services.
+
+### Finding the Drupal root
+
+The analyzer reads services, config schema and hook documentation from the Drupal root. Without
+`--root`, the worker looks for `core/lib/Drupal.php` in these directories, in order, and takes the
+first one that holds it:
+
+1. the `web-root` of the Composer scaffold;
+2. the project directory;
+3. `web/`, `docroot/`, `html/` and `public/`, in that order;
+4. `vendor/drupal`, where Composer installs core as a plain package in a module's own repository.
+   In that layout the worker also reads the project directory and the other packages under
+   `vendor/drupal`.
+
+Add `"--root=PATH"` when the root is somewhere else.
+
+Mago starts the worker in the directory of `mago.toml`, and some checks read files from there. When
+the config file is kept outside the project, set `working-directory` to the project:
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "/path/to/mago-drupal/resources/worker.php", "--root=/path/to/drupal"]
+working-directory = "/path/to/project"
+```
+
+### Deprecation target
+
+Add `"--deprecations=12"` to report only the Drupal deprecations that are removed in Drupal 12 or
+earlier. See [Deprecation target](analyzer/deprecations.md#deprecation-target).
 
 ### Turning rules off
 
@@ -56,11 +106,22 @@ error when a code names no rule.
 A project that turns phpcs sub-codes off in its `phpcs.xml` can turn off the matching rules this
 way. [Coming from Coder](coder/index.md) says which rule ports each sub-code.
 
+`--disable` takes only linter rules. To turn off an [analyzer check](analyzer/index.md#checks), use
+Mago's own `[analyzer] ignore`, for the whole project or for some paths:
+
+```toml
+[analyzer]
+ignore = [
+    "drupal/global-drupal-call",
+    { code = "drupal/entity-storage-injection", in = "src/Legacy/" },
+]
+```
+
 ## Configure Mago for Drupal
 
 This extension covers the parts of Drupal's standard that need to know about Drupal. Mago itself
-handles most of the rest, and some of its checks need one line of configuration to match Drupal
-and not Mago's defaults:
+handles most of the rest, but some of its defaults differ from Drupal. Each of these settings is one
+line that makes Mago match Drupal:
 
 ```toml
 # The lowest PHP version that the project supports. Mago does not read it from composer.json.
@@ -110,15 +171,20 @@ no-unused-closure-capture = { enabled = true }
 # Report a PHP function that is called with the wrong case. That is Drupal's
 # Squiz.PHP.LowercasePHPFunctions.
 check-name-casing = true
-# A YAML file holds no PHP for the analyzer.
-excludes = ["**/*.yml"]
+# A YAML file holds no PHP for the analyzer. An api.php file documents hooks with example code, and
+# test fixtures are often broken on purpose. phpstan-drupal leaves both out as well. The linter
+# still checks them, as phpcs does.
+excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
+# For a project that also runs PHPStan: let its @phpstan-ignore comments drop the Mago issues that
+# report the same finding. See the PHPStan ignores page of the analyzer docs.
+# plugins = ["phpstan-ignores"]
 ```
 
 ## Turn off what Drupal's standard does not ask for
 
-Mago has many more rules than Drupal's standard. A module that passes phpcs starts with issues that
-the standard does not ask for, from rules such as `assert-description` or `no-else-clause`. When
-you disable those rules, you lose no check that phpcs did:
+Mago has many more rules than Drupal's standard. A module that passes phpcs starts out with issues
+that the standard does not ask for, from rules such as `assert-description` or `no-else-clause`.
+Turning those rules off loses no check that phpcs did:
 
 ```toml
 [linter.rules]
@@ -171,18 +237,38 @@ strict-types = { enabled = false }
 ## Fixes
 
 Many rules have a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
-ones, and `mago fix` applies them until nothing changes. `--dry-run` shows the diff first.
+ones, and `mago fix` applies them until nothing changes. `--dry-run` shows the diff first. Two
+flags add riskier fixes:
 
 - `--potentially-unsafe` adds the fixes that turn a comment into a docblock, which the analyzers
-  then read, the ones that drop or move comment or docblock text, and the `deprecated-tag` rewrite
-  of an old deprecation wording.
+  then read. It also adds the fixes that drop or move comment or docblock text, and the
+  `deprecated-tag` rewrite of an old deprecation wording.
 - `--unsafe` adds the `weak-hash` rewrite, which changes stored digests.
 
 Both flags also apply Mago's own fixes of that level, such as `strict: true` from
 `strict-behavior`, which can change what a loose comparison returns. Each rule's entry under
-[Rules](rules/index.md) says what its fix does.
+[Linter rules](rules/index.md) says what its fix does.
 
 ## Xdebug
 
 When PHP loads Xdebug, the worker starts again once with `XDEBUG_MODE=off`, because Xdebug slows it
-down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to step through a rule.
+down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to step through a rule
+or an analyzer check. The restart needs Linux and the `pcntl` extension. Elsewhere, set the mode in
+the extension host's configuration:
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
+environment = { XDEBUG_MODE = "off" }
+```
+
+## Index cache
+
+The analyzer caches what it reads from disk under the system temporary directory, in
+`mago-drupal-<uid>/`. An entry is keyed by the modification times and sizes of its files, so the
+next run picks up an edit. `MAGO_DRUPAL_CACHE=/dir` moves the cache, and `MAGO_DRUPAL_CACHE=0` turns
+it off.
+
+A watch or editor session keeps some lists until its workers restart: the `@internal` and
+`@deprecated` classes, and the classes that use `DependencySerializationTrait` or declare a
+`#[TrustedCallback]` method. Restart the session after changing one of those.

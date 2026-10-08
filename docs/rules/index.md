@@ -1,14 +1,18 @@
-# Rules
+# Linter rules
 
-Every linter rule of the extension, in groups by what it checks. Each rule's entry gives its level,
-what its fix does, the section of [Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) that it checks or
-the source of a check that the standards do not cover, and the Coder checks that it ports.
+Every linter rule of the extension, grouped by what it checks. Each group has a page, and each rule
+has an entry there. An entry starts with the rule's level, what its fix does, the Coder checks that
+it ports, and either the section of
+[Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) that it checks
+or, for a check that the standards do not cover, where the check comes from. Then come what the
+rule reports and, where it skips cases, what it leaves alone.
 
-Where the written standards ask for less than Coder 9, the parity target, the rules follow Coder.
-Where they ask for more, some rules follow the standards, and their entries say so. A collapsed
-"Compared with Coder" note under an entry lists where the rule and Coder differ.
+Coder 9 is the parity target. Where the written standards ask for less than Coder, the rules
+follow Coder. Where they ask for more, some rules follow the standards, and their entries say so.
+The collapsed "Compared with Coder" note under an entry lists where the rule and Coder differ.
 
-Every code starts with `drupal/`. The codes are stable, see [Development](../development.md#rule-codes).
+Every code starts with `drupal/`. The codes are stable, since projects write them into baselines
+and `@mago-expect` comments. See [Development](../development.md#rule-codes).
 
 <!-- docs-gen:rules -->
 
@@ -39,8 +43,9 @@ from the source.
 
 ## Procedural files
 
-These rules report only in `.module` and `.install` files, except `drupal/global-variable`, which
-checks every file. They take the module name from the file name, the part before the first dot.
+Rules for the procedural files of a module. They take the module name from the file name, the part
+before the first dot. All of them report only in `.module` and `.install` files, except
+`drupal/global-variable`, which checks every file.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -81,8 +86,9 @@ outside PHP tags, and these rules read the YAML in it.
 
 ## Naming and imports
 
-Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's
-own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drupal).
+Rules for the names of classes, constants, functions, methods and properties, and for `use`
+statements. Mago's own naming rules cover the rest, see
+[Setup](../setup.md#configure-mago-for-drupal).
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -123,11 +129,10 @@ are declared.
 
 ## Comment text
 
-These rules read only a comment's text. They do not compare it against the declaration that it
-documents. The group has the part of `Drupal.Commenting.*` that works that way, the `@author` ban,
-and the line-length check for comments. [Comment whitespace and the
-formatter](../coder/index.md#comment-whitespace-and-the-formatter) says which comment whitespace
-`mago format` sets.
+These rules read only the text of a comment, and do not compare it against the declaration that it
+documents. They cover the part of `Drupal.Commenting.*` that works that way, the `@author` ban and
+the line-length check for comments. For the comment whitespace that `mago format` sets, see
+[Comment whitespace and the formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -193,9 +198,9 @@ run, so the worker's [`--core` argument](../setup.md#checking-drupal-core) turns
 
 ## Drupal 7 era
 
-These rules target APIs that Drupal 8 removed, so they do not report on a modern codebase. Core's
-`phpcs.xml.dist` still enables the matching sniffs, and Coder 9 still ships them. Without these
-rules, a part of the standard is not checked.
+These rules check APIs that Drupal 8 removed, so they find nothing in a modern codebase. Core's
+`phpcs.xml.dist` enables the matching sniffs and Coder 9 ships them, so without these rules a part
+of the standard would go unchecked.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -213,5 +218,6 @@ only the syntax.
 | [`drupal/discouraged-function`](phpstan-drupal.md#drupaldiscouraged-function) | error | Reports calls to the devel dump helpers and to fnmatch(). Some PHP builds do not have fnmatch(). |
 | [`drupal/render-callback`](phpstan-drupal.md#drupalrender-callback) | error | Reports a render array callback that is not a closure, a service:method string or a class method. |
 | [`drupal/symfony-yaml-parse`](phpstan-drupal.md#drupalsymfony-yaml-parse) | warning | Reports a Symfony\Component\Yaml\Yaml::parse() call. It bypasses Drupal\Component\Serialization\Yaml::decode(). |
+| [`drupal/todo-current-issue`](phpstan-drupal.md#drupaltodo-current-issue) | error | Reports a @todo comment that links the issue of the current GitLab merge request. |
 
 <!-- /docs-gen -->

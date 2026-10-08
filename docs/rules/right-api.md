@@ -97,9 +97,8 @@ inside the text does not.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Objects.GlobalFunction.GlobalFunction`
 
-Coder's `DrupalPractice` standard asks a class to use a service or a trait method in place of a
-procedural wrapper. A test can replace an injected service, and it cannot replace a procedural
-call.
+DrupalPractice asks a class to use a service or a trait method in place of a procedural wrapper. A
+test can replace an injected service, and it cannot replace a procedural call.
 
 **Reports:**
 
@@ -285,8 +284,8 @@ without `'`.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.General.ExceptionT.ExceptionT`
 
-Coder's `DrupalPractice` standard asks for an exception message that does not go through `t()`.
-Developers read exception text in logs, and a translation hides the original text.
+DrupalPractice asks for an exception message that does not go through `t()`. Developers read
+exception text in logs, and a translation hides the original text.
 
 **Reports:**
 

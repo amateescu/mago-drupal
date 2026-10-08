@@ -2,10 +2,13 @@ version = "1"
 php-version = "8.1"
 
 [source]
-paths = ["src"]
+# The callback function check needs a file inside a module directory, and a
+# file of that module the run leaves out, so only corpus_callbacks.module is
+# analyzed.
+paths = ["src", "modules/corpus_callbacks/corpus_callbacks.module"]
 # Signatures for the Drupal functions the fixtures call. Read for symbols, not
 # linted, so the analyzer half of the corpus run has something to check against.
-includes = ["stubs"]
+includes = ["stubs", "modules/corpus_dep/src", "core/lib/Drupal/Core"]
 # Drupal keeps procedural code in files PHP does not name `.php`, and several
 # rules only fire inside those.
 extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
@@ -21,8 +24,15 @@ preset = "drupal"
 # check, as in the Setup config.
 excludes = ["src/UseLeadingBackslash.php", "**/*.yml"]
 
+# `--deprecations=12` so src/DeprecationTargets.php can prove it.
+[extension-hosts.drupal]
+command = ["php", "../../resources/worker.php", "--deprecations=12"]
+workers = 1
+
 [analyzer]
 excludes = ["**/*.yml"]
+# Off by default; on here so IgnoreComments.php can prove it.
+plugins = ["phpstan-ignores"]
 # The docblock fixtures write `@var $name Type` on purpose, and the analyzer
 # reports those tags as invalid. Unless the extension has analyzer hooks, no
 # pragma reaches the report on a property docblock, so the codes are ignored
@@ -31,7 +41,3 @@ ignore = [
   { code = "invalid-docblock", in = "src/DocblockStructure.php" },
   { code = "invalid-var-tag", in = "src/DocblockStructure.php" },
 ]
-
-[extension-hosts.drupal]
-command = ["php", "../../resources/worker.php"]
-workers = 1

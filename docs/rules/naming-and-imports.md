@@ -1,7 +1,8 @@
 # Naming and imports
 
-Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's
-own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drupal).
+Rules for the names of classes, constants, functions, methods and properties, and for `use`
+statements. Mago's own naming rules cover the rest, see
+[Setup](../setup.md#configure-mago-for-drupal).
 
 ---
 
@@ -432,7 +433,7 @@ names the class in the same case without a leading backslash, in a type, an anno
 - **Level:** error
 - **Fix:** none
 - **Standard:** [Classes, methods and properties](https://project.pages.drupalcode.org/coding_standards/php/coding/#classes-methods-and-properties)
-- **Ports:** none. Coder has no such sniff.
+- **Ports:** phpstan-drupal's `TestClassSuffixNameRule` (partly)
 
 > Test classes should always have the suffix "Test".
 

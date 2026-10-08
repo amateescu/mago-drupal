@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * A module whose name ends in _form, so its hook names start after it.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_alter().
+ *
+ * The module is corpus_form, so this implements hook_alter() and not
+ * hook_form_alter().
+ */
+function corpus_form_alter(array $data): void {
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * The form is not taken by reference.
+ */
+// @mago-expect analysis:drupal/hook-form-alter-signature
+function corpus_form_form_alter(array $form): void {
+}

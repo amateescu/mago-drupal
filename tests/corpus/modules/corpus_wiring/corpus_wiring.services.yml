@@ -1,0 +1,122 @@
+# Services whose arguments and calls src/Wiring.php checks against their
+# classes.
+services:
+  # Argument counts against the constructor.
+  corpus_wiring.exact:
+    class: Drupal\corpus\Wiring\TwoArguments
+    arguments: ['@corpus.thing', '%app.root%']
+  corpus_wiring.missing:
+    class: Drupal\corpus\Wiring\TwoArguments
+    arguments: ['@corpus.thing']
+  corpus_wiring.extra:
+    class: Drupal\corpus\Wiring\OneArgument
+    arguments: ['@corpus.thing', '@corpus.thing']
+  corpus_wiring.optional_short:
+    class: Drupal\corpus\Wiring\OptionalArgument
+    arguments: ['@corpus.thing']
+  corpus_wiring.optional_full:
+    class: Drupal\corpus\Wiring\OptionalArgument
+    arguments: ['@corpus.thing', '@?corpus.thing']
+  corpus_wiring.optional_over:
+    class: Drupal\corpus\Wiring\OptionalArgument
+    arguments: ['@corpus.thing', '@corpus.thing', '@corpus.thing']
+  corpus_wiring.variadic:
+    class: Drupal\corpus\Wiring\VariadicArguments
+    arguments: ['@corpus.thing', '@corpus.thing', '@corpus.thing', '@corpus.thing']
+  corpus_wiring.promoted:
+    class: Drupal\corpus\Wiring\PromotedArguments
+    arguments: ['@corpus.thing']
+  corpus_wiring.inherited:
+    class: Drupal\corpus\Wiring\InheritedConstructor
+    arguments: []
+  corpus_wiring.trait:
+    class: Drupal\corpus\Wiring\TraitConstructor
+  corpus_wiring.no_constructor:
+    class: Drupal\corpus\Wiring\NoConstructor
+    arguments: ['@corpus.thing']
+  corpus_wiring.no_constructor_bare:
+    class: Drupal\corpus\Wiring\NoConstructor
+  # The constructor reads what it gets past its parameters.
+  corpus_wiring.reads_extra:
+    class: Drupal\corpus\Wiring\ReadsExtraArguments
+    arguments: ['@corpus.thing', '@corpus.thing']
+  Drupal\corpus\Wiring\BareShorthand: ~
+  # Special argument values count as one each.
+  corpus_wiring.tagged:
+    class: Drupal\corpus\Wiring\TwoArguments
+    arguments: [!tagged_iterator corpus_wiring.tag, !service_closure '@corpus.thing']
+  # A decorator passes the service it wraps like any other argument.
+  corpus_wiring.decorator:
+    class: Drupal\corpus\Wiring\TwoArguments
+    decorates: corpus_wiring.exact
+    arguments: ['@corpus_wiring.decorator.inner', '@corpus.thing']
+  # A child's arguments are appended to its parent's; `index_N` replaces one.
+  corpus_wiring.base:
+    abstract: true
+    arguments: ['@corpus.thing']
+  corpus_wiring.child:
+    class: Drupal\corpus\Wiring\TwoArguments
+    parent: corpus_wiring.base
+    arguments: ['@corpus.thing']
+  corpus_wiring.child_replaced:
+    class: Drupal\corpus\Wiring\ReplacedArgument
+    parent: corpus_wiring.base
+    arguments:
+      index_0: '@corpus.thing'
+  corpus_wiring.child_short:
+    class: Drupal\corpus\Wiring\ThreeArguments
+    parent: corpus_wiring.base
+    arguments: ['@corpus.thing']
+  # Compiler passes add one argument for these tags.
+  corpus_wiring.middleware:
+    class: Drupal\corpus\Wiring\Middleware
+    arguments: ['@corpus.thing']
+    tags:
+      - { name: http_middleware, priority: 10 }
+  corpus_wiring.collector:
+    class: Drupal\corpus\Wiring\Collector
+    tags:
+      - { name: service_id_collector, tag: corpus_wiring.tag }
+  # The container, not the services file, decides these arguments.
+  corpus_wiring.autowired:
+    class: Drupal\corpus\Wiring\Unchecked
+    autowire: true
+  corpus_wiring.named:
+    class: Drupal\corpus\Wiring\Unchecked
+    arguments:
+      $first: '@corpus.thing'
+  corpus_wiring.factory:
+    class: Drupal\corpus\Wiring\Unchecked
+    factory: ['@corpus.thing', 'make']
+  corpus_wiring.synthetic:
+    class: Drupal\corpus\Wiring\Unchecked
+    synthetic: true
+  corpus_wiring.abstract:
+    abstract: true
+    class: Drupal\corpus\Wiring\Unchecked
+  corpus_wiring.altered:
+    class: Drupal\corpus\Wiring\Unchecked
+  corpus_wiring.private_constructor:
+    class: Drupal\corpus\Wiring\PrivateConstructor
+  corpus_wiring.unscanned_parent:
+    class: Drupal\corpus\Wiring\UnscannedParent
+  # Plugin managers wired through `calls:`.
+  corpus_wiring.called_manager:
+    class: Drupal\corpus\Wiring\CalledManager
+    arguments: ['@cache.discovery']
+    calls:
+      - [setCacheBackend, ['@cache.discovery', 'corpus_called_plugins']]
+      - { method: alterInfo, arguments: [corpus_called] }
+  corpus_wiring.manager_base:
+    abstract: true
+    arguments: ['@cache.discovery']
+    calls:
+      - [setCacheBackend, ['@cache.discovery', 'corpus_inherited_plugins']]
+  corpus_wiring.inheriting_manager:
+    class: Drupal\corpus\Wiring\InheritingManager
+    parent: corpus_wiring.manager_base
+  corpus_wiring.half_called_manager:
+    class: Drupal\corpus\Wiring\HalfCalledManager
+    arguments: ['@cache.discovery']
+    calls:
+      - [setCacheBackend, ['@cache.discovery', 'corpus_half_plugins']]

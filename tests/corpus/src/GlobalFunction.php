@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 use function format_date;
 use function t;
@@ -18,7 +20,7 @@ class GlobalFunctionPlain {
   /**
    * Translates with t(), which Coder reports in any class.
    */
-  public function translate(): string {
+  public function translate(): TranslatableMarkup {
     // @mago-expect lint:drupal/global-function
     return t('Hello');
   }
@@ -100,6 +102,8 @@ class GlobalFunctionForm extends FormBase {
  */
 class GlobalFunctionInjected implements ContainerInjectionInterface {
 
+  use AutowireTrait;
+
   /**
    * Formats a date.
    */
@@ -148,7 +152,7 @@ trait GlobalFunctionTrait {
   /**
    * Translates.
    */
-  public function translate(): string {
+  public function translate(): TranslatableMarkup {
     return t('Hello');
   }
 

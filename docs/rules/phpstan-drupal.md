@@ -68,6 +68,10 @@ trust. Drupal trusts only closures, `service:method` strings and class methods.
     ];
     ```
 
+Whether Drupal trusts the class method that a callback names is the analyzer's
+`drupal/untrusted-callback`, and a closure under these keys in a form is its
+`drupal/form-closure-callback`. See [Render and form callbacks](../analyzer/render-and-forms.md#render-and-form-callbacks).
+
 ---
 
 ## drupal/symfony-yaml-parse
@@ -98,3 +102,29 @@ applies Drupal's parser flags.
 
     $data = Yaml::decode($text);
     ```
+
+---
+
+## drupal/todo-current-issue
+
+- **Level:** error
+- **Fix:** none
+- **Source:** phpstan-drupal
+- **Ports:** phpstan-drupal's `TodoCommentWithIssueUrlRule`
+
+phpstan-drupal reports a `@todo` comment that links the drupal.org issue of the current merge
+request. A merge request should resolve its own to-dos rather than land them.
+
+**Reports:**
+
+- a `@todo` comment that links the issue as `https://www.drupal.org/i/3456789`,
+  `https://www.drupal.org/node/3456789` or
+  `https://www.drupal.org/project/mymodule/issues/3456789`.
+
+**Not reported:**
+
+- anything outside a GitLab merge request pipeline. The issue number comes from the variables that
+  GitLab CI sets there: the digits at the start of `CI_MERGE_REQUEST_SOURCE_BRANCH_NAME`, as in
+  `3456789-fix-thing`, or at the end of `CI_MERGE_REQUEST_SOURCE_PROJECT_PATH`, as in
+  `issue/mymodule-3456789`. Without them, the rule has nothing to compare, so it is on by default,
+  where phpstan-drupal's rule has to be added by hand.

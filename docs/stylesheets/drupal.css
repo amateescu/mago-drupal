@@ -1,0 +1,22 @@
+/*
+ * Drupal Blue (#009CDE), the primary color in Drupal's media kit
+ * (https://www.drupal.org/about/media-kit/logos), in place of the theme's
+ * blue. The shades follow the theme's own blue palette: one lighter, one
+ * darker, with white text on the primary color. The accent, which links and
+ * controls take on hover, is the lighter shade, as the theme's accents are
+ * brighter than its primary colors.
+ */
+[data-md-color-primary="custom"] {
+  --md-primary-fg-color: #009cde;
+  --md-primary-fg-color--light: hsl(198, 100%, 50%);
+  --md-primary-fg-color--dark: #0077a8;
+  --md-primary-bg-color: #fff;
+  --md-primary-bg-color--light: #ffffffb3;
+}
+
+[data-md-color-accent="custom"] {
+  --md-accent-fg-color: hsl(198, 100%, 50%);
+  --md-accent-fg-color--transparent: hsla(198, 100%, 50%, 0.1);
+  --md-accent-bg-color: #fff;
+  --md-accent-bg-color--light: #ffffffb3;
+}

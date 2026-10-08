@@ -1,0 +1,4 @@
+name: Always
+type: module
+# Installed with core and never uninstalled.
+required: TRUE

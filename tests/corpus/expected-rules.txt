@@ -88,6 +88,7 @@ drupal/t-in-hook-menu
 drupal/t-in-hook-schema
 drupal/test-class-suffix
 drupal/todo-comment
+drupal/todo-current-issue
 drupal/translatable-literal
 drupal/translatable-string
 drupal/translated-exception

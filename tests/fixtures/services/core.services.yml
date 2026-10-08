@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    autoconfigure: true
+  core.thing:
+    class: Drupal\Core\Thing
+  core.overridden:
+    class: Drupal\Core\Original
+  Drupal\Core\NullBody: ~
