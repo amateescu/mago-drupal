@@ -121,6 +121,7 @@ final class DrupalExtension
      * run. With `--core`, they are off by default.
      */
     private const CORE_OFF = [
+        'drupal/author-tag',
         'drupal/case-fall-through',
         'drupal/class-prefix',
         'drupal/const-prefix',
@@ -131,6 +132,7 @@ final class DrupalExtension
         'drupal/hook-attribute-name',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
+        'drupal/insecure-unserialize',
         'drupal/long-description-punctuation',
         'drupal/method-name-underscore',
         'drupal/request-superglobal',
