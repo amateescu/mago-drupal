@@ -110,10 +110,7 @@ final class UntranslatedOptionsRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new(
-                '#options values usually have to run through t() for translation.',
-                $value->span,
-            ));
+            $context->report(Issue::new('Pass the #options label through t().', $value->span));
         }
     }
 }

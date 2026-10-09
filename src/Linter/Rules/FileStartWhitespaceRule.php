@@ -65,7 +65,7 @@ final class FileStartWhitespaceRule implements Rule
         // The text can show up on the page, as a blank first line of a
         // template does. Removing it can change the output.
         $context->report(Issue::new(
-            'Additional whitespace found at start of file.',
+            'Remove the whitespace before the opening PHP tag.',
             $tag->span,
         )->withEdit(TextEdit::delete(new Span(0, $tag->span->start))->withSafety(Safety::PotentiallyUnsafe)));
     }

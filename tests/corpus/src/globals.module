@@ -38,6 +38,7 @@ Drupal::define('GLOBALS_STATIC', 1);
 
 // @mago-expect lint:drupal/constant-prefix
 // @mago-expect lint:drupal/global-constant
+// @mago-expect lint:drupal/define-name
 define('unprefixed_constant', 1);
 
 /**

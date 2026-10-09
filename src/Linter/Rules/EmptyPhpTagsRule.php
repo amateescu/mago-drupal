@@ -46,7 +46,7 @@ final class EmptyPhpTagsRule implements Rule
             return;
         }
 
-        $issue = Issue::new('Empty PHP open/close tag combination detected.', new Span($start, $start + 2));
+        $issue = Issue::new('Remove the PHP tags that hold no code.', new Span($start, $start + 2));
 
         // PHP skips one line break after a close tag, so the fix removes it
         // with the pair and the output stays the same. An empty echo tag is a

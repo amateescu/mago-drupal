@@ -224,6 +224,26 @@ final class Docblocks
     }
 
     /**
+     * Whether a comment that is not a directive sits between the offsets. A
+     * directive such as `// @mago-expect` or `// phpcs:ignore` tells a tool
+     * what to do and says nothing to the reader.
+     */
+    public static function hasNoteBetween(SourceFile $file, int $start, int $end): bool
+    {
+        $trivia = $file->getTrivia();
+        $index = self::lastTriviaIndexStartingBefore($trivia, $end);
+        while ($index !== null && $index >= 0 && $trivia[$index]->span->start >= $start) {
+            if (!self::isDirective($file, $trivia[$index])) {
+                return true;
+            }
+
+            --$index;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the index of the last trivia entry that starts at or before
      * $position. Returns null if the first entry starts after it.
      *

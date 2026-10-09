@@ -34,10 +34,7 @@ final class ByteOrderMarkRuleTest extends TestCase
         $issues = ProgramLint::run(new ByteOrderMarkRule(), $mark . "<?php\n" . $mark);
 
         self::assertCount(1, $issues);
-        self::assertSame(
-            "File contains {$name} byte order mark, which may corrupt your application.",
-            $issues[0]->message,
-        );
+        self::assertSame("Remove the {$name} byte order mark at the start of the file.", $issues[0]->message);
         self::assertSame(0, $issues[0]->annotations[0]->span->start);
         self::assertSame(strlen($mark), $issues[0]->annotations[0]->span->end);
         self::assertSame([], $issues[0]->edits);

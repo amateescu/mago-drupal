@@ -59,7 +59,7 @@ final class CommentInExpressionRule implements Rule
 
             $offset = $node->span->end + strspn($contents, characters: " \t\r\n", offset: $node->span->end);
             if (SourceText::commentEnd($contents, $offset) !== null) {
-                $context->report(Issue::new('Expected 1 space after cast statement; comment found.', $node->span));
+                $context->report(Issue::new('Remove the comment after the cast.', $node->span));
             }
 
             return;

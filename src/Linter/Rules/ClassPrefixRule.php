@@ -83,10 +83,11 @@ final class ClassPrefixRule implements Rule
                 continue;
             }
 
-            $kind = $declaration->kind === NodeKind::Class_ ? 'Class' : 'Interface';
+            $kind = $declaration->kind === NodeKind::Class_ ? 'class' : 'interface';
             $camel = implode('', array_map(ucfirst(...), explode('_', $module->name)));
+            $suffix = $file->getText($identifier);
             $context->report(Issue::new(
-                "{$kind} name must be prefixed with the project name \"{$camel}\".",
+                "The {$kind} name must start with the module name, as in {$camel}{$suffix}.",
                 $identifier->span,
             )->withHelp(
                 'Classes in the global namespace are shared by every module. The module name keeps them apart.',

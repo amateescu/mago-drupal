@@ -86,7 +86,7 @@ final class InlineCommentRule implements Rule
 
         foreach (InlineDocblocks::find($context->file) as $opener) {
             $context->report(Issue::new(
-                'Inline doc block comments are not allowed; use "/* Comment */" or "// Comment" instead.',
+                'Write a comment inside code with "//" or "/* */", not as a docblock.',
                 $opener,
             ));
         }

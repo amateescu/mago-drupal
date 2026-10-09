@@ -47,7 +47,7 @@ final class FileStartWhitespaceRuleTest extends TestCase
         ]);
 
         self::assertCount(1, $issues);
-        self::assertSame('Additional whitespace found at start of file.', $issues[0]->message);
+        self::assertSame('Remove the whitespace before the opening PHP tag.', $issues[0]->message);
         self::assertSame($length, $issues[0]->annotations[0]->span->start);
         self::assertCount(1, $issues[0]->edits);
         self::assertSame(0, $issues[0]->edits[0]->span->start);

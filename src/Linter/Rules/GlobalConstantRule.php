@@ -64,10 +64,9 @@ final class GlobalConstantRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new(
-                'Global constants should not be used, move it to a class or interface.',
-                $span,
-            )->withHelp('A constant in a class or interface cannot clash with the constants of other modules.'));
+            $context->report(Issue::new('Move the global constant into a class or interface.', $span)->withHelp(
+                'A constant in a class or interface cannot clash with the constants of other modules.',
+            ));
         }
     }
 

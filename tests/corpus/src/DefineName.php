@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
+// @mago-expect lint:drupal/global-constant
 const NOT_PREFIXED_IN_A_PHP_FILE = 1;
 
 /**

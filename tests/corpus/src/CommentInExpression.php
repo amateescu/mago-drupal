@@ -22,6 +22,7 @@ class CommentInExpression {
     // @mago-expect lint:drupal/comment-in-expression
     $two = (int)/* Two. */$text;
     // @mago-expect lint:drupal/comment-in-expression
+    // @mago-expect lint:drupal/inline-comment
     $three = (int) /** Three. */ $text;
     // @mago-expect lint:drupal/comment-in-expression
     $four = (int) /* Four. */ /* Five. */ $text;
@@ -148,6 +149,7 @@ class CommentInExpression {
     // @mago-expect lint:drupal/comment-in-expression
     yield/* Two. */from $generator;
     // @mago-expect lint:drupal/comment-in-expression
+    // @mago-expect lint:drupal/inline-comment
     yield /** Three. */ from $generator;
     // @mago-expect lint:drupal/comment-in-expression
     yield /* Four. */ /* Five. */ from $generator;

@@ -107,6 +107,7 @@ function doc_end_parameter_docblock(
  * Has a docblock with a bad end in its body.
  */
 function doc_end_body_docblock_is_not_checked(): void {
+  // @mago-expect lint:drupal/inline-comment
   /** Ends with two stars. **/
   $value = 1;
   echo $value;

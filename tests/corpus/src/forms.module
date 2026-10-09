@@ -127,6 +127,7 @@ function forms_no_hook_line(array &$form): void {
  * Holds a closure.
  */
 function forms_closure(): callable {
+  // @mago-expect lint:drupal/inline-comment
   /**
    * Implements hook_form_alter().
    */

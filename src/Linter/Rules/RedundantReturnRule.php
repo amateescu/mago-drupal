@@ -61,7 +61,7 @@ final class RedundantReturnRule implements Rule
         }
 
         $keyword = $file->getChildren($return)[0] ?? $return;
-        $issue = Issue::new('Empty return statement not required here.', $keyword->span);
+        $issue = Issue::new('Remove the return statement at the end of the function.', $keyword->span);
         $edit = self::edit($file->contents, $return);
         $context->report($edit === null ? $issue : $issue->withEdit($edit));
     }

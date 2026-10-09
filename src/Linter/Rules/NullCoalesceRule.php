@@ -50,7 +50,7 @@ use function trim;
  */
 final class NullCoalesceRule implements Rule
 {
-    private const MESSAGE = 'Use null coalesce operator instead of ternary operator.';
+    private const MESSAGE = 'Use the null coalescing operator (??) instead of this ternary.';
 
     /**
      * Casts that keep the truthiness of the `isset` result.

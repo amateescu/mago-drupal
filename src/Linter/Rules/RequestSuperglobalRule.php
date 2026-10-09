@@ -73,7 +73,7 @@ final class RequestSuperglobalRule implements Rule
             $use = $key === null ? $property : "{$property}->get({$key})";
 
             $context->report(Issue::new(
-                "The {$name} super global must not be accessed directly; inject the request_stack service and use \$stack->getCurrentRequest()->{$use} instead.",
+                "Do not read {$name} directly. Inject the request_stack service and use \$stack->getCurrentRequest()->{$use}.",
                 $variable->span,
             ));
         }

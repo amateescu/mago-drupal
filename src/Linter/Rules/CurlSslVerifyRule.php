@@ -67,10 +67,9 @@ final class CurlSslVerifyRule extends CallRule
             return;
         }
 
-        $context->report(Issue::new(
-            'Potential security problem: SSL peer verification must not be disabled.',
-            $value->span,
-        )->withHelp('Pass TRUE, so that curl checks the certificate of the server.'));
+        $context->report(Issue::new('Do not turn off SSL peer verification.', $value->span)->withHelp(
+            'Pass TRUE, so that curl checks the certificate of the server.',
+        ));
     }
 
     /**

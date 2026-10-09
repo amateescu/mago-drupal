@@ -52,9 +52,9 @@ final class ByteOrderMarkRule implements Rule
             }
 
             $context->report(Issue::new(
-                "File contains {$name} byte order mark, which may corrupt your application.",
+                "Remove the {$name} byte order mark at the start of the file.",
                 new Span(0, strlen($mark)),
-            )->withHelp('Remove the mark. PHP sends it to the browser before any code runs.'));
+            )->withHelp('PHP sends the mark to the browser before any code runs.'));
 
             return;
         }

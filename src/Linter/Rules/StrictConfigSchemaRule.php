@@ -78,7 +78,7 @@ final class StrictConfigSchemaRule implements Rule
             }
 
             $context->report(Issue::new(
-                'Do not disable strict config schema checking in tests. Instead ensure your module properly declares its schema for configurations.',
+                'Do not turn off strict config schema checking in a test. Declare the schema of the configuration instead.',
                 $variable->span,
             ));
         }

@@ -73,7 +73,7 @@ final class ParameterBlankLineRule implements Rule
 
         foreach (self::blankLines($file, $range[0], $range[1]) as $line) {
             $context->report(Issue::new(
-                'Blank lines are not allowed in a multi-line function declaration.',
+                'Remove the blank line from the parameter list.',
                 $line,
             )->withEdit(TextEdit::delete($line)));
         }

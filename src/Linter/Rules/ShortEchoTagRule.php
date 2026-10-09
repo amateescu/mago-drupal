@@ -56,8 +56,6 @@ final class ShortEchoTagRule implements Rule
             ? TextEdit::replace($opener, '<?php echo')
             : TextEdit::replace(new Span($start, $start + 3 + strlen($gap[1])), '<?php echo ');
 
-        $context->report(Issue::new('Short PHP opening tag used with echo, expected "<?php echo".', $opener)->withEdit(
-            $edit,
-        ));
+        $context->report(Issue::new('Write "<?php echo" instead of the short echo tag.', $opener)->withEdit($edit));
     }
 }

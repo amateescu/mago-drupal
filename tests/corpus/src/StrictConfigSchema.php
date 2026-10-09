@@ -75,6 +75,7 @@ class ListTest {
    *
    * @var mixed
    */
+  // @mago-expect lint:drupal/property-per-statement
   protected $other = TRUE, $strictConfigSchema = FALSE;
 
 }

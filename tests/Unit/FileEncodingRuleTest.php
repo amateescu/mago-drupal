@@ -21,7 +21,7 @@ final class FileEncodingRuleTest extends TestCase
         $issues = ProgramLint::run(new FileEncodingRule(), "<?php\n// caf\xE9\n", [[NodeKind::OpeningTag, 0, 6]]);
 
         self::assertCount(1, $issues);
-        self::assertSame('File encoding is invalid, expected UTF-8.', $issues[0]->message);
+        self::assertSame('Save the file as UTF-8. It holds bytes that are not valid UTF-8.', $issues[0]->message);
         self::assertSame(0, $issues[0]->annotations[0]->span->start);
         self::assertSame(0, $issues[0]->annotations[0]->span->end);
     }

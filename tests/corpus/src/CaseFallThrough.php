@@ -90,6 +90,7 @@ class CaseFallThrough {
       /* Falls through. */
       case 3:
         $this->step();
+      // @mago-expect lint:drupal/inline-comment
       /** Falls through. */
       case 4:
         $this->step();
@@ -570,8 +571,10 @@ class CaseFallThrough {
   public function semicolonSeparator(int $value): void {
     switch ($value) {
       // @mago-expect lint:drupal/case-fall-through
+      // @mago-expect lint:drupal/case-semicolon
       case 1;
         $this->step();
+      // @mago-expect lint:drupal/case-semicolon
       case 2;
         $this->step();
         break;

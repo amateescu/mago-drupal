@@ -249,6 +249,8 @@ abstract class ParameterBlankLine {
      * Two.
      */
     int $b,
+    // @mago-expect lint:drupal/inline-comment
+    // @mago-expect lint:drupal/doc-comment
     /**
 
      * Three.

@@ -36,34 +36,37 @@ These rules report only in `.module` and `.install` files.
 | `drupal/install-hook-location` | Error | A `hook_install()` or other install hook that is declared in `.module` and not in `.install`. |
 | `drupal/t-in-hook-schema` | Error | A `t()` call inside `hook_schema()`. |
 
-## Naming, imports and syntax
+## Naming and imports
+
+| Code | Level | What it reports |
+| --- | --- | --- |
+| `drupal/class-name-acronym` | Error | A class, interface, trait or enum name that starts with three upper-case letters in a row, such as `HTTPClient`. Digits and underscores after the capitals do not end the acronym, and a multi-byte letter does not count as lower case, as in Coder 9. The report is on the name. |
+| `drupal/define-name` | Error | A `define()` constant name that is not upper case. The rule reads the first argument, a string literal or literals joined with `.`, and checks the part after the last backslash. Only ASCII letters count. It reports in every scanned file type and at any depth. Mago's `constant-name` covers `const`. |
+| `drupal/enum-case-name` | Error | An enum case that is not UpperCamelCase. |
+| `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. In a file with no namespace the import goes below the `@file` docblock and any `declare`, or below the open tag, and after the last `use` when the file has one. It skips a file with several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
+| `drupal/hook-attribute-name` | Warning | A `Drupal\Core\Hook\Attribute\Hook` attribute whose first argument, positional or `hook:`, is a hook name that starts with `hook_`. The attribute holds the whole hook name, so such a name is never invoked. The rule has no fix, because removing the prefix changes which hook runs. Off with `--core`, see below. |
+| `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. Also a name that starts with two underscores and is not a PHP magic method or a `SoapClient` method, as Coder 9's `MethodDoubleUnderscore` reports. The names are matched without regard to case. A name that is only two underscores, or starts with three, is fine. Off with `--core`, see below. |
+| `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
+| `drupal/redundant-use` | Error | A `use` statement that imports a class from the global namespace. A fix removes the import and writes `\Exception` at every reference, read from the resolved names. It is left out while a docblock in the file names the class in the same case without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes the types. |
+| `drupal/use-leading-backslash` | Error | An import whose class name starts with a backslash. A fix removes the backslash. |
+
+## Statements and declarations
 
 | Code | Level | What it reports |
 | --- | --- | --- |
 | `drupal/case-break-blank-line` | Error | A `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and is not followed by exactly one blank line. A fix adds the line, or removes the extra ones. The last case before the closing brace and a `default` case are skipped, and so is a case that falls through from a `default`, as in Coder 9. A comment on the statement's line does not count, and one on a later line does. The rule skips a `switch (): ... endswitch;` body, because `mago format` removes the blank lines between its cases. |
-| `drupal/case-fall-through` | Error | A non-empty `case` that falls through to the next case with no comment right before it. A comment of any kind counts, whatever it says. The case is fine when a `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` ends it, or when its last statement ends it in every branch: an `if` with an `else`, a `try` with its `catch` blocks or a `finally` block, or a nested `switch` with a `default` case. A `default` case and the last case are skipped. Reports only, with no fix. Off with `--core`, see below. |
+| `drupal/case-fall-through` | Error | A non-empty `case` that falls through to the next case with no comment right before it. A comment of any kind counts, whatever it says, except a directive such as `// @mago-expect` or `// phpcs:ignore`, which Coder counts too. The case is fine when a `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` ends it, or when its last statement ends it in every branch: an `if` with an `else`, a `try` with its `catch` blocks or a `finally` block, or a nested `switch` with a `default` case. A `default` case and the last case are skipped. Reports only, with no fix. Off with `--core`, see below. |
 | `drupal/case-semicolon` | Error | A `case` or `default` label that ends with a semicolon, as in `case 1;`. A fix writes the colon, and removes the blank space in front of the semicolon. A comment in front of it stays. The rule reads both the brace and the colon syntax, and checks the labels of a nested switch with that switch. |
-| `drupal/class-name-acronym` | Error | A class, interface, trait or enum name that starts with three upper-case letters in a row, such as `HTTPClient`. Digits and underscores after the capitals do not end the acronym, and a multi-byte letter does not count as lower case, as in Coder 9. The report is on the name. |
 | `drupal/comment-in-expression` | Error | A comment right after a cast, as in `(int) /* note */ $x`, or between `yield` and `from`. A comment before the cast, after the operand or after `from` is fine. Every cast spelling counts, `(void)` included, whatever the target PHP version. Reports only, with no fix. |
-| `drupal/define-name` | Error | A `define()` constant name that is not upper case. The rule reads the first argument, a string literal or literals joined with `.`, and checks the part after the last backslash. Only ASCII letters count. It reports in every scanned file type and at any depth. Mago's `constant-name` covers `const`. |
 | `drupal/else-if` | Error | An `else if` written as two keywords. Drupal writes `elseif`. A fix joins the keywords. The rule skips a braced `else { if ... }`. |
 | `drupal/empty-switch` | Error | A switch with no `case` label. A switch that holds only `default` counts, and so does an empty one. A `case` label of a nested switch does not count for the outer switch. There is no fix. |
-| `drupal/enum-case-name` | Error | An enum case that is not UpperCamelCase. |
-| `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. In a file with no namespace the import goes below the `@file` docblock and any `declare`, or below the open tag, and after the last `use` when the file has one. It skips a file with several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
-| `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. It skips a file with no namespace, several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
-| `drupal/hook-attribute-name` | Warning | A `Drupal\Core\Hook\Attribute\Hook` attribute whose first argument, positional or `hook:`, is a hook name that starts with `hook_`. The attribute holds the whole hook name, so such a name is never invoked. The rule has no fix, because removing the prefix changes which hook runs. Off with `--core`, see below. |
-| `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. A magic method's two underscores are fine. Off with `--core`, see below. |
-| `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. Also a name that starts with two underscores and is not a PHP magic method or a `SoapClient` method, as Coder 9's `MethodDoubleUnderscore` reports. The names are matched without regard to case. A name that is only two underscores, or starts with three, is fine. Off with `--core`, see below. |
 | `drupal/method-visibility` | Error | A method declared without `public`, `protected` or `private`. A fix adds `public`. |
 | `drupal/null-coalesce` | Error | A ternary that `??` replaces: `isset(X) ? X : B`, `X === null ? B : X` or `X !== null ? X : B`, with `null` on either side. Operands match by syntax tree, so quotes, spacing and parentheses do not matter. A fix writes `X ?? B` when X is a plain variable, property, index or constant read and B does not need parentheses after `??`. It is potentially unsafe when it drops a comment. A call as X, a side effect in an index, or a cast before `isset` is reported without a fix. |
 | `drupal/parameter-blank-line` | Error | A blank line, or a line with only spaces, in the declaration of a function, method or closure whose parameter list spans lines. The check covers the lines between the parentheses and, for a closure, the `use` list, which counts only when the parameter list spans lines. The rule skips a blank line inside a default value that holds an array, a call, parentheses or a string, inside an attribute and inside a comment, and it skips arrow functions. A fix removes the line and keeps the line endings. |
-| `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
 | `drupal/property-per-statement` | Error | A statement that declares more than one property, as in `public $a, $b;`. The rule reports once, on the first name. There is no fix. |
 | `drupal/property-visibility` | Error | A property declared with `var`, which a fix writes as `public`, or declared without `public`, `protected` or `private`, such as `static $count;`. A fix adds `public`, which is what PHP makes such a property. A `var` property is reported once, where Coder 9 also reports the missing visibility. |
 | `drupal/redundant-return` | Warning | A `return;` that is the last statement of a function, method or closure body, or of a `{ }` block that ends the body. The function ends the same way without it. A fix removes the statement, and the line when the statement is alone on it. It is left out when a comment sits inside the statement, such as `return /* note */;`. A `return;` in an `if`, loop, `try` or `switch`, a `return` with a value, and one that code follows are fine. |
-| `drupal/redundant-use` | Error | A `use` statement that imports a class from the global namespace. A fix removes the import and writes `\Exception` at every reference, read from the resolved names. It is left out while a docblock in the file names the class in the same case without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes the types. |
 | `drupal/short-list` | Error | A destructuring written as `list(...)`, in an assignment, a `foreach` or a nested position. A fix writes `[...]` and removes the blank space between `list` and the parenthesis. A fix that would drop a comment between them is potentially unsafe. An empty `list()` has no fix. Off with `--core`, see below. |
-| `drupal/use-leading-backslash` | Error | An import whose class name starts with a backslash. A fix removes the backslash. |
 
 ## Files and PHP tags
 
@@ -110,13 +113,9 @@ real signature. The group has the rest of `Drupal.Commenting.*`.
 | `drupal/class-comment` | Error | A class, interface, trait or enum with no docblock, with the wrong comment style, or with a summary that only repeats the name. Also a blank line between the docblock and the declaration, which a fix removes. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/deprecated-tag` | Warning | A `@deprecated` tag that breaks the version-and-reason grammar, or that has no `@see` tag after it. The change-record url is the first line of the `@see` tag. Coder 9 accepts `https://www.drupal.org/node/n`, `https://www.drupal.org/project/name/issues/n` and `https://git.drupalcode.org/project/name/-/work_items/n`. A fix removes the punctuation after it. A potentially unsafe fix rewrites an old core wording on the text's first line, such as `in Drupal 8.5.x and will be removed before Drupal 9.0.0.`, as phpcbf does. It writes `drupal:` versions with three parts and drops the text before `in` or `as of` and between the two versions. |
 | `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in one group, or that are not in the first group. Also a summary that does not start with an upper-case letter, that has no punctuation, or that spans more than one line. As in Coder 9, a summary that starts with a digit, `#`, `_` or other punctuation counts, and one that starts with a multi-byte character does not. `{@inheritdoc}` and a summary that is the file's name are fine. A long description that starts with a lower-case letter is reported too. The summary and the long description of a file docblock are the lines after `@file`, checked like any other docblock's. A fix uppercases a first lower-case letter. A fix adds a full stop to a one-line summary that ends with a letter or a digit. Also `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. Also the docblock's whitespace, each with a fix: text on the line of the opening `/**`, blank lines at its start or end, more than one blank line between the summary and the description, not exactly one blank line before the tags, no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them, more than one after a section, and not exactly one space before the summary or after a tag. Also the space after the star of every docblock line, in a docblock that comes before a declaration keyword or right after the `<?php` tag: no space, and more than one space or a tab before `@param`, `@return`, `@throws`, `@ingroup` or `@var`. A fix writes one space. Also a closer other than `*/`, such as `**/`, which a potentially unsafe fix replaces with `*/`, and a description line that ends in two dots, where a potentially unsafe fix removes one. |
-| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in the first group. Also a summary that does not start with an upper-case letter, that has no punctuation, or that spans more than one line. As in Coder 9, a summary that starts with a digit, `#`, `_` or other punctuation counts, and one that starts with a multi-byte character does not. `{@inheritdoc}` and a summary that is the file's name are fine. A long description that starts with a lower-case letter is reported too. A fix uppercases a first lower-case letter. A fix adds a full stop to a one-line summary that ends with a letter or a digit. Also `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. Also the docblock's whitespace, each with a fix: text on the line of the opening `/**`, blank lines at its start or end, more than one blank line between the summary and the description, not exactly one blank line before the tags, no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them, more than one after a section, and not exactly one space before the summary or after a tag. |
 | `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. A directive such as `// phpcs:ignoreFile` above the docblock is skipped. A fix adds `@file` below the docblock's opener when a blank line parts the docblock from the code. Another adds that blank line when the code starts right below the docblock. A potentially unsafe fix turns a comment in the wrong style into a docblock with `@file`, see below. Also an `@file` tag that is not on the line right below the opener. A potentially unsafe fix moves a tag that stands alone on its line, when the opener is alone on its line too. |
-| `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. A directive such as `// phpcs:ignoreFile` above the docblock is skipped. A fix adds `@file` below the docblock's opener when a blank line parts the docblock from the code. Another adds that blank line when the code starts right below the docblock. A potentially unsafe fix turns a comment in the wrong style into a docblock with `@file`, see below. |
 | `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized, and a `@param` or `@return` type name that Coder wants written another way, such as `integer` for `int`. A `@return void`, `@return static` or `@return $this` needs no description. A `@param` or `@return` type that has a space, a `@return` with no type on its line, and a `@throws` description on the tag's line, which a fix moves to the line below. A constructor with a docblock is checked. A `@return` variable name and a `@see` reference are read from the tag's own line. Fixes write Coder's type name, remove a period after a `@param` name, a variable name after a `@return` type that has a description below, and punctuation after a one-word `@see` reference, and add a full stop to a `@param` description that does not end in a url, a tag or `:`, `,` or `;`. Also, each with a fix: a blank line between the docblock and the function, a `@param` description on the tag's line, not exactly one space between a `@param` type and its variable, and a `@param`, `@return` or `@throws` description that is not indented three spaces from the star. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
-| `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized, and a `@param` or `@return` type name that Coder wants written another way, such as `integer` for `int`. A `@return void`, `@return static` or `@return $this` needs no description. A `@return` variable name and a `@see` reference are read from the tag's own line. Fixes write Coder's type name, remove a period after a `@param` name, a variable name after a `@return` type that has a description below, and punctuation after a one-word `@see` reference, and add a full stop to a `@param` description that does not end in a url, a tag or `:`, `,` or `;`. Also, each with a fix: a blank line between the docblock and the function, a `@param` description on the tag's line, not exactly one space between a `@param` type and its variable, and a `@param`, `@return` or `@throws` description that is not indented three spaces from the star. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/hook-comment` | Warning | A hook implementation that is not documented as `Implements hook_foo().`, or that duplicates the `@param` or `@return` documentation. The rule reads functions declared at the top level of a file, and only a docblock that touches the `function` keyword. A potentially unsafe fix replaces a description that repeats the function name, as in `Implements my_mod_help().`, with `Implements hook_help().`. For a hook with a placeholder it writes the function's own words, as in `hook_node_insert()` for `hook_ENTITY_TYPE_insert()`. It applies in a procedural file, when the function name starts with the file's machine name and an underscore. |
-| `drupal/hook-comment` | Warning | A hook implementation that is not documented as `Implements hook_foo().`, or that duplicates the `@param` or `@return` documentation. |
 | `drupal/inline-variable-comment` | Warning | An inline `@var` declaration that uses `//` and not `/** */`, or that writes the variable name before the type. A `//` or `#` comment that holds `*/`, such as a commented-out docblock, is skipped. Two fixes are potentially unsafe, because the analyzers start to trust the type: one moves a variable name written first after the type, and the other turns a comment that holds only the tag, alone on its line, into a docblock. |
 | `drupal/variable-comment` | Error | A class property with no docblock, with the wrong comment style, or with more than one `@var` tag. A property with a native type needs a docblock but no `@var` tag. Also a `@var` type name that Coder wants written another way, such as `integer` for `int`, `Boolean` for `bool` or `NULL` for `null`. Fixes remove a property name repeated after the `@var` type and write Coder's type name. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 
@@ -202,7 +201,7 @@ Two `Drupal.Commenting.*` sniffs are pure whitespace. `mago format` produces the
 `drupal/doc-comment` ports the space after the star (`SpaceAfterStar` and `NoSpaceAfterStar`).
 
 The rules port the rest of the comment whitespace, with a fix wherever phpcbf has one, and for
-`TrhowsCommentIndentation` too. The checks read a docblock the way Coder does. A tag is any line
+`ThrowsCommentIndentation` too. The checks read a docblock the way Coder does. A tag is any line
 that starts with `@`, at any indent, and only the tags at the column of the first one form the
 groups that the blank-line checks look at. The formatter turns several blank lines into one, so
 `drupal/file-comment` reports only a file docblock with no blank line below it, and leaves
@@ -216,20 +215,24 @@ every run. `drupal/inline-comment-blank-line` leaves all of these blank lines to
 `Drupal.Commenting.FileComment` is not ported: `drupal/file-comment` reads only procedural files,
 and `.tpl.php` templates are a Drupal 7 format.
 
-Core's `phpcs.xml.dist` turns off four checks that the Drupal standard enables: `InvalidEndChar`
-and `SpacingAfter` of `Drupal.Commenting.InlineComment`, `LongFullStop` of
-`Drupal.Commenting.DocComment`, and `PSR2.Methods.MethodDeclaration.Underscore`. It also does not
-run `Drupal.NamingConventions.ValidFunctionName`, whose `InvalidPrefix` check is
-`drupal/function-prefix`. Each is a rule of its own here, `drupal/inline-comment-punctuation`,
-`drupal/inline-comment-blank-line`, `drupal/long-description-punctuation`,
-`drupal/method-name-underscore` and `drupal/function-prefix`, on by default for contrib and custom
-code. The worker's `--core` argument turns them off. It also turns off `drupal/short-list`, because
-core's config does not run `SlevomatCodingStandard.PHP.ShortList`. A project that turns other sub-codes off in
-its phpcs config can turn off the matching rules with `--disable`, see the
-[README](../README.md#install).
+Core's `phpcs.xml.dist` turns off some checks that the Drupal standard enables, and does not run
+some sniffs at all. It turns off `InvalidEndChar` and `SpacingAfter` of
+`Drupal.Commenting.InlineComment`, `LongFullStop` of `Drupal.Commenting.DocComment` and
+`PSR2.Methods.MethodDeclaration.Underscore`, and enables only `WrongOpenercase` of
+`PSR2.ControlStructures.SwitchDeclaration`. It does not run `Drupal.NamingConventions.ValidFunctionName`,
+`Drupal.Semantics.ConstantName.ConstConstantStart`, `Drupal.Attributes.ValidHookName`,
+`SlevomatCodingStandard.PHP.ShortList` or any DrupalPractice sniff. The rules that port those checks
+are on by default for contrib and custom code, and the worker's `--core` argument turns them off:
+`drupal/case-fall-through`, `drupal/const-prefix`, `drupal/function-prefix`,
+`drupal/hook-attribute-name`, `drupal/inline-comment-blank-line`, `drupal/inline-comment-punctuation`,
+`drupal/long-description-punctuation`, `drupal/method-name-underscore`, `drupal/short-list` and the
+DrupalPractice rules. `drupal/method-name-underscore` holds the `MethodDoubleUnderscore` check of
+`ValidFunctionName` too. A project that turns other sub-codes off in its phpcs config can turn off
+the matching rules with `--disable`, see the [README](../README.md#install).
 
-Core's `phpcs.xml.dist` enables only the `WrongOpenercase` check of `PSR2.ControlStructures.SwitchDeclaration`, so
-`drupal/case-fall-through`, which ports its `TerminatingComment` check, is off with `--core`.
+Mago reads only the file extensions in its `[source]` block. Coder also checks `.test` files, a
+Drupal 7 format, and core's config checks `.yml` files, which Mago does not parse. Add `test` to the
+extensions to check `.test` files.
 
 Four rules port statement checks, and each differs from Coder where Coder is wrong. A case that ends in
 `$x or exit()` or `$x ?? throw ...` falls through when the left side allows it, and
@@ -266,18 +269,6 @@ The tag rules and the encoding rules differ from Coder in these places:
   safe. This fix is potentially unsafe, because the removed text is output.
 - `drupal/byte-order-mark` reports one mark per file, at the first bytes only, as Coder does. A
   mark further in is not reported.
-- The rules read only the extensions Mago scans. Coder also scans `.test`, and core's config
-  scans `.yml`, which Mago does not read.
-
-`drupal/function-prefix` and whose `MethodDoubleUnderscore` check is part of
-`drupal/method-name-underscore`. It does not run `Drupal.Semantics.ConstantName.ConstConstantStart`
-or `Drupal.Attributes.ValidHookName` either. Each is a rule of its own here,
-`drupal/inline-comment-punctuation`, `drupal/inline-comment-blank-line`,
-`drupal/long-description-punctuation`, `drupal/method-name-underscore`, `drupal/function-prefix`,
-`drupal/const-prefix` and `drupal/hook-attribute-name`, on by default for contrib and custom
-code. The worker's `--core` argument turns them off. A project that turns other sub-codes off in
-its phpcs config can turn off the matching rules with `--disable`, see the
-[README](../README.md#install).
 
 The naming rules differ from Coder 9 where a sniff has a bug and not a scope choice:
 
@@ -360,8 +351,6 @@ only looks like the keyword is not a destructuring, so the rule does not see it:
 string or a comment. The fix drops what sits between `list` and the parenthesis. Coder drops a
 comment there too. Here such a fix is potentially unsafe, and a plain `--fix` leaves it. Coder fixes
 an empty `list()` into `[]`, which PHP rejects as well, so the rule reports it and offers no fix.
-Coder also reports a `.test` file. Mago reads only the extensions in its `[source]` block, so
-add `test` there to check such files.
 
 `drupal/property-per-statement` reads the names of the declaration. Coder looks for the next
 variable before the next semicolon, so it reports a property hook that reads `$this` or takes a
@@ -467,7 +456,8 @@ has a comment before it, where Coder reports a fixable error and writes code tha
 `drupal/file-comment` reports a tag that is not exactly `@file`, so `@FILE` and `@File` count as no
 tag, as in Coder. The report sits on the second line of the docblock, where Coder puts it, or on the
 opener when the docblock has no star line. Coder puts it on the first line of the file in that case.
-The class-only skip of Coder's sniff is not ported, see above.
+Coder skips a file that holds a single class, interface, trait or enum and no function. That
+skip is not ported.
 
 ## Ported from phpstan-drupal
 

@@ -92,7 +92,7 @@ final class FormAlterCommentRule implements Rule
         }
 
         $context->report(Issue::new(
-            "Doc comment indicates hook_form_alter() but function signature is \"{$name}\" instead of \"{$expected}\". Did you mean hook_form_FORM_ID_alter()?",
+            "The docblock says hook_form_alter(), but the function is {$name}() and not {$expected}(). A form ID alter implements hook_form_FORM_ID_alter().",
             $hook,
         ));
     }

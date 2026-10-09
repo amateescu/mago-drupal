@@ -121,6 +121,7 @@ function inline_docblock_before_a_class(): int {
 /**
  * Documents the file level code, which no body holds.
  */
+// @mago-expect lint:drupal/global-constant
 const INLINE_DOCBLOCK_LIMIT = 5;
 
 // @mago-expect lint:drupal/class-comment

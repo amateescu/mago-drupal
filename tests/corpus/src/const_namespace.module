@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Drupal\const_namespace;
 
 // @mago-expect lint:drupal/const-prefix
+// @mago-expect lint:drupal/global-constant
 const CACHE_FLAG = 1;
 
+// @mago-expect lint:drupal/global-constant
 const CONST_NAMESPACE_FLAG = 1;
