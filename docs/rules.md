@@ -40,14 +40,18 @@ These rules report only in `.module` and `.install` files.
 | Code | Level | What it reports |
 | --- | --- | --- |
 | `drupal/case-break-blank-line` | Error | A `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and is not followed by exactly one blank line. A fix adds the line, or removes the extra ones. The last case before the closing brace and a `default` case are skipped, and so is a case that falls through from a `default`, as in Coder 9. A comment on the statement's line does not count, and one on a later line does. The rule skips a `switch (): ... endswitch;` body, because `mago format` removes the blank lines between its cases. |
+| `drupal/case-semicolon` | Error | A `case` or `default` label that ends with a semicolon, as in `case 1;`. A fix writes the colon, and removes the blank space in front of the semicolon. A comment in front of it stays. The rule reads both the brace and the colon syntax, and checks the labels of a nested switch with that switch. |
 | `drupal/else-if` | Error | An `else if` written as two keywords. Drupal writes `elseif`. A fix joins the keywords. The rule skips a braced `else { if ... }`. |
+| `drupal/empty-switch` | Error | A switch with no `case` label. A switch that holds only `default` counts, and so does an empty one. A `case` label of a nested switch does not count for the outer switch. There is no fix. |
 | `drupal/enum-case-name` | Error | An enum case that is not UpperCamelCase. |
 | `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. It skips a file with no namespace, several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
 | `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. A magic method's two underscores are fine. Off with `--core`, see below. |
 | `drupal/method-visibility` | Error | A method declared without `public`, `protected` or `private`. A fix adds `public`. |
 | `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
+| `drupal/property-per-statement` | Error | A statement that declares more than one property, as in `public $a, $b;`. The rule reports once, on the first name. There is no fix. |
 | `drupal/property-visibility` | Error | A property declared with `var`, which a fix writes as `public`, or declared without `public`, `protected` or `private`, such as `static $count;`. A fix adds `public`, which is what PHP makes such a property. A `var` property is reported once, where Coder 9 also reports the missing visibility. |
 | `drupal/redundant-use` | Error | A `use` statement that imports a class from the global namespace. A fix removes the import and writes `\Exception` at every reference, read from the resolved names. It is left out while a docblock in the file names the class in the same case without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes the types. |
+| `drupal/short-list` | Error | A destructuring written as `list(...)`, in an assignment, a `foreach` or a nested position. A fix writes `[...]` and removes the blank space between `list` and the parenthesis. A fix that would drop a comment between them is potentially unsafe. An empty `list()` has no fix. Off with `--core`, see below. |
 | `drupal/use-leading-backslash` | Error | An import whose class name starts with a backslash. A fix removes the backslash. |
 
 ## Comment text
@@ -178,7 +182,8 @@ run `Drupal.NamingConventions.ValidFunctionName`, whose `InvalidPrefix` check is
 `drupal/function-prefix`. Each is a rule of its own here, `drupal/inline-comment-punctuation`,
 `drupal/inline-comment-blank-line`, `drupal/long-description-punctuation`,
 `drupal/method-name-underscore` and `drupal/function-prefix`, on by default for contrib and custom
-code. The worker's `--core` argument turns them off. A project that turns other sub-codes off in
+code. The worker's `--core` argument turns them off. It also turns off `drupal/short-list`, because
+core's config does not run `SlevomatCodingStandard.PHP.ShortList`. A project that turns other sub-codes off in
 its phpcs config can turn off the matching rules with `--disable`, see the
 [README](../README.md#install).
 
@@ -196,6 +201,36 @@ because PHP's reflection returns a docblock and not a comment, so annotation dis
 the analyzers start to read the text. They skip a trailing comment of the line above, a comment that
 a blank line parts from the declaration, a directive, and a line comment that holds `*/`. A file
 comment that already starts with `@file` keeps it once.
+
+`drupal/short-list` reports every `list` keyword, in any letter case, as Coder does. A name that
+only looks like the keyword is not a destructuring, so the rule does not see it: `->list`,
+`::list`, a method, constant, property or enum case called `list`, a named argument, and text in a
+string or a comment. The fix drops what sits between `list` and the parenthesis. Coder drops a
+comment there too. Here such a fix is potentially unsafe, and a plain `--fix` leaves it. Coder fixes
+an empty `list()` into `[]`, which PHP rejects as well, so the rule reports it and offers no fix.
+Coder also reports a `.test` file. Mago reads only the extensions in its `[source]` block, so
+add `test` there to check such files.
+
+`drupal/property-per-statement` reads the names of the declaration. Coder looks for the next
+variable before the next semicolon, so it reports a property hook that reads `$this` or takes a
+`$value` parameter, and a property that is followed by a hook with no semicolon in it. The rule
+reports none of those, because a hooked property has one name. Coder skips a property in an enum.
+The rule does not look at the enclosing type, so it also reports a multi-name statement in an enum,
+which PHP rejects and Mago reports as well. It also reports a multi-name statement whose default is
+not a constant expression. The sniff reports the same, and Mago reports that default on its own.
+The sniff has no fix, and a split would have to sort out attributes, the docblock and the comments
+between the names, so the rule has none either.
+
+`drupal/case-semicolon` ports both `WrongOpenercase` and `WrongOpenerdefault`. Core's config runs
+only the first, and the rule reports `default;` too, also under `--core`. Mago's parser does not
+accept a label that ends with a close tag, as in `case 1 ?>`, which PHP accepts. Coder reports
+those and the rule cannot, because Mago reports a parse error for the file. The rule's fix removes
+the blank space in front of the colon, where phpcbf leaves `case 1 :` for another sniff to move.
+
+`drupal/empty-switch` reports a switch with no `case` label, as `MissingCase` of
+`Squiz.ControlStructures.SwitchDeclaration` does. It reads the labels in the switch's own body. Coder
+walks tokens, so it needs special cases for nested switches. A file that does not parse gives
+no report. Coder reports a statement placed directly in a switch body, which is invalid PHP.
 
 ## Ported from phpstan-drupal
 

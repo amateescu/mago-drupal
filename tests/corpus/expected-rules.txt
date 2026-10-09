@@ -1,5 +1,6 @@
 drupal/author-tag
 drupal/case-break-blank-line
+drupal/case-semicolon
 drupal/class-comment
 drupal/comment-line-length
 drupal/constant-prefix
@@ -11,6 +12,7 @@ drupal/doc-comment-array-syntax
 drupal/doc-type-namespace
 drupal/else-if
 drupal/empty-install-hook
+drupal/empty-switch
 drupal/enum-case-name
 drupal/expected-exception-tag
 drupal/file-comment
@@ -35,10 +37,12 @@ drupal/nullable-param-tag
 drupal/post-statement-comment
 drupal/preg-security
 drupal/property-name
+drupal/property-per-statement
 drupal/property-visibility
 drupal/redundant-use
 drupal/remote-address
 drupal/render-callback
+drupal/short-list
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema

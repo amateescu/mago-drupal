@@ -83,6 +83,7 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/inline-comment-punctuation',
                 'drupal/long-description-punctuation',
                 'drupal/method-name-underscore',
+                'drupal/short-list',
             ],
             self::offCodes(DrupalExtension::fromArguments(['--core'])->linterRules),
         );

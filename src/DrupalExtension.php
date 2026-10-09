@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
+use amateescu\MagoDrupal\Linter\Rules\CaseSemicolonRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
@@ -19,6 +20,7 @@ use amateescu\MagoDrupal\Linter\Rules\DocCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\DocTypeNamespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\ElseIfRule;
 use amateescu\MagoDrupal\Linter\Rules\EmptyInstallHookRule;
+use amateescu\MagoDrupal\Linter\Rules\EmptySwitchRule;
 use amateescu\MagoDrupal\Linter\Rules\EnumCaseNameRule;
 use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
@@ -43,10 +45,12 @@ use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyNameRule;
+use amateescu\MagoDrupal\Linter\Rules\PropertyPerStatementRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
+use amateescu\MagoDrupal\Linter\Rules\ShortListRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatableStringRule;
@@ -100,6 +104,7 @@ final class DrupalExtension
         'drupal/inline-comment-punctuation',
         'drupal/long-description-punctuation',
         'drupal/method-name-underscore',
+        'drupal/short-list',
     ];
 
     /**
@@ -174,6 +179,7 @@ final class DrupalExtension
         return [
             new AuthorTagRule(),
             new CaseBreakBlankLineRule(),
+            new CaseSemicolonRule(),
             new ClassCommentRule(),
             new CommentLineLengthRule(),
             new ConstantPrefixRule(),
@@ -185,6 +191,7 @@ final class DrupalExtension
             new DocTypeNamespaceRule(),
             new ElseIfRule(),
             new EmptyInstallHookRule(),
+            new EmptySwitchRule(),
             new EnumCaseNameRule(),
             new ExpectedExceptionTagRule(),
             new FileCommentRule(),
@@ -209,10 +216,12 @@ final class DrupalExtension
             new PostStatementCommentRule(),
             new PregSecurityRule(),
             new PropertyNameRule(),
+            new PropertyPerStatementRule(),
             new PropertyVisibilityRule(),
             new RedundantUseRule(),
             new RemoteAddressRule(),
             new RenderCallbackRule(),
+            new ShortListRule(),
             new SymfonyYamlParseRule(),
             new TodoCommentRule(),
             new TranslatableStringRule(),
