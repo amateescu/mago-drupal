@@ -10,6 +10,8 @@ use function array_map;
 use function count;
 use function implode;
 use function strlen;
+use function strspn;
+use function substr;
 use function trim;
 
 /**
@@ -54,5 +56,17 @@ final class DocblockTag
         $last = $this->lines[count($this->lines) - 1];
 
         return new Span($this->lines[0]->offset, $last->offset + strlen($last->text));
+    }
+
+    /**
+     * Returns the offset of the type, or null when the type does not start
+     * the tag's line.
+     */
+    public function typeStart(string $type): ?int
+    {
+        $line = $this->lines[0];
+        $indent = strspn($line->text, characters: " \t");
+
+        return substr($line->text, $indent, strlen($type)) === $type ? $line->offset + $indent : null;
     }
 }

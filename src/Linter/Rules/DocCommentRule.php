@@ -18,13 +18,18 @@ use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function basename;
 use function count;
 use function in_array;
-use function mb_strtoupper;
 use function mb_substr;
+use function ord;
+use function preg_match;
 use function rtrim;
 use function strlen;
+use function strspn;
 use function strtolower;
+use function strtoupper;
+use function trim;
 
 /**
  * Checks a docblock's short description, long description and tag order.
@@ -132,7 +137,7 @@ final class DocCommentRule implements Rule
         }
 
         if ($summary !== []) {
-            $this->checkCapital($context, $summary, 'short description');
+            $this->checkShortCapital($context, $summary);
             $this->checkSummaryEnd($context, $summary);
             if (count($summary) > 1) {
                 $context->report(Issue::new(
@@ -142,8 +147,10 @@ final class DocCommentRule implements Rule
             }
         }
 
-        if ($description !== []) {
-            $this->checkCapital($context, $description, 'long description');
+        // Coder reports only a lower-case letter at the start of the long
+        // description.
+        if ($description !== [] && self::lowerCaseStart($description[0]) !== null) {
+            self::reportCapital($context, $description[0], 'long description');
         }
 
         $this->checkTagOrder($context, $tags);
@@ -171,25 +178,69 @@ final class DocCommentRule implements Rule
     }
 
     /**
-     * Checks that a paragraph's first line starts with a capital letter.
+     * Checks that the short description starts with an upper-case letter.
      *
-     * @param list<DocblockLine> $paragraph
+     * Coder tests the first byte of the summary. A digit, `#`, `_` or any
+     * other ASCII character that is not an upper-case letter is reported. A
+     * multi-byte first character is not: Coder's Unicode pattern errors on a
+     * lone byte of it, so the check never fires. The `{@inheritdoc}` tag
+     * alone, and a summary that is the file's own name, as Features exports
+     * write, are fine.
+     *
+     * @param list<DocblockLine> $summary
      */
-    private function checkCapital(LintContext $context, array $paragraph, string $label): void
+    private function checkShortCapital(LintContext $context, array $summary): void
     {
-        $first = $paragraph[0]->text;
-        $firstChar = mb_substr($first, start: 0, length: 1);
-        if (self::isInheritdoc($first) || $firstChar === mb_strtoupper($firstChar)) {
+        // Coder joins the summary lines with nothing between them.
+        $content = '';
+        foreach ($summary as $line) {
+            $content .= trim($line->text);
+        }
+
+        if ($content === '') {
             return;
         }
 
-        // The span uses the byte length of $firstChar, not a hardcoded 1.
-        // With a multi-byte character such as "É" or "€", a 1 puts the span's
-        // end in the middle of the character.
-        $context->report(Issue::new(
-            "The {$label} must start with a capital letter.",
-            new Span($paragraph[0]->offset, $paragraph[0]->offset + strlen($firstChar)),
-        ));
+        $first = ord($content[0]);
+        if (
+            $first >= 0x41 && $first <= 0x5A
+            || $first >= 0x80
+            || $content === '{@inheritdoc}'
+            || $content === '{@inheritDoc}'
+            || $content === basename($context->file->path)
+        ) {
+            return;
+        }
+
+        self::reportCapital($context, $summary[0], 'short description');
+    }
+
+    /**
+     * Reports a paragraph whose first character is not a capital letter.
+     * Like phpcbf, the fix uppercases a lower-case letter. Any other first
+     * character gets no fix.
+     */
+    private static function reportCapital(LintContext $context, DocblockLine $line, string $label): void
+    {
+        $start = $line->offset + strspn($line->text, characters: " \t");
+        $issue = Issue::new("The {$label} must start with a capital letter.", new Span($start, $start + 1));
+        $lower = self::lowerCaseStart($line);
+        if ($lower !== null) {
+            $issue = $issue->withEdit(TextEdit::replace(new Span($start, $start + 1), strtoupper($lower)));
+        }
+
+        $context->report($issue);
+    }
+
+    /**
+     * Returns the first character of a line's text when it is a lower-case
+     * ASCII letter, the only kind that PHP's ucfirst() changes, or null.
+     */
+    private static function lowerCaseStart(DocblockLine $line): ?string
+    {
+        $matches = [];
+
+        return preg_match('/^[ \t]*([a-z])/', $line->text, $matches) === 1 ? $matches[1] : null;
     }
 
     /**
@@ -207,24 +258,27 @@ final class DocCommentRule implements Rule
         // unexempt.
         $trimmed = rtrim($last->text);
         $lastChar = mb_substr($trimmed, -1);
-        if (self::isInheritdoc($trimmed) || in_array($lastChar, ['.', '!', '?', ')'], strict: true)) {
+        // Coder accepts `{@inheritDoc}` too.
+        if (strtolower($trimmed) === '{@inheritdoc}' || in_array($lastChar, ['.', '!', '?', ')'], strict: true)) {
             return;
         }
 
         $lastCharEnd = $last->offset + strlen($trimmed);
-        $context->report(Issue::new(
+        $issue = Issue::new(
             'The short description must end with terminal punctuation.',
             new Span($lastCharEnd - strlen($lastChar), $lastCharEnd),
-        ));
-    }
+        );
 
-    /**
-     * Whether the text is the inline tag alone, in any case. Coder accepts
-     * `{@inheritDoc}` too.
-     */
-    private static function isInheritdoc(string $text): bool
-    {
-        return strtolower(rtrim($text)) === '{@inheritdoc}';
+        // Like phpcbf, the fix adds a full stop only after a letter or a
+        // digit on a one-line summary. A summary over two lines may be
+        // missing the blank line before the long description.
+        if (count($summary) > 1 || preg_match('/^[a-zA-Z0-9]$/', $lastChar) !== 1) {
+            $context->report($issue);
+
+            return;
+        }
+
+        $context->report($issue->withEdit(TextEdit::insert($lastCharEnd, '.')));
     }
 
     /**

@@ -47,6 +47,22 @@ class Naming {
    */
   protected ?AliasedThing $aliased = NULL;
 
+  // @mago-expect lint:drupal/property-visibility
+  /**
+   * A counter, declared with var.
+   *
+   * @var int
+   */
+  var $legacyCounter = 0;
+
+  // @mago-expect lint:drupal/property-visibility
+  /**
+   * A counter, declared with static alone.
+   *
+   * @var int
+   */
+  static $recursionCounter = 0;
+
   // @mago-expect lint:drupal/function-comment
   public function matches(string $input): bool {
     return preg_match('/^[a-z]+$/', $input) === 1;
@@ -89,6 +105,32 @@ class Naming {
   public function globalClassInline(): Exception {
     // A class with no namespace of its own stays written out.
     return new \Exception('boom');
+  }
+
+  /**
+   * Maps a status to a label.
+   */
+  public function label(int $status): string {
+    switch ($status) {
+      case 1:
+        $label = 'one';
+        // @mago-expect lint:drupal/case-break-blank-line
+        break;
+      case 2:
+        return 'two';
+
+      case 3:
+      case 4:
+        // The two cases share the break, so it is checked once.
+        $label = 'more';
+        // @mago-expect lint:drupal/case-break-blank-line
+        break;
+      default:
+        $label = 'none';
+        break;
+    }
+
+    return $label;
   }
 
   // @mago-expect lint:drupal/function-comment

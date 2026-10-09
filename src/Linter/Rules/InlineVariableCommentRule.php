@@ -135,8 +135,8 @@ final class InlineVariableCommentRule implements Rule
 
     /**
      * The one-line docblock for a `//`, `#` or `/* *\/` comment that holds
-     * only a `@var` tag, alone on its line and not next to other comment
-     * lines, or null for any other comment.
+     * only a `@var` tag, alone on its line, or null for any other comment.
+     * A `//` or `#` line also must not have other such lines next to it.
      */
     private static function asDocblock(SourceFile $file, Trivia $trivia): ?string
     {
@@ -152,7 +152,13 @@ final class InlineVariableCommentRule implements Rule
             return null;
         }
 
-        if (!self::aloneOnItsLine($file->contents, $trivia->span->start, $trivia->span->end)) {
+        // A `/* *\/` comment is a comment of its own. A `//` or `#` line next
+        // to other such lines is part of their text.
+        if (
+            !self::startsItsLine($file->contents, $trivia->span->start)
+            || $trivia->kind !== TriviaKind::MultiLineComment
+            && self::besideLineComments($file->contents, $trivia->span->start, $trivia->span->end)
+        ) {
             return null;
         }
 
@@ -220,17 +226,23 @@ final class InlineVariableCommentRule implements Rule
     }
 
     /**
-     * Whether only whitespace shares the comment's line, and neither line
-     * next to it is a `//` or `#` comment that it could belong with.
+     * Whether only whitespace comes before the comment on its line.
      */
-    private static function aloneOnItsLine(string $contents, int $start, int $end): bool
+    private static function startsItsLine(string $contents, int $start): bool
     {
         $lineStart = strrpos(substr($contents, offset: 0, length: $start), needle: "\n");
         $lineStart = $lineStart === false ? 0 : $lineStart + 1;
-        if (trim(substr($contents, $lineStart, $start - $lineStart)) !== '') {
-            return false;
-        }
 
+        return trim(substr($contents, $lineStart, $start - $lineStart)) === '';
+    }
+
+    /**
+     * Whether the line above or below the comment is a `//` or `#` comment.
+     */
+    private static function besideLineComments(string $contents, int $start, int $end): bool
+    {
+        $lineStart = strrpos(substr($contents, offset: 0, length: $start), needle: "\n");
+        $lineStart = $lineStart === false ? 0 : $lineStart + 1;
         $previousStart = $lineStart === 0
             ? false
             : strrpos(substr($contents, offset: 0, length: $lineStart - 1), needle: "\n");
@@ -250,11 +262,11 @@ final class InlineVariableCommentRule implements Rule
         foreach ([$previous, $next] as $line) {
             $line = ltrim($line);
             if (str_starts_with($line, '//') || str_starts_with($line, '#')) {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     private function precedesADeclaration(string $contents, int $offset): bool

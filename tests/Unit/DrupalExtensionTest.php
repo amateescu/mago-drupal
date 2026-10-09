@@ -54,6 +54,7 @@ final class DrupalExtensionTest extends TestCase
     {
         $expected = [
             'drupal/author-tag' => [Level::Warning, true],
+            'drupal/case-break-blank-line' => [Level::Error, true],
             'drupal/class-comment' => [Level::Error, true],
             'drupal/comment-line-length' => [Level::Warning, true],
             'drupal/constant-prefix' => [Level::Warning, true],
@@ -70,6 +71,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/file-comment' => [Level::Error, true],
             'drupal/fully-qualified-name' => [Level::Error, true],
             'drupal/function-comment' => [Level::Error, true],
+            'drupal/function-prefix' => [Level::Error, true],
             'drupal/gender-neutral-comment' => [Level::Warning, true],
             'drupal/global-function' => [Level::Warning, true],
             'drupal/global-variable' => [Level::Error, true],
@@ -88,6 +90,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/post-statement-comment' => [Level::Warning, true],
             'drupal/preg-security' => [Level::Error, true],
             'drupal/property-name' => [Level::Error, true],
+            'drupal/property-visibility' => [Level::Error, true],
             'drupal/redundant-use' => [Level::Error, true],
             'drupal/remote-address' => [Level::Error, true],
             'drupal/render-callback' => [Level::Error, true],

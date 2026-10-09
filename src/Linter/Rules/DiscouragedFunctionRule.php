@@ -16,8 +16,10 @@ use Mago\Sdk\Syntax\NodeKind;
  * Reports calls to the devel module's dump helpers and to functions that
  * some PHP builds do not have.
  *
- * Ports phpstan-drupal's DiscouragedFunctionsRule. Do not commit the devel
- * module's dump helpers. Some platforms do not have `fnmatch()`.
+ * Ports phpstan-drupal's DiscouragedFunctionsRule and Coder's
+ * Drupal.Functions.DiscouragedFunctions. Do not commit the devel module's
+ * dump helpers. Some platforms do not have `fnmatch()`. Coder also lists
+ * `eval`, which Mago's own `no-eval` rule reports.
  */
 final class DiscouragedFunctionRule extends CallRule
 {
@@ -25,6 +27,8 @@ final class DiscouragedFunctionRule extends CallRule
         'dargs',
         'dcp',
         'dd',
+        'ddebug_backtrace',
+        'ddm',
         'dfb',
         'dfbt',
         'dpm',
@@ -36,8 +40,10 @@ final class DiscouragedFunctionRule extends CallRule
         'dvm',
         'dvr',
         'kdevel_print_object',
+        'kint',
         'kpr',
         'kprint_r',
+        'ksm',
         'sdpm',
     ];
 

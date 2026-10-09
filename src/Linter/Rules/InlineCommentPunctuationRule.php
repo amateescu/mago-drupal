@@ -10,12 +10,15 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function count;
 use function mb_substr;
 use function preg_match;
+use function rtrim;
 use function str_starts_with;
+use function strlen;
 
 /**
  * Checks that a `//` inline comment ends with terminal punctuation.
@@ -26,6 +29,8 @@ use function str_starts_with;
  * word starts with `@`, a digit or punctuation is exempt, and so is a run
  * with a `cspell:` or `spell-checker:` directive on any line. A last word
  * that is a url, a tag or a function call needs no punctuation.
+ *
+ * The fix appends a full stop to the last line, as phpcbf does.
  */
 final class InlineCommentPunctuationRule implements Rule
 {
@@ -58,10 +63,13 @@ final class InlineCommentPunctuationRule implements Rule
                 continue;
             }
 
+            $last = $run[count($run) - 1]->span;
+            $end = $last->start + strlen(rtrim($context->file->getText($last)));
+
             $context->report(Issue::new(
                 'End an inline comment with a full stop, an exclamation mark, a question mark or a colon.',
-                $run[count($run) - 1]->span,
-            ));
+                $last,
+            )->withEdit(TextEdit::insert($end, '.')));
         }
     }
 }

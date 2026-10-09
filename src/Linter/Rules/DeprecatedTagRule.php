@@ -13,6 +13,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
@@ -21,9 +22,12 @@ use Mago\Sdk\Syntax\TriviaKind;
 use function array_slice;
 use function preg_match;
 use function rtrim;
+use function str_replace;
 use function strlen;
 use function strspn;
 use function substr;
+use function substr_count;
+use function trim;
 
 /**
  * Checks the wording of a `@deprecated` docblock tag and the `@see` tag
@@ -44,6 +48,14 @@ final class DeprecatedTagRule implements Rule
     private const LAYOUT = '/^in (.+) and is removed from (?U)(.+)(?:\. | |\.$|$)(.*)$/';
 
     private const FORMAT = '@deprecated in %deprecation-version% and is removed from %removal-version%. %extra-info%.';
+
+    /**
+     * The wordings of a core deprecation that phpcbf rewrites, copied from
+     * Coder. It reads the versions from groups 5 and 12 and the rest of the
+     * text from group 14. `[ |from|before|in|the]` is a character class in
+     * Coder too.
+     */
+    private const FIXABLE = '/^(.*)(as of|in) (drupal|)( |:|)+([\d\.\-xdev\?]+)(,| |. |)(.*)(removed|removal)([ |from|before|in|the]*) (drupal|)( |:|)([\d\-\.xdev]+)( |,|$)+(?:release|)(?:[\.,])*(.*)$/i';
 
     private ?FileGate $gate = null;
 
@@ -141,10 +153,12 @@ final class DeprecatedTagRule implements Rule
     {
         $matches = [];
         if (preg_match(self::LAYOUT, $tag->content(), $matches) !== 1) {
-            $context->report(Issue::new(
+            $issue = Issue::new(
                 'The @deprecated text does not match the standard format: ' . self::FORMAT,
                 $tag->contentSpan(),
-            ));
+            );
+            $edit = self::layoutEdit($tag);
+            $context->report($edit === null ? $issue : $issue->withEdit($edit));
 
             return;
         }
@@ -165,5 +179,65 @@ final class DeprecatedTagRule implements Rule
                 $tag->contentSpan(),
             ));
         }
+    }
+
+    /**
+     * Rewrites the first line of a core deprecation into the standard
+     * wording, as phpcbf does, or returns null when the line does not read
+     * like one.
+     *
+     * The edit drops the text before "in" or "as of", and the text between
+     * the two versions. It writes `drupal:` before each version, turns `x`
+     * into `0`, drops `-dev` and pads the version to three parts. The lines
+     * below the first stay. The edit is potentially unsafe, because it
+     * changes the wording and can drop words that matter.
+     */
+    private static function layoutEdit(DocblockTag $tag): ?TextEdit
+    {
+        // The first line with text, if it follows the tag line with no blank
+        // line between, as Coder collects the text.
+        $line = $tag->lines[0];
+        if (trim($line->text) === '') {
+            $line = $tag->lines[1] ?? null;
+            if ($line === null || trim($line->text) === '') {
+                return null;
+            }
+        }
+
+        $indent = strspn($line->text, characters: " \t");
+        $text = substr($line->text, $indent);
+        $matches = [];
+        if (preg_match(self::FIXABLE, $text, $matches) !== 1) {
+            return null;
+        }
+
+        $corrected = trim(
+            'in drupal:'
+                . self::paddedVersion($matches[5])
+                . ' and is removed from drupal:'
+                . self::paddedVersion($matches[12])
+                . '. '
+                . trim($matches[14]),
+        );
+
+        $start = $line->offset + $indent;
+
+        return TextEdit::replace(new Span($start, $start + strlen($text)), $corrected)->withSafety(
+            Safety::PotentiallyUnsafe,
+        );
+    }
+
+    /**
+     * Writes a version the way Coder's fix does: `x` becomes `0`, `-dev`
+     * goes, and `.0` parts are added up to three parts.
+     */
+    private static function paddedVersion(string $version): string
+    {
+        $version = str_replace(['-dev', 'x'], ['', '0'], trim($version, characters: '.'));
+        while (substr_count($version, needle: '.') < 2) {
+            $version .= '.0';
+        }
+
+        return $version;
     }
 }

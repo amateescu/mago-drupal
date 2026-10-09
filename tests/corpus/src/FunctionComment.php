@@ -111,6 +111,8 @@ function function_comment_missing_return_comment(): string {
   return 'x';
 }
 
+// Coder wants an upper-case letter first, and a `$` is not one.
+// @mago-expect lint:drupal/doc-comment
 /**
  * $this, static and void returns are exempt from needing a description.
  */

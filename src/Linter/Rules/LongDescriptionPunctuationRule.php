@@ -11,6 +11,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 
@@ -29,7 +30,7 @@ use function strtolower;
  * `phpcs.xml.dist` turns off. Only a last letter is reported, as Coder does.
  * A long description can end with a colon before a list, a quoted token, or
  * a digit, and a report on those gives dozens of false positives on Drupal
- * core.
+ * core. The fix adds a full stop, as phpcbf does.
  */
 final class LongDescriptionPunctuationRule implements Rule
 {
@@ -77,7 +78,7 @@ final class LongDescriptionPunctuationRule implements Rule
             $context->report(Issue::new(
                 'The long description must end with terminal punctuation.',
                 new Span($end - strlen($lastChar), $end),
-            ));
+            )->withEdit(TextEdit::insert($end, '.')));
         }
     }
 }
