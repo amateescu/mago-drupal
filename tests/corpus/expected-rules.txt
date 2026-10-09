@@ -1,6 +1,8 @@
 drupal/author-tag
 drupal/case-break-blank-line
+drupal/case-fall-through
 drupal/class-comment
+drupal/comment-in-expression
 drupal/comment-line-length
 drupal/constant-prefix
 drupal/deprecated-tag
@@ -32,10 +34,12 @@ drupal/long-description-punctuation
 drupal/method-name-underscore
 drupal/method-visibility
 drupal/nullable-param-tag
+drupal/parameter-blank-line
 drupal/post-statement-comment
 drupal/preg-security
 drupal/property-name
 drupal/property-visibility
+drupal/redundant-return
 drupal/redundant-use
 drupal/remote-address
 drupal/render-callback

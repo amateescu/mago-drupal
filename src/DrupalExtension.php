@@ -8,7 +8,9 @@ use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
+use amateescu\MagoDrupal\Linter\Rules\CaseFallThroughRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\CommentInExpressionRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecatedTagRule;
@@ -40,10 +42,12 @@ use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
+use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyNameRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyVisibilityRule;
+use amateescu\MagoDrupal\Linter\Rules\RedundantReturnRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
@@ -95,6 +99,7 @@ final class DrupalExtension
      * run. With `--core`, they are off by default.
      */
     private const CORE_OFF = [
+        'drupal/case-fall-through',
         'drupal/function-prefix',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
@@ -174,7 +179,9 @@ final class DrupalExtension
         return [
             new AuthorTagRule(),
             new CaseBreakBlankLineRule(),
+            new CaseFallThroughRule(),
             new ClassCommentRule(),
+            new CommentInExpressionRule(),
             new CommentLineLengthRule(),
             new ConstantPrefixRule(),
             new DeprecatedTagRule(),
@@ -206,10 +213,12 @@ final class DrupalExtension
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
             new NullableParamTagRule(),
+            new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
             new PregSecurityRule(),
             new PropertyNameRule(),
             new PropertyVisibilityRule(),
+            new RedundantReturnRule(),
             new RedundantUseRule(),
             new RemoteAddressRule(),
             new RenderCallbackRule(),

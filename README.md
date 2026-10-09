@@ -24,9 +24,10 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core. It also turns off `function-prefix`, `inline-comment-blank-line`,
-`inline-comment-punctuation`, `long-description-punctuation` and `method-name-underscore`, because
-core's `phpcs.xml.dist` turns off or does not run the checks that they port.
+apply to core. It also turns off `case-fall-through`, `function-prefix`,
+`inline-comment-blank-line`, `inline-comment-punctuation`, `long-description-punctuation` and
+`method-name-underscore`, because core's `phpcs.xml.dist` turns off or does not run the checks that
+they port.
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:
@@ -44,7 +45,7 @@ down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to s
 
 ## What it provides
 
-52 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
+56 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
 The codes below omit their shared `drupal/` prefix.
 
 - **Bugs and security**: `insecure-unserialize`, `preg-security`, `remote-address`, `weak-hash`.
@@ -54,9 +55,10 @@ The codes below omit their shared `drupal/` prefix.
 - **Procedural files**. These rules report only in `.module` and `.install` files:
   `constant-prefix`, `empty-install-hook`, `function-prefix`, `global-variable`,
   `install-hook-location`, `t-in-hook-schema`.
-- **Naming, imports and syntax**: `case-break-blank-line`, `else-if`, `enum-case-name`,
-  `fully-qualified-name`, `method-name-underscore`, `method-visibility`, `property-name`,
-  `property-visibility`, `redundant-use`, `use-leading-backslash`.
+- **Naming, imports and syntax**: `case-break-blank-line`, `case-fall-through`,
+  `comment-in-expression`, `else-if`, `enum-case-name`, `fully-qualified-name`,
+  `method-name-underscore`, `method-visibility`, `parameter-blank-line`, `property-name`,
+  `property-visibility`, `redundant-return`, `redundant-use`, `use-leading-backslash`.
 - **Comment text**: `author-tag`, `comment-line-length`, `doc-comment-array-syntax`,
   `doc-type-namespace`, `expected-exception-tag`, `gender-neutral-comment`, `inline-comment`,
   `inline-comment-blank-line`, `inline-comment-punctuation`, `long-description-punctuation`,

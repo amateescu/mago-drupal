@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\LineEnding;
 use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\SwitchCases;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -15,10 +16,8 @@ use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\SourceFile;
 
 use function count;
-use function in_array;
 use function strpos;
 use function strrev;
 use function strrpos;
@@ -34,23 +33,9 @@ use function substr_count;
  * `goto`. The last case before the closing brace needs no blank line, and
  * neither does a `default` case. `mago format` keeps one blank line or none
  * after the statement in a brace body, so the fix stays.
- *
- * @mago-expect lint:cyclomatic-complexity
  */
 final class CaseBreakBlankLineRule implements Rule
 {
-    private const TERMINATORS = [
-        NodeKind::Break,
-        NodeKind::Continue,
-        NodeKind::Return,
-        NodeKind::Goto,
-        NodeKind::Throw,
-        NodeKind::ExitConstruct,
-        NodeKind::DieConstruct,
-    ];
-
-    private const WRAPPERS = [NodeKind::ExpressionStatement, NodeKind::Expression, NodeKind::Construct];
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -85,7 +70,7 @@ final class CaseBreakBlankLineRule implements Rule
         foreach ($cases as $index => $case) {
             $case = $file->getChildren($case)[0] ?? $case;
             $owner ??= $case;
-            $terminator = self::terminator($file, $case);
+            $terminator = SwitchCases::terminator($file, $case);
             if ($terminator === null) {
                 continue;
             }
@@ -96,29 +81,6 @@ final class CaseBreakBlankLineRule implements Rule
 
             $owner = null;
         }
-    }
-
-    /**
-     * Returns the case's last statement when it ends the case, or null.
-     *
-     * A case whose statements sit in a `{ }` block is skipped, as Coder
-     * does.
-     */
-    private static function terminator(SourceFile $file, Node $case): ?Node
-    {
-        $children = $file->getChildren($case);
-        $last = $children[count($children) - 1] ?? null;
-        if ($last === null || $last->kind !== NodeKind::Statement) {
-            return null;
-        }
-
-        // `throw`, `exit` and `die` are expressions, wrapped in a statement.
-        $statement = $file->getChildren($last)[0] ?? $last;
-        while (in_array($statement->kind, self::WRAPPERS, strict: true)) {
-            $statement = $file->getChildren($statement)[0] ?? $last;
-        }
-
-        return in_array($statement->kind, self::TERMINATORS, strict: true) ? $last : null;
     }
 
     /**
