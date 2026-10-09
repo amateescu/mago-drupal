@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Drupal\corpus;
 
 /**
- * Reads tags and descriptions the way Coder does, so none of these report.
+ * Reads tags and descriptions the way Coder does. Only the pinned cases report.
  */
 final class CoderReading {
 
+  // @mago-expect lint:drupal/doc-comment
   /**
    * The label, with its tag one space too deep.
    *

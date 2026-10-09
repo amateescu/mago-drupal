@@ -84,7 +84,7 @@ real signature. The group has the rest of `Drupal.Commenting.*`.
 | --- | --- | --- |
 | `drupal/class-comment` | Error | A class, interface, trait or enum with no docblock, with the wrong comment style, or with a summary that only repeats the name. Also a blank line between the docblock and the declaration, which a fix removes. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/deprecated-tag` | Warning | A `@deprecated` tag that breaks the version-and-reason grammar, or that has no `@see` tag after it. The change-record url is the first line of the `@see` tag. Coder 9 accepts `https://www.drupal.org/node/n`, `https://www.drupal.org/project/name/issues/n` and `https://git.drupalcode.org/project/name/-/work_items/n`. A fix removes the punctuation after it. A potentially unsafe fix rewrites an old core wording on the text's first line, such as `in Drupal 8.5.x and will be removed before Drupal 9.0.0.`, as phpcbf does. It writes `drupal:` versions with three parts and drops the text before `in` or `as of` and between the two versions. |
-| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in the first group. Also a summary that does not start with an upper-case letter, that has no punctuation, or that spans more than one line. As in Coder 9, a summary that starts with a digit, `#`, `_` or other punctuation counts, and one that starts with a multi-byte character does not. `{@inheritdoc}` and a summary that is the file's name are fine. A long description that starts with a lower-case letter is reported too. A fix uppercases a first lower-case letter. A fix adds a full stop to a one-line summary that ends with a letter or a digit. Also `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. Also the docblock's whitespace, each with a fix: text on the line of the opening `/**`, blank lines at its start or end, more than one blank line between the summary and the description, not exactly one blank line before the tags, no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them, more than one after a section, and not exactly one space before the summary or after a tag. |
+| `drupal/doc-comment` | Warning | A docblock with no summary, or with `@param` tags that are not in one group, or that are not in the first group. Also a summary that does not start with an upper-case letter, that has no punctuation, or that spans more than one line. As in Coder 9, a summary that starts with a digit, `#`, `_` or other punctuation counts, and one that starts with a multi-byte character does not. `{@inheritdoc}` and a summary that is the file's name are fine. A long description that starts with a lower-case letter is reported too. The summary and the long description of a file docblock are the lines after `@file`, checked like any other docblock's. A fix uppercases a first lower-case letter. A fix adds a full stop to a one-line summary that ends with a letter or a digit. Also `@inheritdoc` without braces, which a fix writes as `{@inheritdoc}`. Also the docblock's whitespace, each with a fix: text on the line of the opening `/**`, blank lines at its start or end, more than one blank line between the summary and the description, not exactly one blank line before the tags, no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them, more than one after a section, and not exactly one space before the summary or after a tag. Also the space after the star of every docblock line, in a docblock that comes before a declaration keyword or right after the `<?php` tag: no space, and more than one space or a tab before `@param`, `@return`, `@throws`, `@ingroup` or `@var`. A fix writes one space. Also a closer other than `*/`, such as `**/`, which a potentially unsafe fix replaces with `*/`, and a description line that ends in two dots, where a potentially unsafe fix removes one. |
 | `drupal/file-comment` | Error | A procedural file that does not start with a docblock that has the `@file` tag. A directive such as `// phpcs:ignoreFile` above the docblock is skipped. A fix adds `@file` below the docblock's opener when a blank line parts the docblock from the code. Another adds that blank line when the code starts right below the docblock. A potentially unsafe fix turns a comment in the wrong style into a docblock with `@file`, see below. |
 | `drupal/function-comment` | Error | A function or method with no docblock or with the wrong comment style. Also a `@param`, `@return`, `@throws` or `@see` tag that is malformed, has no description, or is not capitalized, and a `@param` or `@return` type name that Coder wants written another way, such as `integer` for `int`. A `@return void`, `@return static` or `@return $this` needs no description. A `@return` variable name and a `@see` reference are read from the tag's own line. Fixes write Coder's type name, remove a period after a `@param` name, a variable name after a `@return` type that has a description below, and punctuation after a one-word `@see` reference, and add a full stop to a `@param` description that does not end in a url, a tag or `:`, `,` or `;`. Also, each with a fix: a blank line between the docblock and the function, a `@param` description on the tag's line, not exactly one space between a `@param` type and its variable, and a `@param`, `@return` or `@throws` description that is not indented three spaces from the star. A potentially unsafe fix turns a comment in the wrong style into a docblock, see below. |
 | `drupal/hook-comment` | Warning | A hook implementation that is not documented as `Implements hook_foo().`, or that duplicates the `@param` or `@return` documentation. |
@@ -152,9 +152,10 @@ frequent case. Also, the rule reports a `/* ... */` line that holds the closing 
 skips it. Such a line ends on a whitespace token and not on a comment token, so the sniff's own
 check never runs on it. Both tools report the lines above the closer.
 
-Two `Drupal.Commenting.*` sniffs are pure whitespace and are not ported, because `mago format`
-produces their result: `DocCommentAlignment` (star spacing and alignment) and `DocCommentStar` (a
-star on a docblock line that has none).
+Two `Drupal.Commenting.*` sniffs are pure whitespace. `mago format` produces the result of
+`DocCommentStar` (a star on a docblock line that has none) and the star column of
+`DocCommentAlignment`, so those are not ported. It does not touch the text after a star, so
+`drupal/doc-comment` ports the space after the star (`SpaceAfterStar` and `NoSpaceAfterStar`).
 
 The rules port the rest of the comment whitespace, with a fix wherever phpcbf has one, and for
 `TrhowsCommentIndentation` too. The checks read a docblock the way Coder does. A tag is any line
@@ -188,6 +189,23 @@ A `@param` line with only trailing whitespace after the variable is not reported
 whitespace as a description on the tag's line. `drupal/function-comment` skips a constructor, so the
 whitespace in a constructor's docblock is not checked. Coder checks it when the constructor has a
 docblock.
+
+`drupal/doc-comment` checks the space after the star in the docblocks that Coder's
+`DocCommentAlignment` picks: the ones whose next token is `class`, `interface`, `function`,
+`public`, `private`, `protected`, `static`, `abstract` or `var`, and the one right after the `<?php`
+tag. A `final class`, an enum, a trait, a constant or a docblock followed by an attribute is not
+checked. The space before the summary is checked in every docblock outside a function body, as
+`ShortStartSpace`, and that includes two spaces or a tab. Docblocks inside a function body get the
+star check and the two-dot check only. The `@param` groups of a file docblock are checked too.
+
+Where the fixes differ from phpcbf: the closer fix and the two-dot fix are potentially unsafe, since
+they drop characters of the comment. phpcbf has no fix for a closer. Its two-dot fix also takes the
+space after the opening `/**` or the star, and deletes a docblock that has nothing else in it. The
+rule removes the dots and the spaces before them and leaves the docblock. The `@param` groups follow
+Coder: a `@param` right below an `@code`, `@todo` or `@link` tag, with no blank line, is reported,
+and so is a `@param` inside an `@code` example that sits at the column of the first tag. The
+pattern in core's phpcs config that forbids `@inheritDoc` anywhere in a docblock line is not
+ported.
 
 The comment-style fixes of `drupal/function-comment`, `drupal/class-comment`,
 `drupal/variable-comment` and `drupal/file-comment` turn a `//` run or a `/* */` comment right

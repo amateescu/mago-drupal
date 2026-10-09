@@ -1,0 +1,10 @@
+<?php
+
+// @mago-expect lint:drupal/doc-comment
+/**
+ * @file
+ * A summary of the file
+ * that runs over two lines.
+ */
+
+declare(strict_types=1);
