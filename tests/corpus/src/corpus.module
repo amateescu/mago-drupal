@@ -16,6 +16,34 @@ define('CORPUSCACHE_TTL', 3600);
 
 define('CORPUS_DEFAULT_LIMIT', 50);
 
+// A prefixed name that is not upper case is a name problem only.
+// @mago-expect lint:drupal/define-name
+define('CORPUS_lower_tail', 50);
+
+// @mago-expect lint:drupal/const-prefix
+const CACHE_DEFAULT_LIMIT = 50;
+
+const CORPUS_MAX_LIMIT = 100;
+
+// Shares the module name's leading letters but skips the underscore.
+// @mago-expect lint:drupal/const-prefix
+const CORPUSMAX_LIMIT = 100;
+
+// Only the first name of a list is checked.
+// @mago-expect lint:drupal/const-prefix
+const CACHE_FIRST = 1, CORPUS_SECOND = 2;
+
+const CORPUS_FIRST = 1, CACHE_SECOND = 2;
+
+// @mago-format-ignore-start
+// @mago-expect lint:drupal/const-prefix
+const /* A comment between the keyword and the name. */ CACHE_COMMENTED = 1;
+
+// @mago-expect lint:drupal/const-prefix
+const
+  CACHE_NEXT_LINE = 1;
+// @mago-format-ignore-end
+
 /**
  * Implements hook_install().
  */

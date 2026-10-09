@@ -12,9 +12,12 @@ use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseFallThroughRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseSemicolonRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\ClassNameAcronymRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentInExpressionRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
+use amateescu\MagoDrupal\Linter\Rules\ConstPrefixRule;
+use amateescu\MagoDrupal\Linter\Rules\DefineNameRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecatedTagRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecationMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\DiscouragedFunctionRule;
@@ -36,6 +39,7 @@ use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\GenderNeutralCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
+use amateescu\MagoDrupal\Linter\Rules\HookAttributeNameRule;
 use amateescu\MagoDrupal\Linter\Rules\HookCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentPunctuationRule;
@@ -110,7 +114,9 @@ final class DrupalExtension
      */
     private const CORE_OFF = [
         'drupal/case-fall-through',
+        'drupal/const-prefix',
         'drupal/function-prefix',
+        'drupal/hook-attribute-name',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
         'drupal/long-description-punctuation',
@@ -194,9 +200,12 @@ final class DrupalExtension
             new CaseFallThroughRule(),
             new CaseSemicolonRule(),
             new ClassCommentRule(),
+            new ClassNameAcronymRule(),
             new CommentInExpressionRule(),
             new CommentLineLengthRule(),
+            new ConstPrefixRule(),
             new ConstantPrefixRule(),
+            new DefineNameRule(),
             new DeprecatedTagRule(),
             new DeprecationMessageRule(),
             new DiscouragedFunctionRule(),
@@ -218,6 +227,7 @@ final class DrupalExtension
             new GenderNeutralCommentRule(),
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
+            new HookAttributeNameRule(),
             new HookCommentRule(),
             new InlineCommentRule(),
             new InlineCommentBlankLineRule(),

@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Exercises const statements after a namespace statement.
+ */
+
+declare(strict_types=1);
+
+namespace Drupal\const_namespace;
+
+// @mago-expect lint:drupal/const-prefix
+const CACHE_FLAG = 1;
+
+const CONST_NAMESPACE_FLAG = 1;

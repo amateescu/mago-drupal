@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Exercises const statements in a braced namespace.
+ */
+
+declare(strict_types=1);
+
+namespace Drupal\const_block {
+  // Coder 9 does not look inside a braced namespace.
+  const CACHE_FLAG = 1;
+}
+
+namespace {
+  const OTHER_FLAG = 1;
+}

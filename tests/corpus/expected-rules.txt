@@ -4,9 +4,12 @@ drupal/case-break-blank-line
 drupal/case-fall-through
 drupal/case-semicolon
 drupal/class-comment
+drupal/class-name-acronym
 drupal/comment-in-expression
 drupal/comment-line-length
+drupal/const-prefix
 drupal/constant-prefix
+drupal/define-name
 drupal/deprecated-tag
 drupal/deprecation-message
 drupal/discouraged-function
@@ -28,6 +31,7 @@ drupal/function-prefix
 drupal/gender-neutral-comment
 drupal/global-function
 drupal/global-variable
+drupal/hook-attribute-name
 drupal/hook-comment
 drupal/inline-comment
 drupal/inline-comment-blank-line
