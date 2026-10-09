@@ -14,7 +14,8 @@ A `const` constant at the top level of the file, or after `namespace Foo;`, whos
 start with the upper-case module name and an underscore. The check is the one of
 `drupal/constant-prefix`. When one statement declares several constants, the rule checks the first.
 
-The rule skips a `const` inside a braced `namespace Foo { }`, as Coder 9 does.
+The rule skips a `const` inside a braced `namespace Foo { }`, as Coder 9 does. That skip does not
+apply to `define()`.
 
 **Compared with Coder:** the rule needs the underscore after the module name. Coder 9 only tests
 that the name starts with the upper-case module name, so for a module named `mymod` it accepts
@@ -29,8 +30,12 @@ that the name starts with the upper-case module name, so for a module named `mym
 A `define()` constant whose name does not start with the upper-case module name and an underscore.
 The constants of every module share one global namespace, and the prefix keeps them apart.
 
-**Compared with Coder:** the rule needs the underscore after the module name, as
-`drupal/const-prefix` does.
+**Compared with Coder:**
+
+- The rule needs the underscore after the module name, as `drupal/const-prefix` does.
+- The rule checks a `define()` call at any depth: in a function, a method, a closure, an `if` or a
+  braced `namespace Foo { }`. Coder checks only the calls at the top level of the file. A constant
+  from `define()` is global wherever the call is.
 
 ## drupal/empty-install-hook
 

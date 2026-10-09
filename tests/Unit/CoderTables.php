@@ -160,19 +160,24 @@ final class CoderTables
      */
     private function row(array $sniff): string
     {
-        /** @var array<string, list<Code>> $groups */
+        /** @var array<string, array{handlers: list<string>, codes: list<Code>}> $groups */
         $groups = [];
         foreach ($sniff['codes'] as $code) {
-            $groups[implode("\n", CoderMap::where($sniff, $code))][] = $code;
+            $handlers = CoderMap::where($sniff, $code);
+            // A partial code goes in a group of its own, so that "partly"
+            // names only the codes it applies to.
+            $key = implode("\n", $handlers) . ($code['status'] === 'partial' ? "\npartial" : '');
+            $groups[$key] ??= ['handlers' => $handlers, 'codes' => []];
+            $groups[$key]['codes'][] = $code;
         }
 
         $lines = [];
-        foreach ($groups as $handlers => $codes) {
+        foreach ($groups as ['handlers' => $handlers, 'codes' => $codes]) {
             $statuses = array_values(array_unique(array_map(
                 static fn(array $code): string => $code['status'],
                 $codes,
             )));
-            $by = $this->handledBy(explode(separator: "\n", string: $handlers), $statuses);
+            $by = $this->handledBy($handlers, $statuses);
             if (in_array('partial', $statuses, strict: true)) {
                 $by .= ', partly';
             }

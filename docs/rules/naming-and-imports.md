@@ -140,6 +140,10 @@ the resolved names. There is no fix while a docblock in the file names the class
 without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes
 the types.
 
+**Compared with Coder:** the rule skips `use const` and grouped imports such as `use Foo\{Bar, Baz};`.
+Coder reports both, and phpcbf breaks the code there: it writes `\const` for a constant import and
+the group prefix for a grouped name.
+
 ## drupal/use-leading-backslash
 
 - **Level:** error

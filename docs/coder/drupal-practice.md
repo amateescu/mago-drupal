@@ -16,7 +16,7 @@ Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunc
 | `DrupalPractice.FunctionCalls.CurlSslVerifier` | [`drupal/curl-ssl-verify`](../rules/drupal-practice.md#drupalcurl-ssl-verify) |  |
 | `DrupalPractice.FunctionCalls.InsecureUnserialize` | [`drupal/insecure-unserialize`](../rules/bugs-and-security.md#drupalinsecure-unserialize), partly |  |
 | `DrupalPractice.FunctionDefinitions.FormAlterDoc` | [`drupal/form-alter-comment`](../rules/drupal-practice.md#drupalform-alter-comment) |  |
-| `DrupalPractice.General.ClassName` | [`drupal/class-prefix`](../rules/drupal-practice.md#drupalclass-prefix) |  |
+| `DrupalPractice.General.ClassName` | [`drupal/class-prefix`](../rules/drupal-practice.md#drupalclass-prefix), partly |  |
 | `DrupalPractice.General.ExceptionT` | [`drupal/translated-exception`](../rules/right-api.md#drupaltranslated-exception) |  |
 | `DrupalPractice.General.OptionsT` | [`drupal/untranslated-options`](../rules/drupal-practice.md#drupaluntranslated-options) |  |
 | `DrupalPractice.InfoFiles.CoreVersionRequirement` | phpcs | Checks `.info.yml` files. |
@@ -26,10 +26,10 @@ Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunc
 | `DrupalPractice.Objects.GlobalDrupal` | The analyzer (not released), partly | The analyzer half, on the `analyzer` branch, reports `\Drupal::` calls in a class with a `create()` method, ported from phpstan-drupal. |
 | `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |  |
 | `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |  |
-| `DrupalPractice.Objects.UnusedPrivateMethod` | `mago analyze` (`unused-method`) |  |
+| `DrupalPractice.Objects.UnusedPrivateMethod` | `mago analyze` (`unused-method`) | The analyzer also reports an unused private static method and an unused private method of an enum, which Coder skips. Coder reports a private method that is called only on another instance, such as `$other->helper()`; the analyzer counts that call. |
 | `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |  |
 | `DrupalPractice.Yaml.RoutingAccess` | phpcs | Checks `.routing.yml` files. |
-| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `UndefinedUnsetVariable`, `VariableRedeclaration`: Nothing<br>`UnusedVariable`: Mago `no-redundant-variable`, partly | `UndefinedUnsetVariable`: A variable read after `unset()`. Not ported yet: it needs flow analysis. `UnusedVariable`: With `no-redundant-variable = { enabled = true }`. Variables at file scope are skipped. `VariableRedeclaration`: A variable declared twice, such as a parameter redeclared with `static`. Not ported yet: it needs flow analysis. |
+| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `UndefinedUnsetVariable`, `VariableRedeclaration`: Nothing<br>`UnusedVariable`: Mago `no-redundant-variable`, partly | `UndefinedUnsetVariable`: A variable read after `unset()`. Not ported yet: it needs flow analysis. `UnusedVariable`: With `no-redundant-variable = { enabled = true }`. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows. `VariableRedeclaration`: A variable declared twice, such as a parameter redeclared with `static`. Not ported yet: it needs flow analysis. |
 
 <!-- /docs-gen -->
 

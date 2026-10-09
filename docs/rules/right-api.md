@@ -38,6 +38,13 @@ procedural call.
 The wrappers are `t()`, `drupal_render()`, `drupal_get_destination()`, `format_date()`, and the
 `*_load()` functions of entities, such as `node_load()` and `user_load()`.
 
+**Compared with Coder:** Coder reports only in a class. It reports a wrapper other than `t()` only
+when the class extends one of Drupal's base classes, such as `ControllerBase` or `FormBase`,
+implements `ContainerInjectionInterface`, or is a service in the module's `services.yml`. The rule
+reports in every class, interface, trait, enum and anonymous class, and does not read
+`services.yml`. It also reports a call written in another case, such as `T()`, or with a leading
+backslash, such as `\t()`. Coder skips both. Both skip a call in a static method.
+
 ## drupal/translatable-string
 
 - **Level:** warning

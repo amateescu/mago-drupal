@@ -11,7 +11,7 @@ Drupal 7 module. Each rule says where that makes a difference.
 
 - **Level:** warning
 - **Fix:** none
-- **Ports:** `DrupalPractice.General.ClassName.ClassPrefix`
+- **Ports:** `DrupalPractice.General.ClassName.ClassPrefix` (partly)
 - **Off with `--core`**
 
 A class or interface in a `.module`, `.install`, `.profile` or `.theme` file whose name does not

@@ -230,6 +230,9 @@ A `@return` variable name and a `@see` reference are read from the tag's own lin
 - A `@param` line with only trailing whitespace after the variable is not reported. Coder reads
   that whitespace as a description on the tag's line.
 - A `@param` indented inside an `@code` example is not a tag here. Coder reads it as one.
+- A run of dots after the variable name, as in `$names...`, is reported with no fix, because it
+  can be a variadic written out. phpcbf removes the dots. A name followed by a comma, as in
+  `$a,...`, is not reported. Coder reports it.
 
 ## drupal/hook-comment
 
@@ -291,5 +294,14 @@ type needs a docblock but no `@var` tag. In the docblock, the rule reports:
 
 The fixes remove a property name repeated after the `@var` type, and write Coder's type name.
 
-**Compared with Coder:** Coder also reports any `@var` line whose description ends in a full stop.
-That check is not ported.
+**Compared with Coder:**
+
+- Coder runs the whole `@var` line, description included, through its type check, and reports a
+  line with a character outside its type alphabet, such as `.`, `;`, `!` or `=`. So a description
+  that contains `e.g.` or ends in a full stop is reported, and so is the type `string.`. That check
+  is not ported.
+- The rule reads the type apart from the description. It reports `@var integer Some description`,
+  where Coder takes the whole text as the type and does not report it.
+- The fix removes a repeated name only when it is the property's own name, in a declaration of one
+  property, followed by a space or the end of the line. It keeps a description after the name.
+  phpcbf also removes another name, and drops the description.

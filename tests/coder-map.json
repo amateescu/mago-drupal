@@ -26,8 +26,8 @@
         "codes": [
             {"code": "BraceOnNewLine", "status": "format"},
             {"code": "CloseBraceAfterBody", "status": "format"},
-            {"code": "CloseBraceSameLine", "status": "format"},
-            {"code": "ContentAfterBrace", "status": "format"},
+            {"code": "CloseBraceSameLine", "status": "gap", "where": ["none"], "note": "A comment after the closing brace of a class, such as `} // end class`. The formatter keeps it and nothing reports it. phpcbf has no fix for it either."},
+            {"code": "ContentAfterBrace", "status": "partial", "note": "The formatter keeps a comment that follows the opening brace on the brace line, such as `class Foo { // Comment.`, which Coder reports."},
             {"code": "ExtendsIndentation", "status": "format"},
             {"code": "ExtendsInterfaceSameLine", "status": "format"},
             {"code": "ExtendsLine", "status": "format"},
@@ -195,7 +195,7 @@
             {"code": "ParamMissingDefinition", "status": "report"},
             {"code": "ParamNameDot", "status": "fix"},
             {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
-            {"code": "ParamNameNoMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
+            {"code": "ParamNameNoMatch", "status": "partial", "where": ["analyze:invalid-param-tag"], "note": "The analyzer reports a `@param` tag that names no parameter. It does not report a duplicate tag or tags in a different order than the parameters, which Coder reports."},
             {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/function-comment"]},
             {"code": "ReturnCommentIndentation", "status": "fix"},
             {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/function-comment"]},
@@ -294,7 +294,7 @@
         "where": ["format"],
         "codes": [
             {"code": "NewlineAfterCloseBrace", "status": "format"},
-            {"code": "NewlineAfterOpenBrace", "status": "format"},
+            {"code": "NewlineAfterOpenBrace", "status": "partial", "note": "The formatter writes a `match` with one arm on one line, and Coder reports that line."},
             {"code": "SpaceAfterCloseBrace", "status": "format"},
             {"code": "SpaceAfterCloseParenthesis", "status": "format"},
             {"code": "SpaceAfterKeyword", "status": "format"},
@@ -305,6 +305,7 @@
         "sniff": "Drupal.Files.EndFileNewline",
         "standard": "Drupal",
         "where": ["format"],
+        "note": "PHP files only. Coder also checks the last line of `.txt`, `.md` and `.yml` files, which Mago does not read.",
         "codes": [
             {"code": "NoneFound", "status": "format"},
             {"code": "TooMany", "status": "format"}
@@ -452,7 +453,7 @@
     {
         "sniff": "Drupal.NamingConventions.ValidClassName",
         "standard": "Drupal",
-        "where": ["lint:class-name"],
+        "where": ["lint:class-name", "lint:interface-name", "lint:trait-name", "lint:enum-name"],
         "codes": [
             {"code": "NoUnderscores", "status": "report"},
             {"code": "NoUpperAcronyms", "status": "report", "where": ["ext:drupal/class-name-acronym"]},
@@ -475,7 +476,7 @@
         "where": ["lint:function-name"],
         "note": "Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the README does not turn it on.",
         "codes": [
-            {"code": "InvalidName", "status": "report"},
+            {"code": "InvalidName", "status": "partial", "note": "Coder only wants a lower-case name. Mago's `function-name` wants snake case, so it also reports a name with a leading, trailing or doubled underscore, such as `_mymodule_helper()`. With `either = true` it accepts a camelCase name, which Coder reports."},
             {"code": "InvalidPrefix", "status": "report", "where": ["ext:drupal/function-prefix"]},
             {"code": "MethodDoubleUnderscore", "status": "report", "where": ["ext:drupal/method-name-underscore"]},
             {"code": "NotCamelCaps", "status": "gap", "where": ["lint:method-name"], "note": "Mago's `method-name` rule, off by default. The README does not turn it on."},
@@ -496,7 +497,7 @@
         "where": ["ext:drupal/property-name"],
         "codes": [
             {"code": "LowerCamelName", "status": "report"},
-            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The README does not turn it on."}
+            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The README does not turn it on. It checks for camel or snake case, not for a lower-case first letter, and skips `foreach`, `catch`, `static` and `global` variables."}
         ]
     },
     {
@@ -727,14 +728,14 @@
         "standard": "Drupal",
         "where": ["lint:no-redundant-method-override"],
         "codes": [
-            {"code": "Found", "status": "partial", "note": "Mago's `no-redundant-method-override` reports an override only when the method has no parameters, because of a bug in Mago."}
+            {"code": "Found", "status": "partial", "note": "Mago's `no-redundant-method-override` compares a spread argument with a variadic parameter the wrong way round. It misses an override that passes its parameters through, and reports one that spreads an array parameter, such as `parent::foo(...$items)`."}
         ]
     },
     {
         "sniff": "Generic.ControlStructures.InlineControlStructure",
         "standard": "Drupal",
         "where": ["lint:block-statement"],
-        "note": "Mago's rule reports a body without braces, with no fix. The formatter keeps the body as it is.",
+        "note": "Mago's rule reports a body without braces, with no fix. The formatter keeps the body as it is. The rule also reports a loop or `if` whose body is a lone `;`, such as `while (next($items));`, which Coder skips.",
         "codes": [
             {"code": "NotAllowed", "status": "report-only"}
         ]
@@ -806,7 +807,7 @@
         "sniff": "Generic.NamingConventions.TraitNameSuffix",
         "standard": "Drupal",
         "where": ["lint:trait-name"],
-        "note": "With `trait-name = { psr = true }`. Mago reports it at help level.",
+        "note": "With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that is not in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
         "codes": [
             {"code": "Missing", "status": "report"}
         ]
@@ -816,7 +817,7 @@
         "standard": "Drupal",
         "where": ["lint:constant-name"],
         "codes": [
-            {"code": "ClassConstantNotUpperCase", "status": "report"},
+            {"code": "ClassConstantNotUpperCase", "status": "report", "note": "Mago's `constant-name` also reports an upper-case name with a leading, trailing or doubled underscore, such as `A__B`, which Coder accepts."},
             {"code": "ConstantNotUpperCase", "status": "report", "where": ["lint:constant-name", "ext:drupal/define-name"]}
         ]
     },
@@ -824,6 +825,7 @@
         "sniff": "Generic.PHP.DeprecatedFunctions",
         "standard": "Drupal",
         "where": ["analyze:deprecated-function"],
+        "note": "Mago's stub for `strptime()` has no deprecation, so the analyzer does not report it.",
         "codes": [
             {"code": "Deprecated", "status": "report"}
         ]
@@ -834,7 +836,7 @@
         "where": ["lint:no-short-opening-tag"],
         "codes": [
             {"code": "EchoFound", "status": "fix", "where": ["ext:drupal/short-echo-tag"]},
-            {"code": "Found", "status": "fix"},
+            {"code": "Found", "status": "fix", "note": "Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix writes no space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which does not parse."},
             {"code": "PossibleFound", "status": "report"}
         ]
     },
@@ -907,6 +909,7 @@
         "sniff": "PEAR.Functions.ValidDefaultValue",
         "standard": "Drupal",
         "where": ["lint:optional-param-order"],
+        "note": "Mago also reports a typed parameter with a null default before a required one, such as `int $a = NULL, $b`. Coder skips it, because before PHP 8 that was how a type allowed NULL. PHP 8.1 deprecates it.",
         "codes": [
             {"code": "NotAtEnd", "status": "report"}
         ]
@@ -1098,9 +1101,9 @@
         "sniff": "Squiz.Classes.ClassFileName",
         "standard": "Drupal",
         "where": ["lint:file-name"],
-        "note": "With `file-name = { enabled = true }`.",
+        "note": "With `file-name = { enabled = true }`. Coder's ruleset skips `*Test.php` and `*TestBase.php` files under `tests/<dir>/`. Mago's rule checks them too.",
         "codes": [
-            {"code": "NoMatch", "status": "partial", "where": ["lint:file-name", "lint:single-class-per-file"], "note": "With `file-name = { enabled = true }`. In a file with several classes, `single-class-per-file` reports the extra class instead."}
+            {"code": "NoMatch", "status": "partial", "where": ["lint:file-name", "lint:single-class-per-file"], "note": "`file-name` checks only a file with one class-like declaration. In a file with several, `single-class-per-file` reports every declaration after the first, whatever its name."}
         ]
     },
     {
@@ -1125,6 +1128,8 @@
         "codes": [
             {"code": "NoSpaceAfterFirst", "status": "format"},
             {"code": "NoSpaceAfterSecond", "status": "format"},
+            {"code": "SpacingAfterFirst", "status": "partial", "note": "The formatter puts each part of a long `for` header on its own line, and Coder reports the line break."},
+            {"code": "SpacingAfterSecond", "status": "partial", "note": "The formatter puts each part of a long `for` header on its own line, and Coder reports the line break."},
             {"code": "SpacingBeforeFirst", "status": "format"}
         ]
     },
@@ -1167,7 +1172,7 @@
         "sniff": "Squiz.PHP.LowercasePHPFunctions",
         "standard": "Drupal",
         "where": ["analyze:incorrect-function-casing"],
-        "note": "With `check-name-casing = true`. Reported without a fix.",
+        "note": "With `check-name-casing = true`. Reported without a fix. The analyzer skips a first-class callable such as `STRLEN(...)`.",
         "codes": [
             {"code": "CallUppercase", "status": "report-only"},
             {"code": "UseStatementUppercase", "status": "report-only"}
@@ -1196,9 +1201,9 @@
         "where": ["format"],
         "codes": [
             {"code": "After", "status": "format"},
-            {"code": "AfterLast", "status": "partial", "note": "The formatter removes the blank lines around a function declared inside `if (!function_exists())`, which Coder reports."},
-            {"code": "Before", "status": "format"},
-            {"code": "BeforeFirst", "status": "partial", "note": "The formatter removes the blank lines around a function declared inside `if (!function_exists())`, which Coder reports."}
+            {"code": "AfterLast", "status": "partial", "note": "The formatter removes the blank line between a function and the end of a block, such as `if (!function_exists())` or a loop, which Coder reports."},
+            {"code": "Before", "status": "partial", "note": "The formatter adds no blank line between a statement and a function declared after it, such as a `define()` call followed by a function, or a statement followed by a nested function."},
+            {"code": "BeforeFirst", "status": "partial", "note": "The formatter removes the blank line between the start of a block, such as `if (!function_exists())` or a loop, and a function, which Coder reports."}
         ]
     },
     {
@@ -1247,7 +1252,7 @@
         "sniff": "Zend.Files.ClosingTag",
         "standard": "Drupal",
         "where": ["format", "lint:no-closing-tag"],
-        "note": "The formatter removes a closing tag at the end of the file. One that ends a statement without a `;` stays.",
+        "note": "The formatter removes a closing tag at the end of the file. When the last statement has no `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line.",
         "codes": [
             {"code": "NotAllowed", "status": "format"}
         ]
@@ -1462,7 +1467,7 @@
         "standard": "DrupalPractice",
         "where": ["ext:drupal/class-prefix"],
         "codes": [
-            {"code": "ClassPrefix", "status": "report"}
+            {"code": "ClassPrefix", "status": "partial"}
         ]
     },
     {
@@ -1587,6 +1592,7 @@
         "sniff": "DrupalPractice.Objects.UnusedPrivateMethod",
         "standard": "DrupalPractice",
         "where": ["analyze:unused-method"],
+        "note": "The analyzer also reports an unused private static method and an unused private method of an enum, which Coder skips. Coder reports a private method that is called only on another instance, such as `$other->helper()`; the analyzer counts that call.",
         "codes": [
             {"code": "UnusedMethod", "status": "report"}
         ]
@@ -1616,7 +1622,7 @@
         "where": ["lint:no-redundant-variable", "analyze"],
         "codes": [
             {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "A variable read after `unset()`. Not ported yet: it needs flow analysis."},
-            {"code": "UnusedVariable", "status": "partial", "where": ["lint:no-redundant-variable"], "note": "With `no-redundant-variable = { enabled = true }`. Variables at file scope are skipped."},
+            {"code": "UnusedVariable", "status": "partial", "where": ["lint:no-redundant-variable"], "note": "With `no-redundant-variable = { enabled = true }`. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows."},
             {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported yet: it needs flow analysis."}
         ]
     }

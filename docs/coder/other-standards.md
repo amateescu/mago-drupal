@@ -12,8 +12,8 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | --- | --- | --- |
 | `Generic.Arrays.DisallowLongArraySyntax` | Mago `array-style` | Mago's rule, on by default, with a safe fix. |
 | `Generic.CodeAnalysis.EmptyPHPStatement` | `EmptyPHPOpenCloseTagsDetected`: [`drupal/empty-php-tags`](../rules/files-and-tags.md#drupalempty-php-tags)<br>`SemicolonWithoutCodeDetected`: Mago `no-noop` |  |
-| `Generic.CodeAnalysis.UselessOverridingMethod` | Mago `no-redundant-method-override`, partly | Mago's `no-redundant-method-override` reports an override only when the method has no parameters, because of a bug in Mago. |
-| `Generic.ControlStructures.InlineControlStructure` | Mago `block-statement` | Mago's rule reports a body without braces, with no fix. The formatter keeps the body as it is. |
+| `Generic.CodeAnalysis.UselessOverridingMethod` | Mago `no-redundant-method-override`, partly | Mago's `no-redundant-method-override` compares a spread argument with a variadic parameter the wrong way round. It misses an override that passes its parameters through, and reports one that spreads an array parameter, such as `parent::foo(...$items)`. |
+| `Generic.ControlStructures.InlineControlStructure` | Mago `block-statement` | Mago's rule reports a body without braces, with no fix. The formatter keeps the body as it is. The rule also reports a loop or `if` whose body is a lone `;`, such as `while (next($items));`, which Coder skips. |
 | `Generic.Files.ByteOrderMark` | [`drupal/byte-order-mark`](../rules/files-and-tags.md#drupalbyte-order-mark) |  |
 | `Generic.Files.LineEndings` | `mago format` |  |
 | `Generic.Formatting.DisallowMultipleStatements` | `mago format` |  |
@@ -21,15 +21,15 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | `Generic.Functions.FunctionCallArgumentSpacing` | `mago format` |  |
 | `Generic.NamingConventions.ConstructorName` | Nothing | A PHP 4 constructor named after its class. Not ported yet. Since PHP 8 such a method is an ordinary method. `OldStyleCall`: A call to such a constructor through `parent::`. Not ported yet. |
 | `Generic.NamingConventions.InterfaceNameSuffix` | Mago `interface-name` | With `interface-name = { psr = true }`. |
-| `Generic.NamingConventions.TraitNameSuffix` | Mago `trait-name` | With `trait-name = { psr = true }`. Mago reports it at help level. |
-| `Generic.NamingConventions.UpperCaseConstantName` | `ClassConstantNotUpperCase`: Mago `constant-name`<br>`ConstantNotUpperCase`: Mago `constant-name`, [`drupal/define-name`](../rules/naming-and-imports.md#drupaldefine-name) |  |
-| `Generic.PHP.DeprecatedFunctions` | `mago analyze` (`deprecated-function`) |  |
-| `Generic.PHP.DisallowShortOpenTag` | `EchoFound`: [`drupal/short-echo-tag`](../rules/files-and-tags.md#drupalshort-echo-tag)<br>`Found`, `PossibleFound`: Mago `no-short-opening-tag` |  |
+| `Generic.NamingConventions.TraitNameSuffix` | Mago `trait-name` | With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that is not in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`. |
+| `Generic.NamingConventions.UpperCaseConstantName` | `ClassConstantNotUpperCase`: Mago `constant-name`<br>`ConstantNotUpperCase`: Mago `constant-name`, [`drupal/define-name`](../rules/naming-and-imports.md#drupaldefine-name) | `ClassConstantNotUpperCase`: Mago's `constant-name` also reports an upper-case name with a leading, trailing or doubled underscore, such as `A__B`, which Coder accepts. |
+| `Generic.PHP.DeprecatedFunctions` | `mago analyze` (`deprecated-function`) | Mago's stub for `strptime()` has no deprecation, so the analyzer does not report it. |
+| `Generic.PHP.DisallowShortOpenTag` | `EchoFound`: [`drupal/short-echo-tag`](../rules/files-and-tags.md#drupalshort-echo-tag)<br>`Found`, `PossibleFound`: Mago `no-short-opening-tag` | `Found`: Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix writes no space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which does not parse. |
 | `Generic.PHP.LowerCaseKeyword` | `mago format`, Mago `lowercase-keyword` | The formatter lowercases keywords. `lowercase-keyword` fixes `AND`, `OR`, `XOR` and `INSTANCEOF`, which the formatter keeps. |
 | `Generic.PHP.UpperCaseConstant` | `mago format`, partly | The drupal preset writes `TRUE`, `FALSE` and `NULL`. A fully qualified `\true` stays lower case and nothing reports it. |
 | `Generic.Strings.UnnecessaryStringConcat` | Mago `no-redundant-string-concat` |  |
 | `Generic.WhiteSpace.DisallowTabIndent` | `mago format` |  |
-| `Generic.WhiteSpace.LanguageConstructSpacing` | `Incorrect`, `IncorrectSingle`, `IncorrectYieldFrom`: `mago format`, partly<br>`IncorrectYieldFromWithComment`: [`drupal/comment-in-expression`](../rules/statements.md#drupalcomment-in-expression) | `IncorrectSingle`: The formatter can break a long expression right after `print`, which Coder reports. |
+| `Generic.WhiteSpace.LanguageConstructSpacing` | `Incorrect`, `IncorrectYieldFrom`: `mago format`<br>`IncorrectSingle`: `mago format`, partly<br>`IncorrectYieldFromWithComment`: [`drupal/comment-in-expression`](../rules/statements.md#drupalcomment-in-expression) | `IncorrectSingle`: The formatter can break a long expression right after `print`, which Coder reports. |
 
 ## PEAR
 
@@ -37,7 +37,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | --- | --- | --- |
 | `PEAR.Files.IncludingFile` | `mago format` |  |
 | `PEAR.Functions.FunctionCallSignature` | `mago format` |  |
-| `PEAR.Functions.ValidDefaultValue` | Mago `optional-param-order` |  |
+| `PEAR.Functions.ValidDefaultValue` | Mago `optional-param-order` | Mago also reports a typed parameter with a null default before a required one, such as `int $a = NULL, $b`. Coder skips it, because before PHP 8 that was how a type allowed NULL. PHP 8.1 deprecates it. |
 
 ## PSR2
 
@@ -56,16 +56,16 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | --- | --- | --- |
 | `Squiz.Arrays.ArrayBracketSpacing` | `mago format` |  |
 | `Squiz.Arrays.ArrayDeclaration` | `CommaAfterLast`, `NoSpaceAfterComma`, `NoSpaceAfterDoubleArrow`, `NoSpaceBeforeDoubleArrow`, `SpaceAfterComma`, `SpaceAfterDoubleArrow`, `SpaceAfterKeyword`, `SpaceBeforeComma`, `SpaceBeforeDoubleArrow`, `SpaceInEmptyArray`: `mago format`<br>`KeySpecified`, `NoKeySpecified`: Nothing | `KeySpecified`: An array that mixes keyed and unkeyed entries. Not ported yet. Core turns the code off. `NoKeySpecified`: An array that mixes keyed and unkeyed entries. Not ported yet. Core turns the code off. |
-| `Squiz.Classes.ClassFileName` | Mago `file-name`, Mago `single-class-per-file`, partly | With `file-name = { enabled = true }`. With `file-name = { enabled = true }`. In a file with several classes, `single-class-per-file` reports the extra class instead. |
+| `Squiz.Classes.ClassFileName` | Mago `file-name`, Mago `single-class-per-file`, partly | With `file-name = { enabled = true }`. Coder's ruleset skips `*Test.php` and `*TestBase.php` files under `tests/<dir>/`. Mago's rule checks them too. `file-name` checks only a file with one class-like declaration. In a file with several, `single-class-per-file` reports every declaration after the first, whatever its name. |
 | `Squiz.ControlStructures.ForEachLoopDeclaration` | `mago format` |  |
-| `Squiz.ControlStructures.ForLoopDeclaration` | `mago format` |  |
+| `Squiz.ControlStructures.ForLoopDeclaration` | `NoSpaceAfterFirst`, `NoSpaceAfterSecond`, `SpacingBeforeFirst`: `mago format`<br>`SpacingAfterFirst`, `SpacingAfterSecond`: `mago format`, partly | `SpacingAfterFirst`: The formatter puts each part of a long `for` header on its own line, and Coder reports the line break. `SpacingAfterSecond`: The formatter puts each part of a long `for` header on its own line, and Coder reports the line break. |
 | `Squiz.ControlStructures.SwitchDeclaration` | `CaseNotLower`, `ContentAfterCase`, `ContentBeforeBreak`, `DefaultNotLower`, `SpaceBeforeColonCase`, `SpaceBeforeColonDefault`: `mago format`<br>`MissingCase`: [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch)<br>`SpacingAfterBreak`: [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line) |  |
 | `Squiz.Functions.FunctionDeclarationArgumentSpacing` | `mago format` |  |
-| `Squiz.PHP.LowercasePHPFunctions` | `mago analyze` (`incorrect-function-casing`) | With `check-name-casing = true`. Reported without a fix. |
+| `Squiz.PHP.LowercasePHPFunctions` | `mago analyze` (`incorrect-function-casing`) | With `check-name-casing = true`. Reported without a fix. The analyzer skips a first-class callable such as `STRLEN(...)`. |
 | `Squiz.PHP.NonExecutableCode` | `ReturnNotRequired`: [`drupal/redundant-return`](../rules/statements.md#drupalredundant-return)<br>`Unreachable`: `mago analyze` (`unevaluated-code`), `mago analyze` (`useless-control-flow`) | `Unreachable`: A `break;` after `return` is `useless-control-flow`. |
 | `Squiz.Strings.ConcatenationSpacing` | `mago format` |  |
-| `Squiz.WhiteSpace.FunctionSpacing` | `mago format`, partly | `AfterLast`: The formatter removes the blank lines around a function declared inside `if (!function_exists())`, which Coder reports. `BeforeFirst`: The formatter removes the blank lines around a function declared inside `if (!function_exists())`, which Coder reports. |
-| `Squiz.WhiteSpace.OperatorSpacing` | `mago format`, partly | `NoSpaceAfter`: The formatter writes `catch (A\|B $e)`, which Coder reports. `NoSpaceBefore`: The formatter writes `catch (A\|B $e)`, which Coder reports. |
+| `Squiz.WhiteSpace.FunctionSpacing` | `After`: `mago format`<br>`AfterLast`, `Before`, `BeforeFirst`: `mago format`, partly | `AfterLast`: The formatter removes the blank line between a function and the end of a block, such as `if (!function_exists())` or a loop, which Coder reports. `Before`: The formatter adds no blank line between a statement and a function declared after it, such as a `define()` call followed by a function, or a statement followed by a nested function. `BeforeFirst`: The formatter removes the blank line between the start of a block, such as `if (!function_exists())` or a loop, and a function, which Coder reports. |
+| `Squiz.WhiteSpace.OperatorSpacing` | `NoSpaceAfter`, `NoSpaceBefore`: `mago format`, partly<br>`NoSpaceAfterAmp`, `NoSpaceBeforeAmp`, `SpacingAfter`, `SpacingAfterAmp`, `SpacingBefore`, `SpacingBeforeAmp`: `mago format` | `NoSpaceAfter`: The formatter writes `catch (A\|B $e)`, which Coder reports. `NoSpaceBefore`: The formatter writes `catch (A\|B $e)`, which Coder reports. |
 | `Squiz.WhiteSpace.ScopeKeywordSpacing` | `mago format` |  |
 | `Squiz.WhiteSpace.SemicolonSpacing` | `mago format` |  |
 | `Squiz.WhiteSpace.SuperfluousWhitespace` | `EmptyLines`, `EndFile`, `EndLine`: `mago format`<br>`StartFile`: [`drupal/file-start-whitespace`](../rules/files-and-tags.md#drupalfile-start-whitespace) |  |
@@ -74,7 +74,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
-| `Zend.Files.ClosingTag` | `mago format`, Mago `no-closing-tag` | The formatter removes a closing tag at the end of the file. One that ends a statement without a `;` stays. |
+| `Zend.Files.ClosingTag` | `mago format`, Mago `no-closing-tag` | The formatter removes a closing tag at the end of the file. When the last statement has no `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line. |
 
 ## Slevomat Coding Standard
 
