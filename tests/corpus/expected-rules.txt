@@ -5,10 +5,12 @@ drupal/case-fall-through
 drupal/case-semicolon
 drupal/class-comment
 drupal/class-name-acronym
+drupal/class-prefix
 drupal/comment-in-expression
 drupal/comment-line-length
 drupal/const-prefix
 drupal/constant-prefix
+drupal/curl-ssl-verify
 drupal/define-name
 drupal/deprecated-tag
 drupal/deprecation-message
@@ -25,10 +27,12 @@ drupal/expected-exception-tag
 drupal/file-comment
 drupal/file-encoding
 drupal/file-start-whitespace
+drupal/form-alter-comment
 drupal/fully-qualified-name
 drupal/function-comment
 drupal/function-prefix
 drupal/gender-neutral-comment
+drupal/global-constant
 drupal/global-function
 drupal/global-variable
 drupal/hook-attribute-name
@@ -55,8 +59,10 @@ drupal/redundant-return
 drupal/redundant-use
 drupal/remote-address
 drupal/render-callback
+drupal/request-superglobal
 drupal/short-echo-tag
 drupal/short-list
+drupal/strict-config-schema
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema
@@ -64,6 +70,7 @@ drupal/todo-comment
 drupal/translatable-string
 drupal/translated-exception
 drupal/unsilenced-deprecation
+drupal/untranslated-options
 drupal/use-leading-backslash
 drupal/variable-comment
 drupal/watchdog-message

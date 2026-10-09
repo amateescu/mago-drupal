@@ -13,10 +13,12 @@ use amateescu\MagoDrupal\Linter\Rules\CaseFallThroughRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseSemicolonRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassNameAcronymRule;
+use amateescu\MagoDrupal\Linter\Rules\ClassPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentInExpressionRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstPrefixRule;
+use amateescu\MagoDrupal\Linter\Rules\CurlSslVerifyRule;
 use amateescu\MagoDrupal\Linter\Rules\DefineNameRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecatedTagRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecationMessageRule;
@@ -33,10 +35,12 @@ use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FileEncodingRule;
 use amateescu\MagoDrupal\Linter\Rules\FileStartWhitespaceRule;
+use amateescu\MagoDrupal\Linter\Rules\FormAlterCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\GenderNeutralCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\GlobalConstantRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\HookAttributeNameRule;
@@ -63,8 +67,10 @@ use amateescu\MagoDrupal\Linter\Rules\RedundantReturnRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
+use amateescu\MagoDrupal\Linter\Rules\RequestSuperglobalRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortEchoTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortListRule;
+use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatableStringRule;
@@ -72,6 +78,7 @@ use amateescu\MagoDrupal\Linter\Rules\TranslatedExceptionRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookMenuRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\UnsilencedDeprecationRule;
+use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
@@ -114,14 +121,21 @@ final class DrupalExtension
      */
     private const CORE_OFF = [
         'drupal/case-fall-through',
+        'drupal/class-prefix',
         'drupal/const-prefix',
+        'drupal/curl-ssl-verify',
+        'drupal/form-alter-comment',
         'drupal/function-prefix',
+        'drupal/global-constant',
         'drupal/hook-attribute-name',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
         'drupal/long-description-punctuation',
         'drupal/method-name-underscore',
+        'drupal/request-superglobal',
         'drupal/short-list',
+        'drupal/strict-config-schema',
+        'drupal/untranslated-options',
     ];
 
     /**
@@ -201,10 +215,12 @@ final class DrupalExtension
             new CaseSemicolonRule(),
             new ClassCommentRule(),
             new ClassNameAcronymRule(),
+            new ClassPrefixRule(),
             new CommentInExpressionRule(),
             new CommentLineLengthRule(),
             new ConstPrefixRule(),
             new ConstantPrefixRule(),
+            new CurlSslVerifyRule(),
             new DefineNameRule(),
             new DeprecatedTagRule(),
             new DeprecationMessageRule(),
@@ -221,10 +237,12 @@ final class DrupalExtension
             new FileCommentRule(),
             new FileEncodingRule(),
             new FileStartWhitespaceRule(),
+            new FormAlterCommentRule(),
             new FullyQualifiedNameRule(),
             new FunctionCommentRule(),
             new FunctionPrefixRule(),
             new GenderNeutralCommentRule(),
+            new GlobalConstantRule(),
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
@@ -251,8 +269,10 @@ final class DrupalExtension
             new RedundantUseRule(),
             new RemoteAddressRule(),
             new RenderCallbackRule(),
+            new RequestSuperglobalRule(),
             new ShortEchoTagRule(),
             new ShortListRule(),
+            new StrictConfigSchemaRule(),
             new SymfonyYamlParseRule(),
             new TodoCommentRule(),
             new TranslatableStringRule(),
@@ -260,6 +280,7 @@ final class DrupalExtension
             new TranslationInHookMenuRule(),
             new TranslationInHookSchemaRule(),
             new UnsilencedDeprecationRule(),
+            new UntranslatedOptionsRule(),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
             new WatchdogMessageRule(),

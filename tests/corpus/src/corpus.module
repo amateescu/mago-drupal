@@ -8,12 +8,15 @@
 declare(strict_types=1);
 
 // @mago-expect lint:drupal/constant-prefix
+// @mago-expect lint:drupal/global-constant
 define('CACHE_LIFETIME', 3600);
 
 // Shares the module name's leading letters but skips the underscore.
 // @mago-expect lint:drupal/constant-prefix
+// @mago-expect lint:drupal/global-constant
 define('CORPUSCACHE_TTL', 3600);
 
+// @mago-expect lint:drupal/global-constant
 define('CORPUS_DEFAULT_LIMIT', 50);
 
 // A prefixed name that is not upper case is a name problem only.

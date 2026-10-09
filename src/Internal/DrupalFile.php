@@ -33,6 +33,12 @@ final class DrupalFile
      */
     public const PROCEDURAL_EXTENSIONS = ['module', 'install', 'inc', 'theme', 'profile', 'engine'];
 
+    /**
+     * The extensions whose file name is the machine name of the extension
+     * that owns the file. Other files take the name from an info file.
+     */
+    private const NAMED_EXTENSIONS = ['module', 'install', 'profile', 'theme'];
+
     private function __construct(
         public readonly string $extension,
         public readonly string $name,
@@ -83,6 +89,16 @@ final class DrupalFile
     public function isProcedural(): bool
     {
         return in_array($this->extension, self::PROCEDURAL_EXTENSIONS, strict: true);
+    }
+
+    /**
+     * Whether the file name gives the machine name of the extension that
+     * owns the file, as it does for `.module`, `.install`, `.profile` and
+     * `.theme` files.
+     */
+    public function isNamedByFile(): bool
+    {
+        return in_array($this->extension, self::NAMED_EXTENSIONS, strict: true);
     }
 
     /**

@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * Exercises drupal/form-alter-comment in a .module file.
+ */
+
+declare(strict_types=1);
+
+// The pragma is above the docblock, because the report is on the hook line.
+// @mago-expect lint:drupal/form-alter-comment
+/**
+ * Implements hook_form_alter().
+ */
+function forms_alter_login(array &$form): void {
+}
+
+// @mago-expect lint:drupal/form-alter-comment
+/**
+ * Implements hook_form_alter().
+ */
+function forms_form_node_form_alter(array &$form): void {
+}
+
+// @mago-expect lint:drupal/form-alter-comment
+/**
+ * Describes the function.
+ *
+ * Implements hook_form_alter().
+ */
+function forms_in_the_description(array &$form): void {
+}
+
+// @mago-expect lint:drupal/form-alter-comment
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/doc-comment
+/** Implements hook_form_alter(). The text after the hook is not checked. */
+function forms_text_after_hook(array &$form): void {
+}
+
+// @mago-expect lint:drupal/form-alter-comment
+// @mago-expect lint:drupal/function-comment
+/**
+ * Implements hook_form_alter().
+ */
+
+function forms_blank_line_below(array &$form): void {
+}
+
+// PHP ignores the case of a function name, so this one is the hook.
+/**
+ * Implements hook_form_alter().
+ */
+// @mago-expect lint:drupal/function-prefix
+function Forms_Form_Alter(array &$form): void {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function forms_other_alter(array &$form): void {
+}
+
+/**
+ * Implements hook_form_node_form_alter().
+ */
+function forms_node_form_alter(array &$form): void {
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+#[Deprecated]
+function forms_attribute_between(array &$form): void {
+}
+
+// A comment between the docblock and the function hides the docblock.
+// @mago-expect lint:drupal/function-comment
+/**
+ * Implements hook_form_alter().
+ */
+// A comment.
+function forms_comment_between(array &$form): void {
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function &forms_returns_reference(array &$form): array {
+  return $form;
+}
+
+// A comment between the keyword and the name is fine.
+// @mago-expect lint:drupal/form-alter-comment
+/**
+ * Implements hook_form_alter().
+ */
+function /* name */ forms_comment_after_keyword(array &$form): void {
+}
+
+// The hook line is compared as written.
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/doc-comment
+/**
+ * implements hook_form_alter().
+ */
+function forms_lowercase_hook(array &$form): void {
+}
+
+// Text after a tag is not a hook line.
+// @mago-expect lint:drupal/function-comment(2)
+/**
+ * Describes the function.
+ *
+ * @see Implements hook_form_alter().
+ */
+function forms_see_tag(array &$form): void {
+}
+
+/**
+ * Describes the function without the hook line.
+ */
+function forms_no_hook_line(array &$form): void {
+}
+
+/**
+ * Holds a closure.
+ */
+function forms_closure(): callable {
+  /**
+   * Implements hook_form_alter().
+   */
+  return function (array &$form): void {};
+}
+
+/**
+ * Holds a method that is not a hook.
+ */
+class FormsHooks {
+
+  /**
+   * Implements hook_form_alter().
+   */
+  public function alter(array &$form): void {
+  }
+
+}

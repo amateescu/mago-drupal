@@ -30,10 +30,22 @@ namespace {
 
     class Drupal
     {
+        public static function define(string $name, int $value): bool
+        {
+            return TRUE;
+        }
+
         public static function state(): \Drupal\Core\State\StateInterface
         {
             throw new \RuntimeException('stub');
         }
+    }
+}
+
+namespace Drupal\globals {
+    function define(string $name, int $value): bool
+    {
+        return TRUE;
     }
 }
 

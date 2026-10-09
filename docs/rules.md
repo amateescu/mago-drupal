@@ -128,6 +128,21 @@ explicit `NULL` argument and does not see that the parameter can be null in the 
 with a native type is not reported, since every tool reads the native type. After the fix, the
 analyzer sees the `null`, and it may report code in the body that does not handle it.
 
+## DrupalPractice checks
+
+These rules port sniffs of Coder's `DrupalPractice` standard. Core's `phpcs.xml.dist` does not run
+them, so the worker's `--core` argument turns them off.
+
+| Code | Level | What it reports |
+| --- | --- | --- |
+| `drupal/class-prefix` | Warning | A class or interface in a `.module`, `.install`, `.profile` or `.theme` file whose name does not start with the module name, with or without the underscores of the name. The rule skips every declaration from the first `namespace` statement on. Traits, enums and anonymous classes are not checked. Off with `--core`. |
+| `drupal/curl-ssl-verify` | Warning | A `curl_setopt()` call that sets `CURLOPT_SSL_VERIFYPEER` to `FALSE` or `0`. The rule reads the arguments by position or by name, and skips a call that spreads its arguments. Off with `--core`. |
+| `drupal/form-alter-comment` | Warning | A function in a `.module`, `.install`, `.profile` or `.theme` file with a docblock line that starts with `Implements hook_form_alter().` and a name other than the module name and `_form_alter`. The docblock must be right above the `function` keyword, with no modifier, attribute or comment between them. Off with `--core`. |
+| `drupal/global-constant` | Warning | A `const` statement at the top level of a file, and a `define()` call at the top level of a `.module` file. A statement in a class, a function, a closure, an arrow function, a block of `if`, `switch`, `try`, a loop or `declare`, or a braced namespace is not at the top level. A docblock with a `@deprecated` tag right above the statement exempts it. Off with `--core`. |
+| `drupal/request-superglobal` | Error | A use of `$_GET`, `$_POST`, `$_COOKIE` or `$_FILES`, including a write, a parameter or `global` name, and a use inside a string. The message names the matching property of the request. `$_REQUEST` is left to Mago's `no-request-variable`. Off with `--core`. |
+| `drupal/strict-config-schema` | Error | A `$strictConfigSchema` property of a test class, where the first of `TRUE`, `FALSE` and `NULL` in the default is not `TRUE`, or where there is none. A test class has `Test` or `Tests` as a word of its name. Off with `--core`. |
+| `drupal/untranslated-options` | Warning | A plain string label in the `#options` of an element with `#type` `checkboxes`, `radios`, `select` or `tableselect`. A label counts when it is not a number and has more than three characters. Labels in nested option groups count. Off with `--core`. |
+
 ## Drupal 7 era
 
 These rules target APIs that Drupal 8 removed, so they do not report on a modern codebase. Core's
@@ -335,6 +350,38 @@ not report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an
 before `isset`, which always gives `true`. The sniff's fix
 drops comments and casts without notice. Here a comment makes the fix potentially unsafe, and a cast
 gets no fix.
+
+The DrupalPractice rules read the file name and the syntax tree, and no file on disk. Coder's
+`Project` class also reads the nearest `*.info.yml` or `*.info` file. That difference has three
+effects. `drupal/class-prefix` and `drupal/form-alter-comment` take the module name from the file
+name of a `.module`, `.install`, `.profile` or `.theme` file, and skip other files, where Coder
+finds the name in the info file. The name is the part before the first dot, so `foo.bar.module` is
+`foo`, where Coder uses `foo.bar`. `drupal/global-constant` and `drupal/request-superglobal` do not
+skip a Drupal 7 module, where Coder skips a module whose `.info` file names core 7 or has no core
+line.
+
+Where Coder's result is an accident of its tokens, the rules report what the code means.
+`drupal/global-constant` treats the body of an `if`, `elseif` or `else` written without braces, and
+an arrow function, as nested, because Coder sees no enclosing scope there. It also reports `\define()`
+and `DEFINE()`, which Coder misses, does not report `$object?->define()` or `define(...)`, and keeps
+a `@deprecated` docblock that is above an attribute list. The `@deprecated` tag must be at the start
+of a docblock line, and its name is case-sensitive. A one-line docblock with only the tag counts, and
+a tag in the middle of a sentence does not. `drupal/form-alter-comment` compares the function name
+without regard to case, because PHP does, and finds the hook line only at the start of a docblock
+line, so `@see Implements hook_form_alter().` is not a hook line. `drupal/untranslated-options` takes
+the `#type` from the array that holds the `#options`, in either order and in either quote style, where
+Coder takes the first `'#type'` of the statement. It reports the last label of an array and a label
+in an `array()` group, which Coder skips, and it does not need a comma after the label. It accepts
+`Array(`, and does not read a `$form['x']['#options'] = [...]` assignment, which Coder reads only when
+a `'#type'` is in the same statement. `drupal/strict-config-schema` uses the nearest named class or
+trait for a property of an anonymous class, and not the outermost scope. It does not read a name
+like `Testimonial` or `Testable` as a test class. `drupal/curl-ssl-verify` ignores the case of the
+function name and of `FALSE`, accepts a leading backslash, a value in parentheses and a zero in any
+integer base, and reads the arguments by name. It reads the whole value, so `FALSE ?: TRUE` does not
+count, and a method call does not count, `$object?->curl_setopt()` included. It skips a call with
+too few arguments, where Coder stops checking the file. `drupal/request-superglobal` reports a use
+inside a double-quoted string or a heredoc, which Coder misses. It treats `$_GET /* note */ ['a']`
+as an access with a key. The message gives the source text of the key.
 
 ## Ported from phpstan-drupal
 
