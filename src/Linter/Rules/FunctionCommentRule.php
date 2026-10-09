@@ -9,6 +9,7 @@ use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
+use amateescu\MagoDrupal\Internal\LineEnding;
 use amateescu\MagoDrupal\Internal\Nodes;
 use amateescu\MagoDrupal\Internal\TypeNames;
 use Mago\Sdk\Linter\LintContext;
@@ -22,6 +23,7 @@ use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function array_reverse;
+use function array_slice;
 use function array_values;
 use function count;
 use function in_array;
@@ -32,9 +34,12 @@ use function preg_match;
 use function preg_match_all;
 use function preg_replace;
 use function rtrim;
+use function str_contains;
 use function str_starts_with;
+use function stripos;
 use function strlen;
 use function strpos;
+use function strrpos;
 use function strtolower;
 use function substr;
 use function trim;
@@ -74,6 +79,24 @@ final class FunctionCommentRule implements Rule
      */
     private const RETURN_VARIABLE = '/^([ \t]*\S+)([ \t]+\$[A-Za-z_][A-Za-z0-9_]*)[ \t]*$/';
 
+    /**
+     * A `@return` line that holds one type and one variable and nothing else.
+     * A type such as `callable(int $a): int` does not match.
+     */
+    private const RETURN_TYPE_AND_VARIABLE = '/^[ \t]*\S+[ \t]+\$\S+[ \t]*$/';
+
+    /**
+     * The type and the variable of a `@param` line. The type is everything
+     * before the first `$`, `.` or `&$`. A line with no variable gives an
+     * empty second group.
+     */
+    private const PARAM_LINE = '/((?:(?![$.]|&(?=\$)).)*)(?:((?:\.\.\.)?(?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/';
+
+    /**
+     * A type that stays a single token for a class name or a union of them.
+     */
+    private const THROWS_TYPE = '/^[\w\\\\|]+$/';
+
     private string $mentionPath = '';
 
     /**
@@ -95,12 +118,14 @@ final class FunctionCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        if ($this->isConstructor($context)) {
-            return;
-        }
-
         $closest = Docblocks::closest($context->file, $context->node);
         if ($closest === null) {
+            // A constructor with nothing above it needs no docblock. One with
+            // a comment above it is checked like any other method.
+            if ($this->isConstructor($context)) {
+                return;
+            }
+
             $context->report(Issue::new('The function has no docblock.', $context->node->span));
 
             return;
@@ -115,32 +140,49 @@ final class FunctionCommentRule implements Rule
         }
 
         $tags = Docblocks::tags($context->file, $closest->span);
+
+        // A docblock tagged `@file` belongs to the file. Coder takes the
+        // function for undocumented and checks none of the tags.
+        if (self::hasTag($tags, 'file')) {
+            $context->report(Issue::new('The function has no docblock.', $context->node->span));
+
+            return;
+        }
+
         $this->checkParamTags($context, $tags);
         $this->checkReturnTags($context, $tags);
         $this->checkThrowsTags($context, $tags);
         $this->checkSeeTags($context, $tags);
-        $this->checkSpacing($context, $closest->span, $tags);
+        $this->checkSpacing($context, $closest->span);
     }
 
     /**
      * The blank lines below the docblock and the whitespace in its tags.
-     * Coder takes a docblock tagged `@file` for the file's, and checks
-     * neither there.
-     *
-     * @param list<DocblockTag> $tags
      */
-    private function checkSpacing(LintContext $context, Span $docblock, array $tags): void
+    private function checkSpacing(LintContext $context, Span $docblock): void
     {
-        foreach ($tags as $tag) {
-            if ($tag->name === 'file') {
-                return;
-            }
-        }
-
         DocblockGap::checkBelow($context, $docblock, 'function');
         FunctionCommentSpacing::check($context, $docblock);
     }
 
+    /**
+     * @param list<DocblockTag> $tags
+     */
+    private static function hasTag(array $tags, string $name): bool
+    {
+        foreach ($tags as $tag) {
+            if ($tag->name === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the node is a method named `__construct`. PHP ignores case in
+     * method names, so `__CONSTRUCT` counts too.
+     */
     private function isConstructor(LintContext $context): bool
     {
         if ($context->node->kind !== NodeKind::Method) {
@@ -159,7 +201,7 @@ final class FunctionCommentRule implements Rule
         $span = $context->node->span;
         foreach ($this->constructorMentions as $offset) {
             if ($offset >= $span->start && $offset < $span->end) {
-                return Nodes::declaredName($context->file, $context->node) === '__construct';
+                return strtolower(Nodes::declaredName($context->file, $context->node) ?? '') === '__construct';
             }
         }
 
@@ -167,17 +209,17 @@ final class FunctionCommentRule implements Rule
     }
 
     /**
-     * The byte offsets of every `__construct` in the file.
+     * The byte offsets of every `__construct` in the file, in any case.
      *
      * @return list<int>
      */
     private static function mentionOffsets(string $contents): array
     {
         $offsets = [];
-        $offset = strpos($contents, needle: '__construct');
+        $offset = stripos($contents, needle: '__construct');
         while ($offset !== false) {
             $offsets[] = $offset;
-            $offset = strpos($contents, needle: '__construct', offset: $offset + 1);
+            $offset = stripos($contents, needle: '__construct', offset: $offset + 1);
         }
 
         return $offsets;
@@ -259,6 +301,7 @@ final class FunctionCommentRule implements Rule
         }
 
         TypeNames::checkParam($context, $tag, $type);
+        $this->checkParamTypeSpaces($context, $tag);
 
         if (str_starts_with($rest, '.')) {
             $issue = Issue::new('Do not put a period after the @param variable name.', $tag->contentSpan());
@@ -294,6 +337,27 @@ final class FunctionCommentRule implements Rule
                 'param description',
                 self::fullStop($tag),
             );
+        }
+    }
+
+    /**
+     * Reports a `@param` type that holds whitespace. Coder splits the tag's
+     * own line at the first `$`, `.` or `&$`, so the type is what comes
+     * before that. It skips a line with no type or no variable, and a type
+     * that holds a bracket, since those are PHPStan types with spaces in
+     * them.
+     */
+    private function checkParamTypeSpaces(LintContext $context, DocblockTag $tag): void
+    {
+        $matches = [];
+        preg_match(self::PARAM_LINE, $tag->lines[0]->text, $matches);
+        $type = trim($matches[1] ?? '');
+        if ($type === '' || ($matches[2] ?? '') === '') {
+            return;
+        }
+
+        if (preg_match('/\s/', $type) === 1 && preg_match('/[<\[{(]/', $type) !== 1) {
+            $context->report(Issue::new("The @param type \"{$type}\" must not contain spaces.", $tag->nameSpan));
         }
     }
 
@@ -367,21 +431,22 @@ final class FunctionCommentRule implements Rule
             return;
         }
 
-        [$type, $rest] = Docblocks::splitType($returnTags[0]->content());
-        if ($type === null) {
-            // mago analyze already reports a bare @return with nothing after
-            // it as a malformed docblock.
+        $tag = $returnTags[0];
+        if (count($returnTags) === 1 && $this->reportMissingReturnType($context, $tags, $tag)) {
             return;
         }
 
-        TypeNames::checkReturn($context, $returnTags[0], $type);
+        [$type, $rest] = Docblocks::splitType($tag->content());
+        if ($type === null) {
+            return;
+        }
+
+        TypeNames::checkReturn($context, $tag, $type);
 
         // Only the tag's own line can hold a variable name. A description
         // below it may start with one, as in `$this.`.
-        $tag = $returnTags[0];
         $line = $tag->lines[0];
-        [, $lineRest] = Docblocks::splitType(ltrim($line->text));
-        if (str_starts_with($lineRest, '$')) {
+        if (preg_match(self::RETURN_TYPE_AND_VARIABLE, $line->text) === 1) {
             $issue = Issue::new('Do not put a variable name after the @return type.', $tag->contentSpan());
             $name = [];
             // The name goes when the line holds only the type and it, and a
@@ -401,10 +466,77 @@ final class FunctionCommentRule implements Rule
             return;
         }
 
+        if (count($returnTags) === 1) {
+            $this->checkReturnTypeSpaces($context, $tags, $tag);
+        }
+
         // `@return void` needs no description either.
         if ($rest === '' && !in_array($type, ['$this', 'static'], strict: true) && strtolower($type) !== 'void') {
-            $context->report(Issue::new('The @return tag has no description.', $returnTags[0]->contentSpan()));
+            $context->report(Issue::new('The @return tag has no description.', $tag->contentSpan()));
         }
+    }
+
+    /**
+     * Reports a `@return` with nothing after it on its own line. Coder reads
+     * the type from that line only, so text below the tag is a description
+     * and not a type. A `@return` that is the last tag with nothing under it
+     * is left out, since Mago's `valid-docblock` already reports it.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    private function reportMissingReturnType(LintContext $context, array $tags, DocblockTag $tag): bool
+    {
+        if (trim($tag->lines[0]->text) !== '') {
+            return false;
+        }
+
+        $last = $tags[count($tags) - 1] === $tag;
+        if (!$last || self::textBelow($tag) !== '') {
+            $context->report(Issue::new('The @return tag has no type.', $tag->nameSpan));
+        }
+
+        return true;
+    }
+
+    /**
+     * Reports a `@return` type with a space in it. Coder takes the whole
+     * text on the tag's line as the type, so a description written there
+     * shows up as part of it. It reports only when a description follows
+     * below, since a missing description is a different problem, and skips a
+     * type with a bracket.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    private function checkReturnTypeSpaces(LintContext $context, array $tags, DocblockTag $tag): void
+    {
+        $text = trim($tag->lines[0]->text);
+        if (!str_contains($text, ' ') || preg_match('/[<\[{(]/', $text) === 1) {
+            return;
+        }
+
+        $below = self::textBelow($tag);
+        $index = Docblocks::indexOf($tags, $tag) ?? count($tags);
+        // Example markers right after the tag belong to its description.
+        while ($below === '' && in_array(($tags[++$index] ?? null)?->name, Docblocks::EXAMPLE_TAGS, strict: true)) {
+            $below = self::textBelow($tags[$index]);
+        }
+
+        if ($below !== '') {
+            $context->report(Issue::new("The @return type \"{$text}\" must not contain spaces.", $tag->nameSpan));
+        }
+    }
+
+    /**
+     * The text on the lines below a tag's own line.
+     */
+    private static function textBelow(DocblockTag $tag): string
+    {
+        $text = '';
+        foreach (array_slice($tag->lines, offset: 1) as $line) {
+            $text .= trim($line->text);
+        }
+
+        return $text;
     }
 
     /**
@@ -417,6 +549,8 @@ final class FunctionCommentRule implements Rule
                 continue;
             }
 
+            $this->checkThrowsComment($context, $tag);
+
             [$type, $rest] = Docblocks::splitType($tag->content());
             if ($type === null || $rest === '') {
                 // mago analyze already reports an empty @throws as a malformed
@@ -427,6 +561,44 @@ final class FunctionCommentRule implements Rule
 
             $this->checkProse($context, $rest, $tag->contentSpan(), '@throws description');
         }
+    }
+
+    /**
+     * Reports a `@throws` that has text after its type on the tag's line and
+     * nothing below. The description goes on the next line. The fix moves it
+     * there, three spaces in from the star, when the tag is a type that has
+     * no `*\/` after it.
+     *
+     * Coder counts the words on the tag's line and so also reports a type
+     * such as `\Foo2Bar` or `\A|\B` that has no text. Those have no
+     * description to move, and the rule leaves them out.
+     */
+    private function checkThrowsComment(LintContext $context, DocblockTag $tag): void
+    {
+        $line = $tag->lines[0];
+        $first = ltrim($line->text);
+        [$type, $description] = Docblocks::splitType($first);
+        if ($type === null || $description === '' || self::textBelow($tag) !== '') {
+            return;
+        }
+
+        $issue = Issue::new('The @throws description must be on the line below the tag.', $tag->nameSpan);
+        $contents = $context->file->contents;
+        $end = $line->offset + strlen(rtrim($line->text));
+        $before = substr($contents, offset: 0, length: $tag->nameSpan->start);
+        $star = [];
+        $prefix = substr($before, (int) strrpos($before, needle: "\n") + 1);
+        if (
+            preg_match(self::THROWS_TYPE, $type) === 1
+            && preg_match('/^([ \t]*\*)[ \t]*$/', $prefix, $star) === 1
+            && preg_match('/\G[ \t]*\*\//', $contents, offset: $end) !== 1
+        ) {
+            $start = $line->offset + strlen($line->text) - strlen($first) + strlen($type);
+            $break = LineEnding::of($contents) . $star[1] . '   ';
+            $issue = $issue->withEdit(TextEdit::replace(new Span($start, $end), $break . $description));
+        }
+
+        $context->report($issue);
     }
 
     /**
