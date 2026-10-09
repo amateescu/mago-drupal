@@ -44,7 +44,7 @@ down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to s
 
 ## What it provides
 
-52 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
+53 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
 The codes below omit their shared `drupal/` prefix.
 
 - **Bugs and security**: `insecure-unserialize`, `preg-security`, `remote-address`, `weak-hash`.
@@ -55,8 +55,8 @@ The codes below omit their shared `drupal/` prefix.
   `constant-prefix`, `empty-install-hook`, `function-prefix`, `global-variable`,
   `install-hook-location`, `t-in-hook-schema`.
 - **Naming, imports and syntax**: `case-break-blank-line`, `else-if`, `enum-case-name`,
-  `fully-qualified-name`, `method-name-underscore`, `method-visibility`, `property-name`,
-  `property-visibility`, `redundant-use`, `use-leading-backslash`.
+  `fully-qualified-name`, `method-name-underscore`, `method-visibility`, `null-coalesce`,
+  `property-name`, `property-visibility`, `redundant-use`, `use-leading-backslash`.
 - **Comment text**: `author-tag`, `comment-line-length`, `doc-comment-array-syntax`,
   `doc-type-namespace`, `expected-exception-tag`, `gender-neutral-comment`, `inline-comment`,
   `inline-comment-blank-line`, `inline-comment-punctuation`, `long-description-punctuation`,

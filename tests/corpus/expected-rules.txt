@@ -31,6 +31,7 @@ drupal/link-text-translatable
 drupal/long-description-punctuation
 drupal/method-name-underscore
 drupal/method-visibility
+drupal/null-coalesce
 drupal/nullable-param-tag
 drupal/post-statement-comment
 drupal/preg-security
