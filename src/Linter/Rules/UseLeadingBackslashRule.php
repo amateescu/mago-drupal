@@ -13,19 +13,14 @@ use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 
-use function preg_match;
-use function strlen;
-
 /**
- * Reports an import whose name starts with a backslash.
+ * Reports an import whose first name starts with a backslash.
  *
- * Ports Drupal.Classes.UseLeadingBackslash. A `use` statement always names a
- * class from the root, so the backslash adds nothing.
- *
- * The check reads the bytes directly after the `use` keyword. The ported
- * sniff does the same, and that is why `use function \foo;` passes. The rule
- * covers only a class import, and only the first name in a multi-name
- * statement.
+ * Ports SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash, which
+ * Coder 9 runs. A `use` statement always names a class, function or constant
+ * from the root, so the backslash adds nothing. Like the sniff, the rule
+ * checks only the first name of a statement: the name after `use`,
+ * `use function` or `use const`, or the prefix of a group.
  */
 final class UseLeadingBackslashRule implements Rule
 {
@@ -34,7 +29,7 @@ final class UseLeadingBackslashRule implements Rule
         return new RuleDefinition(
             code: 'drupal/use-leading-backslash',
             name: 'Use statement leading backslash',
-            description: 'Reports a use statement that imports a class with a leading backslash.',
+            description: 'Reports a use statement whose first name starts with a backslash.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Use],
@@ -43,17 +38,17 @@ final class UseLeadingBackslashRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $matches = [];
-        if (preg_match('/^use\s+\\\\/i', $context->file->getText($context->node), $matches) !== 1) {
+        // The first identifier of the statement is its first name. A
+        // `function` or `const` type before it is a keyword, and comments are
+        // trivia, so neither gets in the way.
+        $name = $context->file->getFirstDescendant($context->node, NodeKind::Identifier);
+        if ($name === null || ($context->file->contents[$name->span->start] ?? '') !== '\\') {
             return;
         }
 
-        // The match ends on the backslash itself. The fix removes that byte.
-        $offset = $context->node->span->start + strlen($matches[0]) - 1;
-        $span = new Span($offset, $offset + 1);
-
+        $span = new Span($name->span->start, $name->span->start + 1);
         $context->report(Issue::new(
-            'Do not start an imported class name with a backslash.',
+            'Do not start an imported name with a backslash.',
             $span,
         )->withEdit(TextEdit::delete($span)));
     }

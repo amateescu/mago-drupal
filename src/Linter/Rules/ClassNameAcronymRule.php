@@ -15,7 +15,8 @@ use Mago\Sdk\Syntax\NodeKind;
 use function preg_match;
 
 /**
- * Reports a class, interface, trait or enum name with three capitals in a row.
+ * Reports a class, interface, trait or enum name that starts with three
+ * capitals and has no lower-case letter, such as `HTTP`.
  *
  * Ports Drupal.NamingConventions.ValidClassName.NoUpperAcronyms. The test is
  * the one `drupal/enum-case-name` uses for case names.
@@ -27,7 +28,7 @@ final class ClassNameAcronymRule implements Rule
         return new RuleDefinition(
             code: 'drupal/class-name-acronym',
             name: 'Class name acronym',
-            description: 'Reports class-like names that start with three upper-case letters in a row.',
+            description: 'Reports class-like names that start with three capitals and have no lower-case letter, such as HTTP.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum],

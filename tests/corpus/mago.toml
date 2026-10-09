@@ -14,6 +14,10 @@ extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
 # comment rules measure lines and read comments the way Drupal writes them.
 [formatter]
 preset = "drupal"
+# The formatter sorts imports, splits groups and statements with several names,
+# and moves comments out of a `use` statement. The fixtures of
+# drupal/use-leading-backslash need those shapes as written.
+excludes = ["src/UseLeadingBackslash.php"]
 
 [extension-hosts.drupal]
 command = ["php", "../../resources/worker.php"]
