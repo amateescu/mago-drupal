@@ -1,0 +1,1 @@
+<?php function one_line() { return \Drupal\Core\Url::fromRoute('x'); }

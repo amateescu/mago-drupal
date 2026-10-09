@@ -135,7 +135,7 @@ final class FullyQualifiedNameRule implements Rule
             return;
         }
 
-        $edits = ImportPlan::edits($context->file, $namespaces, $uses, $reported);
+        $edits = ImportPlan::edits($context->file, $context->node, $namespaces, $uses, $reported);
         foreach ($reported as $name) {
             $written = ltrim(trim($context->file->getText($name)), characters: '\\');
             $separator = strrpos($written, needle: '\\');
@@ -166,8 +166,9 @@ final class FullyQualifiedNameRule implements Rule
      */
     private function isExempt(SourceFile $file, Node $name): bool
     {
-        // A callee keeps its namespace, because PHP falls back to the global
-        // function. The ported sniff permits that too.
+        // A callee keeps its namespace. An import would bind a class, and the
+        // short name would then call the global function, not the namespaced
+        // one. Coder 9 reports these calls, and its fix changes the call.
         $callee = true;
         $parent = $file->getParent($name);
         while ($parent !== null) {

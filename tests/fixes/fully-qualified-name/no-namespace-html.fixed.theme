@@ -1,0 +1,5 @@
+<div>Header</div>
+<?php
+function html_url() {
+  return \Drupal\Core\Url::fromRoute('x');
+}

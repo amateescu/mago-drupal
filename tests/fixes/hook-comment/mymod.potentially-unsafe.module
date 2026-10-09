@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * Implements mymod_form_alter().
+ */
+function mymod_form_alter(array &$form) {}
+
+/** Implements mymod_one_line(). */
+function mymod_one_line() {}
+
+/**Implements mymod_tight().*/
+function mymod_tight() {}
+
+/**
+ * implements mymod_lowercase().
+ *
+ * Adds a row to the report table.
+ */
+function mymod_lowercase() {}
+
+/**
+ * Implements mymod_wrapped()
+ * .
+ */
+function mymod_wrapped() {}
+
+/**
+ * Implements mymod_trailing().   
+ */
+function mymod_trailing() {}
+
+/**
+ * Implements mymod_mixed_case().
+ */
+function mymod_Mixed_Case() {}
+
+/**
+ * Implements mymod_with_tags().
+ *
+ * @param array $form
+ *   The form.
+ */
+function mymod_with_tags(array $form) {}
+
+/**
+ * Implements other_prefix().
+ */
+function other_prefix() {}
+
+/**
+ * Implements mymod().
+ */
+function mymod() {}
+
+#[\Hook('after')]
+/**
+ * Implements mymod_after_attribute().
+ */
+function mymod_after_attribute() {}

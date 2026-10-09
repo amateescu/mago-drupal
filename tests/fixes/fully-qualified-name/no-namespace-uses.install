@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * @file
+ * Install file.
+ */
+
+use Drupal\Core\Link;
+
+function uses_url(): string {
+  return \Drupal\Core\Url::fromRoute('x')->toString() . \Drupal\Core\Link::x() . \Other\Core\Url::y();
+}

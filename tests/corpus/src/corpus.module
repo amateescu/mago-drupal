@@ -115,3 +115,66 @@ function template_preprocess_corpus_page(array &$variables): void {
 // @mago-expect lint:drupal/function-prefix
 function corpus_(): void {
 }
+
+// @mago-expect lint:drupal/hook-comment
+/**
+ * Implements corpus_repeat().
+ */
+function corpus_repeat(): void {
+}
+
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/doc-comment
+/** Implements corpus_one_line_repeat(). */
+function corpus_one_line_repeat(): void {
+}
+
+// The second line joins the first without a space, as in Coder.
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/doc-comment
+/**
+ * Implements corpus_wrapped_repeat()
+ * .
+ */
+function corpus_wrapped_repeat(): void {
+}
+
+// A tag right under the first line is part of the description.
+// @mago-expect lint:drupal/doc-comment
+/**
+ * Implements corpus_tag_below().
+ * @param array $form
+ *   The form.
+ */
+function corpus_tag_below(array $form): void {
+}
+
+/**
+ * Marks a function.
+ */
+#[\Attribute(\Attribute::TARGET_FUNCTION)]
+final class CorpusHook {}
+
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/function-comment
+#[CorpusHook]
+/**
+ * Implements corpus_after_attribute().
+ */
+function corpus_after_attribute(): void {
+}
+
+/**
+ * Implements corpus_before_attribute().
+ */
+#[CorpusHook]
+function corpus_before_attribute(): void {
+}
+
+if (!function_exists('corpus_in_block')) {
+  /**
+   * Implements corpus_in_block().
+   */
+  function corpus_in_block(): void {
+  }
+}

@@ -1,6 +1,8 @@
 <?php
 
+use Drupal\Core\Url;
+
 function no_namespace(): string
 {
-    return \Drupal\Core\Url::fromRoute('x')->toString();
+    return Url::fromRoute('x')->toString();
 }

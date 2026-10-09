@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+/**
+ * Builds a link.
+ */
+function docblock_link(): string {
+  $link = \Drupal\Core\Link::createFromRoute('x', 'y');
+  return \Drupal\Core\Url::fromRoute('x')->toString() . $link->toString();
+}

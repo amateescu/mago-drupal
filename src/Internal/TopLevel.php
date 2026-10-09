@@ -11,7 +11,8 @@ use Mago\Sdk\Syntax\SourceFile;
 use function in_array;
 
 /**
- * Tells whether a statement runs on every load of its file.
+ * Tells what sits at the top level of a file, where it runs on every load
+ * of the file.
  *
  * @internal
  */
@@ -64,5 +65,25 @@ final class TopLevel
         }
 
         return false;
+    }
+
+    /**
+     * The functions declared at the top level of a file. A function after
+     * `namespace X;` counts, one inside `namespace X { }` does not.
+     *
+     * @return list<Node>
+     */
+    public static function functions(SourceFile $file): array
+    {
+        $functions = [];
+        foreach ($file->getNodes(NodeKind::Function) as $function) {
+            $statement = $file->getParent($function);
+            $holder = $statement === null ? null : $file->getParent($statement);
+            if (in_array($holder?->kind, [NodeKind::Program, NodeKind::NamespaceImplicitBody], strict: true)) {
+                $functions[] = $function;
+            }
+        }
+
+        return $functions;
     }
 }

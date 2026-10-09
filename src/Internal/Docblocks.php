@@ -14,6 +14,8 @@ use function array_reverse;
 use function count;
 use function in_array;
 use function intdiv;
+use function max;
+use function min;
 use function preg_match;
 use function preg_match_all;
 use function rtrim;
@@ -80,6 +82,71 @@ final class Docblocks
     private const MARKUP_TAGS = ['code', 'endcode', 'link', 'endlink'];
 
     private function __construct() {}
+
+    /**
+     * Whether a docblock has text, and the first of it is not a tag, as in
+     * `/** @var int *\/`. An empty docblock has none.
+     */
+    public static function hasTextBeforeTags(SourceFile $file, Span $docblock): bool
+    {
+        foreach (self::lines($file, $docblock) as $line) {
+            if (trim($line->text) !== '') {
+                return preg_match('/^\s*@[a-zA-Z]/', $line->text) !== 1;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether an open tag comes right before the comment at $index of the
+     * file's trivia, with only whitespace and other comments between.
+     */
+    public static function followsOpenTag(SourceFile $file, int $index): bool
+    {
+        $trivia = $file->getTrivia();
+        $contents = $file->contents;
+        $position = $trivia[$index]->span->start;
+        $previous = $index - 1;
+        while (true) {
+            while ($position > 0 && strspn($contents[$position - 1], characters: " \t\r\n\v\f") === 1) {
+                --$position;
+            }
+
+            if ($previous < 0 || $trivia[$previous]->span->end !== $position) {
+                break;
+            }
+
+            $position = $trivia[$previous]->span->start;
+            --$previous;
+        }
+
+        return preg_match('/<\?(?:php|=)$/i', substr($contents, max(0, $position - 5), min(5, $position))) === 1;
+    }
+
+    /**
+     * The exact `@file` tag of a docblock, and whether the docblock has a
+     * tag that differs from it only in case.
+     *
+     * @return array{Span|null, bool}
+     */
+    public static function fileTag(SourceFile $file, Span $docblock): array
+    {
+        $variant = false;
+        foreach (self::tags($file, $docblock) as $tag) {
+            if ($tag->name !== 'file') {
+                continue;
+            }
+
+            if ($file->getText($tag->nameSpan) === '@file') {
+                return [$tag->nameSpan, $variant];
+            }
+
+            $variant = true;
+        }
+
+        return [null, $variant];
+    }
 
     /**
      * Returns the docblock immediately above a declaration.

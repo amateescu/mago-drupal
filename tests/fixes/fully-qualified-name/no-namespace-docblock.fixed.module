@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+/**
+ * Builds a link.
+ */
+function docblock_link(): string {
+  $link = Link::createFromRoute('x', 'y');
+  return Url::fromRoute('x')->toString() . $link->toString();
+}

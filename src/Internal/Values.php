@@ -61,6 +61,25 @@ final class Values
     }
 
     /**
+     * The first operand of a concatenation, or the node itself when it is
+     * not one. This is the first token that Coder reads.
+     */
+    public static function leftmost(SourceFile $file, Node $node): Node
+    {
+        $first = $node;
+        while ($first->kind === NodeKind::Binary) {
+            $left = $file->getChildren($first)[0] ?? null;
+            if ($left === null) {
+                break;
+            }
+
+            $first = self::unwrap($file, $left);
+        }
+
+        return $first;
+    }
+
+    /**
      * Whether the subtree concatenates strings with `.`.
      */
     public static function concatenates(SourceFile $file, Node $node): bool
