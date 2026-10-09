@@ -44,6 +44,7 @@ use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
+use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
@@ -219,6 +220,7 @@ final class DrupalExtension
             new LongDescriptionPunctuationRule(),
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
+            new NullCoalesceRule(),
             new NullableParamTagRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),

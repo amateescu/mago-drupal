@@ -90,6 +90,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/long-description-punctuation' => [Level::Warning, true],
             'drupal/method-name-underscore' => [Level::Warning, true],
             'drupal/method-visibility' => [Level::Error, true],
+            'drupal/null-coalesce' => [Level::Error, true],
             'drupal/nullable-param-tag' => [Level::Warning, true],
             'drupal/parameter-blank-line' => [Level::Error, true],
             'drupal/post-statement-comment' => [Level::Warning, true],

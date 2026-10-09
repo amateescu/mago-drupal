@@ -49,6 +49,7 @@ These rules report only in `.module` and `.install` files.
 | `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. It skips a file with no namespace, several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
 | `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. A magic method's two underscores are fine. Off with `--core`, see below. |
 | `drupal/method-visibility` | Error | A method declared without `public`, `protected` or `private`. A fix adds `public`. |
+| `drupal/null-coalesce` | Error | A ternary that `??` replaces: `isset(X) ? X : B`, `X === null ? B : X` or `X !== null ? X : B`, with `null` on either side. Operands match by syntax tree, so quotes, spacing and parentheses do not matter. A fix writes `X ?? B` when X is a plain variable, property, index or constant read and B does not need parentheses after `??`. It is potentially unsafe when it drops a comment. A call as X, a side effect in an index, or a cast before `isset` is reported without a fix. |
 | `drupal/parameter-blank-line` | Error | A blank line, or a line with only spaces, in the declaration of a function, method or closure whose parameter list spans lines. The check covers the lines between the parentheses and, for a closure, the `use` list, which counts only when the parameter list spans lines. The rule skips a blank line inside a default value that holds an array, a call, parentheses or a string, inside an attribute and inside a comment, and it skips arrow functions. A fix removes the line and keeps the line endings. |
 | `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
 | `drupal/property-per-statement` | Error | A statement that declares more than one property, as in `public $a, $b;`. The rule reports once, on the first name. There is no fix. |
@@ -251,6 +252,19 @@ the blank space in front of the colon, where phpcbf leaves `case 1 :` for anothe
 `Squiz.ControlStructures.SwitchDeclaration` does. It reads the labels in the switch's own body. Coder
 walks tokens, so it needs special cases for nested switches. A file that does not parse gives
 no report. Coder reports a statement placed directly in a switch body, which is invalid PHP.
+
+`SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator` is `drupal/null-coalesce`. The
+rule compares operands by syntax tree where the sniff compares text, so the report is the same
+before and after `mago format`. Differences from Coder: the rule reports a ternary after `and`, `or`
+and `xor` (the formatter adds parentheses there, and the sniff then reports it), a parenthesized
+condition or operand, operands that differ only in quotes or spacing, and an `isset` whose key holds a call with a comma, such as
+`isset($a[max(1, 2)])`, which the sniff skips on any comma. It does not report
+`!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or `$b + $a === null ? '' : $a`, because
+the compared operand is `!$a`, `(string) $a` or `$b + $a`, and a fix would change the result. It does
+not report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an `(array)` or `(object)` cast
+before `isset`, which always gives `true`. The sniff's fix
+drops comments and casts without notice. Here a comment makes the fix potentially unsafe, and a cast
+gets no fix.
 
 ## Ported from phpstan-drupal
 
