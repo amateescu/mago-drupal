@@ -1,8 +1,11 @@
 drupal/author-tag
 drupal/case-break-blank-line
 drupal/class-comment
+drupal/class-name-acronym
 drupal/comment-line-length
+drupal/const-prefix
 drupal/constant-prefix
+drupal/define-name
 drupal/deprecated-tag
 drupal/deprecation-message
 drupal/discouraged-function
@@ -20,6 +23,7 @@ drupal/function-prefix
 drupal/gender-neutral-comment
 drupal/global-function
 drupal/global-variable
+drupal/hook-attribute-name
 drupal/hook-comment
 drupal/inline-comment
 drupal/inline-comment-blank-line

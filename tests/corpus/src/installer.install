@@ -7,6 +7,11 @@
 
 declare(strict_types=1);
 
+// @mago-expect lint:drupal/const-prefix
+const CACHE_INSTALL_FLAG = 1;
+
+const INSTALLER_FLAG = 1;
+
 /**
  * Implements hook_install().
  */

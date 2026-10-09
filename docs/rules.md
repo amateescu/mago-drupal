@@ -28,6 +28,7 @@ These rules report only in `.module` and `.install` files.
 
 | Code | Level | What it reports |
 | --- | --- | --- |
+| `drupal/const-prefix` | Warning | A `const` constant at the top level of the file, or after `namespace Foo;`, whose first name does not start with the module name and an underscore. The check is the one of `drupal/constant-prefix`. The rule skips a `const` inside a braced `namespace Foo { }`, as Coder 9 does. Off with `--core`, see below. |
 | `drupal/constant-prefix` | Warning | A `define()` constant without the module prefix. |
 | `drupal/empty-install-hook` | Error | An empty `hook_install()` or `hook_uninstall()` body. |
 | `drupal/function-prefix` | Error | A function in a `.module` file whose name does not start with the module name and an underscore, with an optional leading underscore. A name that starts with `template_preprocess` or `theme` is fine. `.install` files are not checked, as in Coder 9. Off with `--core`, see below. |
@@ -40,10 +41,13 @@ These rules report only in `.module` and `.install` files.
 | Code | Level | What it reports |
 | --- | --- | --- |
 | `drupal/case-break-blank-line` | Error | A `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and is not followed by exactly one blank line. A fix adds the line, or removes the extra ones. The last case before the closing brace and a `default` case are skipped, and so is a case that falls through from a `default`, as in Coder 9. A comment on the statement's line does not count, and one on a later line does. The rule skips a `switch (): ... endswitch;` body, because `mago format` removes the blank lines between its cases. |
+| `drupal/class-name-acronym` | Error | A class, interface, trait or enum name that starts with three upper-case letters in a row, such as `HTTPClient`. Digits and underscores after the capitals do not end the acronym, and a multi-byte letter does not count as lower case, as in Coder 9. The report is on the name. |
+| `drupal/define-name` | Error | A `define()` constant name that is not upper case. The rule reads the first argument, a string literal or literals joined with `.`, and checks the part after the last backslash. Only ASCII letters count. It reports in every scanned file type and at any depth. Mago's `constant-name` covers `const`. |
 | `drupal/else-if` | Error | An `else if` written as two keywords. Drupal writes `elseif`. A fix joins the keywords. The rule skips a braced `else { if ... }`. |
 | `drupal/enum-case-name` | Error | An enum case that is not UpperCamelCase. |
 | `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. It skips a file with no namespace, several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
-| `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. A magic method's two underscores are fine. Off with `--core`, see below. |
+| `drupal/hook-attribute-name` | Warning | A `Drupal\Core\Hook\Attribute\Hook` attribute whose first argument, positional or `hook:`, is a hook name that starts with `hook_`. The attribute holds the whole hook name, so such a name is never invoked. The rule has no fix, because removing the prefix changes which hook runs. Off with `--core`, see below. |
+| `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. Also a name that starts with two underscores and is not a PHP magic method or a `SoapClient` method, as Coder 9's `MethodDoubleUnderscore` reports. The names are matched without regard to case. A name that is only two underscores, or starts with three, is fine. Off with `--core`, see below. |
 | `drupal/method-visibility` | Error | A method declared without `public`, `protected` or `private`. A fix adds `public`. |
 | `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
 | `drupal/property-visibility` | Error | A property declared with `var`, which a fix writes as `public`, or declared without `public`, `protected` or `private`, such as `static $count;`. A fix adds `public`, which is what PHP makes such a property. A `var` property is reported once, where Coder 9 also reports the missing visibility. |
@@ -175,12 +179,36 @@ Core's `phpcs.xml.dist` turns off four checks that the Drupal standard enables: 
 and `SpacingAfter` of `Drupal.Commenting.InlineComment`, `LongFullStop` of
 `Drupal.Commenting.DocComment`, and `PSR2.Methods.MethodDeclaration.Underscore`. It also does not
 run `Drupal.NamingConventions.ValidFunctionName`, whose `InvalidPrefix` check is
-`drupal/function-prefix`. Each is a rule of its own here, `drupal/inline-comment-punctuation`,
-`drupal/inline-comment-blank-line`, `drupal/long-description-punctuation`,
-`drupal/method-name-underscore` and `drupal/function-prefix`, on by default for contrib and custom
+`drupal/function-prefix` and whose `MethodDoubleUnderscore` check is part of
+`drupal/method-name-underscore`. It does not run `Drupal.Semantics.ConstantName.ConstConstantStart`
+or `Drupal.Attributes.ValidHookName` either. Each is a rule of its own here,
+`drupal/inline-comment-punctuation`, `drupal/inline-comment-blank-line`,
+`drupal/long-description-punctuation`, `drupal/method-name-underscore`, `drupal/function-prefix`,
+`drupal/const-prefix` and `drupal/hook-attribute-name`, on by default for contrib and custom
 code. The worker's `--core` argument turns them off. A project that turns other sub-codes off in
 its phpcs config can turn off the matching rules with `--disable`, see the
 [README](../README.md#install).
+
+The naming rules differ from Coder 9 where a sniff has a bug and not a scope choice:
+
+- `drupal/const-prefix` and `drupal/constant-prefix` need the underscore after the module name.
+  Coder 9 only tests that the name starts with the upper-case module name, so for a module named
+  `mymod` it accepts `MYMODULE_X`.
+- `drupal/define-name` matches `define` without regard to case, with or without a leading
+  backslash. A name built from literals joined with `.` is checked as a whole. Coder 9 checks only
+  the first literal. A name that has a variable in it is skipped. Coder 9 reports `'mymod_' . $x`.
+- `drupal/hook-attribute-name` resolves the attribute name, so an alias or a fully qualified name
+  counts and a bare `Hook` that is not imported from Drupal's class does not, and every attribute of a group is checked. It reads only the attribute's own first
+  argument. Coder 9 reads the next string literal in the file, so it also reports an unrelated
+  string below a `#[Hook(self::CRON)]` or a `#[Hook]` attribute. A hook name built from literals
+  joined with `.` is checked as a whole.
+- `drupal/class-name-acronym` and `drupal/method-name-underscore` report on the name. Coder 9
+  reports on the `class` keyword and the `function` keyword, so the lines differ when a
+  declaration spans several lines.
+
+The `MethodDoubleUnderscore` check reads the same 29 names as Coder 9: the 17 magic methods of PHP
+and the 12 methods of `SoapClient`. Mago's `method-name` rule reports no name that starts with two
+underscores, so no other rule repeats this check.
 
 A few cases differ from Coder. Text on the line of the opening `/**` is reported once, where Coder
 also reports it as `SpacingBeforeShort`. A tab after spaces after `//` is reported once, as a tab.
