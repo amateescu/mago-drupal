@@ -85,11 +85,11 @@ instead.
 
 Many rules carry a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
 ones, and `mago fix` applies them until nothing changes. `--potentially-unsafe` adds the fixes that
-turn a comment into a docblock, which the analyzers then read, the ones that drop or move comment
-or docblock text, and the `deprecated-tag` rewrite of an old deprecation wording. `--unsafe` adds the `weak-hash` rewrite, which changes stored digests.
-Both flags also apply Mago's own fixes of that level, such as `strict: true` from
-`strict-behavior`, which can change what a loose comparison returns. `--dry-run` shows the diff
-first. [docs/rules.md](docs/rules.md) says which rules fix what.
+turn a comment into a docblock, which the analyzers then read, the ones that drop or move comment or
+docblock text, and the `deprecated-tag` rewrite of an old deprecation wording. `--unsafe` adds the
+`weak-hash` rewrite, which changes stored digests. Both flags also apply Mago's own fixes of that
+level, such as `strict: true` from `strict-behavior`, which can change what a loose comparison
+returns. `--dry-run` shows the diff first. [docs/rules.md](docs/rules.md) says which rules fix what.
 
 Rule codes are stable. Projects that we do not control write them into baselines and into
 `// @mago-expect lint:<code>` comments. For that reason, the codes get no vendor prefix and no new

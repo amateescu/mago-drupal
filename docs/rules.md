@@ -219,33 +219,34 @@ Core's `phpcs.xml.dist` turns off some checks that the Drupal standard enables, 
 some sniffs at all. It turns off `InvalidEndChar` and `SpacingAfter` of
 `Drupal.Commenting.InlineComment`, `LongFullStop` of `Drupal.Commenting.DocComment` and
 `PSR2.Methods.MethodDeclaration.Underscore`, and enables only `WrongOpenercase` of
-`PSR2.ControlStructures.SwitchDeclaration`. It does not run `Drupal.NamingConventions.ValidFunctionName`,
-`Drupal.Semantics.ConstantName.ConstConstantStart`, `Drupal.Attributes.ValidHookName`,
-`SlevomatCodingStandard.PHP.ShortList` or any DrupalPractice sniff. The rules that port those checks
-are on by default for contrib and custom code, and the worker's `--core` argument turns them off:
-`drupal/case-fall-through`, `drupal/const-prefix`, `drupal/function-prefix`,
-`drupal/hook-attribute-name`, `drupal/inline-comment-blank-line`, `drupal/inline-comment-punctuation`,
-`drupal/long-description-punctuation`, `drupal/method-name-underscore`, `drupal/short-list` and the
-DrupalPractice rules. `drupal/method-name-underscore` holds the `MethodDoubleUnderscore` check of
-`ValidFunctionName` too. A project that turns other sub-codes off in its phpcs config can turn off
-the matching rules with `--disable`, see the [README](../README.md#install).
+`PSR2.ControlStructures.SwitchDeclaration`. It does not run
+`Drupal.NamingConventions.ValidFunctionName`, `Drupal.Semantics.ConstantName.ConstConstantStart`,
+`Drupal.Attributes.ValidHookName`, `SlevomatCodingStandard.PHP.ShortList` or any DrupalPractice
+sniff. The rules that port those checks are on by default for contrib and custom code, and the
+worker's `--core` argument turns them off: `drupal/case-fall-through`, `drupal/const-prefix`,
+`drupal/function-prefix`, `drupal/hook-attribute-name`, `drupal/inline-comment-blank-line`,
+`drupal/inline-comment-punctuation`, `drupal/long-description-punctuation`,
+`drupal/method-name-underscore`, `drupal/short-list` and the DrupalPractice rules.
+`drupal/method-name-underscore` holds the `MethodDoubleUnderscore` check of `ValidFunctionName` too.
+A project that turns other sub-codes off in its phpcs config can turn off the matching rules with
+`--disable`, see the [README](../README.md#install).
 
 Mago reads only the file extensions in its `[source]` block. Coder also checks `.test` files, a
 Drupal 7 format, and core's config checks `.yml` files, which Mago does not parse. Add `test` to the
 extensions to check `.test` files.
 
-Four rules port statement checks, and each differs from Coder where Coder is wrong. A case that ends in
-`$x or exit()` or `$x ?? throw ...` falls through when the left side allows it, and
+Four rules port statement checks, and each differs from Coder where Coder is wrong. A case that ends
+in `$x or exit()` or `$x ?? throw ...` falls through when the left side allows it, and
 `drupal/case-fall-through` reports it, where Coder ends the case at the keyword. A braceless
-`if (...) return; else return;` ends a case, where Coder reports it. A case whose body is a `{ }`
-block with no ending statement is reported, where Coder stops with an internal exception for the whole
+`if (...) return; else return;` ends a case, where Coder reports it. A case whose body is a `{ }` block
+with no ending statement is reported, where Coder stops with an internal exception for the whole
 file. A `break` inside a nested `switch` does not end the outer case, as in Coder.
 `drupal/redundant-return` skips a `return;` that is the whole body of an unbraced loop, where Coder
 reports it, because removing it changes the loop. It reports a `return;` that ends a `{ }` block at
 the end of a body, where Coder stops with an internal exception and loses the rest of the file's
-reports for the code. `drupal/parameter-blank-line` and `drupal/inline-comment-blank-line` both report
-a blank line below a `//` comment in a parameter list, with fixes for the same line. When both run in
-one pass, Mago skips one edit, and the next pass applies it.
+reports for the code. `drupal/parameter-blank-line` and `drupal/inline-comment-blank-line` both
+report a blank line below a `//` comment in a parameter list, with fixes for the same line. When
+both run in one pass, Mago skips one edit, and the next pass applies it.
 
 `drupal/file-comment` skips a byte order mark before the open tag, so a procedural file with a mark
 and a correct docblock gets only the report of `drupal/byte-order-mark`.
@@ -279,10 +280,10 @@ The naming rules differ from Coder 9 where a sniff has a bug and not a scope cho
   backslash. A name built from literals joined with `.` is checked as a whole. Coder 9 checks only
   the first literal. A name that has a variable in it is skipped. Coder 9 reports `'mymod_' . $x`.
 - `drupal/hook-attribute-name` resolves the attribute name, so an alias or a fully qualified name
-  counts and a bare `Hook` that is not imported from Drupal's class does not, and every attribute of a group is checked. It reads only the attribute's own first
-  argument. Coder 9 reads the next string literal in the file, so it also reports an unrelated
-  string below a `#[Hook(self::CRON)]` or a `#[Hook]` attribute. A hook name built from literals
-  joined with `.` is checked as a whole.
+  counts and a bare `Hook` that is not imported from Drupal's class does not, and every attribute of
+  a group is checked. It reads only the attribute's own first argument. Coder 9 reads the next
+  string literal in the file, so it also reports an unrelated string below a `#[Hook(self::CRON)]`
+  or a `#[Hook]` attribute. A hook name built from literals joined with `.` is checked as a whole.
 - `drupal/class-name-acronym` and `drupal/method-name-underscore` report on the name. Coder 9
   reports on the `class` keyword and the `function` keyword, so the lines differ when a
   declaration spans several lines.
@@ -373,18 +374,18 @@ the blank space in front of the colon, where phpcbf leaves `case 1 :` for anothe
 walks tokens, so it needs special cases for nested switches. A file that does not parse gives
 no report. Coder reports a statement placed directly in a switch body, which is invalid PHP.
 
-`SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator` is `drupal/null-coalesce`. The
-rule compares operands by syntax tree where the sniff compares text, so the report is the same
+`SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator` is `drupal/null-coalesce`.
+The rule compares operands by syntax tree where the sniff compares text, so the report is the same
 before and after `mago format`. Differences from Coder: the rule reports a ternary after `and`, `or`
 and `xor` (the formatter adds parentheses there, and the sniff then reports it), a parenthesized
-condition or operand, operands that differ only in quotes or spacing, and an `isset` whose key holds a call with a comma, such as
-`isset($a[max(1, 2)])`, which the sniff skips on any comma. It does not report
-`!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or `$b + $a === null ? '' : $a`, because
-the compared operand is `!$a`, `(string) $a` or `$b + $a`, and a fix would change the result. It does
-not report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an `(array)` or `(object)` cast
-before `isset`, which always gives `true`. The sniff's fix
-drops comments and casts without notice. Here a comment makes the fix potentially unsafe, and a cast
-gets no fix.
+condition or operand, operands that differ only in quotes or spacing, and an `isset` whose key holds
+a call with a comma, such as `isset($a[max(1, 2)])`, which the sniff skips on any comma. It does not
+report `!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or `$b + $a === null ? '' : $a`,
+because the compared operand is `!$a`, `(string) $a` or `$b + $a`, and a fix would change the
+result. It does not report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an
+`(array)` or `(object)` cast before `isset`, which always gives `true`. The sniff's fix drops
+comments and casts without notice. Here a comment makes the fix potentially unsafe, and a cast gets
+no fix.
 
 The DrupalPractice rules read the file name and the syntax tree, and no file on disk. Coder's
 `Project` class also reads the nearest `*.info.yml` or `*.info` file. That difference has three
@@ -397,35 +398,36 @@ line.
 
 Where Coder's result is an accident of its tokens, the rules report what the code means.
 `drupal/global-constant` treats the body of an `if`, `elseif` or `else` written without braces, and
-an arrow function, as nested, because Coder sees no enclosing scope there. It also reports `\define()`
-and `DEFINE()`, which Coder misses, does not report `$object?->define()` or `define(...)`, and keeps
-a `@deprecated` docblock that is above an attribute list. The `@deprecated` tag must be at the start
-of a docblock line, and its name is case-sensitive. A one-line docblock with only the tag counts, and
-a tag in the middle of a sentence does not. `drupal/form-alter-comment` compares the function name
-without regard to case, because PHP does, and finds the hook line only at the start of a docblock
-line, so `@see Implements hook_form_alter().` is not a hook line. `drupal/untranslated-options` takes
-the `#type` from the array that holds the `#options`, in either order and in either quote style, where
-Coder takes the first `'#type'` of the statement. It reports the last label of an array and a label
-in an `array()` group, which Coder skips, and it does not need a comma after the label. It accepts
-`Array(`, and does not read a `$form['x']['#options'] = [...]` assignment, which Coder reads only when
-a `'#type'` is in the same statement. `drupal/strict-config-schema` uses the nearest named class or
-trait for a property of an anonymous class, and not the outermost scope. It does not read a name
-like `Testimonial` or `Testable` as a test class. `drupal/curl-ssl-verify` ignores the case of the
-function name and of `FALSE`, accepts a leading backslash, a value in parentheses and a zero in any
-integer base, and reads the arguments by name. It reads the whole value, so `FALSE ?: TRUE` does not
-count, and a method call does not count, `$object?->curl_setopt()` included. It skips a call with
-too few arguments, where Coder stops checking the file. `drupal/request-superglobal` reports a use
-inside a double-quoted string or a heredoc, which Coder misses. It treats `$_GET /* note */ ['a']`
-as an access with a key. The message gives the source text of the key.
+an arrow function, as nested, because Coder sees no enclosing scope there. It also reports
+`\define()` and `DEFINE()`, which Coder misses, does not report `$object?->define()` or
+`define(...)`, and keeps a `@deprecated` docblock that is above an attribute list. The `@deprecated`
+tag must be at the start of a docblock line, and its name is case-sensitive. A one-line docblock
+with only the tag counts, and a tag in the middle of a sentence does not.
+`drupal/form-alter-comment` compares the function name without regard to case, because PHP does, and
+finds the hook line only at the start of a docblock line, so `@see Implements hook_form_alter().` is
+not a hook line. `drupal/untranslated-options` takes the `#type` from the array that holds the
+`#options`, in either order and in either quote style, where Coder takes the first `'#type'` of the
+statement. It reports the last label of an array and a label in an `array()` group, which Coder
+skips, and it does not need a comma after the label. It accepts `Array(`, and does not read a
+`$form['x']['#options'] = [...]` assignment, which Coder reads only when a `'#type'` is in the same
+statement. `drupal/strict-config-schema` uses the nearest named class or trait for a property of an
+anonymous class, and not the outermost scope. It does not read a name like `Testimonial` or
+`Testable` as a test class. `drupal/curl-ssl-verify` ignores the case of the function name and of
+`FALSE`, accepts a leading backslash, a value in parentheses and a zero in any integer base, and
+reads the arguments by name. It reads the whole value, so `FALSE ?: TRUE` does not count, and a
+method call does not count, `$object?->curl_setopt()` included. It skips a call with too few
+arguments, where Coder stops checking the file. `drupal/request-superglobal` reports a use inside a
+double-quoted string or a heredoc, which Coder misses. It treats `$_GET /* note */ ['a']` as an
+access with a key. The message gives the source text of the key.
 
 `drupal/translatable-string` reads the escapes in a string literal, where Coder looks for the two
-characters `\'` or `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so it
-holds no escaped quote and is not reported. The rule also reports a call that Coder does not see: a
-fully qualified `\t()` or `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a call written in
-another letter case such as `T()`, and a call inside a string interpolation. It does not read the
-strings of `formatPlural()`, as in Coder. The fix only applies when moving to the other quote keeps the
-value: no `"` and `$` in a single-quoted string and no backslash but the one before the quote, and the
-same for a double-quoted string without `'`.
+characters `\'` or `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so
+it holds no escaped quote and is not reported. The rule also reports a call that Coder does not see:
+a fully qualified `\t()` or `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a call
+written in another letter case such as `T()`, and a call inside a string interpolation. It does not
+read the strings of `formatPlural()`, as in Coder. The fix only applies when moving to the other
+quote keeps the value: no `"` and `$` in a single-quoted string and no backslash but the one before
+the quote, and the same for a double-quoted string without `'`.
 
 `drupal/hook-comment` skips a function that sits in a block, in `namespace X { }` or in another
 function, and a docblock that has a comment, an attribute or a `?>` between it and the `function`
@@ -444,14 +446,15 @@ as PHP does. A
 suppression such as `// phpcs:ignore Drupal.Commenting.InlineComment.DocBlock` above a docblock does
 not carry over, see the paragraph on suppression comments above.
 
-`drupal/fully-qualified-name` keeps its exemption for a namespaced function call, where Coder reports
-it. Coder's fix imports the function name as a class and the call then reaches the global function.
-The rule skips the names in a `use` group, where Coder reports the member and its fix changes the
-statement. A name in the conflict block of a trait `use` is not reported, where Coder reports it. The fix in a
-file with no namespace never puts an import in the clause of a closure, which Coder's fix does when a
-closure holds the first `use` of the file. It also leaves a name alone when the short name is
-taken by an interface, a trait, an enum, an import that differs in case only, or a class whose name
-has a comment before it, where Coder reports a fixable error and writes code that PHP rejects.
+`drupal/fully-qualified-name` keeps its exemption for a namespaced function call, where Coder
+reports it. Coder's fix imports the function name as a class and the call then reaches the global
+function. The rule skips the names in a `use` group, where Coder reports the member and its fix
+changes the statement. A name in the conflict block of a trait `use` is not reported, where Coder
+reports it. The fix in a file with no namespace never puts an import in the clause of a closure,
+which Coder's fix does when a closure holds the first `use` of the file. It also leaves a name alone
+when the short name is taken by an interface, a trait, an enum, an import that differs in case only,
+or a class whose name has a comment before it, where Coder reports a fixable error and writes code
+that PHP rejects.
 
 `drupal/file-comment` reports a tag that is not exactly `@file`, so `@FILE` and `@File` count as no
 tag, as in Coder. The report sits on the second line of the docblock, where Coder puts it, or on the
