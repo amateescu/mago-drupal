@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @FILE
+ * Helpers for the module.
+ */
+
+function helper_six(): void {}

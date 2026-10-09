@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+use Other\url;
+
+function case_clash(): void {
+  \Drupal\Core\Url::fromRoute('x');
+  url::y();
+}

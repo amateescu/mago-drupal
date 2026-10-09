@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Helpers for the module.
+ *
+ * @file Text after the tag.
+ */
+
+function helper_four(): void {}

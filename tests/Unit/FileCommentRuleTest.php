@@ -176,4 +176,32 @@ final class FileCommentRuleTest extends TestCase
         self::assertCount(1, $issues);
         self::assertStringContainsString('does not start with a docblock', $issues[0]->message);
     }
+
+    public function testReportsAFileTagBelowTheSecondLine(): void
+    {
+        $contents = "<?php\n\n/**\n * Does something.\n *\n * @file\n */\n";
+        $docblock = "/**\n * Does something.\n *\n * @file\n */";
+
+        $issues = self::lint('node.module', $contents, TriviaKind::DocBlockComment, self::spanOf($contents, $docblock));
+
+        self::assertCount(1, $issues);
+        self::assertStringContainsString('second line', $issues[0]->message);
+        self::assertSame(self::spanOf($contents, ' * Does')->start + 1, $issues[0]->annotations[0]->span->start);
+    }
+
+    public function testReportsAFileTagInTheWrongCase(): void
+    {
+        $contents = "<?php\n\n/**\n * @FILE\n */\n";
+
+        $issues = self::lint(
+            'node.module',
+            $contents,
+            TriviaKind::DocBlockComment,
+            self::spanOf($contents, "/**\n * @FILE\n */"),
+        );
+
+        self::assertCount(1, $issues);
+        self::assertStringContainsString('must have an @file tag', $issues[0]->message);
+        self::assertSame([], $issues[0]->edits);
+    }
 }

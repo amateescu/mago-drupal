@@ -1,0 +1,5 @@
+<?php
+// Theme helpers.
+function comment_url(): string {
+  return \Drupal\Core\Url::fromRoute('x')->toString();
+}

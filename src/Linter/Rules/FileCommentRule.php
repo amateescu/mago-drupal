@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DrupalFile;
+use amateescu\MagoDrupal\Internal\FileTags;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -21,7 +22,6 @@ use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
-use function strlen;
 use function substr;
 
 /**
@@ -68,23 +68,48 @@ final class FileCommentRule implements Rule
             return;
         }
 
-        foreach (Docblocks::tags($context->file, $first->span) as $tag) {
-            if ($tag->name !== 'file') {
-                continue;
-            }
-
-            $this->checkBlankLineAfter($context, $first->span);
+        // Tag names are case-sensitive in Coder, so `@FILE` is not a file tag.
+        [$tag, $variant] = Docblocks::fileTag($context->file, $first->span);
+        if ($tag !== null) {
+            $this->checkTagPosition($context, $first->span, $tag);
 
             return;
         }
 
-        $issue = Issue::new('The file docblock must have an @file tag.', $first->span);
-        $opener = $this->fileTagOffset($context->file->contents, $first->span);
+        $issue = Issue::new('The file docblock must have an @file tag.', FileTags::reportSpan(
+            $context->file->contents,
+            $first->span,
+        ));
+        $opener = $variant ? null : FileTags::insertOffset($context->file->contents, $first->span);
         $context->report(
             $opener === null
                 ? $issue
                 : $issue->withEdit(TextEdit::insert($opener, LineEnding::of($context->file->contents) . ' * @file')),
         );
+    }
+
+    /**
+     * Reports an `@file` tag that is not on the line right below the
+     * docblock's opener, and checks the blank line below the docblock when
+     * it is.
+     *
+     * A potentially unsafe fix moves a tag that stands alone on its line.
+     */
+    private function checkTagPosition(LintContext $context, Span $docblock, Span $tag): void
+    {
+        $contents = $context->file->contents;
+        if (FileTags::onSecondLine($contents, $docblock, $tag)) {
+            $this->checkBlankLineAfter($context, $docblock);
+
+            return;
+        }
+
+        $issue = Issue::new('The second line in the file docblock must be "@file".', FileTags::reportSpan(
+            $contents,
+            $docblock,
+        ));
+        $moved = FileTags::move($contents, $docblock, $tag);
+        $context->report($moved === null ? $issue : $issue->withEdit($moved));
     }
 
     /**
@@ -128,27 +153,5 @@ final class FileCommentRule implements Rule
         }
 
         return null;
-    }
-
-    /**
-     * Where `@file` goes, at the end of the opener line, or null when it
-     * cannot go on a line of its own: the opener line holds text, the
-     * docblock is a group's, or no blank line parts it from the code below.
-     * A docblock right on a function is that function's, which `@file`
-     * would steal.
-     */
-    private function fileTagOffset(string $contents, Span $docblock): ?int
-    {
-        $text = substr($contents, $docblock->start, $docblock->length());
-        $opener = [];
-        if (
-            preg_match('/^\/\*\*[ \t]*(?=\r?\n)/', $text, $opener) !== 1
-            || preg_match('/@(?:defgroup|addtogroup)\b/', $text) === 1
-            || preg_match('/\G\r?\n[ \t]*\r?\n/', $contents, offset: $docblock->end) !== 1
-        ) {
-            return null;
-        }
-
-        return $docblock->start + strlen($opener[0]);
     }
 }

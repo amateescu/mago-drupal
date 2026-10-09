@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Helpers for the module.
+ */
+
+function helper_seven(): void {}
