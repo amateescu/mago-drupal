@@ -8,7 +8,9 @@ use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
+use function array_filter;
 use function array_pop;
+use function array_values;
 use function count;
 use function in_array;
 use function ltrim;
@@ -107,6 +109,19 @@ final class Nodes
         }
 
         return false;
+    }
+
+    /**
+     * The statements that are direct children of a node.
+     *
+     * @return list<Node>
+     */
+    public static function statements(SourceFile $file, Node $node): array
+    {
+        return array_values(array_filter(
+            $file->getChildren($node),
+            static fn(Node $child): bool => $child->kind === NodeKind::Statement,
+        ));
     }
 
     /**

@@ -40,16 +40,20 @@ These rules report only in `.module` and `.install` files.
 | Code | Level | What it reports |
 | --- | --- | --- |
 | `drupal/case-break-blank-line` | Error | A `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and is not followed by exactly one blank line. A fix adds the line, or removes the extra ones. The last case before the closing brace and a `default` case are skipped, and so is a case that falls through from a `default`, as in Coder 9. A comment on the statement's line does not count, and one on a later line does. The rule skips a `switch (): ... endswitch;` body, because `mago format` removes the blank lines between its cases. |
+| `drupal/case-fall-through` | Error | A non-empty `case` that falls through to the next case with no comment right before it. A comment of any kind counts, whatever it says. The case is fine when a `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` ends it, or when its last statement ends it in every branch: an `if` with an `else`, a `try` with its `catch` blocks or a `finally` block, or a nested `switch` with a `default` case. A `default` case and the last case are skipped. Reports only, with no fix. Off with `--core`, see below. |
 | `drupal/case-semicolon` | Error | A `case` or `default` label that ends with a semicolon, as in `case 1;`. A fix writes the colon, and removes the blank space in front of the semicolon. A comment in front of it stays. The rule reads both the brace and the colon syntax, and checks the labels of a nested switch with that switch. |
+| `drupal/comment-in-expression` | Error | A comment right after a cast, as in `(int) /* note */ $x`, or between `yield` and `from`. A comment before the cast, after the operand or after `from` is fine. Every cast spelling counts, `(void)` included, whatever the target PHP version. Reports only, with no fix. |
 | `drupal/else-if` | Error | An `else if` written as two keywords. Drupal writes `elseif`. A fix joins the keywords. The rule skips a braced `else { if ... }`. |
 | `drupal/empty-switch` | Error | A switch with no `case` label. A switch that holds only `default` counts, and so does an empty one. A `case` label of a nested switch does not count for the outer switch. There is no fix. |
 | `drupal/enum-case-name` | Error | An enum case that is not UpperCamelCase. |
 | `drupal/fully-qualified-name` | Error | A namespaced class written out in full where a `use` statement belongs. The rule skips a name with no namespace of its own, such as `\Exception`, and a namespaced function call or first-class callable. The rule skips an `.api.php` file completely. A fix adds the import and writes the short name everywhere the file writes the class in full. It skips a file with no namespace, several namespaces or a braced one, or an import below code, a constant, and a short name the file already uses for something else: another import, a class of that name, or a docblock that writes the short name in the same case. |
 | `drupal/method-name-underscore` | Warning | A method name that starts with one underscore to mark it private, as Coder 9's `PSR2.Methods.MethodDeclaration.Underscore` reports. A magic method's two underscores are fine. Off with `--core`, see below. |
 | `drupal/method-visibility` | Error | A method declared without `public`, `protected` or `private`. A fix adds `public`. |
+| `drupal/parameter-blank-line` | Error | A blank line, or a line with only spaces, in the declaration of a function, method or closure whose parameter list spans lines. The check covers the lines between the parentheses and, for a closure, the `use` list, which counts only when the parameter list spans lines. The rule skips a blank line inside a default value that holds an array, a call, parentheses or a string, inside an attribute and inside a comment, and it skips arrow functions. A fix removes the line and keeps the line endings. |
 | `drupal/property-name` | Error | A class property that is not lowerCamelCase. |
 | `drupal/property-per-statement` | Error | A statement that declares more than one property, as in `public $a, $b;`. The rule reports once, on the first name. There is no fix. |
 | `drupal/property-visibility` | Error | A property declared with `var`, which a fix writes as `public`, or declared without `public`, `protected` or `private`, such as `static $count;`. A fix adds `public`, which is what PHP makes such a property. A `var` property is reported once, where Coder 9 also reports the missing visibility. |
+| `drupal/redundant-return` | Warning | A `return;` that is the last statement of a function, method or closure body, or of a `{ }` block that ends the body. The function ends the same way without it. A fix removes the statement, and the line when the statement is alone on it. It is left out when a comment sits inside the statement, such as `return /* note */;`. A `return;` in an `if`, loop, `try` or `switch`, a `return` with a value, and one that code follows are fine. |
 | `drupal/redundant-use` | Error | A `use` statement that imports a class from the global namespace. A fix removes the import and writes `\Exception` at every reference, read from the resolved names. It is left out while a docblock in the file names the class in the same case without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes the types. |
 | `drupal/short-list` | Error | A destructuring written as `list(...)`, in an assignment, a `foreach` or a nested position. A fix writes `[...]` and removes the blank space between `list` and the parenthesis. A fix that would drop a comment between them is potentially unsafe. An empty `list()` has no fix. Off with `--core`, see below. |
 | `drupal/use-leading-backslash` | Error | An import whose class name starts with a backslash. A fix removes the backslash. |
@@ -186,6 +190,22 @@ code. The worker's `--core` argument turns them off. It also turns off `drupal/s
 core's config does not run `SlevomatCodingStandard.PHP.ShortList`. A project that turns other sub-codes off in
 its phpcs config can turn off the matching rules with `--disable`, see the
 [README](../README.md#install).
+
+Core's `phpcs.xml.dist` enables only the `WrongOpenercase` check of `PSR2.ControlStructures.SwitchDeclaration`, so
+`drupal/case-fall-through`, which ports its `TerminatingComment` check, is off with `--core`.
+
+Four rules port statement checks, and each differs from Coder where Coder is wrong. A case that ends in
+`$x or exit()` or `$x ?? throw ...` falls through when the left side allows it, and
+`drupal/case-fall-through` reports it, where Coder ends the case at the keyword. A braceless
+`if (...) return; else return;` ends a case, where Coder reports it. A case whose body is a `{ }`
+block with no ending statement is reported, where Coder stops with an internal exception for the whole
+file. A `break` inside a nested `switch` does not end the outer case, as in Coder.
+`drupal/redundant-return` skips a `return;` that is the whole body of an unbraced loop, where Coder
+reports it, because removing it changes the loop. It reports a `return;` that ends a `{ }` block at
+the end of a body, where Coder stops with an internal exception and loses the rest of the file's
+reports for the code. `drupal/parameter-blank-line` and `drupal/inline-comment-blank-line` both report
+a blank line below a `//` comment in a parameter list, with fixes for the same line. When both run in
+one pass, Mago skips one edit, and the next pass applies it.
 
 A few cases differ from Coder. Text on the line of the opening `/**` is reported once, where Coder
 also reports it as `SpacingBeforeShort`. A tab after spaces after `//` is reported once, as a tab.

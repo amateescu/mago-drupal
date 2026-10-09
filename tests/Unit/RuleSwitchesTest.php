@@ -78,6 +78,7 @@ final class RuleSwitchesTest extends TestCase
     {
         self::assertSame(
             [
+                'drupal/case-fall-through',
                 'drupal/function-prefix',
                 'drupal/inline-comment-blank-line',
                 'drupal/inline-comment-punctuation',
