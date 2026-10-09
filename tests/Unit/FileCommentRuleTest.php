@@ -119,6 +119,20 @@ final class FileCommentRuleTest extends TestCase
         self::assertSame([], $issues);
     }
 
+    public function testReadsPastAByteOrderMark(): void
+    {
+        $contents = "\xEF\xBB\xBF<?php\n\n/**\n * @file\n * Does something.\n */\n";
+
+        $issues = self::lint(
+            'node.module',
+            $contents,
+            TriviaKind::DocBlockComment,
+            self::spanOf($contents, "/**\n * @file\n * Does something.\n */"),
+        );
+
+        self::assertSame([], $issues);
+    }
+
     public function testReportsNothingOnANonProceduralFile(): void
     {
         self::assertSame([], self::lint('Node.php', "<?php\n\nclass Node {}\n"));

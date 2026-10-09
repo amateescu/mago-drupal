@@ -54,6 +54,7 @@ final class DrupalExtensionTest extends TestCase
     {
         $expected = [
             'drupal/author-tag' => [Level::Warning, true],
+            'drupal/byte-order-mark' => [Level::Error, true],
             'drupal/case-break-blank-line' => [Level::Error, true],
             'drupal/class-comment' => [Level::Error, true],
             'drupal/comment-line-length' => [Level::Warning, true],
@@ -66,9 +67,12 @@ final class DrupalExtensionTest extends TestCase
             'drupal/doc-type-namespace' => [Level::Warning, true],
             'drupal/else-if' => [Level::Error, true],
             'drupal/empty-install-hook' => [Level::Error, true],
+            'drupal/empty-php-tags' => [Level::Warning, true],
             'drupal/enum-case-name' => [Level::Error, true],
             'drupal/expected-exception-tag' => [Level::Warning, true],
             'drupal/file-comment' => [Level::Error, true],
+            'drupal/file-encoding' => [Level::Warning, true],
+            'drupal/file-start-whitespace' => [Level::Error, true],
             'drupal/fully-qualified-name' => [Level::Error, true],
             'drupal/function-comment' => [Level::Error, true],
             'drupal/function-prefix' => [Level::Error, true],
@@ -94,6 +98,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/redundant-use' => [Level::Error, true],
             'drupal/remote-address' => [Level::Error, true],
             'drupal/render-callback' => [Level::Error, true],
+            'drupal/short-echo-tag' => [Level::Error, true],
             'drupal/symfony-yaml-parse' => [Level::Warning, true],
             'drupal/t-in-hook-menu' => [Level::Error, true],
             'drupal/t-in-hook-schema' => [Level::Error, true],

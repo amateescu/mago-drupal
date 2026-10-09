@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal;
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
+use amateescu\MagoDrupal\Linter\Rules\ByteOrderMarkRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
@@ -19,9 +20,12 @@ use amateescu\MagoDrupal\Linter\Rules\DocCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\DocTypeNamespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\ElseIfRule;
 use amateescu\MagoDrupal\Linter\Rules\EmptyInstallHookRule;
+use amateescu\MagoDrupal\Linter\Rules\EmptyPhpTagsRule;
 use amateescu\MagoDrupal\Linter\Rules\EnumCaseNameRule;
 use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\FileEncodingRule;
+use amateescu\MagoDrupal\Linter\Rules\FileStartWhitespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
@@ -47,6 +51,7 @@ use amateescu\MagoDrupal\Linter\Rules\PropertyVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
+use amateescu\MagoDrupal\Linter\Rules\ShortEchoTagRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatableStringRule;
@@ -173,6 +178,7 @@ final class DrupalExtension
     {
         return [
             new AuthorTagRule(),
+            new ByteOrderMarkRule(),
             new CaseBreakBlankLineRule(),
             new ClassCommentRule(),
             new CommentLineLengthRule(),
@@ -184,10 +190,13 @@ final class DrupalExtension
             new DocCommentRule(),
             new DocTypeNamespaceRule(),
             new ElseIfRule(),
+            new EmptyPhpTagsRule(),
             new EmptyInstallHookRule(),
             new EnumCaseNameRule(),
             new ExpectedExceptionTagRule(),
             new FileCommentRule(),
+            new FileEncodingRule(),
+            new FileStartWhitespaceRule(),
             new FullyQualifiedNameRule(),
             new FunctionCommentRule(),
             new FunctionPrefixRule(),
@@ -213,6 +222,7 @@ final class DrupalExtension
             new RedundantUseRule(),
             new RemoteAddressRule(),
             new RenderCallbackRule(),
+            new ShortEchoTagRule(),
             new SymfonyYamlParseRule(),
             new TodoCommentRule(),
             new TranslatableStringRule(),

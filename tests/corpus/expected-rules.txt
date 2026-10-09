@@ -1,4 +1,5 @@
 drupal/author-tag
+drupal/byte-order-mark
 drupal/case-break-blank-line
 drupal/class-comment
 drupal/comment-line-length
@@ -11,9 +12,12 @@ drupal/doc-comment-array-syntax
 drupal/doc-type-namespace
 drupal/else-if
 drupal/empty-install-hook
+drupal/empty-php-tags
 drupal/enum-case-name
 drupal/expected-exception-tag
 drupal/file-comment
+drupal/file-encoding
+drupal/file-start-whitespace
 drupal/fully-qualified-name
 drupal/function-comment
 drupal/function-prefix
@@ -39,6 +43,7 @@ drupal/property-visibility
 drupal/redundant-use
 drupal/remote-address
 drupal/render-callback
+drupal/short-echo-tag
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema
