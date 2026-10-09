@@ -16,4 +16,9 @@ function inline_capital(): void
     $d = 4;
     // Tight start, which gets a space first.
     $e = 5;
+    if ($e > 1) {
+        $e = 1;
+    } // end of the if, which stays as it is.
+    // Below the brace, a comment of its own.
+    $f = 6;
 }

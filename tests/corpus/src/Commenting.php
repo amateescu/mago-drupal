@@ -48,6 +48,23 @@ function todo_bad(): void {
 function todo_fine(): void {
 }
 
+// @mago-expect lint:drupal/todo-comment(2)
+/*
+ @TODO Fix the first thing.
+ @todo: Fix the second thing.
+ */
+// @mago-expect lint:drupal/function-comment
+function todo_block_bad(): void {
+}
+
+/*
+ @todo Fix the first thing.
+ @todo Fix the second thing.
+ */
+// @mago-expect lint:drupal/function-comment
+function todo_block_fine(): void {
+}
+
 // @mago-expect lint:drupal/doc-comment-array-syntax
 /**
  * Demonstrates array syntax inside a @code example.
@@ -81,6 +98,22 @@ class CommentingLegacyTest {
    * @expectedException \Exception
    */
   public function expectedExceptionBad(): void {
+  }
+
+  // @mago-expect lint:drupal/expected-exception-tag
+  /**
+   * Stands in for a test method with the tag indented under another tag.
+   *
+   * @dataProvider providerValues
+   *   @expectedException \Exception
+   */
+  public function expectedExceptionIndentedBad(): void {
+  }
+
+  /**
+   * Stands in for a test method that names @expectedException mid-line.
+   */
+  public function expectedExceptionMidLineFine(): void {
   }
 
   // @mago-expect lint:drupal/function-comment

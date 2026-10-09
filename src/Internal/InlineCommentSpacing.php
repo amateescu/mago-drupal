@@ -289,7 +289,7 @@ final class InlineCommentSpacing
      * Whether a `}` comes before the offset on its line, with only spaces
      * between, as in `} // end if`.
      */
-    private static function followsClosingBrace(string $contents, int $offset): bool
+    public static function followsClosingBrace(string $contents, int $offset): bool
     {
         $position = $offset - 1;
         while ($position >= 0 && ($contents[$position] === ' ' || $contents[$position] === "\t")) {

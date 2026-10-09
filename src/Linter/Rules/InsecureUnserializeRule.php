@@ -106,7 +106,7 @@ final class InsecureUnserializeRule implements Rule
         // The ported sniff examines the second argument's tokens for the
         // key. It reports a variable or a call there too. The message
         // says what the rule can and cannot see.
-        if ($options->kind !== NodeKind::Array) {
+        if ($options->kind !== NodeKind::Array && $options->kind !== NodeKind::LegacyArray) {
             return 'The unserialize() options are not an array literal. The rule cannot check allowed_classes.';
         }
 

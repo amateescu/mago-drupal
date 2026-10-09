@@ -30,6 +30,9 @@ use function trim;
  * run. A directive is a machine-readable instruction, not a line of prose,
  * so it cannot be joined to the sentence next to it.
  *
+ * A comment after a `}` on its line, as in `} // end if`, is not part of any
+ * run. Coder skips it, so the `//` lines below it are a comment of their own.
+ *
  * @internal
  */
 final class InlineCommentRuns
@@ -47,7 +50,7 @@ final class InlineCommentRuns
         $run = [];
         $previous = null;
         foreach ($file->getTrivia() as $trivia) {
-            if ($trivia->kind !== TriviaKind::SingleLineComment || Docblocks::isDirective($file, $trivia)) {
+            if (!self::canJoinRun($file, $trivia)) {
                 $runs = self::close($runs, $run);
                 $run = [];
                 $previous = null;
@@ -112,6 +115,19 @@ final class InlineCommentRuns
         }
 
         return $runs;
+    }
+
+    /**
+     * Whether the trivia is a `//` line that can be part of a run: not a
+     * directive, and not after a `}` on its line.
+     */
+    private static function canJoinRun(SourceFile $file, Trivia $trivia): bool
+    {
+        return (
+            $trivia->kind === TriviaKind::SingleLineComment
+            && !Docblocks::isDirective($file, $trivia)
+            && !InlineCommentSpacing::followsClosingBrace($file->contents, $trivia->span->start)
+        );
     }
 
     /**

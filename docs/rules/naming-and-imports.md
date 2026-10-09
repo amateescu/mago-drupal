@@ -125,8 +125,20 @@ so the lines differ when a declaration spans several lines.
 A class property whose name does not start with a lower-case letter or holds an underscore. Local
 variables are not checked, and Coder does not check them either.
 
+Config entities and plugin annotations may name their properties in any case. Like Coder, the rule
+skips a class whose parent name contains `ConfigEntity` or is `Plugin` or
+`ViewsPluginAnnotationBase`, and a class that implements `AnnotationInterface`. The names are
+compared as written, so `\Drupal\Core\Config\Entity\ConfigEntityBase` counts, while an alias of
+`Plugin` or `\Drupal\Component\Annotation\Plugin` does not. Only the first parent of an interface
+counts. The rule reads the outermost class around the property, and only when that class is at the
+top level of the file. An anonymous class in a method follows the class around it, and a class
+declared inside an `if` or a function is checked. A name that starts with an underscore is still
+reported in these classes.
+
 **Compared with Coder:** core's config turns `PSR2.Classes.PropertyDeclaration.Underscore` off. The
-rule still reports a leading underscore under `--core`, because the lowerCamelCase check covers it.
+rule still reports a leading underscore under `--core`. The lowerCamelCase check covers it in most
+classes, but not in the config entities and plugin annotations above, where Coder reports nothing
+under core's config.
 
 ## drupal/redundant-use
 

@@ -14,7 +14,7 @@ use Drupal\Core\Entity\EntityInterface;
  * @param ?Node|EntityInterface[] $entities
  *   The entities.
  * @param array<Url> $urls
- *   The urls, whose generic member stays as it is.
+ *   The urls.
  *
  * @return Url|null
  *   The url, if any.

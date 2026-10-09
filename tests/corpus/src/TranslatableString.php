@@ -44,6 +44,12 @@ function empty_string(): string {
 }
 
 // @mago-expect lint:drupal/function-comment
+function lone_quote_is_not_empty(): string {
+  // Only the outer quotes are delimiters. The quote between them is the text.
+  return t('"') . t("'");
+}
+
+// @mago-expect lint:drupal/function-comment
 function variable_message(string $message): string {
   // @mago-expect lint:drupal/translatable-string
   return t($message);

@@ -33,8 +33,8 @@ from the source.
 
 ## Procedural files
 
-These rules report only in `.module` and `.install` files. They take the module name from the file
-name, the part before the first dot.
+These rules report only in `.module` and `.install` files, except `drupal/global-variable`, which
+checks every file. They take the module name from the file name, the part before the first dot.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ name, the part before the first dot.
 | [`drupal/constant-prefix`](procedural-files.md#drupalconstant-prefix) | warning | Reports define() constants that do not start with the module name. |
 | [`drupal/empty-install-hook`](procedural-files.md#drupalempty-install-hook) | error | Reports hook_install() and hook_uninstall() implementations with an empty body. |
 | [`drupal/function-prefix`](procedural-files.md#drupalfunction-prefix) | error | Reports functions in a .module file whose name does not start with the module name. |
-| [`drupal/global-variable`](procedural-files.md#drupalglobal-variable) | error | Reports module globals that do not start with an underscore and the module's name. |
+| [`drupal/global-variable`](procedural-files.md#drupalglobal-variable) | error | Reports global variables that do not start with an underscore. |
 | [`drupal/install-hook-location`](procedural-files.md#drupalinstall-hook-location) | error | Reports install-time hooks declared in a .module file instead of a .install file. |
 | [`drupal/t-in-hook-schema`](procedural-files.md#drupalt-in-hook-schema) | error | Reports a t() call inside hook_schema(). Drupal never shows those strings to users. |
 

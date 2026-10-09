@@ -57,9 +57,12 @@ no other rule sees it.
 - **Ports:** `SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse` (partly)
 
 A `@param`, `@return`, `@var` or `@throws` type written as the short name of a class that only
-docblocks use. A short name whose import the code uses too is fine.
+docblocks use. The rule reads every name in the type, including generic arguments, array shape
+values and callable parameters, such as `Cc` in `array<string, Cc>`. The type ends at the first
+space outside brackets, so the return type in `callable(Foo): Bar` is not read. A short name whose
+import the code uses too is fine.
 
-The fix writes the fully qualified name for each such member of the type, when the type starts on
+The fix writes the fully qualified name for each such name in the type, when the whole type is on
 the tag's line and the docblock is below the import, in a file with one namespace. It removes the
 import when every mention of the name in the file's docblocks is rewritten.
 
@@ -77,6 +80,10 @@ only docblocks use.
 
 A legacy PHPUnit `@expectedException*` docblock tag. PHPUnit no longer has these tags. Use
 `expectException()` and the related methods.
+
+The rule finds the tag at the start of any docblock line, after the star and any indent. That
+includes a tag indented under the description of another tag. A tag name after other text on the
+line is not a tag. Coder reads both cases the same way.
 
 ## drupal/gender-neutral-comment
 
@@ -101,7 +108,9 @@ A `//` comment that:
   item or `@todo` on the line above. A line indented deeper than the comment line above for no such
   reason is reported without a fix, as phpcbf leaves it too.
 
-The rule skips a comment after a `}` on its line, an `@code` example and a `phpcs:` line.
+The rule skips a `//` comment after a `}` on its line, such as `} // end if`, an `@code` example
+and a `phpcs:` line. The `//` lines right below such a `}` comment are checked as a comment of
+their own.
 
 It also reports a `/**` docblock inside a body, such as a function, a class or an `if`, that does
 not start with a tag and is not in front of a declaration, an enum case, an include or a modifier.
@@ -149,7 +158,8 @@ every run.
 A `//` comment that does not end with a full stop, an exclamation mark, a question mark, a colon or
 a closing parenthesis. The rule skips a comment whose first word does not start with a letter, a
 numbered list item, a comment with a `cspell:` line, and a last word that is a url, a tag or a
-function call.
+function call. It also skips a comment after a `}` on its line, such as `} // end if`. The `//`
+lines right below such a comment are checked as a comment of their own.
 
 ## drupal/long-description-punctuation
 

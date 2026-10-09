@@ -22,6 +22,13 @@ A version is `drupal:n.n.n`, `project:n.x-n.n` or `project:n.n.n`, with an optio
 such as `-beta1`. The change-record link is a `drupal.org/node`, a `drupal.org/project` issue or a
 `git.drupalcode.org` work item, with no punctuation after it.
 
+The rule checks the text that the message is built from. A `sprintf()` call gives its format
+string. Otherwise an interpolated string keeps its variables, and a part that is not a string, such
+as `__CLASS__` or `static::class`, keeps its source text. So `__CLASS__ . ' is deprecated in ...'`
+and `"$name is deprecated in ..."` have a `%thing%`. A message that starts with a variable, such as
+`$name . ' is deprecated in ...'` or `$this->message`, is not checked. Coder reads messages the
+same way.
+
 For a notice at the top of a file, the rule reads the next docblock at file level, as Coder does.
 
 ## drupal/global-function
@@ -77,6 +84,9 @@ without `'`.
 - The rule reads the escapes in a string literal, where Coder looks for the two characters `\'` or
   `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so it holds no
   escaped quote and is not reported.
+- The whitespace check reads the value that PHP builds from the string. An escape such as `\n` or
+  `\t` at either end of a double-quoted string counts as whitespace. Coder reads the two characters
+  as written and does not report it.
 - It also reports a call that Coder does not see: a fully qualified `\t()` or
   `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a call written in another letter case
   such as `T()`, and a call inside a string interpolation.

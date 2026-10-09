@@ -75,6 +75,111 @@ function fully_qualified_level(): void {
 }
 
 // @mago-expect lint:drupal/function-comment
+function starts_with_a_variable(string $name): void {
+  // Coder skips a message that starts with a variable, so the second one
+  // passes without its change record.
+  @trigger_error(
+    $name
+    . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+  @trigger_error(
+    $name . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+    E_USER_DEPRECATED,
+  );
+}
+
+// @mago-expect lint:drupal/function-comment
+function starts_with_an_interpolated_variable(string $name): void {
+  // The variable stays in the text as the thing that is deprecated.
+  @trigger_error(
+    "$name is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567",
+    E_USER_DEPRECATED,
+  );
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    "$name is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().",
+    E_USER_DEPRECATED,
+  );
+}
+
+// @mago-expect lint:drupal/function-comment
+function starts_with_a_magic_constant(): void {
+  // The constant's name stays in the text as the thing that is deprecated.
+  @trigger_error(
+    __FUNCTION__
+    . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    __FUNCTION__ . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+    E_USER_DEPRECATED,
+  );
+}
+
+/**
+ * Starts deprecation messages with parts that need a class.
+ */
+final class DeprecationMessageStarts {
+
+  /**
+   * The name of the deprecated thing.
+   *
+   * @var string
+   */
+  private string $name = 'foo';
+
+  /**
+   * Starts the message with an interpolated property.
+   */
+  public function interpolatedProperty(): void {
+    @trigger_error(
+      "{$this->name} is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567",
+      E_USER_DEPRECATED,
+    );
+    // @mago-expect lint:drupal/deprecation-message
+    @trigger_error(
+      "{$this->name} is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().",
+      E_USER_DEPRECATED,
+    );
+  }
+
+  /**
+   * Starts the message with the method name.
+   */
+  public function methodName(): void {
+    @trigger_error(
+      __METHOD__
+      . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+      E_USER_DEPRECATED,
+    );
+    // @mago-expect lint:drupal/deprecation-message
+    @trigger_error(
+      __METHOD__ . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+      E_USER_DEPRECATED,
+    );
+  }
+
+  /**
+   * Starts the message with a class constant.
+   */
+  public function className(): void {
+    @trigger_error(
+      static::class
+      . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+      E_USER_DEPRECATED,
+    );
+    // @mago-expect lint:drupal/deprecation-message
+    @trigger_error(
+      static::class . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+      E_USER_DEPRECATED,
+    );
+  }
+
+}
+
+// @mago-expect lint:drupal/function-comment
 function not_a_deprecation(): void {
   trigger_error('something went wrong', E_USER_WARNING);
 }

@@ -1,7 +1,7 @@
 # Procedural files
 
-These rules report only in `.module` and `.install` files. They take the module name from the file
-name, the part before the first dot.
+These rules report only in `.module` and `.install` files, except `drupal/global-variable`, which
+checks every file. They take the module name from the file name, the part before the first dot.
 
 ## drupal/const-prefix
 
@@ -65,6 +65,9 @@ fine. `.install` files are not checked, as in Coder 9.
 A variable in a `global` statement that does not start with an underscore. The globals of every
 module share one namespace, and the underscore marks the ones that a module owns. The globals that
 Drupal core owns, such as `$base_url` and `$user`, are fine.
+
+Unlike the other rules on this page, the rule checks every file that Mago reads, such as `.inc`
+files and class methods in `.php` files, as Coder 9 does.
 
 ## drupal/install-hook-location
 

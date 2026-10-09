@@ -162,7 +162,7 @@
         "codes": [
             {"code": "FileTag", "status": "fix"},
             {"code": "Missing", "status": "report-only"},
-            {"code": "NamespaceNoFileDoc", "status": "gap", "where": ["none"], "note": "A file docblock above the namespace of a class file. Not ported yet: the rule does not read `.php` files."},
+            {"code": "NamespaceNoFileDoc", "status": "gap", "where": ["none"], "note": "A file docblock above the namespace of a file that holds one class, interface, trait or enum. Not ported: `drupal/file-comment` skips such a file, as Coder does for its other codes, and it does not read `.php` files."},
             {"code": "SpacingAfterComment", "status": "fix", "where": ["ext:drupal/file-comment", "format"]},
             {"code": "TemplateSpacingAfterComment", "status": "gap", "where": ["none"], "note": "The shape of a Drupal 7 `.tpl.php` template. Not ported."},
             {"code": "WrongStyle", "status": "partial"}
@@ -185,7 +185,7 @@
             {"code": "Missing", "status": "report-only"},
             {"code": "MissingParamComment", "status": "report", "where": ["ext:drupal/function-comment"]},
             {"code": "MissingParamName", "status": "report", "where": ["ext:drupal/function-comment"]},
-            {"code": "MissingParamType", "status": "report-only"},
+            {"code": "MissingParamType", "status": "fix"},
             {"code": "MissingReturnComment", "status": "report", "where": ["ext:drupal/function-comment"]},
             {"code": "MissingReturnType", "status": "report", "where": ["ext:drupal/function-comment", "lint:valid-docblock"]},
             {"code": "ParamCommentFullStop", "status": "fix"},

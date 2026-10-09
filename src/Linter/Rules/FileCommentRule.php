@@ -18,23 +18,30 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
+use function count;
 use function preg_match;
 use function substr;
 
 /**
  * Checks that a procedural file starts with a docblock tagged `@file`.
  *
- * Ports the part of Drupal.Commenting.FileComment that matters outside
- * core. A procedural file has no class to document, so it must have its own
- * file comment. The rest of that sniff decides whether a file with a class
- * must have a separate file comment next to its class comment. That depends
- * on how many declarations the file has, and is not ported.
+ * Ports Drupal.Commenting.FileComment for procedural files, with the
+ * sniff's skip for a file that holds a class.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class FileCommentRule implements Rule
 {
+    /**
+     * The declarations that Coder counts as a class.
+     */
+    private const CLASS_LIKES = [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum];
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -55,7 +62,7 @@ final class FileCommentRule implements Rule
 
         $first = $this->firstComment($context);
         if ($first === null) {
-            $context->report(Issue::new('The file does not start with a docblock.', new Span(0, 0)));
+            $this->report($context, Issue::new('The file does not start with a docblock.', new Span(0, 0)));
 
             return;
         }
@@ -63,7 +70,7 @@ final class FileCommentRule implements Rule
         if ($first->kind !== TriviaKind::DocBlockComment) {
             $issue = Issue::new('The file docblock must start with "/**".', $first->span);
             $fix = CommentDocblock::fileEdit($context->file, $first);
-            $context->report($fix === null ? $issue : $issue->withEdit($fix));
+            $this->report($context, $fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }
@@ -81,7 +88,8 @@ final class FileCommentRule implements Rule
             $first->span,
         ));
         $opener = $variant ? null : FileTags::insertOffset($context->file->contents, $first->span);
-        $context->report(
+        $this->report(
+            $context,
             $opener === null
                 ? $issue
                 : $issue->withEdit(TextEdit::insert($opener, LineEnding::of($context->file->contents) . ' * @file')),
@@ -109,7 +117,7 @@ final class FileCommentRule implements Rule
             $docblock,
         ));
         $moved = FileTags::move($contents, $docblock, $tag);
-        $context->report($moved === null ? $issue : $issue->withEdit($moved));
+        $this->report($context, $moved === null ? $issue : $issue->withEdit($moved));
     }
 
     /**
@@ -124,10 +132,63 @@ final class FileCommentRule implements Rule
             return;
         }
 
-        $context->report(Issue::new(
-            'Put a blank line after the file docblock.',
-            new Span($docblock->end - 2, $docblock->end),
-        )->withEdit($edit));
+        $issue = Issue::new('Put a blank line after the file docblock.', new Span($docblock->end - 2, $docblock->end));
+        $this->report($context, $issue->withEdit($edit));
+    }
+
+    /**
+     * Reports the issue unless Coder skips the file comment of the file.
+     */
+    private function report(LintContext $context, Issue $issue): void
+    {
+        // The skip is checked only for a file that has an issue, because it
+        // scans the whole tree.
+        if (!self::isClassFile($context->file)) {
+            $context->report($issue);
+        }
+    }
+
+    /**
+     * Whether Coder skips the file comment of the file. It skips a file that
+     * has a class, interface, trait or enum and a namespace. It also skips a
+     * file that has exactly one of them, no function or method outside it,
+     * and no `@file` tag in any docblock.
+     */
+    private static function isClassFile(SourceFile $file): bool
+    {
+        $declarations = [];
+        foreach (self::CLASS_LIKES as $kind) {
+            $declarations = [...$declarations, ...$file->getNodes($kind)];
+        }
+
+        if ($declarations === []) {
+            return false;
+        }
+
+        if ($file->getNodes(NodeKind::Namespace) !== []) {
+            return true;
+        }
+
+        if (count($declarations) > 1) {
+            return false;
+        }
+
+        // Coder counts a function, or a method of an anonymous class, outside
+        // the class. A closure or an arrow function does not count.
+        $class = $declarations[0]->span;
+        foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
+            if (!$class->contains($function->span)) {
+                return false;
+            }
+        }
+
+        foreach ($file->getTrivia() as $trivia) {
+            if ($trivia->kind === TriviaKind::DocBlockComment && Docblocks::fileTag($file, $trivia->span)[0] !== null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

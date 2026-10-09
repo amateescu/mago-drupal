@@ -40,6 +40,35 @@ function function_comment_fine(string $a): string {
 function function_comment_missing_param_type($a): void {
 }
 
+// @mago-expect lint:drupal/function-comment(2)
+/**
+ * Missing param type, with the type after the variable and no description.
+ *
+ * @param $a integer
+ */
+function function_comment_param_type_after_variable($a): void {
+}
+
+// @mago-expect lint:drupal/function-comment
+/**
+ * Missing param type, which leaves the description unchecked, as in Coder.
+ *
+ * @param $a integer
+ *   lowercase description
+ */
+function function_comment_param_type_after_variable_described($a): void {
+}
+
+// @mago-expect lint:drupal/function-comment
+/**
+ * Missing param type on a reference parameter.
+ *
+ * @param &$a
+ *   The description.
+ */
+function function_comment_missing_param_type_reference(&$a): void {
+}
+
 // @mago-expect lint:drupal/function-comment
 /**
  * Missing param name.
@@ -77,6 +106,36 @@ function function_comment_param_name_dot($a): void {
  *   lowercase description.
  */
 function function_comment_param_comment_not_capital($a): void {
+}
+
+/**
+ * Param comment with a capital letter later in its first line, as Coder allows.
+ *
+ * @param string $a
+ *   lower start, then a Capital.
+ */
+function function_comment_param_comment_capital_later($a): void {
+}
+
+// @mago-expect lint:drupal/function-comment
+/**
+ * Param comment that starts with an underscore and has no capital letter.
+ *
+ * @param string $a
+ *   _lower start.
+ */
+function function_comment_param_comment_underscore($a): void {
+}
+
+// @mago-expect lint:drupal/function-comment
+/**
+ * Param comment whose capital letter is only on its second line.
+ *
+ * @param string $a
+ *   lower start on the first line,
+ *   Capital on the second.
+ */
+function function_comment_param_comment_capital_second_line($a): void {
 }
 
 // @mago-expect lint:drupal/function-comment
@@ -164,6 +223,16 @@ function function_comment_return_var_name(): string {
  *   lowercase.
  */
 function function_comment_throws_not_capital(): void {
+  throw new \Exception('x');
+}
+
+/**
+ * Throws with a multi-byte first letter, which Coder does not test.
+ *
+ * @throws \Exception
+ *   élan is missing.
+ */
+function function_comment_throws_multibyte_start(): void {
   throw new \Exception('x');
 }
 

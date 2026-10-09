@@ -10,8 +10,10 @@ rules, a part of the standard is not checked.
 - **Fix:** none
 - **Ports:** `Drupal.Semantics.LStringTranslatable.LArg`
 
-Literal link text passed to `l()` without `t()`. Users see the link text, so it must be
-translatable.
+Link text passed to `l()` without `t()` that starts with a string literal. Users see the link text,
+so it must be translatable. As in Coder, the rule reads only the first operand. That covers the
+start of a concatenation such as `'Edit ' . $title` and the start of a ternary condition. Text that
+starts with `<` is markup and does not count.
 
 ## drupal/t-in-hook-menu
 

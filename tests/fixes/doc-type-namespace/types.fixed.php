@@ -11,8 +11,8 @@ use Drupal\Core\Url;
  *   The url.
  * @param ?\Drupal\node\NodeInterface|\Drupal\Core\Entity\EntityInterface[] $entities
  *   The entities.
- * @param array<Url> $urls
- *   The urls, whose generic member stays as it is.
+ * @param array<\Drupal\Core\Url> $urls
+ *   The urls.
  *
  * @return \Drupal\Core\Url|null
  *   The url, if any.

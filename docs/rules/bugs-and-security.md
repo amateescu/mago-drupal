@@ -22,7 +22,15 @@ assignment is a `serialize()` call. That is the shape of a serialization test. C
 - **Fix:** none
 - **Ports:** `Drupal.Semantics.PregSecurity.PregEFlag`
 
-A `preg_*` pattern that uses the `e` modifier. That modifier evaluates the replacement as PHP.
+A `preg_*` pattern that uses the `e` modifier. That modifier evaluates the replacement as PHP. The
+rule reads a literal pattern, and the first operand of a concatenation, as in `'/a/e' . $flags`.
+
+**Compared with Coder:**
+
+- Coder also reports a concatenation whose first piece only looks like it ends in modifiers. In
+  `'/edit' . $x . '/'` the `e` follows the opening delimiter, and in `'/a\/e' . $x . '/'` a
+  backslash escapes the delimiter. The rule skips both.
+- The rule closes a bracket delimiter with its counterpart, so it reports `'{a}e'`.
 
 ## drupal/remote-address
 

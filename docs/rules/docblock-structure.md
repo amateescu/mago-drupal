@@ -75,8 +75,12 @@ long description of a file docblock are the lines after `@file`, checked like an
 The summary and the description:
 
 - an empty docblock;
-- no summary. A file docblock that holds only `@file` is exempt. `{@inheritdoc}` and a summary that
-  is the file's name are fine;
+- no summary. As in Coder, the rule looks only at the first tag, or at the tag after a leading
+  `@file`. `@covers` there needs no summary. A bare `@inheritdoc` there gets the braces report below
+  instead. A docblock whose tag there is `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`
+  gets only the checks on its first and last lines, the star check and the two-dot check. A file
+  docblock that holds only `@file` is exempt. `{@inheritdoc}` and a summary that is the file's name
+  are fine;
 - a summary that does not start with an upper-case letter. As in Coder 9, a summary that starts
   with a digit, `#`, `_` or other punctuation counts, and one that starts with a multi-byte
   character does not. The fix uppercases a lower-case letter;
@@ -89,7 +93,8 @@ The tags:
 
 - `@param` tags that are not in one group, or that are not in the first group;
 - tags of one kind that are not grouped;
-- `@inheritdoc` without braces. The fix writes `{@inheritdoc}`.
+- `@inheritdoc` without braces in a docblock with no summary, as its first tag or the tag after a
+  leading `@file`. The fix writes `{@inheritdoc}`.
 
 The whitespace, each with a fix:
 
@@ -116,6 +121,7 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 - Core runs `MissingShort` only in tests. `--core` does not narrow it, so the rule reports a
   missing summary in any file.
+- A file docblock that holds only `@file` gets no report. Coder reports it as `MissingShort`.
 - Text on the line of the opening `/**` is reported once. Coder also reports it as
   `SpacingBeforeShort`.
 - The space after the star is checked in the docblocks that Coder's `DocCommentAlignment` picks:
@@ -161,10 +167,16 @@ It also reports:
 
 A tag that is not exactly `@file`, such as `@FILE` or `@File`, counts as no tag, as in Coder.
 
+The rule skips the same files as Coder. It skips a file that holds a class, interface, trait or enum
+and a `namespace` statement. It also skips a file that holds exactly one class, interface, trait or
+enum, no function or method outside it, and no `@file` tag in any docblock. A closure or an arrow
+function does not count as a function. A method of an anonymous class outside the class does.
+
 **Compared with Coder:**
 
-- Coder also checks a `.php` file that has no class. Coder skips a file that holds a single class,
-  interface, trait or enum and no function. That skip is not ported.
+- Coder also checks a `.php` file that has no class.
+- In a file with a namespace and exactly one class, interface, trait or enum, Coder reports a
+  comment or docblock at the start of the file (`NamespaceNoFileDoc`). The rule does not.
 - phpcbf writes an empty stub for a missing docblock. The rule has no fix there.
 - The report of a missing `@file` sits on the second line of the docblock, where Coder puts it, or
   on the opener when the docblock has no star line. Coder puts it on the first line of the file in
@@ -174,8 +186,8 @@ A tag that is not exactly `@file`, such as `@FILE` or `@File`, counts as no tag,
 ## drupal/function-comment
 
 - **Level:** error
-- **Fix:** safe for the whitespace, the type names and the punctuation. Potentially unsafe for the
-  [comment style](#comment-style-fixes).
+- **Fix:** safe for the whitespace, the type names, a `@param` type written after the variable, and
+  the punctuation. Potentially unsafe for the [comment style](#comment-style-fixes).
 - **Ports:** `Drupal.Commenting.FunctionComment`: `DuplicateReturn`, `EmptySees`, `IncorrectParamVarName`, `InvalidReturn`, `Missing`, `MissingParamComment`, `MissingParamName`, `MissingParamType`, `MissingReturnComment`, `MissingReturnType`, `ParamCommentFullStop`, `ParamCommentIndentation`, `ParamCommentNewLine`, `ParamCommentNotCapital`, `ParamMissingDefinition`, `ParamNameDot`, `ParamTypeSpaces`, `ReturnCommentIndentation`, `ReturnTypeSpaces`, `ReturnVarName`, `SeeAdditionalText`, `SeePunctuation`, `SpacingAfter`, `SpacingAfterParamType`, `ThrowsComment`, `ThrowsCommentIndentation`, `ThrowsNoFullStop`, `ThrowsNotCapital`, `WrongStyle`
 
 A function or method with no docblock, or with a comment in the wrong style. A constructor with a
@@ -185,8 +197,14 @@ checked, as in Coder.
 
 The rule checks the tags, with a fix where the list says so:
 
-- `@param`: no type, no variable name, no description, and a description that is not capitalized.
-  A description with no full stop, unless it ends in an `@code` example, as in Coder. The fix adds
+- `@param`: no type, no variable name and no description. A `&` or `...` in front of the variable
+  belongs to the variable, so `@param &$a` has no type. On a tag with no type, a single word after
+  the variable is the type and not a description, as in Coder. The fix moves that word in front of
+  the variable when it is made of type characters, as in `@param $a int`. A tag with no type gets
+  no capital letter or full stop check, as in Coder. A description whose first line has no
+  upper-case letter anywhere, as in Coder. That line is the first one below the tag, or the text on
+  the tag's line when nothing is below it. So `lower Case.` passes and `_lower.` is reported. A
+  description with no full stop, unless it ends in an `@code` example, as in Coder. The fix adds
   the full stop unless the description ends in a url, a tag, or `:`, `,` or `;`. A description on
   the tag's line, which the fix moves below, and one not indented three spaces from the star, which
   the fix indents. A period after the variable name, and not exactly one space between the type and
@@ -197,7 +215,7 @@ The rule checks the tags, with a fix where the list says so:
   spaces from the star, and a variable name after a type that has a description below, both fixed;
 - `@throws`: a description on the tag's line, which the fix moves to the line below, three spaces
   from the star. A description not indented three spaces, which the fix indents. A description
-  that is not capitalized or has no full stop;
+  that starts with a lower-case ASCII letter, as in Coder, or has no full stop;
 - `@see`: no reference, and text after the reference. Punctuation after a one-word reference,
   which the fix removes;
 - a `@param` or `@return` type name that Coder wants written another way, such as `integer` for
@@ -217,8 +235,10 @@ A `@return` variable name and a `@see` reference are read from the tag's own lin
   line, as in Coder. Both skip a type with a bracket. A `@return` type with a space is reported
   only when a description follows below, and only when the docblock has one `@return`. A
   non-breaking space is not whitespace to Coder or to this rule.
-- phpcbf moves a single word written after the variable in front of it, as in `@param $a int`. The
-  rule reports a missing type there with no fix.
+- phpcbf moves any single word after the variable of a tag with no type, so `@param $a Done.`
+  becomes `@param Done. $a`. The fix here moves only a word made of type characters. It moves the
+  word as written, so `@param $a integer` becomes `@param integer $a`, and a second `--fix` run
+  writes `int`.
 - A bare `@return` that is the last tag is left to Mago's `valid-docblock`. A `@return 0` has a
   type here. Coder reports it, because PHP's `empty("0")` is true. A `@return` variable name is a
   type and one variable on the line, as in Coder, so `callable(int $a): int` is not one.
@@ -268,8 +288,11 @@ the function name starts with the file's machine name and an underscore.
 
 An inline `@var` declaration that uses `//` and not `/** */`, or that writes the variable name
 before the type. A `//` or `#` comment that holds `*/`, such as a commented-out docblock, is
-skipped. A comment right before a declaration is left to the comment-style check of that
-declaration's rule.
+skipped. As in Coder, the rule also skips a comment or docblock when the first code after it, past
+any other comments, is a declaration keyword such as `public`, `const`, `static` or `function`,
+or `include` or `require`. A comment in the wrong style there is left to the comment-style check
+of that declaration's rule. On a property, `drupal/variable-comment` reports a `@var` tag that
+starts with a variable name.
 
 One fix moves a variable name written first after the type, when the whole type can be read. The
 other turns a comment that holds only the tag, alone on its line, into a docblock. It skips a
@@ -278,7 +301,8 @@ comment with more text than the tag, and a `//` line inside a run of `//` lines.
 ## drupal/variable-comment
 
 - **Level:** error
-- **Fix:** safe for the type names and the repeated name. Potentially unsafe for the
+- **Fix:** safe for the type names and the repeated name. Potentially unsafe for a variable name
+  before the type, because the analyzers start to trust the type, and for the
   [comment style](#comment-style-fixes).
 - **Ports:** `Drupal.Commenting.VariableComment`: `DuplicateVar`, `EmptySees`, `EmptyVar`, `IncorrectVarType` (partly), `InlineVariableName`, `Missing`, `MissingVar`, `VarOrder`, `WrongStyle`
 
@@ -290,9 +314,12 @@ type needs a docblock but no `@var` tag. In the docblock, the rule reports:
 - a `@var` tag with no type, and a `@see` tag with no content;
 - a `@var` type name that Coder wants written another way, such as `integer` for `int`, `Boolean`
   for `bool` or `NULL` for `null`;
+- a `@var` tag that starts with a variable name, as in `@var $count int`;
 - the property name repeated after the `@var` type.
 
-The fixes remove a property name repeated after the `@var` type, and write Coder's type name.
+The fixes remove a property name repeated after the `@var` type, and write Coder's type name. In a
+`@var` tag that starts with a variable name, a fix writes the type first when a whole type follows
+the name. It drops the property's own name, and moves any other name after the type.
 
 **Compared with Coder:**
 
@@ -302,6 +329,8 @@ The fixes remove a property name repeated after the `@var` type, and write Coder
   is not ported.
 - The rule reads the type apart from the description. It reports `@var integer Some description`,
   where Coder takes the whole text as the type and does not report it.
+- Coder reports a `@var` tag that starts with a variable name as `IncorrectVarType`, and phpcbf
+  writes `count int` for `$count int`, which is broken. The rule writes the type first.
 - The fix removes a repeated name only when it is the property's own name, in a declaration of one
   property, followed by a space or the end of the line. It keeps a description after the name.
   phpcbf also removes another name, and drops the description.

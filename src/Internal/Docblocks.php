@@ -46,7 +46,10 @@ final class Docblocks
      */
     private const DIRECTIVE_PATTERN = '/\G[\/#* \t]*(?:@mago-|phpcs:|@codingStandardsIgnore|@phpstan-|@psalm-)/';
 
-    private const TAG_NAME_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+    /**
+     * The characters of a tag name after its `@`.
+     */
+    public const TAG_NAME_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
 
     /**
      * Splits a docblock into its lines and removes the comment markers.

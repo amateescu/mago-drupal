@@ -7,12 +7,14 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\TypeNames;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
@@ -27,6 +29,8 @@ use function preg_quote;
 use function preg_replace;
 use function stripos;
 use function strlen;
+use function strspn;
+use function trim;
 
 /**
  * Checks that a class property has a `@var` docblock.
@@ -121,6 +125,14 @@ final class VariableCommentRule implements Rule
             return;
         }
 
+        // `$this` is a type, and Coder accepts it.
+        $name = [];
+        if (preg_match(DocType::VARIABLE, $content, $name) === 1 && $name[0] !== '$this') {
+            self::reportNameFirst($context, $firstVar, $name[0]);
+
+            return;
+        }
+
         [$type, $rest] = Docblocks::splitType($content);
         if ($type !== null) {
             TypeNames::checkVar($context, $firstVar, $type);
@@ -134,6 +146,35 @@ final class VariableCommentRule implements Rule
             $name = self::nameAfterType($firstVar, $type, self::declaredNames($context));
             $context->report($name === null ? $issue : $issue->withEdit(TextEdit::delete($name)));
         }
+    }
+
+    /**
+     * Reports a `@var` tag that starts with a variable name. The fix moves
+     * the type before the name, or drops the name when it is the property's
+     * own, when a whole type follows the name on the tag's line.
+     */
+    private static function reportNameFirst(LintContext $context, DocblockTag $tag, string $name): void
+    {
+        $issue = Issue::new('Start the @var tag with the type, not a variable name.', $tag->contentSpan());
+        $line = $tag->lines[0];
+        $text = trim($line->text);
+        $swapped = DocType::typeFirst($text);
+        $start = $tag->typeStart($name);
+        if ($swapped === null || $start === null) {
+            $context->report($issue);
+
+            return;
+        }
+
+        $edit = TextEdit::replace(new Span($start, $start + strlen($text)), $swapped);
+        if (self::declaredNames($context) === [$name]) {
+            $gap = strspn($line->text, characters: " \t", offset: $start - $line->offset + strlen($name));
+            $edit = TextEdit::delete(new Span($start, $start + strlen($name) + $gap));
+        }
+
+        // The analyzers do not read the type in this order. Once it comes
+        // first they trust it, so the fix asks first.
+        $context->report($issue->withEdit($edit->withSafety(Safety::PotentiallyUnsafe)));
     }
 
     /**
