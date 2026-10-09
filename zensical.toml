@@ -1,0 +1,76 @@
+[project]
+site_name = "mago-drupal"
+site_description = "Drupal's coding standard for the Mago linter."
+repo_url = "https://github.com/amateescu/mago-drupal"
+repo_name = "amateescu/mago-drupal"
+edit_uri = "edit/main/docs/"
+
+nav = [
+  { "Home" = "index.md" },
+  { "Setup" = "setup.md" },
+  { "Rules" = [
+    "rules/index.md",
+    { "Bugs and security" = "rules/bugs-and-security.md" },
+    { "Using the right API" = "rules/right-api.md" },
+    { "Procedural files" = "rules/procedural-files.md" },
+    { "Files and PHP tags" = "rules/files-and-tags.md" },
+    { "Naming and imports" = "rules/naming-and-imports.md" },
+    { "Statements and declarations" = "rules/statements.md" },
+    { "Comment text" = "rules/comment-text.md" },
+    { "Docblock structure" = "rules/docblock-structure.md" },
+    { "Docblock types" = "rules/docblock-types.md" },
+    { "DrupalPractice checks" = "rules/drupal-practice.md" },
+    { "Drupal 7 era" = "rules/drupal-7.md" },
+    { "Ported from phpstan-drupal" = "rules/phpstan-drupal.md" },
+  ] },
+  { "Coming from Coder" = [
+    "coder/index.md",
+    { "Drupal standard" = "coder/drupal.md" },
+    { "Sniffs from other standards" = "coder/other-standards.md" },
+    { "DrupalPractice standard" = "coder/drupal-practice.md" },
+  ] },
+  { "Development" = "development.md" },
+]
+
+[project.theme]
+features = [
+  "content.code.copy",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.sections",
+  "navigation.top",
+  "search.highlight",
+  "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+primary = "blue"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "blue"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "blue"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to system preference"
+
+# Split codes such as Drupal.Commenting.DocComment.ShortNotCapital at the dots
+# and at each capital, so a search for one part finds them.
+[project.plugins.search]
+separator = '[\s\-,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+
+[project.markdown_extensions]
+tables = {}
+toc.permalink = true
+pymdownx.highlight = {}
+pymdownx.inlinehilite = {}
+pymdownx.superfences = {}

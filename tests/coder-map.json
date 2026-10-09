@@ -1,0 +1,1623 @@
+[
+    {
+        "sniff": "Drupal.Arrays.Array",
+        "standard": "Drupal",
+        "where": ["format"],
+        "note": "The drupal preset writes the trailing comma, the indentation and the line breaks of a long array. A few nested layouts still differ.",
+        "codes": [
+            {"code": "ArrayClosingIndentation", "status": "format"},
+            {"code": "ArrayIndentation", "status": "format"},
+            {"code": "CommaLastItem", "status": "format"},
+            {"code": "LongLineDeclaration", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Attributes.ValidHookName",
+        "standard": "Drupal",
+        "where": ["ext:drupal/hook-attribute-name"],
+        "codes": [
+            {"code": "HookPrefix", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Classes.ClassDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BraceOnNewLine", "status": "format"},
+            {"code": "CloseBraceAfterBody", "status": "format"},
+            {"code": "CloseBraceSameLine", "status": "format"},
+            {"code": "ContentAfterBrace", "status": "format"},
+            {"code": "ExtendsIndentation", "status": "format"},
+            {"code": "ExtendsInterfaceSameLine", "status": "format"},
+            {"code": "ExtendsLine", "status": "format"},
+            {"code": "FirstExtendsInterfaceSameLine", "status": "format"},
+            {"code": "FirstInterfaceSameLine", "status": "format"},
+            {"code": "ImplementsLine", "status": "format"},
+            {"code": "InterfaceSameLine", "status": "format"},
+            {"code": "InterfaceWrongIndent", "status": "format"},
+            {"code": "MissingBrace", "status": "format"},
+            {"code": "NewlineBeforeKeyword", "status": "format"},
+            {"code": "NoSpaceBeforeName", "status": "format"},
+            {"code": "OpenBraceNewLine", "status": "format"},
+            {"code": "OpenBraceNotAlone", "status": "format"},
+            {"code": "OpenBraceWrongLine", "status": "format"},
+            {"code": "SpaceAfterKeyword", "status": "format"},
+            {"code": "SpaceAfterName", "status": "format"},
+            {"code": "SpaceBeforeBrace", "status": "format"},
+            {"code": "SpaceBeforeComma", "status": "format"},
+            {"code": "SpaceBeforeExtends", "status": "format"},
+            {"code": "SpaceBeforeImplements", "status": "format"},
+            {"code": "SpaceBeforeKeyword", "status": "format"},
+            {"code": "SpaceBeforeName", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Classes.FullyQualifiedNamespace",
+        "standard": "Drupal",
+        "where": ["ext:drupal/fully-qualified-name"],
+        "codes": [
+            {"code": "UseStatementMissing", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Classes.PropertyDeclaration",
+        "standard": "Drupal",
+        "where": ["ext:drupal/property-visibility"],
+        "codes": [
+            {"code": "VarUsed", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Classes.UseGlobalClass",
+        "standard": "Drupal",
+        "where": ["ext:drupal/redundant-use"],
+        "codes": [
+            {"code": "RedundantUseStatement", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.ClassComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/class-comment"],
+        "codes": [
+            {"code": "Missing", "status": "report-only"},
+            {"code": "Short", "status": "report"},
+            {"code": "SpacingAfter", "status": "fix"},
+            {"code": "WrongStyle", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.Deprecated",
+        "standard": "Drupal",
+        "where": ["ext:drupal/deprecated-tag"],
+        "codes": [
+            {"code": "DeprecatedMissingSeeTag", "status": "report"},
+            {"code": "DeprecatedPeriodAfterSeeUrl", "status": "fix"},
+            {"code": "DeprecatedVersionFormat", "status": "report"},
+            {"code": "DeprecatedWrongSeeUrlFormat", "status": "report"},
+            {"code": "IncorrectTextLayout", "status": "fix"},
+            {"code": "MissingExtraInfo", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.DocComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/doc-comment"],
+        "codes": [
+            {"code": "ContentAfterOpen", "status": "fix"},
+            {"code": "Empty", "status": "report", "where": ["ext:drupal/doc-comment", "lint:no-empty-comment"]},
+            {"code": "InheritDocWithoutBraces", "status": "fix"},
+            {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
+            {"code": "LongNotCapital", "status": "fix"},
+            {"code": "MissingShort", "status": "partial"},
+            {"code": "ParamGroup", "status": "report"},
+            {"code": "ParamNotFirst", "status": "report"},
+            {"code": "ShortFullStop", "status": "fix"},
+            {"code": "ShortNotCapital", "status": "fix"},
+            {"code": "ShortSingleLine", "status": "report"},
+            {"code": "ShortStartSpace", "status": "fix"},
+            {"code": "SpacingAfter", "status": "fix"},
+            {"code": "SpacingAfterTagGroup", "status": "fix"},
+            {"code": "SpacingBeforeShort", "status": "fix"},
+            {"code": "SpacingBeforeTags", "status": "fix"},
+            {"code": "SpacingBetween", "status": "fix"},
+            {"code": "TagGroupSpacing", "status": "fix"},
+            {"code": "TagValueIndent", "status": "fix"},
+            {"code": "TagsNotGrouped", "status": "report"},
+            {"code": "WrongEnd", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.DocCommentAlignment",
+        "standard": "Drupal",
+        "where": ["format", "ext:drupal/doc-comment"],
+        "codes": [
+            {"code": "NoSpaceAfterStar", "status": "fix", "where": ["ext:drupal/doc-comment"]},
+            {"code": "SpaceAfterStar", "status": "fix", "where": ["ext:drupal/doc-comment"]},
+            {"code": "SpaceBeforeStar", "status": "format", "where": ["format"]}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.DocCommentLongArraySyntax",
+        "standard": "Drupal",
+        "where": ["ext:drupal/doc-comment-array-syntax"],
+        "codes": [
+            {"code": "DocLongArray", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.DocCommentStar",
+        "standard": "Drupal",
+        "where": ["format"],
+        "note": "The formatter puts the star back on a docblock line that has none.",
+        "codes": [
+            {"code": "StarMissing", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.FileComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/file-comment"],
+        "codes": [
+            {"code": "FileTag", "status": "fix"},
+            {"code": "Missing", "status": "report-only"},
+            {"code": "NamespaceNoFileDoc", "status": "gap", "where": ["none"], "note": "A file docblock above the namespace of a class file. Not ported yet: the rule does not read `.php` files."},
+            {"code": "SpacingAfterComment", "status": "fix", "where": ["ext:drupal/file-comment", "format"]},
+            {"code": "TemplateSpacingAfterComment", "status": "gap", "where": ["none"], "note": "The shape of a Drupal 7 `.tpl.php` template. Not ported."},
+            {"code": "WrongStyle", "status": "partial"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.FunctionComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/function-comment", "analyze"],
+        "codes": [
+            {"code": "DuplicateReturn", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "EmptySees", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "ExtraParamComment", "status": "report", "where": ["analyze:invalid-param-tag"]},
+            {"code": "IncorrectParamVarName", "status": "fix"},
+            {"code": "InvalidNoReturn", "status": "report", "where": ["analyze:missing-return-statement"], "note": "Reported on the function, not on the `@return` tag."},
+            {"code": "InvalidReturn", "status": "fix"},
+            {"code": "InvalidReturnNotVoid", "status": "report", "where": ["analyze:invalid-return-statement"]},
+            {"code": "InvalidReturnVoid", "status": "report", "where": ["analyze:invalid-return-statement"], "note": "Reported on the `return` statement, not on the `@return void` tag."},
+            {"code": "InvalidThrows", "status": "report", "where": ["lint:valid-docblock"], "note": "A generic docblock parse error."},
+            {"code": "Missing", "status": "report-only"},
+            {"code": "MissingParamComment", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "MissingParamName", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "MissingParamType", "status": "report-only"},
+            {"code": "MissingReturnComment", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "MissingReturnType", "status": "report", "where": ["ext:drupal/function-comment", "lint:valid-docblock"]},
+            {"code": "ParamCommentFullStop", "status": "fix"},
+            {"code": "ParamCommentIndentation", "status": "fix"},
+            {"code": "ParamCommentNewLine", "status": "fix"},
+            {"code": "ParamCommentNotCapital", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "ParamMissingDefinition", "status": "report"},
+            {"code": "ParamNameDot", "status": "fix"},
+            {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
+            {"code": "ParamNameNoMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
+            {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "ReturnCommentIndentation", "status": "fix"},
+            {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "ReturnVarName", "status": "fix"},
+            {"code": "SeeAdditionalText", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "SeePunctuation", "status": "fix"},
+            {"code": "SpacingAfter", "status": "fix"},
+            {"code": "SpacingAfterParamType", "status": "fix"},
+            {"code": "ThrowsComment", "status": "fix", "where": ["ext:drupal/function-comment"]},
+            {"code": "ThrowsCommentIndentation", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "ThrowsNoFullStop", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "ThrowsNotCapital", "status": "report", "where": ["ext:drupal/function-comment"]},
+            {"code": "WrongStyle", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.GenderNeutralComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/gender-neutral-comment"],
+        "codes": [
+            {"code": "GenderNeutral", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.HookComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/hook-comment"],
+        "codes": [
+            {"code": "HookCommentFormat", "status": "report"},
+            {"code": "HookParamDoc", "status": "report"},
+            {"code": "HookRepeat", "status": "fix"},
+            {"code": "HookReturnDoc", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.InlineComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/inline-comment"],
+        "codes": [
+            {"code": "DocBlock", "status": "report"},
+            {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"], "note": "Mago's rule, at note level."},
+            {"code": "InvalidEndChar", "status": "partial", "where": ["ext:drupal/inline-comment-punctuation"]},
+            {"code": "NoSpaceBefore", "status": "fix"},
+            {"code": "NotCapital", "status": "fix"},
+            {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"]},
+            {"code": "SpacingAfterAtFunctionEnd", "status": "format", "where": ["format"]},
+            {"code": "SpacingBefore", "status": "partial"},
+            {"code": "TabBefore", "status": "fix"},
+            {"code": "WrongStyle", "status": "format", "where": ["format", "ext:drupal/inline-comment"]}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.InlineVariableComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/inline-variable-comment"],
+        "codes": [
+            {"code": "VarInline", "status": "fix"},
+            {"code": "VarInlineOrder", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.PostStatementComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/post-statement-comment"],
+        "codes": [
+            {"code": "Found", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.TodoComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/todo-comment"],
+        "codes": [
+            {"code": "TodoFormat", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Commenting.VariableComment",
+        "standard": "Drupal",
+        "where": ["ext:drupal/variable-comment"],
+        "codes": [
+            {"code": "DuplicateVar", "status": "report"},
+            {"code": "EmptySees", "status": "report"},
+            {"code": "EmptyVar", "status": "report"},
+            {"code": "IncorrectVarType", "status": "partial"},
+            {"code": "InlineVariableName", "status": "fix"},
+            {"code": "Missing", "status": "report"},
+            {"code": "MissingVar", "status": "report"},
+            {"code": "VarOrder", "status": "report"},
+            {"code": "WrongStyle", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.ControlStructures.ControlSignature",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NewlineAfterCloseBrace", "status": "format"},
+            {"code": "NewlineAfterOpenBrace", "status": "format"},
+            {"code": "SpaceAfterCloseBrace", "status": "format"},
+            {"code": "SpaceAfterCloseParenthesis", "status": "format"},
+            {"code": "SpaceAfterKeyword", "status": "format"},
+            {"code": "SpaceBeforeSemicolon", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Files.EndFileNewline",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NoneFound", "status": "format"},
+            {"code": "TooMany", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Files.FileEncoding",
+        "standard": "Drupal",
+        "where": ["ext:drupal/file-encoding"],
+        "codes": [
+            {"code": "InvalidEncoding", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Files.LineLength",
+        "standard": "Drupal",
+        "where": ["ext:drupal/comment-line-length"],
+        "codes": [
+            {"code": "TooLong", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Files.TxtFileLineLength",
+        "standard": "Drupal",
+        "where": ["phpcs"],
+        "note": "Checks `.txt` and `.md` files. Mago reads only PHP.",
+        "codes": [
+            {"code": "TooLong", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Formatting.MultiLineAssignment",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "MultiLineAssignmentIndent", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Formatting.MultipleStatementAlignment",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "Incorrect", "status": "format"},
+            {"code": "NotSame", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Formatting.SpaceInlineIf",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "SpaceInlineElse", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Formatting.SpaceUnaryOperator",
+        "standard": "Drupal",
+        "where": ["format"],
+        "note": "The formatter can break a long `!(...)` condition after the `!`, which Coder then reports.",
+        "codes": [
+            {"code": "BooleanNot", "status": "format"},
+            {"code": "IncDecLeft", "status": "format"},
+            {"code": "IncDecRight", "status": "format"},
+            {"code": "PlusMinus", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Functions.DiscouragedFunctions",
+        "standard": "Drupal",
+        "where": ["ext:drupal/discouraged-function"],
+        "codes": [
+            {"code": "Discouraged", "status": "report", "where": ["ext:drupal/discouraged-function", "lint:no-eval"]}
+        ]
+    },
+    {
+        "sniff": "Drupal.Functions.MultiLineFunctionDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BraceOnNewLine", "status": "format"},
+            {"code": "CloseBracketLine", "status": "format"},
+            {"code": "CloseBracketNewLine", "status": "format"},
+            {"code": "EmptyLine", "status": "fix", "where": ["ext:drupal/parameter-blank-line"]},
+            {"code": "Indent", "status": "format"},
+            {"code": "MissingTrailingComma", "status": "format"},
+            {"code": "NewlineBeforeOpenBrace", "status": "format"},
+            {"code": "SpaceAfterFunction", "status": "format"},
+            {"code": "SpaceAfterUse", "status": "format"},
+            {"code": "SpaceBeforeBrace", "status": "format"},
+            {"code": "SpaceBeforeOpenBrace", "status": "format"},
+            {"code": "SpaceBeforeOpenParen", "status": "format"},
+            {"code": "SpaceBeforeSemicolon", "status": "format"},
+            {"code": "SpaceBeforeUse", "status": "format"},
+            {"code": "UseCloseBracketLine", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.InfoFiles.AutoAddedKeys",
+        "standard": "Drupal",
+        "where": ["phpcs"],
+        "note": "Checks `.info.yml` files. Mago cannot report an issue in a YAML file.",
+        "codes": [
+            {"code": "Project", "status": "phpcs"},
+            {"code": "Timestamp", "status": "phpcs"},
+            {"code": "Version", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "Drupal.InfoFiles.ClassFiles",
+        "standard": "Drupal",
+        "where": ["phpcs"],
+        "codes": [
+            {"code": "DeclaredFileNotFound", "status": "phpcs"},
+            {"code": "UnnecessaryFileDeclaration", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "Drupal.InfoFiles.DependenciesArray",
+        "standard": "Drupal",
+        "where": ["phpcs"],
+        "codes": [
+            {"code": "Dependencies", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "Drupal.InfoFiles.DuplicateEntry",
+        "standard": "Drupal",
+        "where": ["phpcs"],
+        "codes": [
+            {"code": "DuplicateEntry", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "Drupal.InfoFiles.Required",
+        "standard": "Drupal",
+        "where": ["phpcs"],
+        "codes": [
+            {"code": "Core", "status": "phpcs"},
+            {"code": "D7PHPVersion", "status": "phpcs"},
+            {"code": "Description", "status": "phpcs"},
+            {"code": "Name", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "Drupal.NamingConventions.ValidClassName",
+        "standard": "Drupal",
+        "where": ["lint:class-name"],
+        "codes": [
+            {"code": "NoUnderscores", "status": "report"},
+            {"code": "NoUpperAcronyms", "status": "report", "where": ["ext:drupal/class-name-acronym"]},
+            {"code": "StartWithCapital", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.NamingConventions.ValidEnumCase",
+        "standard": "Drupal",
+        "where": ["ext:drupal/enum-case-name"],
+        "codes": [
+            {"code": "NoUnderscores", "status": "report"},
+            {"code": "NoUpperAcronyms", "status": "report"},
+            {"code": "StartWithCapital", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.NamingConventions.ValidFunctionName",
+        "standard": "Drupal",
+        "where": ["lint:function-name"],
+        "note": "Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the README does not turn it on.",
+        "codes": [
+            {"code": "InvalidName", "status": "report"},
+            {"code": "InvalidPrefix", "status": "report", "where": ["ext:drupal/function-prefix"]},
+            {"code": "MethodDoubleUnderscore", "status": "report", "where": ["ext:drupal/method-name-underscore"]},
+            {"code": "NotCamelCaps", "status": "gap", "where": ["lint:method-name"], "note": "Mago's `method-name` rule, off by default. The README does not turn it on."},
+            {"code": "ScopeNotCamelCaps", "status": "gap", "where": ["lint:method-name"], "note": "Mago's `method-name` rule, off by default. The README does not turn it on."}
+        ]
+    },
+    {
+        "sniff": "Drupal.NamingConventions.ValidGlobal",
+        "standard": "Drupal",
+        "where": ["ext:drupal/global-variable"],
+        "codes": [
+            {"code": "GlobalUnderScore", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.NamingConventions.ValidVariableName",
+        "standard": "Drupal",
+        "where": ["ext:drupal/property-name"],
+        "codes": [
+            {"code": "LowerCamelName", "status": "report"},
+            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The README does not turn it on."}
+        ]
+    },
+    {
+        "sniff": "Drupal.Scope.MethodScope",
+        "standard": "Drupal",
+        "where": ["ext:drupal/method-visibility"],
+        "codes": [
+            {"code": "Missing", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.ConstantName",
+        "standard": "Drupal",
+        "where": ["ext:drupal/constant-prefix"],
+        "codes": [
+            {"code": "ConstConstantStart", "status": "report", "where": ["ext:drupal/const-prefix"]},
+            {"code": "ConstantStart", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.EmptyInstall",
+        "standard": "Drupal",
+        "where": ["ext:drupal/empty-install-hook"],
+        "codes": [
+            {"code": "EmptyInstall", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.FunctionAlias",
+        "standard": "Drupal",
+        "where": ["lint:no-alias-function"],
+        "note": "Mago's rule, on by default, with a fix.",
+        "codes": [
+            {"code": "FunctionAlias", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.FunctionT",
+        "standard": "Drupal",
+        "where": ["ext:drupal/translatable-string"],
+        "codes": [
+            {"code": "BackslashDoubleQuote", "status": "fix", "where": ["ext:drupal/translatable-string", "format"]},
+            {"code": "BackslashSingleQuote", "status": "fix"},
+            {"code": "Concat", "status": "report"},
+            {"code": "ConcatString", "status": "report"},
+            {"code": "EmptyString", "status": "report"},
+            {"code": "EmptyT", "status": "report"},
+            {"code": "NotLiteralString", "status": "report"},
+            {"code": "WhiteSpace", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.FunctionTriggerError",
+        "standard": "Drupal",
+        "where": ["ext:drupal/deprecation-message"],
+        "codes": [
+            {"code": "TriggerErrorPeriodAfterSeeUrl", "status": "report"},
+            {"code": "TriggerErrorSeeUrlFormat", "status": "report"},
+            {"code": "TriggerErrorTextLayoutRelaxed", "status": "report"},
+            {"code": "TriggerErrorTextLayoutStrict", "status": "report"},
+            {"code": "TriggerErrorVersion", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.FunctionWatchdog",
+        "standard": "Drupal",
+        "where": ["ext:drupal/watchdog-message"],
+        "codes": [
+            {"code": "Concat", "status": "report"},
+            {"code": "WatchdogArgument", "status": "report"},
+            {"code": "WatchdogT", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.InstallHooks",
+        "standard": "Drupal",
+        "where": ["ext:drupal/install-hook-location"],
+        "codes": [
+            {"code": "InstallHook", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.LStringTranslatable",
+        "standard": "Drupal",
+        "where": ["ext:drupal/link-text-translatable"],
+        "codes": [
+            {"code": "LArg", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.PregSecurity",
+        "standard": "Drupal",
+        "where": ["ext:drupal/preg-security"],
+        "codes": [
+            {"code": "PregEFlag", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.RemoteAddress",
+        "standard": "Drupal",
+        "where": ["ext:drupal/remote-address"],
+        "codes": [
+            {"code": "RemoteAddress", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.TInHookMenu",
+        "standard": "Drupal",
+        "where": ["ext:drupal/t-in-hook-menu"],
+        "codes": [
+            {"code": "TFound", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.TInHookSchema",
+        "standard": "Drupal",
+        "where": ["ext:drupal/t-in-hook-schema"],
+        "codes": [
+            {"code": "TFound", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Drupal.Semantics.UnsilencedDeprecation",
+        "standard": "Drupal",
+        "where": ["ext:drupal/unsilenced-deprecation"],
+        "codes": [
+            {"code": "UnsilencedDeprecation", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.CloseBracketSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "ClosingWhitespace", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.Comma",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NoSpace", "status": "format"},
+            {"code": "TooManySpaces", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.EmptyLines",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "EmptyLines", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.ObjectOperatorIndent",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "Indent", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.ObjectOperatorSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "After", "status": "format"},
+            {"code": "Before", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.OpenBracketSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "OpeningWhitespace", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.OpenTagNewline",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BlankLine", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.ScopeClosingBrace",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BreakIndent", "status": "format"},
+            {"code": "Indent", "status": "format"},
+            {"code": "Line", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Drupal.WhiteSpace.ScopeIndent",
+        "standard": "Drupal",
+        "where": ["format"],
+        "note": "The formatter writes the indentation. A few layouts it writes differ from what Coder expects.",
+        "codes": [
+            {"code": "Incorrect", "status": "format"},
+            {"code": "IncorrectExact", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.Arrays.DisallowLongArraySyntax",
+        "standard": "Drupal",
+        "where": ["lint:array-style"],
+        "note": "Mago's rule, on by default, with a safe fix.",
+        "codes": [
+            {"code": "Found", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Generic.CodeAnalysis.EmptyPHPStatement",
+        "standard": "Drupal",
+        "where": ["lint:no-noop"],
+        "codes": [
+            {"code": "EmptyPHPOpenCloseTagsDetected", "status": "fix", "where": ["ext:drupal/empty-php-tags"]},
+            {"code": "SemicolonWithoutCodeDetected", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "Generic.CodeAnalysis.UselessOverridingMethod",
+        "standard": "Drupal",
+        "where": ["lint:no-redundant-method-override"],
+        "codes": [
+            {"code": "Found", "status": "partial", "note": "Mago's `no-redundant-method-override` reports an override only when the method has no parameters, because of a bug in Mago."}
+        ]
+    },
+    {
+        "sniff": "Generic.ControlStructures.InlineControlStructure",
+        "standard": "Drupal",
+        "where": ["lint:block-statement"],
+        "note": "Mago's rule reports a body without braces, with no fix. The formatter keeps the body as it is.",
+        "codes": [
+            {"code": "NotAllowed", "status": "report-only"}
+        ]
+    },
+    {
+        "sniff": "Generic.Files.ByteOrderMark",
+        "standard": "Drupal",
+        "where": ["ext:drupal/byte-order-mark"],
+        "codes": [
+            {"code": "Found", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Generic.Files.LineEndings",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "InvalidEOLChar", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.Formatting.DisallowMultipleStatements",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "SameLine", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.Formatting.SpaceAfterCast",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "CommentFound", "status": "report", "where": ["ext:drupal/comment-in-expression"]},
+            {"code": "NoSpace", "status": "format"},
+            {"code": "TooLittleSpace", "status": "format"},
+            {"code": "TooMuchSpace", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.Functions.FunctionCallArgumentSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "SpaceBeforeComma", "status": "format"},
+            {"code": "TooMuchSpaceAfterComma", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.NamingConventions.ConstructorName",
+        "standard": "Drupal",
+        "where": ["none"],
+        "note": "A PHP 4 constructor named after its class. Not ported yet. Since PHP 8 such a method is an ordinary method.",
+        "codes": [
+            {"code": "OldStyle", "status": "gap"},
+            {"code": "OldStyleCall", "status": "gap", "note": "A call to such a constructor through `parent::`. Not ported yet."}
+        ]
+    },
+    {
+        "sniff": "Generic.NamingConventions.InterfaceNameSuffix",
+        "standard": "Drupal",
+        "where": ["lint:interface-name"],
+        "note": "With `interface-name = { psr = true }`.",
+        "codes": [
+            {"code": "Missing", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Generic.NamingConventions.TraitNameSuffix",
+        "standard": "Drupal",
+        "where": ["lint:trait-name"],
+        "note": "With `trait-name = { psr = true }`. Mago reports it at help level.",
+        "codes": [
+            {"code": "Missing", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Generic.NamingConventions.UpperCaseConstantName",
+        "standard": "Drupal",
+        "where": ["lint:constant-name"],
+        "codes": [
+            {"code": "ClassConstantNotUpperCase", "status": "report"},
+            {"code": "ConstantNotUpperCase", "status": "report", "where": ["lint:constant-name", "ext:drupal/define-name"]}
+        ]
+    },
+    {
+        "sniff": "Generic.PHP.DeprecatedFunctions",
+        "standard": "Drupal",
+        "where": ["analyze:deprecated-function"],
+        "codes": [
+            {"code": "Deprecated", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Generic.PHP.DisallowShortOpenTag",
+        "standard": "Drupal",
+        "where": ["lint:no-short-opening-tag"],
+        "codes": [
+            {"code": "EchoFound", "status": "fix", "where": ["ext:drupal/short-echo-tag"]},
+            {"code": "Found", "status": "fix"},
+            {"code": "PossibleFound", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Generic.PHP.LowerCaseKeyword",
+        "standard": "Drupal",
+        "where": ["format", "lint:lowercase-keyword"],
+        "note": "The formatter lowercases keywords. `lowercase-keyword` fixes `AND`, `OR`, `XOR` and `INSTANCEOF`, which the formatter keeps.",
+        "codes": [
+            {"code": "Found", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.PHP.UpperCaseConstant",
+        "standard": "Drupal",
+        "where": ["format"],
+        "note": "The drupal preset writes `TRUE`, `FALSE` and `NULL`. A fully qualified `\\true` stays lower case and nothing reports it.",
+        "codes": [
+            {"code": "Found", "status": "partial"}
+        ]
+    },
+    {
+        "sniff": "Generic.Strings.UnnecessaryStringConcat",
+        "standard": "Drupal",
+        "where": ["lint:no-redundant-string-concat"],
+        "codes": [
+            {"code": "Found", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "Generic.WhiteSpace.DisallowTabIndent",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NonIndentTabsUsed", "status": "format"},
+            {"code": "TabsUsed", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Generic.WhiteSpace.LanguageConstructSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "Incorrect", "status": "format"},
+            {"code": "IncorrectSingle", "status": "partial", "note": "The formatter can break a long expression right after `print`, which Coder reports."},
+            {"code": "IncorrectYieldFrom", "status": "format"},
+            {"code": "IncorrectYieldFromWithComment", "status": "report", "where": ["ext:drupal/comment-in-expression"]}
+        ]
+    },
+    {
+        "sniff": "PEAR.Files.IncludingFile",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BracketsNotRequired", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "PEAR.Functions.FunctionCallSignature",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "FirstArgumentPosition", "status": "format"},
+            {"code": "MultipleArguments", "status": "format"},
+            {"code": "SpaceAfterCloseBracket", "status": "format"},
+            {"code": "SpaceBeforeOpenBracket", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "PEAR.Functions.ValidDefaultValue",
+        "standard": "Drupal",
+        "where": ["lint:optional-param-order"],
+        "codes": [
+            {"code": "NotAtEnd", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "PSR2.Classes.PropertyDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "AbstractAfterVisibility", "status": "format"},
+            {"code": "AvizKeywordOrder", "status": "format"},
+            {"code": "FinalAfterVisibility", "status": "format"},
+            {"code": "Multiple", "status": "report", "where": ["ext:drupal/property-per-statement"]},
+            {"code": "ReadonlyBeforeVisibility", "status": "format"},
+            {"code": "ScopeMissing", "status": "fix", "where": ["ext:drupal/property-visibility"]},
+            {"code": "SpacingAfterType", "status": "format"},
+            {"code": "StaticBeforeVisibility", "status": "format"},
+            {"code": "Underscore", "status": "report", "where": ["ext:drupal/property-name"]}
+        ]
+    },
+    {
+        "sniff": "PSR2.ControlStructures.ElseIfDeclaration",
+        "standard": "Drupal",
+        "where": ["ext:drupal/else-if"],
+        "codes": [
+            {"code": "NotAllowed", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "PSR2.ControlStructures.SwitchDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BreakNotNewLine", "status": "format"},
+            {"code": "caseNotLower", "status": "format"},
+            {"code": "defaultNotLower", "status": "format"},
+            {"code": "SpaceBeforeColonCASE", "status": "format"},
+            {"code": "SpaceBeforeColonDEFAULT", "status": "format"},
+            {"code": "SpacingAfterCase", "status": "format"},
+            {"code": "TerminatingComment", "status": "report", "where": ["ext:drupal/case-fall-through"]},
+            {"code": "WrongOpener", "status": "report", "where": ["lint:no-redundant-block"], "note": "`case 1: {`. Mago reports the braces as a redundant block."},
+            {"code": "WrongOpenercase", "status": "fix", "where": ["ext:drupal/case-semicolon"]},
+            {"code": "WrongOpenerdefault", "status": "fix", "where": ["ext:drupal/case-semicolon"]}
+        ]
+    },
+    {
+        "sniff": "PSR2.Methods.MethodDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "AbstractAfterVisibility", "status": "format"},
+            {"code": "FinalAfterVisibility", "status": "format"},
+            {"code": "StaticBeforeVisibility", "status": "format"},
+            {"code": "Underscore", "status": "report", "where": ["ext:drupal/method-name-underscore"]}
+        ]
+    },
+    {
+        "sniff": "PSR2.Namespaces.NamespaceDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "BlankLineAfter", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "PSR2.Namespaces.UseDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "MultipleDeclarations", "status": "format"},
+            {"code": "SpaceAfterLastUse", "status": "format"},
+            {"code": "SpaceAfterUse", "status": "format"},
+            {"code": "UseBeforeNamespace", "status": "report", "where": ["lint:semantics"], "note": "PHP refuses a `use` before the namespace, and Mago reports it as a semantic error."}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.Classes.BackedEnumTypeSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "IncorrectSpacesBeforeColon", "status": "format"},
+            {"code": "IncorrectSpacesBeforeType", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.Commenting.ForbiddenComments",
+        "standard": "Drupal",
+        "where": ["ext:drupal/doc-comment"],
+        "codes": [
+            {"code": "CommentForbidden", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.ControlStructures.NewWithParentheses",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "MissingParentheses", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator",
+        "standard": "Drupal",
+        "where": ["ext:drupal/null-coalesce"],
+        "codes": [
+            {"code": "NullCoalesceOperatorNotUsed", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.Namespaces.UnusedUses",
+        "standard": "Drupal",
+        "where": ["lint:no-redundant-use", "ext:drupal/doc-type-namespace"],
+        "codes": [
+            {"code": "UnusedUse", "status": "partial"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash",
+        "standard": "Drupal",
+        "where": ["ext:drupal/use-leading-backslash"],
+        "codes": [
+            {"code": "UseStartsWithBackslash", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.Namespaces.UseFromSameNamespace",
+        "standard": "Drupal",
+        "where": ["lint:no-redundant-use"],
+        "codes": [
+            {"code": "UseFromSameNamespace", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.PHP.ShortList",
+        "standard": "Drupal",
+        "where": ["ext:drupal/short-list"],
+        "codes": [
+            {"code": "LongListUsed", "status": "fix"}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.TypeHints.DeclareStrictTypes",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "IncorrectStrictTypesFormat", "status": "format"},
+            {"code": "IncorrectWhitespaceAfterDeclare", "status": "format"},
+            {"code": "IncorrectWhitespaceBeforeDeclare", "status": "partial", "where": ["format", "ext:drupal/file-comment"]}
+        ]
+    },
+    {
+        "sniff": "SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue",
+        "standard": "Drupal",
+        "where": ["lint:explicit-nullable-param"],
+        "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on.",
+        "codes": [
+            {"code": "NullabilityTypeMissing", "status": "gap", "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later. With the README's 8.3, nothing reports it, even with the rule switched on."}
+        ]
+    },
+    {
+        "sniff": "Squiz.Arrays.ArrayBracketSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "SpaceAfterBracket", "status": "format"},
+            {"code": "SpaceBeforeBracket", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.Arrays.ArrayDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "CommaAfterLast", "status": "format"},
+            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported yet. Core turns the code off."},
+            {"code": "NoKeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported yet. Core turns the code off."},
+            {"code": "NoSpaceAfterComma", "status": "format"},
+            {"code": "NoSpaceAfterDoubleArrow", "status": "format"},
+            {"code": "NoSpaceBeforeDoubleArrow", "status": "format"},
+            {"code": "SpaceAfterComma", "status": "format"},
+            {"code": "SpaceAfterDoubleArrow", "status": "format"},
+            {"code": "SpaceAfterKeyword", "status": "format"},
+            {"code": "SpaceBeforeComma", "status": "format"},
+            {"code": "SpaceBeforeDoubleArrow", "status": "format"},
+            {"code": "SpaceInEmptyArray", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.Classes.ClassFileName",
+        "standard": "Drupal",
+        "where": ["lint:file-name"],
+        "note": "With `file-name = { enabled = true }`.",
+        "codes": [
+            {"code": "NoMatch", "status": "partial", "where": ["lint:file-name", "lint:single-class-per-file"], "note": "With `file-name = { enabled = true }`. In a file with several classes, `single-class-per-file` reports the extra class instead."}
+        ]
+    },
+    {
+        "sniff": "Squiz.ControlStructures.ForEachLoopDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NoSpaceAfterArrow", "status": "format"},
+            {"code": "NoSpaceAfterAs", "status": "format"},
+            {"code": "NoSpaceBeforeArrow", "status": "format"},
+            {"code": "NoSpaceBeforeAs", "status": "format"},
+            {"code": "SpacingAfterArrow", "status": "format"},
+            {"code": "SpacingAfterAs", "status": "format"},
+            {"code": "SpacingBeforeArrow", "status": "format"},
+            {"code": "SpacingBeforeAs", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.ControlStructures.ForLoopDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NoSpaceAfterFirst", "status": "format"},
+            {"code": "NoSpaceAfterSecond", "status": "format"},
+            {"code": "SpacingBeforeFirst", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.ControlStructures.SwitchDeclaration",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "CaseNotLower", "status": "format"},
+            {"code": "ContentAfterCase", "status": "format"},
+            {"code": "ContentBeforeBreak", "status": "format"},
+            {"code": "DefaultNotLower", "status": "format"},
+            {"code": "MissingCase", "status": "report", "where": ["ext:drupal/empty-switch"]},
+            {"code": "SpaceBeforeColonCase", "status": "format"},
+            {"code": "SpaceBeforeColonDefault", "status": "format"},
+            {"code": "SpacingAfterBreak", "status": "fix", "where": ["ext:drupal/case-break-blank-line"]}
+        ]
+    },
+    {
+        "sniff": "Squiz.Functions.FunctionDeclarationArgumentSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "SpaceAfterEquals", "status": "format"},
+            {"code": "SpaceBeforeComma", "status": "format"},
+            {"code": "SpaceBeforeEquals", "status": "format"},
+            {"code": "SpacingAfterHint", "status": "format"},
+            {"code": "SpacingAfterOpen", "status": "format"},
+            {"code": "SpacingAfterReadonly", "status": "format"},
+            {"code": "SpacingAfterReference", "status": "format"},
+            {"code": "SpacingAfterSetVisibility", "status": "format"},
+            {"code": "SpacingAfterVariadic", "status": "format"},
+            {"code": "SpacingAfterVisibility", "status": "format"},
+            {"code": "SpacingBeforeClose", "status": "format"},
+            {"code": "SpacingBeforeHint", "status": "format"},
+            {"code": "SpacingBetween", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.PHP.LowercasePHPFunctions",
+        "standard": "Drupal",
+        "where": ["analyze:incorrect-function-casing"],
+        "note": "With `check-name-casing = true`. Reported without a fix.",
+        "codes": [
+            {"code": "CallUppercase", "status": "report-only"},
+            {"code": "UseStatementUppercase", "status": "report-only"}
+        ]
+    },
+    {
+        "sniff": "Squiz.PHP.NonExecutableCode",
+        "standard": "Drupal",
+        "where": ["analyze:unevaluated-code"],
+        "codes": [
+            {"code": "ReturnNotRequired", "status": "fix", "where": ["ext:drupal/redundant-return"]},
+            {"code": "Unreachable", "status": "report", "where": ["analyze:unevaluated-code", "analyze:useless-control-flow"], "note": "A `break;` after `return` is `useless-control-flow`."}
+        ]
+    },
+    {
+        "sniff": "Squiz.Strings.ConcatenationSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "PaddingFound", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.WhiteSpace.FunctionSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "After", "status": "format"},
+            {"code": "AfterLast", "status": "partial", "note": "The formatter removes the blank lines around a function declared inside `if (!function_exists())`, which Coder reports."},
+            {"code": "Before", "status": "format"},
+            {"code": "BeforeFirst", "status": "partial", "note": "The formatter removes the blank lines around a function declared inside `if (!function_exists())`, which Coder reports."}
+        ]
+    },
+    {
+        "sniff": "Squiz.WhiteSpace.OperatorSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "NoSpaceAfter", "status": "partial", "note": "The formatter writes `catch (A|B $e)`, which Coder reports."},
+            {"code": "NoSpaceAfterAmp", "status": "format"},
+            {"code": "NoSpaceBefore", "status": "partial", "note": "The formatter writes `catch (A|B $e)`, which Coder reports."},
+            {"code": "NoSpaceBeforeAmp", "status": "format"},
+            {"code": "SpacingAfter", "status": "format"},
+            {"code": "SpacingAfterAmp", "status": "format"},
+            {"code": "SpacingBefore", "status": "format"},
+            {"code": "SpacingBeforeAmp", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.WhiteSpace.ScopeKeywordSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "Incorrect", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.WhiteSpace.SemicolonSpacing",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "Incorrect", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "Squiz.WhiteSpace.SuperfluousWhitespace",
+        "standard": "Drupal",
+        "where": ["format"],
+        "codes": [
+            {"code": "EmptyLines", "status": "format"},
+            {"code": "EndFile", "status": "format"},
+            {"code": "EndLine", "status": "format"},
+            {"code": "StartFile", "status": "fix", "where": ["ext:drupal/file-start-whitespace"]}
+        ]
+    },
+    {
+        "sniff": "Zend.Files.ClosingTag",
+        "standard": "Drupal",
+        "where": ["format", "lint:no-closing-tag"],
+        "note": "The formatter removes a closing tag at the end of the file. One that ends a statement without a `;` stays.",
+        "codes": [
+            {"code": "NotAllowed", "status": "format"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Commenting.AuthorTag",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/author-tag"],
+        "codes": [
+            {"code": "AuthorFound", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Commenting.CommentEmptyLine",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/inline-comment-blank-line"],
+        "codes": [
+            {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"]}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Commenting.ExpectedException",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/expected-exception-tag"],
+        "codes": [
+            {"code": "TagFound", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Constants.GlobalConstant",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/global-constant"],
+        "codes": [
+            {"code": "GlobalConstant", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Constants.GlobalDefine",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/global-constant"],
+        "codes": [
+            {"code": "GlobalConstant", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.CheckPlain",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "CheckPlainLiteral", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.CurlSslVerifier",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/curl-ssl-verify"],
+        "codes": [
+            {"code": "SslPeerVerificationDisabled", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.DbQuery",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "DbQuery", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.DbSelectBraces",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "DbSelectBrace", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.DefaultValueSanitize",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "DefaultValue", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.FormErrorT",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "ErrorMessage", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.InsecureUnserialize",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/insecure-unserialize"],
+        "codes": [
+            {"code": "InsecureUnserialize", "status": "partial"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.LCheckPlain",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "LCheckPlain", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.MessageT",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "ErrorMessage", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.TCheckPlain",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "CheckPlain", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.Theme",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "ThemeFunctionDirect", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionCalls.VariableSetSanitize",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "VariableSet", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionDefinitions.AccessHookMenu",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "OpenCallback", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionDefinitions.FormAlterDoc",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/form-alter-comment"],
+        "codes": [
+            {"code": "Different", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionDefinitions.HookInitCss",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "AddFunctionFound", "status": "gap"},
+            {"code": "AddFunctionFoundPageBuild", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.FunctionDefinitions.InstallT",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "TranslationFound", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.AccessAdminPages",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "PermissionFound", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.ClassName",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/class-prefix"],
+        "codes": [
+            {"code": "ClassPrefix", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.DescriptionT",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "DescriptionT", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.ExceptionT",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/translated-exception"],
+        "codes": [
+            {"code": "ExceptionT", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.FormStateInput",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "Input", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.LanguageNone",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "Und", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.OptionsT",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/untranslated-options"],
+        "codes": [
+            {"code": "OptionsValue", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.General.VariableName",
+        "standard": "DrupalPractice",
+        "drupal7": true,
+        "where": ["none"],
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "codes": [
+            {"code": "VariableName", "status": "gap", "note": "A Drupal 7 `variable_get()` name without the module prefix. Not ported."}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.InfoFiles.CoreVersionRequirement",
+        "standard": "DrupalPractice",
+        "where": ["phpcs"],
+        "note": "Checks `.info.yml` files.",
+        "codes": [
+            {"code": "CoreVersionRequirement", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.InfoFiles.Description",
+        "standard": "DrupalPractice",
+        "where": ["phpcs"],
+        "note": "Checks `.info.yml` files.",
+        "codes": [
+            {"code": "Empty", "status": "phpcs"},
+            {"code": "Missing", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.InfoFiles.NamespacedDependency",
+        "standard": "DrupalPractice",
+        "where": ["phpcs"],
+        "note": "Checks `.info.yml` files.",
+        "codes": [
+            {"code": "NonNamespaced", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Objects.GlobalClass",
+        "standard": "DrupalPractice",
+        "where": ["none"],
+        "note": "A static `Node::load()` style call in a class that can have the storage injected. Needs the analyzer; not ported yet.",
+        "codes": [
+            {"code": "GlobalClass", "status": "gap"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Objects.GlobalDrupal",
+        "standard": "DrupalPractice",
+        "where": ["branch:GlobalDrupalCallHook"],
+        "note": "The analyzer half, on the `analyzer` branch, reports `\\Drupal::` calls in a class with a `create()` method, ported from phpstan-drupal.",
+        "codes": [
+            {"code": "GlobalDrupal", "status": "partial"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Objects.GlobalFunction",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/global-function"],
+        "codes": [
+            {"code": "GlobalFunction", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Objects.StrictSchemaDisabled",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/strict-config-schema"],
+        "codes": [
+            {"code": "StrictConfigSchema", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Objects.UnusedPrivateMethod",
+        "standard": "DrupalPractice",
+        "where": ["analyze:unused-method"],
+        "codes": [
+            {"code": "UnusedMethod", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Variables.GetRequestData",
+        "standard": "DrupalPractice",
+        "where": ["ext:drupal/request-superglobal", "lint:no-request-variable"],
+        "codes": [
+            {"code": "SuperglobalAccessed", "status": "report"},
+            {"code": "SuperglobalAccessedWithVar", "status": "report"}
+        ]
+    },
+    {
+        "sniff": "DrupalPractice.Yaml.RoutingAccess",
+        "standard": "DrupalPractice",
+        "where": ["phpcs"],
+        "note": "Checks `.routing.yml` files.",
+        "codes": [
+            {"code": "OpenCallback", "status": "phpcs"},
+            {"code": "PermissionFound", "status": "phpcs"}
+        ]
+    },
+    {
+        "sniff": "VariableAnalysis.CodeAnalysis.VariableAnalysis",
+        "standard": "DrupalPractice",
+        "where": ["lint:no-redundant-variable", "analyze"],
+        "codes": [
+            {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "A variable read after `unset()`. Not ported yet: it needs flow analysis."},
+            {"code": "UnusedVariable", "status": "partial", "where": ["lint:no-redundant-variable"], "note": "With `no-redundant-variable = { enabled = true }`. Variables at file scope are skipped."},
+            {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported yet: it needs flow analysis."}
+        ]
+    }
+]

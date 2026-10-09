@@ -3,3 +3,6 @@
 /.phpunit.cache/
 /bin/
 /composer.lock
+/.venv/
+/site/
+/.cache/
