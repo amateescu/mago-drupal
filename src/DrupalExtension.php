@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal;
 
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Internal\DefaultOffRule;
+use amateescu\MagoDrupal\Internal\Utf8IssueRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
@@ -145,7 +146,7 @@ final class DrupalExtension
         $rules = [];
         foreach (self::linterRules() as $rule) {
             $code = $rule->getDefinition()->code;
-            $rules[] = array_key_exists($code, $off) ? new DefaultOffRule($rule) : $rule;
+            $rules[] = new Utf8IssueRule(array_key_exists($code, $off) ? new DefaultOffRule($rule) : $rule);
             unset($off[$code]);
         }
 

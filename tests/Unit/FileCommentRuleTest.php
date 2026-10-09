@@ -119,6 +119,23 @@ final class FileCommentRuleTest extends TestCase
         self::assertSame([], $issues);
     }
 
+    /**
+     * Coder reads past a UTF-8 byte order mark before the opening tag.
+     */
+    public function testReportsNothingOnAFileCommentAfterAByteOrderMark(): void
+    {
+        $contents = "\xEF\xBB\xBF<?php\n\n/**\n * @file\n * Does something.\n */\n";
+
+        $issues = self::lint(
+            'node.module',
+            $contents,
+            TriviaKind::DocBlockComment,
+            self::spanOf($contents, "/**\n * @file\n * Does something.\n */"),
+        );
+
+        self::assertSame([], $issues);
+    }
+
     public function testReportsNothingOnANonProceduralFile(): void
     {
         self::assertSame([], self::lint('Node.php', "<?php\n\nclass Node {}\n"));
