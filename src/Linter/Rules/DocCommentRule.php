@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\DocblockLine;
+use amateescu\MagoDrupal\Internal\DocblockRows;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\DocCommentSpacing;
+use amateescu\MagoDrupal\Internal\DocDoubleDot;
+use amateescu\MagoDrupal\Internal\DocStarSpacing;
 use amateescu\MagoDrupal\Internal\OuterDocblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -29,17 +32,20 @@ use function strlen;
 use function strspn;
 use function strtolower;
 use function strtoupper;
-use function trim;
 
 /**
  * Checks a docblock's short description, long description and tag order.
  *
  * Ports Drupal.Commenting.DocComment. `DocCommentSpacing` holds the checks
- * on blank lines and on the spaces before a description and after a tag.
- * Star alignment is left to `mago format`. The end of the long description
- * is `drupal/long-description-punctuation`'s, since core's `phpcs.xml.dist`
- * turns that check off. A `phpcs:` line inside the docblock is not part of
- * a description, as Coder reads it.
+ * on blank lines, on the closer, and on the spaces before a description and
+ * after a tag. `DocStarSpacing` ports the space after the star of
+ * Drupal.Commenting.DocCommentAlignment, and `DocDoubleDot` ports the
+ * two-dot pattern of SlevomatCodingStandard.Commenting.ForbiddenComments.
+ * Both of those run on every docblock, inside function bodies too. The end
+ * of the long description is `drupal/long-description-punctuation`'s, since
+ * core's `phpcs.xml.dist` turns that check off. A `phpcs:` line inside the
+ * docblock is not part of a description, as Coder reads it. The description
+ * of a file docblock is the text after its `@file` tag.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -50,9 +56,8 @@ final class DocCommentRule implements Rule
      * Tags that can make up a docblock on their own, with no short
      * description.
      *
-     * A file comment writes its description as continuation lines of the
-     * `@file` tag, not as a leading paragraph. That is why `file` is in this
-     * list. The exemption only applies to a docblock whose only tag is
+     * A file comment may be the `@file` tag alone. That is why `file` is in
+     * this list. The exemption only applies to a docblock whose only tag is
      * `@file`. A docblock that mixes `@file` with other tags must still have
      * a leading short description. `var` is not in the list, although a
      * `@var`-only property docblock is common. Coder's own sniff does not
@@ -64,12 +69,6 @@ final class DocCommentRule implements Rule
      * Tags that this rule checks for order. Each must also be in one group.
      */
     private const ORDERED_TAGS = ['param', 'return', 'throws'];
-
-    /**
-     * Leading tags that do not count as a tag group. A `@param` group can
-     * follow them and still count as first, because they are markup.
-     */
-    private const PARAM_LEADING_EXEMPT = ['code', 'todo', 'link', 'endlink', 'codingstandardsignorestart'];
 
     public function getDefinition(): RuleDefinition
     {
@@ -94,12 +93,23 @@ final class DocCommentRule implements Rule
         foreach (OuterDocblocks::of($context->file) as $span) {
             $this->checkDocblock($context, $span);
         }
+
+        // Coder checks the stars and the end of a description line in every
+        // docblock, the ones inside a function body too.
+        foreach (OuterDocblocks::inBodies($context->file) as $span) {
+            DocStarSpacing::check($context, $span, summaryRow: null);
+            DocDoubleDot::check($context, $span);
+        }
     }
 
     private function checkDocblock(LintContext $context, Span $span): void
     {
         DocCommentSpacing::checkEnds($context, $span);
-        if (OuterDocblocks::isGroup($context->file, $span)) {
+        DocDoubleDot::check($context, $span);
+        $isGroup = OuterDocblocks::isGroup($context->file, $span);
+        $summaryRow = $isGroup ? null : DocCommentSpacing::summaryRow(DocblockRows::of($context->file, $span));
+        DocStarSpacing::check($context, $span, $summaryRow);
+        if ($isGroup) {
             return;
         }
 
@@ -142,7 +152,7 @@ final class DocCommentRule implements Rule
             if (count($summary) > 1) {
                 $context->report(Issue::new(
                     'A short description must fit on one line. Move the rest to a long description.',
-                    $this->paragraphSpan($summary),
+                    $this->lastLineSpan($summary),
                 ));
             }
         }
@@ -191,12 +201,7 @@ final class DocCommentRule implements Rule
      */
     private function checkShortCapital(LintContext $context, array $summary): void
     {
-        // Coder joins the summary lines with nothing between them.
-        $content = '';
-        foreach ($summary as $line) {
-            $content .= trim($line->text);
-        }
-
+        $content = Docblocks::joinedText($summary);
         if ($content === '') {
             return;
         }
@@ -258,8 +263,13 @@ final class DocCommentRule implements Rule
         // unexempt.
         $trimmed = rtrim($last->text);
         $lastChar = mb_substr($trimmed, -1);
-        // Coder accepts `{@inheritDoc}` too.
-        if (strtolower($trimmed) === '{@inheritdoc}' || in_array($lastChar, ['.', '!', '?', ')'], strict: true)) {
+        // Coder accepts `{@inheritDoc}` too, and a summary that is the
+        // file's own name.
+        if (
+            strtolower($trimmed) === '{@inheritdoc}'
+            || in_array($lastChar, ['.', '!', '?', ')'], strict: true)
+            || Docblocks::joinedText($summary) === basename($context->file->path)
+        ) {
             return;
         }
 
@@ -282,59 +292,46 @@ final class DocCommentRule implements Rule
     }
 
     /**
+     * The span of the last line of a paragraph, where Coder reports it.
+     *
      * @param list<DocblockLine> $paragraph
      */
-    private function paragraphSpan(array $paragraph): Span
+    private function lastLineSpan(array $paragraph): Span
     {
         $last = $paragraph[count($paragraph) - 1];
 
-        return new Span($paragraph[0]->offset, $last->offset + strlen($last->text));
+        return new Span($last->offset, $last->offset + strlen(rtrim($last->text)));
     }
 
     /**
-     * Reports a tag name that appears again after another tag interrupted
-     * it, and an `@param` group that is not the first group of tags.
+     * Reports a tag name that appears again after a different ordered tag.
+     * `DocCommentSpacing` reports the `@param` groups.
      *
      * Only `@param`, `@return` and `@throws` are ordered tags. No other tag
      * counts here, and that includes Doxygen markup such as `@code`,
      * `@endcode`, `@todo` and `@link`. Such a tag does not have to be in a
-     * group. It also does not make a later `@param` group count as not
-     * first. A docblock often opens with an example before its first real
-     * tag.
+     * group, and it does not split one. Coder compares with the last ordered
+     * tag only.
      *
      * @param list<DocblockTag> $tags
      */
     private function checkTagOrder(LintContext $context, array $tags): void
     {
-        $firstName = $tags === [] ? null : $tags[0]->name;
-        $paramMayFollow = in_array($firstName, self::PARAM_LEADING_EXEMPT, strict: true);
-
         $seen = [];
-        // Tracks the name of the tag just before, ordered or not. Otherwise
-        // the group check does not see an "@code" between two "@param"
-        // groups.
         $lastName = null;
-        foreach ($tags as $index => $tag) {
-            if (in_array($tag->name, self::ORDERED_TAGS, strict: true)) {
-                $alreadySeen = $seen[$tag->name] ?? false;
-
-                if ($tag->name === 'param' && $index > 0 && !$alreadySeen && !$paramMayFollow) {
-                    $context->report(Issue::new(
-                        '@param tags must be the first group of tags in a docblock.',
-                        $tag->nameSpan,
-                    ));
-                }
-
-                if ($alreadySeen && $lastName !== $tag->name) {
-                    $context->report(Issue::new(
-                        "Keep the @{$tag->name} tags together. Do not put other tags between them.",
-                        $tag->nameSpan,
-                    ));
-                }
-
-                $seen[$tag->name] = true;
+        foreach ($tags as $tag) {
+            if (!in_array($tag->name, self::ORDERED_TAGS, strict: true)) {
+                continue;
             }
 
+            if (($seen[$tag->name] ?? false) && $lastName !== $tag->name) {
+                $context->report(Issue::new(
+                    "Keep the @{$tag->name} tags together. Do not put other tags between them.",
+                    $tag->nameSpan,
+                ));
+            }
+
+            $seen[$tag->name] = true;
             $lastName = $tag->name;
         }
     }

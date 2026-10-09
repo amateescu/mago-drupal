@@ -51,6 +51,31 @@ final class DocblockRowsTest extends TestCase
         self::assertSame(['', 'Summary.'], self::texts($rows));
     }
 
+    public function testTakesTheWholeRunOfStarsAndSlashesAsTheCloser(): void
+    {
+        $contents = "<?php\n/**\n * Summary. **/\n";
+        $rows = DocblockRows::of(self::sourceFile($contents), self::docblock($contents));
+
+        self::assertSame(['', 'Summary.'], self::texts($rows));
+
+        $contents = "<?php\n/**\n * Summary.\n **/\n";
+        $rows = DocblockRows::of(self::sourceFile($contents), self::docblock($contents));
+
+        self::assertSame(['', 'Summary.', ''], self::texts($rows));
+        self::assertNull($rows[2]->star);
+
+        $contents = "<?php\n/**\n * Summary.\n ***/\n";
+        $rows = DocblockRows::of(self::sourceFile($contents), self::docblock($contents));
+
+        self::assertSame(['', 'Summary.', ''], self::texts($rows));
+        self::assertNull($rows[2]->star);
+
+        $contents = "<?php\n/** Summary. /*/\n";
+        $rows = DocblockRows::of(self::sourceFile($contents), self::docblock($contents));
+
+        self::assertSame(['Summary.'], self::texts($rows));
+    }
+
     public function testKeepsTheCarriageReturnOutOfTheText(): void
     {
         $contents = "<?php\r\n/**\r\n * Summary.  \r\n *\r\n */\r\n";

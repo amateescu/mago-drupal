@@ -1,0 +1,9 @@
+<?php
+
+// @mago-expect lint:drupal/doc-comment(2)
+/**
+ * @file
+ * lowercase summary without a stop
+ */
+
+declare(strict_types=1);

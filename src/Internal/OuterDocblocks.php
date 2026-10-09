@@ -25,7 +25,9 @@ use function trim;
  * declaration comment. A `Closure` is not skipped. Coder's own sniff does not
  * skip a top-level closure either, because it tests only `T_FUNCTION`. A
  * nested closure is inside a covered body in any case. A PHP 8.4 property
- * hook body is not covered. Drupal 11 runs on PHP 8.3.
+ * hook body is not covered. Drupal 11 runs on PHP 8.3. The body is the
+ * braces and what is inside them, so a docblock in a parameter list or
+ * below an attribute is outside it.
  *
  * @internal
  */
@@ -57,6 +59,27 @@ final class OuterDocblocks
      */
     public static function of(SourceFile $file): array
     {
+        return self::partition($file)[0];
+    }
+
+    /**
+     * The docblocks inside function and method bodies, in source order. The
+     * checks that Coder runs on every docblock, whatever it sits in, use
+     * these with `of()`.
+     *
+     * @return list<Span>
+     */
+    public static function inBodies(SourceFile $file): array
+    {
+        return self::partition($file)[1];
+    }
+
+    /**
+     * @return array{list<Span>, list<Span>} The docblocks outside the
+     *     bodies, then the ones inside.
+     */
+    private static function partition(SourceFile $file): array
+    {
         // The target list is in source order. The bodies are thus kept as
         // two parallel arrays: each start, and the furthest end seen up to
         // it. A docblock then binary-searches the last body that starts
@@ -71,21 +94,29 @@ final class OuterDocblocks
                 continue;
             }
 
-            $furthest = max($furthest, $node->span->end);
-            $starts[] = $node->span->start;
+            $body = Nodes::bodySpan($file, $node);
+            $furthest = max($furthest, $body->end);
+            $starts[] = $body->start;
             $ends[] = $furthest;
         }
 
-        $docblocks = [];
+        $outside = [];
+        $inside = [];
         foreach ($file->getTrivia() as $trivia) {
-            if ($trivia->kind !== TriviaKind::DocBlockComment || self::insideABody($trivia->span, $starts, $ends)) {
+            if ($trivia->kind !== TriviaKind::DocBlockComment) {
                 continue;
             }
 
-            $docblocks[] = $trivia->span;
+            if (self::insideABody($trivia->span, $starts, $ends)) {
+                $inside[] = $trivia->span;
+
+                continue;
+            }
+
+            $outside[] = $trivia->span;
         }
 
-        return $docblocks;
+        return [$outside, $inside];
     }
 
     /**

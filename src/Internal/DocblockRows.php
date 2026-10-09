@@ -170,11 +170,13 @@ final class DocblockRows
     private static function parse(string $contents, Span $span): array
     {
         // One regex call per docblock. Each line gives one match: the indent,
-        // a star that does not close the docblock, and the text between the
-        // spaces after it and the trailing whitespace, `*/` and `\r`.
+        // a star that is not part of the closer, and the text between the
+        // spaces after it and the trailing whitespace, closer and `\r`. The
+        // closer is the run of stars and slashes that ends in `*\/`, as Coder
+        // reads it, so `**\/` is one closer and not a star and a `*\/`.
         $matches = [];
         preg_match_all(
-            '/^[ \t]*(\*(?!\/))?[ \t]*(.*?)[ \t]*(?:\*\/)?\r?$/m',
+            '/^[ \t]*(\*(?!\/)(?![*\/]*\*\/\r?$))?[ \t]*(.*?)[ \t]*(?:[*\/]*\*\/)?\r?$/m',
             substr($contents, $span->start, $span->length()),
             $matches,
             flags: PREG_SET_ORDER | PREG_OFFSET_CAPTURE,
