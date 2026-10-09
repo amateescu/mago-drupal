@@ -1,8 +1,10 @@
 drupal/author-tag
 drupal/case-break-blank-line
 drupal/class-comment
+drupal/class-prefix
 drupal/comment-line-length
 drupal/constant-prefix
+drupal/curl-ssl-verify
 drupal/deprecated-tag
 drupal/deprecation-message
 drupal/discouraged-function
@@ -14,10 +16,12 @@ drupal/empty-install-hook
 drupal/enum-case-name
 drupal/expected-exception-tag
 drupal/file-comment
+drupal/form-alter-comment
 drupal/fully-qualified-name
 drupal/function-comment
 drupal/function-prefix
 drupal/gender-neutral-comment
+drupal/global-constant
 drupal/global-function
 drupal/global-variable
 drupal/hook-comment
@@ -39,6 +43,8 @@ drupal/property-visibility
 drupal/redundant-use
 drupal/remote-address
 drupal/render-callback
+drupal/request-superglobal
+drupal/strict-config-schema
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema
@@ -46,6 +52,7 @@ drupal/todo-comment
 drupal/translatable-string
 drupal/translated-exception
 drupal/unsilenced-deprecation
+drupal/untranslated-options
 drupal/use-leading-backslash
 drupal/variable-comment
 drupal/watchdog-message

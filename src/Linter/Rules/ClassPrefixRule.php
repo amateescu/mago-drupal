@@ -1,0 +1,96 @@
+<?php
+
+declare(strict_types=1);
+
+namespace amateescu\MagoDrupal\Linter\Rules;
+
+use amateescu\MagoDrupal\Internal\DrupalFile;
+use amateescu\MagoDrupal\Internal\Nodes;
+use Mago\Sdk\Linter\LintContext;
+use Mago\Sdk\Linter\Rule;
+use Mago\Sdk\Linter\RuleDefinition;
+use Mago\Sdk\Reporting\Issue;
+use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\NodeKind;
+
+use function array_map;
+use function explode;
+use function implode;
+use function str_replace;
+use function str_starts_with;
+use function strtolower;
+use function ucfirst;
+
+/**
+ * Reports a class or interface in a non-namespaced file whose name does not
+ * start with the module name.
+ *
+ * Ports DrupalPractice.General.ClassName. A class in the global namespace
+ * shares it with the classes of every other module. A file with a
+ * namespace is exempt from the first `namespace` statement on.
+ */
+final class ClassPrefixRule implements Rule
+{
+    public function getDefinition(): RuleDefinition
+    {
+        return new RuleDefinition(
+            code: 'drupal/class-prefix',
+            name: 'Class prefix',
+            description: 'Reports a class or interface in the global namespace that does not start with the module name.',
+            defaultLevel: Level::Warning,
+            defaultEnabled: true,
+            // Program makes the Program pass read the target list. The other
+            // kinds put the declarations and the namespace in that list.
+            targets: [NodeKind::Program, NodeKind::Namespace, NodeKind::Class_, NodeKind::Interface],
+        );
+    }
+
+    public function lint(LintContext $context): void
+    {
+        if ($context->node->kind !== NodeKind::Program) {
+            return;
+        }
+
+        $file = $context->file;
+        $module = DrupalFile::fromSource($file);
+        if (!$module->isNamedByFile()) {
+            return;
+        }
+
+        // A module name with underscores gives two accepted prefixes. Views
+        // classes keep the underscores, and others drop them.
+        $name = strtolower($module->name);
+        $prefixes = [str_replace('_', replace: '', subject: $name), $name];
+
+        // The target list is in source order. Everything after the first
+        // namespace statement is in a namespace, a braced one included.
+        foreach ($file->getTargetNodes() as $declaration) {
+            if ($declaration->kind === NodeKind::Namespace) {
+                return;
+            }
+
+            if ($declaration->kind !== NodeKind::Class_ && $declaration->kind !== NodeKind::Interface) {
+                continue;
+            }
+
+            $identifier = Nodes::declaredIdentifier($file, $declaration);
+            if ($identifier === null) {
+                continue;
+            }
+
+            $declared = strtolower($file->getText($identifier));
+            if (str_starts_with($declared, $prefixes[0]) || str_starts_with($declared, $prefixes[1])) {
+                continue;
+            }
+
+            $kind = $declaration->kind === NodeKind::Class_ ? 'Class' : 'Interface';
+            $camel = implode('', array_map(ucfirst(...), explode('_', $module->name)));
+            $context->report(Issue::new(
+                "{$kind} name must be prefixed with the project name \"{$camel}\".",
+                $identifier->span,
+            )->withHelp(
+                'Classes in the global namespace are shared by every module. The module name keeps them apart.',
+            ));
+        }
+    }
+}

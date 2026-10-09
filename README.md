@@ -24,9 +24,11 @@ command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 Add `"--core"` to the command when analysing Drupal core itself, which enables rules that only
-apply to core. It also turns off `function-prefix`, `inline-comment-blank-line`,
-`inline-comment-punctuation`, `long-description-punctuation` and `method-name-underscore`, because
-core's `phpcs.xml.dist` turns off or does not run the checks that they port.
+apply to core. It also turns off `class-prefix`, `curl-ssl-verify`, `form-alter-comment`,
+`function-prefix`, `global-constant`, `inline-comment-blank-line`, `inline-comment-punctuation`,
+`long-description-punctuation`, `method-name-underscore`, `request-superglobal`,
+`strict-config-schema` and `untranslated-options`, because core's `phpcs.xml.dist` turns off or does
+not run the checks that they port.
 
 Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:
@@ -44,7 +46,7 @@ down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to s
 
 ## What it provides
 
-52 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
+59 linter rules, in groups by what they check. [docs/rules.md](docs/rules.md) describes every rule.
 The codes below omit their shared `drupal/` prefix.
 
 - **Bugs and security**: `insecure-unserialize`, `preg-security`, `remote-address`, `weak-hash`.
@@ -64,6 +66,9 @@ The codes below omit their shared `drupal/` prefix.
 - **Docblock structure**: `class-comment`, `deprecated-tag`, `doc-comment`, `file-comment`,
   `function-comment`, `hook-comment`, `inline-variable-comment`, `variable-comment`.
 - **Docblock types**: `nullable-param-tag`.
+- **DrupalPractice checks**. Core does not run the sniffs behind these rules: `class-prefix`,
+  `curl-ssl-verify`, `form-alter-comment`, `global-constant`, `request-superglobal`,
+  `strict-config-schema`, `untranslated-options`.
 - **Drupal 7 era**. Core's `phpcs.xml.dist` still enables the matching sniffs, so these rules stay:
   `link-text-translatable`, `t-in-hook-menu`, `watchdog-message`.
 

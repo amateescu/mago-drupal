@@ -9,8 +9,10 @@ use amateescu\MagoDrupal\Internal\DefaultOffRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\ClassPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
+use amateescu\MagoDrupal\Linter\Rules\CurlSslVerifyRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecatedTagRule;
 use amateescu\MagoDrupal\Linter\Rules\DeprecationMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\DiscouragedFunctionRule;
@@ -22,10 +24,12 @@ use amateescu\MagoDrupal\Linter\Rules\EmptyInstallHookRule;
 use amateescu\MagoDrupal\Linter\Rules\EnumCaseNameRule;
 use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\FormAlterCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\GenderNeutralCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\GlobalConstantRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\HookCommentRule;
@@ -47,6 +51,8 @@ use amateescu\MagoDrupal\Linter\Rules\PropertyVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
+use amateescu\MagoDrupal\Linter\Rules\RequestSuperglobalRule;
+use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatableStringRule;
@@ -54,6 +60,7 @@ use amateescu\MagoDrupal\Linter\Rules\TranslatedExceptionRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookMenuRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\UnsilencedDeprecationRule;
+use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
@@ -95,11 +102,18 @@ final class DrupalExtension
      * run. With `--core`, they are off by default.
      */
     private const CORE_OFF = [
+        'drupal/class-prefix',
+        'drupal/curl-ssl-verify',
+        'drupal/form-alter-comment',
         'drupal/function-prefix',
+        'drupal/global-constant',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
         'drupal/long-description-punctuation',
         'drupal/method-name-underscore',
+        'drupal/request-superglobal',
+        'drupal/strict-config-schema',
+        'drupal/untranslated-options',
     ];
 
     /**
@@ -175,8 +189,10 @@ final class DrupalExtension
             new AuthorTagRule(),
             new CaseBreakBlankLineRule(),
             new ClassCommentRule(),
+            new ClassPrefixRule(),
             new CommentLineLengthRule(),
             new ConstantPrefixRule(),
+            new CurlSslVerifyRule(),
             new DeprecatedTagRule(),
             new DeprecationMessageRule(),
             new DiscouragedFunctionRule(),
@@ -188,10 +204,12 @@ final class DrupalExtension
             new EnumCaseNameRule(),
             new ExpectedExceptionTagRule(),
             new FileCommentRule(),
+            new FormAlterCommentRule(),
             new FullyQualifiedNameRule(),
             new FunctionCommentRule(),
             new FunctionPrefixRule(),
             new GenderNeutralCommentRule(),
+            new GlobalConstantRule(),
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
             new HookCommentRule(),
@@ -213,6 +231,8 @@ final class DrupalExtension
             new RedundantUseRule(),
             new RemoteAddressRule(),
             new RenderCallbackRule(),
+            new RequestSuperglobalRule(),
+            new StrictConfigSchemaRule(),
             new SymfonyYamlParseRule(),
             new TodoCommentRule(),
             new TranslatableStringRule(),
@@ -220,6 +240,7 @@ final class DrupalExtension
             new TranslationInHookMenuRule(),
             new TranslationInHookSchemaRule(),
             new UnsilencedDeprecationRule(),
+            new UntranslatedOptionsRule(),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
             new WatchdogMessageRule(),

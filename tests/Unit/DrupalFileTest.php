@@ -43,6 +43,17 @@ final class DrupalFileTest extends TestCase
         self::assertFalse(DrupalFile::fromPath('Makefile')->isProcedural());
     }
 
+    public function testRecognisesFilesNamedByTheirExtension(): void
+    {
+        foreach (['module', 'install', 'profile', 'theme'] as $extension) {
+            self::assertTrue(DrupalFile::fromPath("node/node.{$extension}")->isNamedByFile());
+        }
+
+        foreach (['inc', 'engine', 'php', 'test', ''] as $extension) {
+            self::assertFalse(DrupalFile::fromPath("node/node.{$extension}")->isNamedByFile());
+        }
+    }
+
     /**
      * The corpus config has its own list of scanned extensions. This test
      * compares that copy with the constant.

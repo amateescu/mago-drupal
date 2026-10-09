@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * @file
+ * Exercises drupal/class-prefix in a .module file.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Starts with the module name.
+ */
+class PrefixedThing {}
+
+/**
+ * Upper case letters count as the module name.
+ */
+class PREFIXEDUpper {}
+
+/**
+ * Only the start of the name is compared.
+ */
+class PrefixedlyLonger {}
+
+/**
+ * Has no prefix.
+ */
+// @mago-expect lint:drupal/class-prefix
+class Thing {}
+
+/**
+ * Has the module name in the middle.
+ */
+// @mago-expect lint:drupal/class-prefix
+class ThingPrefixed {}
+
+/**
+ * Has a prefix that is too short.
+ */
+// @mago-expect lint:drupal/class-prefix
+class Prefixe {}
+
+/**
+ * An abstract class has the same rule.
+ */
+// @mago-expect lint:drupal/class-prefix
+abstract class AbstractThing {}
+
+/**
+ * A final class has the same rule.
+ */
+// @mago-expect lint:drupal/class-prefix
+final class FinalThing {}
+
+/**
+ * Starts with the module name.
+ */
+interface PrefixedInterface {}
+
+/**
+ * An interface has the same rule.
+ */
+// @mago-expect lint:drupal/class-prefix
+interface Plain {}
+
+/**
+ * A trait is not checked.
+ */
+trait Helper {}
+
+/**
+ * An enum is not checked.
+ */
+enum Suit {
+
+  case Hearts;
+
+}
+
+/**
+ * Declares a class inside a function.
+ */
+function prefixed_declares(): void {
+  /**
+   * Has no prefix.
+   */
+  // @mago-expect lint:drupal/class-prefix
+  class Inner {}
+
+  // An anonymous class has no name.
+  $anonymous = new class() {};
+
+  unset($anonymous);
+}

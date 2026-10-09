@@ -78,11 +78,18 @@ final class RuleSwitchesTest extends TestCase
     {
         self::assertSame(
             [
+                'drupal/class-prefix',
+                'drupal/curl-ssl-verify',
+                'drupal/form-alter-comment',
                 'drupal/function-prefix',
+                'drupal/global-constant',
                 'drupal/inline-comment-blank-line',
                 'drupal/inline-comment-punctuation',
                 'drupal/long-description-punctuation',
                 'drupal/method-name-underscore',
+                'drupal/request-superglobal',
+                'drupal/strict-config-schema',
+                'drupal/untranslated-options',
             ],
             self::offCodes(DrupalExtension::fromArguments(['--core'])->linterRules),
         );
