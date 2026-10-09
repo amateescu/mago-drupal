@@ -108,7 +108,8 @@ final class FileCommentRule implements Rule
     /**
      * The file's first comment when only the opening tag and whitespace come
      * before it, past any directive such as `// phpcs:ignoreFile`. phpcs
-     * reads those as instructions, not comments, so Coder skips them too.
+     * reads those as instructions, not comments, so Coder skips them too. A
+     * byte order mark before the tag is `drupal/byte-order-mark`'s to report.
      */
     private function firstComment(LintContext $context): ?Trivia
     {
@@ -116,7 +117,7 @@ final class FileCommentRule implements Rule
         $prefix = '';
         foreach ($context->file->getTrivia() as $trivia) {
             $prefix .= substr($context->file->contents, $start, $trivia->span->start - $start);
-            if (preg_match('/^<\?php\s*$/', $prefix) !== 1) {
+            if (preg_match('/^(?:\xEF\xBB\xBF)?<\?php\s*$/', $prefix) !== 1) {
                 return null;
             }
 

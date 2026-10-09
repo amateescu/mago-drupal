@@ -59,6 +59,16 @@ These rules report only in `.module` and `.install` files.
 | `drupal/short-list` | Error | A destructuring written as `list(...)`, in an assignment, a `foreach` or a nested position. A fix writes `[...]` and removes the blank space between `list` and the parenthesis. A fix that would drop a comment between them is potentially unsafe. An empty `list()` has no fix. Off with `--core`, see below. |
 | `drupal/use-leading-backslash` | Error | An import whose class name starts with a backslash. A fix removes the backslash. |
 
+## Files and PHP tags
+
+| Code | Level | What it reports |
+| --- | --- | --- |
+| `drupal/byte-order-mark` | Error | A UTF-8 or UTF-16 byte order mark at the first bytes of a file. PHP sends the mark to the browser before any code runs. No fix. |
+| `drupal/empty-php-tags` | Warning | A `<?php` or `<?=` tag that a `?>` follows with only whitespace between, in any position, also inside a function or an alternative-syntax block. A comment between the tags keeps the pair from being reported. A fix removes the pair and the line break that PHP drops after `?>`, so the output stays the same. An empty `<?= ?>` has no fix, because PHP rejects it. |
+| `drupal/file-encoding` | Warning | A file that is not valid UTF-8. The report sits on the first open tag or run of inline text, not on the bad byte, and the message names no bytes. A file whose only tags are `<?=` is skipped. No fix. |
+| `drupal/file-start-whitespace` | Error | Whitespace before the first `<?php` of a file. A potentially unsafe fix deletes it, because a template can print that text. Text that is not whitespace, such as a byte order mark, a zero-width space or a `#!` line, is not reported. |
+| `drupal/short-echo-tag` | Error | A `<?=` tag that has a value to echo. A fix writes `<?php echo` with one space before the value, and keeps a line break and any comment where they are. An echo tag with no value is left to `drupal/empty-php-tags`. |
+
 ## Comment text
 
 These rules read only a comment's text. They do not compare it against the declaration that it
@@ -207,6 +217,31 @@ the end of a body, where Coder stops with an internal exception and loses the re
 reports for the code. `drupal/parameter-blank-line` and `drupal/inline-comment-blank-line` both report
 a blank line below a `//` comment in a parameter list, with fixes for the same line. When both run in
 one pass, Mago skips one edit, and the next pass applies it.
+
+`drupal/file-comment` skips a byte order mark before the open tag, so a procedural file with a mark
+and a correct docblock gets only the report of `drupal/byte-order-mark`.
+
+The tag rules and the encoding rules differ from Coder in these places:
+
+- `Generic.CodeAnalysis.EmptyPHPStatement` has a second code, for a stray `;`. It stays with Mago's
+  `no-noop`, which reports the same spot. `drupal/empty-php-tags` ports only the empty tag pair. It
+  also reports a pair at the end of a file, where `no-closing-tag` reports the `?>` too.
+- `drupal/short-echo-tag` ports `Generic.PHP.DisallowShortOpenTag.EchoFound`. Mago's
+  `no-short-opening-tag` covers the `<?` tag, so the other two codes of that sniff are not ported.
+  Coder's fix leaves a tab or a line break after `echo`. The fix here turns spaces and tabs after
+  the tag into one space.
+- Mago stops parsing a file that ends right after a bare `<?=`, so no rule sees that file. Coder
+  reports it, and its fixer crashes on it.
+- `drupal/file-encoding` reports at the first open tag or inline text, as Coder does, with a PCRE
+  UTF-8 check where Coder calls `mb_check_encoding()`. The text that PHP drops after a `?>`
+  does not count as inline text. The rule has no `allowedEncodings` option.
+- `drupal/file-start-whitespace` uses Coder's pattern for the text, ASCII whitespace and Unicode
+  separators. It does not report the later open tags of a file, as Coder does not. Coder's fix is
+  safe. This fix is potentially unsafe, because the removed text is output.
+- `drupal/byte-order-mark` reports one mark per file, at the first bytes only, as Coder does. A
+  mark further in is not reported.
+- The rules read only the extensions Mago scans. Coder also scans `.test`, and core's config
+  scans `.yml`, which Mago does not read.
 
 A few cases differ from Coder. Text on the line of the opening `/**` is reported once, where Coder
 also reports it as `SpacingBeforeShort`. A tab after spaces after `//` is reported once, as a tab.

@@ -1,0 +1,4 @@
+
+  <?php
+
+function m_b(): void {}

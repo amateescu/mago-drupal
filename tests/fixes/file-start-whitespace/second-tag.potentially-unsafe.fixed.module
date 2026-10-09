@@ -1,0 +1,4 @@
+<?php ?>
+<?php
+
+function m_c(): void {}
