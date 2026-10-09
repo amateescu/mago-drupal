@@ -25,10 +25,10 @@ final class CommentSpacing {
   public $directive = 0;
 
   /**
-   * Constructs the object, which the rule leaves alone.
+   * Constructs the object.
    *
-   * @param int  $value
-   *  The value.
+   * @param int $value
+   *   The value.
    */
   public function __construct(int $value) {
     $this->example = $value;

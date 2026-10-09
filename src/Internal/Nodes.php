@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
+use function array_filter;
 use function array_pop;
+use function array_values;
 use function count;
 use function in_array;
 use function ltrim;
@@ -41,6 +44,25 @@ final class Nodes
         }
 
         return Shape::nonEmptyString(ltrim($name, characters: '\\'));
+    }
+
+    /**
+     * The span of a function's or method's body, or the whole node when it
+     * has none. The attributes and the parameter list are not part of it.
+     */
+    public static function bodySpan(SourceFile $file, Node $node): Span
+    {
+        foreach ($file->getChildren($node) as $child) {
+            if (in_array(
+                $child->kind,
+                [NodeKind::Block, NodeKind::MethodBody, NodeKind::MethodAbstractBody],
+                strict: true,
+            )) {
+                return $child->span;
+            }
+        }
+
+        return $node->span;
     }
 
     /**
@@ -107,6 +129,19 @@ final class Nodes
         }
 
         return false;
+    }
+
+    /**
+     * The statements that are direct children of a node.
+     *
+     * @return list<Node>
+     */
+    public static function statements(SourceFile $file, Node $node): array
+    {
+        return array_values(array_filter(
+            $file->getChildren($node),
+            static fn(Node $child): bool => $child->kind === NodeKind::Statement,
+        ));
     }
 
     /**

@@ -1,0 +1,2 @@
+before <?php ?> after
+<?php ?> a <?php ?>

@@ -1,0 +1,1 @@
+<?php if ($a): ?>x<?php endif; ?>

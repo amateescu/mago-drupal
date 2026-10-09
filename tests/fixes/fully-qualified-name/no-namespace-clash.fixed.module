@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+class Url {}
+
+interface Link {}
+
+trait Tr {}
+
+enum Suit {}
+
+class /* hidden */ Commented {}
+
+function clash(): void {
+  \Drupal\Core\Url::fromRoute('x');
+  \Drupal\Core\Link::x();
+  \Drupal\Core\Tr::x();
+  \Drupal\Core\Suit::x();
+  \Drupal\Core\Commented::x();
+  EntityInterface::x();
+  \Drupal\mymod_helper('x');
+}

@@ -1,0 +1,4 @@
+text
+<?php
+
+function m_c(): void {}

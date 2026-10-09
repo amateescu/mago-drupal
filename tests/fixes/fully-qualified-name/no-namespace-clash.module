@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+class Url {}
+
+interface Link {}
+
+trait Tr {}
+
+enum Suit {}
+
+class /* hidden */ Commented {}
+
+function clash(): void {
+  \Drupal\Core\Url::fromRoute('x');
+  \Drupal\Core\Link::x();
+  \Drupal\Core\Tr::x();
+  \Drupal\Core\Suit::x();
+  \Drupal\Core\Commented::x();
+  \Drupal\Core\Entity\EntityInterface::x();
+  \Drupal\mymod_helper('x');
+}

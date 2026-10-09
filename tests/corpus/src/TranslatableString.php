@@ -138,3 +138,63 @@ function concatenated_after_plural(TranslationManager $translation, int $count):
   // @mago-expect lint:drupal/translatable-string
   return $translation->formatPlural($count, '1 item', '@count items') . ' left';
 }
+
+// @mago-expect lint:drupal/function-comment
+function escaped_apostrophe(): string {
+  // @mago-expect lint:drupal/translatable-string
+  return t('It\'s here');
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_double_quote(): string {
+  // @mago-format-ignore-start
+  // @mago-expect lint:drupal/translatable-string
+  return t("Say \"hi\"");
+  // @mago-format-ignore-end
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_quote_in_markup(): TranslatableMarkup {
+  // @mago-expect lint:drupal/translatable-string
+  return new TranslatableMarkup('It\'s here');
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_quote_in_concatenation(string $name): string {
+  // @mago-expect lint:drupal/translatable-string(2)
+  return t('It\'s ' . $name);
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_backslash_is_not_an_escaped_quote(): string {
+  return t('Path \\') . t("Path \\");
+}
+
+// @mago-expect lint:drupal/function-comment
+function both_quotes_need_the_escape(): string {
+  return t('Say "it\'s"') . t("Say \"it's\"");
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_quote_in_plural(TranslationManager $translation, int $count): string {
+  // Coder reads the quotes of t() and the markup classes only.
+  return $translation->formatPlural($count, 'It\'s one', 'It\'s many');
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_quote_in_other_argument(): string {
+  return t('Hello @name', ['@name' => 'O\'Brien']);
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_quote_in_capital_call(): string {
+  // PHP ignores the case of a function name.
+  // @mago-expect lint:drupal/translatable-string
+  return T('It\'s here');
+}
+
+// @mago-expect lint:drupal/function-comment
+function escaped_quote_in_interpolation(TranslationManager $object): string {
+  // @mago-expect lint:drupal/translatable-string
+  return "Value: {$object->t('It\'s here')}";
+}

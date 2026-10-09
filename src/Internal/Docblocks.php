@@ -14,9 +14,13 @@ use function array_reverse;
 use function count;
 use function in_array;
 use function intdiv;
+use function max;
+use function min;
 use function preg_match;
 use function preg_match_all;
+use function rtrim;
 use function strcspn;
+use function strlen;
 use function strspn;
 use function strtolower;
 use function substr;
@@ -42,19 +46,21 @@ final class Docblocks
      */
     private const DIRECTIVE_PATTERN = '/\G[\/#* \t]*(?:@mago-|phpcs:|@codingStandardsIgnore|@phpstan-|@psalm-)/';
 
+    private const TAG_NAME_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+
     /**
      * Splits a docblock into its lines and removes the comment markers.
      *
      * Line 0 loses the opening `/**` and one space or tab after it. Every
      * other line loses its leading whitespace, its star and one space or
      * tab, unless the star is the one in the closing `*\/`. The line that
-     * holds the closer loses it and the whitespace before it. A trailing
+     * holds the closer loses it and the whitespace before it. The closer is
+     * the whole run of stars and slashes that ends in `*\/`, as Coder reads
+     * it, so a `**\/` closer takes its extra star with it. A trailing
      * `\r` from a CRLF file is removed too. The rest of the line, with its
      * trailing whitespace, is the text. The capture keeps its byte offset.
      */
-    private const TAG_NAME_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
-
-    private const LINE_PATTERN = '/^(?:\/\*\*[ \t]?|[ \t]*\*(?!\/)[ \t]?)?(.*?)(?:[ \t]*\*\/)?\r?$/m';
+    private const LINE_PATTERN = '/^(?:\/\*\*[ \t]?|[ \t]*\*(?!\/)[ \t]?)?(.*?)(?:[ \t]*[*\/]*\*\/)?\r?$/m';
 
     /**
      * Tags that mark an example inside another tag's description.
@@ -76,6 +82,71 @@ final class Docblocks
     private const MARKUP_TAGS = ['code', 'endcode', 'link', 'endlink'];
 
     private function __construct() {}
+
+    /**
+     * Whether a docblock has text, and the first of it is not a tag, as in
+     * `/** @var int *\/`. An empty docblock has none.
+     */
+    public static function hasTextBeforeTags(SourceFile $file, Span $docblock): bool
+    {
+        foreach (self::lines($file, $docblock) as $line) {
+            if (trim($line->text) !== '') {
+                return preg_match('/^\s*@[a-zA-Z]/', $line->text) !== 1;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether an open tag comes right before the comment at $index of the
+     * file's trivia, with only whitespace and other comments between.
+     */
+    public static function followsOpenTag(SourceFile $file, int $index): bool
+    {
+        $trivia = $file->getTrivia();
+        $contents = $file->contents;
+        $position = $trivia[$index]->span->start;
+        $previous = $index - 1;
+        while (true) {
+            while ($position > 0 && strspn($contents[$position - 1], characters: " \t\r\n\v\f") === 1) {
+                --$position;
+            }
+
+            if ($previous < 0 || $trivia[$previous]->span->end !== $position) {
+                break;
+            }
+
+            $position = $trivia[$previous]->span->start;
+            --$previous;
+        }
+
+        return preg_match('/<\?(?:php|=)$/i', substr($contents, max(0, $position - 5), min(5, $position))) === 1;
+    }
+
+    /**
+     * The exact `@file` tag of a docblock, and whether the docblock has a
+     * tag that differs from it only in case.
+     *
+     * @return array{Span|null, bool}
+     */
+    public static function fileTag(SourceFile $file, Span $docblock): array
+    {
+        $variant = false;
+        foreach (self::tags($file, $docblock) as $tag) {
+            if ($tag->name !== 'file') {
+                continue;
+            }
+
+            if ($file->getText($tag->nameSpan) === '@file') {
+                return [$tag->nameSpan, $variant];
+            }
+
+            $variant = true;
+        }
+
+        return [null, $variant];
+    }
 
     /**
      * Returns the docblock immediately above a declaration.
@@ -153,6 +224,26 @@ final class Docblocks
     }
 
     /**
+     * Whether a comment that is not a directive sits between the offsets. A
+     * directive such as `// @mago-expect` or `// phpcs:ignore` tells a tool
+     * what to do and says nothing to the reader.
+     */
+    public static function hasNoteBetween(SourceFile $file, int $start, int $end): bool
+    {
+        $trivia = $file->getTrivia();
+        $index = self::lastTriviaIndexStartingBefore($trivia, $end);
+        while ($index !== null && $index >= 0 && $trivia[$index]->span->start >= $start) {
+            if (!self::isDirective($file, $trivia[$index])) {
+                return true;
+            }
+
+            --$index;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the index of the last trivia entry that starts at or before
      * $position. Returns null if the first entry starts after it.
      *
@@ -227,12 +318,30 @@ final class Docblocks
      * and the long description below it. The result has no blank lines
      * between the two, and no leading or trailing blank lines.
      *
+     * A file docblock writes its description after the `@file` tag, so a
+     * docblock that starts with `@file` has its paragraphs there. Text on
+     * the `@file` line counts as the first line of the summary. The next tag
+     * ends them, as it does in any docblock.
+     *
      * @return array{list<DocblockLine>, list<DocblockLine>}
      */
     public static function paragraphs(SourceFile $file, Span $span): array
     {
         $paragraphs = [[]];
-        foreach (self::lines($file, $span) as $line) {
+        $lines = self::lines($file, $span);
+        $first = null;
+        foreach ($lines as $index => $line) {
+            $first ??= trim($line->text) === '' ? null : $index;
+        }
+
+        foreach ($lines as $index => $line) {
+            if ($index === $first && self::isFileTagLine($line->text)) {
+                $value = self::fileTagValue($line);
+                $paragraphs[0] = $value === null ? [] : [$value];
+
+                continue;
+            }
+
             if (self::isTagLine($line->text, inTag: false)) {
                 break;
             }
@@ -360,6 +469,22 @@ final class Docblocks
     }
 
     /**
+     * The lines trimmed and joined with nothing between them, as Coder joins
+     * the lines of a short description.
+     *
+     * @param list<DocblockLine> $lines
+     */
+    public static function joinedText(array $lines): string
+    {
+        $text = '';
+        foreach ($lines as $line) {
+            $text .= trim($line->text);
+        }
+
+        return $text;
+    }
+
+    /**
      * Returns the position of $tag in $tags.
      *
      * @param list<DocblockTag> $tags
@@ -393,6 +518,27 @@ final class Docblocks
         }
 
         return [substr($content, offset: 0, length: $length), trim(substr($content, $length))];
+    }
+
+    /**
+     * Whether a stripped docblock line is the `@file` tag, with or without
+     * text after it.
+     */
+    private static function isFileTagLine(string $text): bool
+    {
+        return preg_match('/^[ \t]*@file(?:[ \t]|$)/', $text) === 1;
+    }
+
+    /**
+     * The text after `@file` on its line, or null when there is none.
+     */
+    private static function fileTagValue(DocblockLine $line): ?DocblockLine
+    {
+        $skip = strspn($line->text, characters: " \t") + strlen('@file');
+        $skip += strspn($line->text, characters: " \t", offset: $skip);
+        $value = rtrim(substr($line->text, $skip));
+
+        return $value === '' ? null : new DocblockLine($value, $line->offset + $skip);
     }
 
     /**

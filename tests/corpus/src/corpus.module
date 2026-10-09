@@ -8,13 +8,52 @@
 declare(strict_types=1);
 
 // @mago-expect lint:drupal/constant-prefix
+// @mago-expect lint:drupal/global-constant
 define('CACHE_LIFETIME', 3600);
 
 // Shares the module name's leading letters but skips the underscore.
 // @mago-expect lint:drupal/constant-prefix
+// @mago-expect lint:drupal/global-constant
 define('CORPUSCACHE_TTL', 3600);
 
+// @mago-expect lint:drupal/global-constant
 define('CORPUS_DEFAULT_LIMIT', 50);
+
+// A prefixed name that is not upper case is a name problem only.
+// @mago-expect lint:drupal/define-name
+// @mago-expect lint:drupal/global-constant
+define('CORPUS_lower_tail', 50);
+
+// @mago-expect lint:drupal/const-prefix
+// @mago-expect lint:drupal/global-constant
+const CACHE_DEFAULT_LIMIT = 50;
+
+// @mago-expect lint:drupal/global-constant
+const CORPUS_MAX_LIMIT = 100;
+
+// Shares the module name's leading letters but skips the underscore.
+// @mago-expect lint:drupal/const-prefix
+// @mago-expect lint:drupal/global-constant
+const CORPUSMAX_LIMIT = 100;
+
+// Only the first name of a list is checked.
+// @mago-expect lint:drupal/const-prefix
+// @mago-expect lint:drupal/global-constant
+const CACHE_FIRST = 1, CORPUS_SECOND = 2;
+
+// @mago-expect lint:drupal/global-constant
+const CORPUS_FIRST = 1, CACHE_SECOND = 2;
+
+// @mago-format-ignore-start
+// @mago-expect lint:drupal/const-prefix
+// @mago-expect lint:drupal/global-constant
+const /* A comment between the keyword and the name. */ CACHE_COMMENTED = 1;
+
+// @mago-expect lint:drupal/const-prefix
+// @mago-expect lint:drupal/global-constant
+const
+  CACHE_NEXT_LINE = 1;
+// @mago-format-ignore-end
 
 /**
  * Implements hook_install().
@@ -83,4 +122,67 @@ function template_preprocess_corpus_page(array &$variables): void {
  */
 // @mago-expect lint:drupal/function-prefix
 function corpus_(): void {
+}
+
+// @mago-expect lint:drupal/hook-comment
+/**
+ * Implements corpus_repeat().
+ */
+function corpus_repeat(): void {
+}
+
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/doc-comment
+/** Implements corpus_one_line_repeat(). */
+function corpus_one_line_repeat(): void {
+}
+
+// The second line joins the first without a space, as in Coder.
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/doc-comment
+/**
+ * Implements corpus_wrapped_repeat()
+ * .
+ */
+function corpus_wrapped_repeat(): void {
+}
+
+// A tag right under the first line is part of the description.
+// @mago-expect lint:drupal/doc-comment
+/**
+ * Implements corpus_tag_below().
+ * @param array $form
+ *   The form.
+ */
+function corpus_tag_below(array $form): void {
+}
+
+/**
+ * Marks a function.
+ */
+#[\Attribute(\Attribute::TARGET_FUNCTION)]
+final class CorpusHook {}
+
+// @mago-expect lint:drupal/hook-comment
+// @mago-expect lint:drupal/function-comment
+#[CorpusHook]
+/**
+ * Implements corpus_after_attribute().
+ */
+function corpus_after_attribute(): void {
+}
+
+/**
+ * Implements corpus_before_attribute().
+ */
+#[CorpusHook]
+function corpus_before_attribute(): void {
+}
+
+if (!function_exists('corpus_in_block')) {
+  /**
+   * Implements corpus_in_block().
+   */
+  function corpus_in_block(): void {
+  }
 }

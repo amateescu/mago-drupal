@@ -225,6 +225,52 @@ final class DocblocksTest extends TestCase
         self::assertSame(['Long description.'], array_map(static fn($line) => $line->text, $description));
     }
 
+    public function testLinesTakeTheWholeRunOfStarsAndSlashesAsTheCloser(): void
+    {
+        $contents = "/**\n * Summary. **/";
+        $lines = Docblocks::lines(self::sourceFile($contents), new Span(0, strlen($contents)));
+
+        self::assertSame(['', 'Summary.'], array_map(static fn($line) => $line->text, $lines));
+
+        $contents = "/**\n * Summary.\n ***/";
+        $lines = Docblocks::lines(self::sourceFile($contents), new Span(0, strlen($contents)));
+
+        self::assertSame(['', 'Summary.', ''], array_map(static fn($line) => $line->text, $lines));
+    }
+
+    public function testParagraphsReadAFileDocblockAfterTheFileTag(): void
+    {
+        $contents = "/**\n * @file\n * Summary.\n *\n * Long description.\n *\n * @see foo()\n */";
+        $file = self::sourceFile($contents);
+
+        [$summary, $description] = Docblocks::paragraphs($file, new Span(0, strlen($contents)));
+
+        self::assertSame(['Summary.'], array_map(static fn($line) => $line->text, $summary));
+        self::assertSame(['Long description.'], array_map(static fn($line) => $line->text, $description));
+    }
+
+    public function testParagraphsTakeTheTextOnTheFileTagLineAsTheSummary(): void
+    {
+        $contents = "/**\n * @file Summary.\n * More.\n */";
+        $file = self::sourceFile($contents);
+
+        [$summary, $description] = Docblocks::paragraphs($file, new Span(0, strlen($contents)));
+
+        self::assertSame(['Summary.', 'More.'], array_map(static fn($line) => $line->text, $summary));
+        self::assertSame([], $description);
+        self::assertSame(strpos($contents, needle: 'Summary.'), $summary[0]->offset);
+    }
+
+    public function testParagraphsOfAFileTagWithNothingAfterItAreEmpty(): void
+    {
+        $contents = "/**\n * @file\n */";
+
+        [$summary, $description] = Docblocks::paragraphs(self::sourceFile($contents), new Span(0, strlen($contents)));
+
+        self::assertSame([], $summary);
+        self::assertSame([], $description);
+    }
+
     public function testParagraphsReturnsAnEmptyDescriptionWithoutOne(): void
     {
         $contents = "/**\n * Summary only.\n */";

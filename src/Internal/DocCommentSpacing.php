@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Internal;
 
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Reporting\Issue;
+use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 
@@ -14,6 +15,7 @@ use function array_key_last;
 use function count;
 use function in_array;
 use function strlen;
+use function strtolower;
 use function substr;
 
 /**
@@ -45,6 +47,12 @@ final class DocCommentSpacing
      */
     private const INLINE_TAGS = ['@code', '@link', '@endlink'];
 
+    /**
+     * First tags that let the `@param` group come later. They are markup,
+     * or a note, and do not count as a group of tags.
+     */
+    private const PARAM_LEADING_TAGS = ['@code', '@todo', '@link', '@endlink', '@codingstandardsignorestart'];
+
     private function __construct() {}
 
     /**
@@ -61,8 +69,18 @@ final class DocCommentSpacing
             return;
         }
 
+        $closer = self::closerStart($context->file->contents, $span);
+        if ($closer < ($span->end - 2)) {
+            $context->report(Issue::new(
+                'The docblock must end with "*/", not "'
+                . substr($context->file->contents, $closer, $span->end - $closer)
+                . '".',
+                new Span($closer, $span->end),
+            )->withEdit(TextEdit::replace(new Span($closer, $span->end), '*/')->withSafety(Safety::PotentiallyUnsafe)));
+        }
+
         if (!$rows[0]->isBlank()) {
-            self::reportOpeningLine($context, $span, $rows[0], oneLine: $last === 0);
+            self::reportOpeningLine($context, $span, $rows[0], oneLine: $last === 0, closer: $closer);
         }
 
         if ($rows[$last]->isBlank() && $lastContent < ($last - 1)) {
@@ -117,10 +135,50 @@ final class DocCommentSpacing
             self::checkBeforeTags($context, $rows, $tags[0]);
         }
 
-        foreach (self::groups($context, $rows, $tags) as $group) {
+        $groups = self::groups($context, $rows, $tags);
+        self::checkParams($context, $rows, $groups);
+        foreach ($groups as $group) {
             self::checkValues($context, $rows, $group);
             self::checkAfterGroup($context, $rows, $group, $rows[$tags[0]]->column());
         }
+    }
+
+    /**
+     * Where the closer starts. Coder reads the run of stars and slashes at
+     * the end of the docblock as the closer, so `**\/` is a closer of its
+     * own and not a star and a `*\/`. A normal docblock gives `$end - 2`.
+     */
+    private static function closerStart(string $contents, Span $span): int
+    {
+        $start = $span->end - 2;
+        while ($start > ($span->start + 3) && ($contents[$start - 1] === '*' || $contents[$start - 1] === '/')) {
+            $start--;
+        }
+
+        return $start;
+    }
+
+    /**
+     * The line that holds the short description, which the check of the
+     * space after its star covers, or null when the docblock has none.
+     *
+     * @param list<DocblockRow> $rows
+     */
+    public static function summaryRow(array $rows): ?int
+    {
+        $first = DocblockRows::nextContent($rows, -1);
+        if ($first === null) {
+            return null;
+        }
+
+        $isFile = $rows[$first]->tag() === '@file';
+        if ($isFile && $rows[$first]->value() !== '') {
+            return null;
+        }
+
+        $short = $isFile ? DocblockRows::nextContent($rows, $first) : $first;
+
+        return $short !== null && $rows[$short]->isProse() ? $short : null;
     }
 
     /**
@@ -130,8 +188,13 @@ final class DocCommentSpacing
      *
      * @mago-expect lint:no-boolean-flag-parameter
      */
-    private static function reportOpeningLine(LintContext $context, Span $span, DocblockRow $row, bool $oneLine): void
-    {
+    private static function reportOpeningLine(
+        LintContext $context,
+        Span $span,
+        DocblockRow $row,
+        bool $oneLine,
+        int $closer,
+    ): void {
         $issue = Issue::new('Put the docblock text on the line below the opening /**.', $row->textSpan());
         $indent = DocblockRows::indent($context->file, $span);
         if ($indent === null) {
@@ -143,7 +206,7 @@ final class DocCommentSpacing
         $eol = LineEnding::of($context->file->contents);
         $issue = $issue->withEdit(TextEdit::replace(new Span($span->start + 3, $row->textStart), "{$eol}{$indent} * "));
         if ($oneLine) {
-            $issue = $issue->withEdit(TextEdit::replace(new Span($row->textEnd, $span->end - 2), "{$eol}{$indent} "));
+            $issue = $issue->withEdit(TextEdit::replace(new Span($row->textEnd, $closer), "{$eol}{$indent} "));
         }
 
         $context->report($issue);
@@ -165,13 +228,12 @@ final class DocCommentSpacing
             return $first;
         }
 
-        $start = $isFile ? $first : 0;
-        $short = $isFile ? DocblockRows::nextContent($rows, $first) : $first;
-        if ($short === null || !$rows[$short]->isProse()) {
+        $short = self::summaryRow($rows);
+        if ($short === null) {
             return null;
         }
 
-        self::checkShort($context, $rows, $start, $short);
+        self::checkShort($context, $rows, $isFile ? $first : 0, $short);
 
         return $short;
     }
@@ -280,24 +342,8 @@ final class DocCommentSpacing
                 $groups[] = [];
             }
 
-            if (
-                $joined
-                && $current !== '@param'
-                && $current !== $previousTag
-                && (
-                    in_array($current, self::SECTION_TAGS, strict: true)
-                    || in_array($previousTag, self::SECTION_TAGS, strict: true)
-                )
-                && !$rows[$previous]->isDirective()
-            ) {
-                self::report(
-                    $context,
-                    Issue::new(
-                        "Put a blank line between the {$previousTag} and {$current} sections.",
-                        $rows[$index]->tagSpan(),
-                    ),
-                    DocblockRows::oneBlankBetween($context->file, $rows, $index - 1, $index),
-                );
+            if ($joined && $current !== '@param') {
+                self::checkSections($context, $rows, [$previous, $index], [$previousTag, $current]);
             }
 
             $previousTag = $current;
@@ -305,6 +351,78 @@ final class DocCommentSpacing
         }
 
         return $groups;
+    }
+
+    /**
+     * Reports a `@param`, `@return` or `@throws` section that touches a
+     * different tag with no blank line between them.
+     *
+     * @param list<DocblockRow> $rows
+     * @param array{int, int} $lines The line with text before the tag, and the tag.
+     * @param array{string, string} $tags The tag before and the tag.
+     */
+    private static function checkSections(LintContext $context, array $rows, array $lines, array $tags): void
+    {
+        [$previous, $index] = $lines;
+        [$previousTag, $current] = $tags;
+        if (
+            $current === $previousTag
+            || !in_array($current, self::SECTION_TAGS, strict: true)
+            && !in_array($previousTag, self::SECTION_TAGS, strict: true)
+            || $rows[$previous]->isDirective()
+        ) {
+            return;
+        }
+
+        self::report(
+            $context,
+            Issue::new(
+                "Put a blank line between the {$previousTag} and {$current} sections.",
+                $rows[$index]->tagSpan(),
+            ),
+            DocblockRows::oneBlankBetween($context->file, $rows, $index - 1, $index),
+        );
+    }
+
+    /**
+     * Reports the `@param` tags that are not in one group. A `@param` is
+     * reported when it is not in the group of the first one, or when it is
+     * the first one and shares its group with another tag. A group of them
+     * that does not come first is reported too, on the first tag of the
+     * group, unless the docblock starts with an example, a link or a note.
+     *
+     * @param list<DocblockRow> $rows
+     * @param non-empty-list<non-empty-list<int>> $groups
+     */
+    private static function checkParams(LintContext $context, array $rows, array $groups): void
+    {
+        $paramGroup = null;
+        foreach ($groups as $group => $indexes) {
+            foreach ($indexes as $position => $index) {
+                if ($rows[$index]->tag() !== '@param') {
+                    continue;
+                }
+
+                if ($paramGroup === null && $position > 0 || $paramGroup !== null && $paramGroup !== $group) {
+                    $context->report(Issue::new(
+                        'Keep the @param tags together, in one group with no other tag and no blank line between them.',
+                        $rows[$index]->tagSpan(),
+                    ));
+                }
+
+                $paramGroup ??= $group;
+            }
+        }
+
+        $first = strtolower((string) $rows[$groups[0][0]]->tag());
+        if ($paramGroup === null || $paramGroup === 0 || in_array($first, self::PARAM_LEADING_TAGS, strict: true)) {
+            return;
+        }
+
+        $context->report(Issue::new(
+            '@param tags must be the first group of tags in a docblock.',
+            $rows[$groups[$paramGroup][0]]->tagSpan(),
+        ));
     }
 
     /**

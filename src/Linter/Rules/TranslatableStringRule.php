@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\DocumentStrings;
+use amateescu\MagoDrupal\Internal\EscapedQuotes;
 use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\Instantiations;
 use amateescu\MagoDrupal\Internal\Invocation;
@@ -148,6 +149,12 @@ final class TranslatableStringRule implements Rule
             $message = $invocation->argument($position);
             if ($message !== null) {
                 $this->check($context, $message);
+
+                // Coder reads the quotes of the first argument of t() and the
+                // two markup classes only, not the strings of formatPlural().
+                if ($name !== 'formatplural') {
+                    EscapedQuotes::check($context, Values::leftmost($context->file, $message));
+                }
             }
 
             $literal = $literal && $message !== null && self::startsWithLiteral($context->file, $message);
@@ -297,16 +304,7 @@ final class TranslatableStringRule implements Rule
      */
     private static function startsWithLiteral(SourceFile $file, Node $message): bool
     {
-        $first = $message;
-        while ($first->kind === NodeKind::Binary) {
-            $left = $file->getChildren($first)[0] ?? null;
-            if ($left === null) {
-                return false;
-            }
-
-            $first = Values::unwrap($file, $left);
-        }
-
+        $first = Values::leftmost($file, $message);
         $whole = $first->id === $message->id;
         if ($first->kind === NodeKind::CompositeString) {
             $nowdoc = DocumentStrings::nowdoc($file, $first);

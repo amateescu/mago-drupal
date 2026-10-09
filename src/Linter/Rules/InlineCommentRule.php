@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\InlineCommentRuns;
 use amateescu\MagoDrupal\Internal\InlineCommentSpacing;
+use amateescu\MagoDrupal\Internal\InlineDocblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -37,8 +38,9 @@ use function substr;
  *
  * The capital letter fix uppercases the first letter, as phpcbf does.
  *
- * Not ported: the ban on a docblock in the middle of a statement. Mago's own
- * `no-empty-comment` rule already reports an empty comment.
+ * A docblock inside a body is reported unless a tag starts it or a declaration
+ * follows it, as Coder does. Mago's own `no-empty-comment` rule already reports
+ * an empty docblock.
  */
 final class InlineCommentRule implements Rule
 {
@@ -47,7 +49,7 @@ final class InlineCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-comment',
             name: 'Inline comment',
-            description: 'Checks that a `//` comment has one space after `//`, starts with a capital letter, and does not use `#`.',
+            description: 'Checks that a `//` comment has one space after `//`, starts with a capital letter, and does not use `#`, and that no docblock sits inside code.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -81,6 +83,13 @@ final class InlineCommentRule implements Rule
         }
 
         InlineCommentSpacing::checkSpaces($context);
+
+        foreach (InlineDocblocks::find($context->file) as $opener) {
+            $context->report(Issue::new(
+                'Write a comment inside code with "//" or "/* */", not as a docblock.',
+                $opener,
+            ));
+        }
     }
 
     /**

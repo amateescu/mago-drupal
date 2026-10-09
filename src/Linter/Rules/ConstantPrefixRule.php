@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DrupalFile;
+use amateescu\MagoDrupal\Internal\ModulePrefix;
 use amateescu\MagoDrupal\Internal\Values;
 use amateescu\MagoDrupal\Linter\CallRule;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\RuleDefinition;
-use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\CallExpression;
 use Mago\Sdk\Syntax\NodeKind;
-
-use function str_starts_with;
-use function strtoupper;
 
 /**
  * Reports define() constants in a procedural file that have no module prefix.
@@ -44,8 +40,8 @@ final class ConstantPrefixRule extends CallRule
 
     protected function inspect(LintContext $context, CallExpression $call, string $name): void
     {
-        $file = DrupalFile::fromSource($context->file);
-        if (!$file->isModule() && !$file->isInstall()) {
+        $expected = ModulePrefix::expected($context->file);
+        if ($expected === null) {
             return;
         }
 
@@ -55,16 +51,9 @@ final class ConstantPrefixRule extends CallRule
         }
 
         $constant = Values::literalString($context->file, $name);
-        // The underscore is part of the prefix. For a module named corpus,
-        // CORPUSCACHE_TTL does not count as prefixed.
-        $expected = strtoupper($file->name) . '_';
-        if ($constant === null || $constant === '' || str_starts_with($constant, $expected)) {
-            return;
+        $issue = $constant === null ? null : ModulePrefix::issue($constant, $expected, $name->span);
+        if ($issue !== null) {
+            $context->report($issue);
         }
-
-        $context->report(Issue::new(
-            "The constant '{$constant}' must start with the module prefix '{$expected}'.",
-            $name->span,
-        )->withHelp('Module constants share the global namespace. The prefix keeps them apart.'));
     }
 }

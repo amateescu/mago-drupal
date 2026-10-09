@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Exercises drupal/class-prefix in a file with a namespace.
+ */
+
+declare(strict_types=1);
+
+namespace Drupal\namespaced;
+
+/**
+ * A namespace keeps the name apart from other modules.
+ */
+class Unprefixed {}
+
+/**
+ * An interface in a namespace is exempt as well.
+ */
+interface Other {}

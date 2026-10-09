@@ -87,10 +87,10 @@ class SpacingMethods
     }
 
     /**
-     * Leaves a constructor alone, as the rule does.
+     * Fixes a constructor docblock like any other.
      *
-     * @param int  $a
-     *  The a.
+     * @param int $a
+     *   The a.
      */
     public function __construct($a)
     {

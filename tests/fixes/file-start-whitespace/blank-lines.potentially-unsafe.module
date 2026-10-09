@@ -1,0 +1,11 @@
+
+
+
+<?php
+
+/**
+ * @file
+ * Does something.
+ */
+
+function m_a(): void {}

@@ -1,0 +1,11 @@
+<?php
+
+// @mago-expect lint:drupal/long-description-punctuation
+/**
+ * @file
+ * Summary of the file.
+ *
+ * The long description ends in a letter
+ */
+
+declare(strict_types=1);

@@ -18,6 +18,7 @@ use function end;
 use function explode;
 use function implode;
 use function ltrim;
+use function max;
 use function preg_match;
 use function preg_quote;
 use function str_replace;
@@ -40,7 +41,9 @@ use function trim;
  * mean something else in the file: another import, a class of that name, a
  * name that already resolves elsewhere, or a docblock that writes the short
  * name in the same case. Only a file with one namespace, declared without
- * braces, gets edits.
+ * braces, or with none, gets edits. A file with no namespace gets the
+ * import below its open tag, its `@file` docblock and its `declare`
+ * statements.
  *
  * A name written through the import of its namespace, as `Psr7\Utils` with
  * `use GuzzleHttp\Psr7;`, can leave that import unused. When one class's
@@ -61,36 +64,29 @@ final class ImportPlan
      * The edits for each class, keyed by the start offset of its first
      * report.
      *
+     * @param Node $program The file's Program node.
      * @param list<Node> $namespaces
      * @param list<Node> $uses
      * @param list<Node> $names The names the rule reports, in source order.
      * @return array<int, list<TextEdit>>
      */
-    public static function edits(SourceFile $file, array $namespaces, array $uses, array $names): array
+    public static function edits(SourceFile $file, Node $program, array $namespaces, array $uses, array $names): array
     {
-        $header = count($namespaces) === 1 ? self::header($file, $namespaces[0]) : null;
+        $anchor = self::anchor($file, $program, $namespaces, $uses);
         $imports = self::imports($file, $uses);
-        if ($header === null || $imports === null) {
+        if ($anchor === null || $imports === null) {
             return [];
         }
 
         [$byClass, $aliases, $statements] = $imports;
-
-        [$current, $headerEnd] = $header;
-        if (self::importsFollowCode($file, $headerEnd, $uses)) {
-            return [];
-        }
-
-        // The import goes on its own line after the last import, or after
-        // the namespace line, past any comment that ends that line.
-        $last = end($uses);
+        [$current, $insertAt, $prefix, $suffix] = $anchor;
         $eol = LineEnding::of($file->contents);
-        $insertAt = self::lineEnd($file->contents, $last === false ? $headerEnd : $last->span->end);
-        $prefix = $last === false ? $eol . $eol : $eol;
 
         $groups = self::groups($file, $names);
         $plans = [];
         $claimed = [];
+        $inserted = false;
+        $lastInsert = null;
         foreach ($groups as $key => $occurrences) {
             $class = $occurrences[0][1];
             $segments = explode('\\', $class);
@@ -113,7 +109,12 @@ final class ImportPlan
             $namespace = implode('\\', array_slice($segments, offset: 0, length: -1));
             $import = $alias === null && strtolower($namespace) !== strtolower($current) ? "use {$class};" : null;
             $stale = self::staleImport($file, $uses, $statements, $occurrences);
-            $edits = self::importEdits($file, $import, $stale, $insertAt, $prefix);
+            $edits = self::importEdits($file, $import, $stale, $insertAt, $inserted ? $eol : $prefix);
+            if ($import !== null && $stale === null) {
+                $inserted = true;
+                $lastInsert = $occurrences[0][0]->span->start;
+            }
+
             foreach ($occurrences as [$name]) {
                 $edits[] = TextEdit::replace($name->span, $alias ?? $short);
             }
@@ -121,7 +122,7 @@ final class ImportPlan
             $plans[$occurrences[0][0]->span->start] = $edits;
         }
 
-        return $plans;
+        return $lastInsert === null ? $plans : self::closeInserts($plans, $lastInsert, $insertAt, $suffix);
     }
 
     /**
@@ -191,6 +192,144 @@ final class ImportPlan
         }
 
         return false;
+    }
+
+    /**
+     * The empty namespace name and the offset after the last thing that must
+     * stay above an added import in a file with no namespace: the open tag, the
+     * `@file` docblock and the `declare` statements, in the part of the file
+     * before the first statement that is none of those or an import. Null
+     * when something other than an open tag starts the file.
+     *
+     * @return array{string, int}|null
+     */
+    private static function preamble(SourceFile $file, Node $program): ?array
+    {
+        $statements = $file->getChildren($program);
+        $first = $statements[0] ?? null;
+        if ($first === null || $first->span->start !== 0) {
+            return null;
+        }
+
+        $tag = $file->getChildren($first)[0] ?? null;
+        if ($tag === null || $tag->kind !== NodeKind::OpeningTag) {
+            return null;
+        }
+
+        $point = $tag->span->end;
+        $codeStart = strlen($file->contents);
+        foreach (array_slice($statements, offset: 1) as $statement) {
+            $inner = $file->getChildren($statement)[0] ?? null;
+            if ($inner?->kind === NodeKind::Declare) {
+                $point = max($point, $statement->span->end);
+
+                continue;
+            }
+
+            if ($inner?->kind !== NodeKind::Use) {
+                $codeStart = $statement->span->start;
+
+                break;
+            }
+        }
+
+        $point = max($point, self::fileDocblockEnd($file, $codeStart) ?? 0);
+
+        return ['', $point];
+    }
+
+    /**
+     * Puts the line breaks below the imports on the last insert.
+     *
+     * @param array<int, list<TextEdit>> $plans
+     * @return array<int, list<TextEdit>>
+     */
+    private static function closeInserts(array $plans, int $last, int $insertAt, string $suffix): array
+    {
+        if ($suffix !== '') {
+            $plans[$last][0] = TextEdit::insert($insertAt, $plans[$last][0]->newText . $suffix);
+        }
+
+        return $plans;
+    }
+
+    /**
+     * Where the added imports go: the namespace's name, the offset of the
+     * insert, the line breaks before the first import and the line breaks
+     * after the last one. Null when the file gets no edits.
+     *
+     * The import goes on its own line after the last import, or after the
+     * namespace line, past any comment that ends that line. A file with no
+     * namespace gets it below the open tag and what must stay above it.
+     *
+     * @param list<Node> $namespaces
+     * @param list<Node> $uses
+     * @return array{string, int, string, string}|null
+     */
+    private static function anchor(SourceFile $file, Node $program, array $namespaces, array $uses): ?array
+    {
+        $header = match (count($namespaces)) {
+            0 => self::preamble($file, $program),
+            1 => self::header($file, $namespaces[0]),
+            default => null,
+        };
+        if ($header === null || self::importsFollowCode($file, $header[1], $uses)) {
+            return null;
+        }
+
+        $last = end($uses);
+        $eol = LineEnding::of($file->contents);
+        $insertAt = self::lineEnd($file->contents, $last === false ? $header[1] : $last->span->end);
+        if ($last !== false) {
+            return [$header[0], $insertAt, $eol, ''];
+        }
+
+        if ($namespaces === []) {
+            $free = '/\G[ \t]*(?:(?:\/\/|#)[^\r\n]*)?(?:\r?\n|$)/';
+
+            return (
+                preg_match($free, $file->contents, offset: $header[1]) === 1
+                    ? [$header[0], $insertAt, $eol . $eol, self::blankBelow($file->contents, $insertAt, $eol)]
+                    : null
+            );
+        }
+
+        return [$header[0], $insertAt, $eol . $eol, ''];
+    }
+
+    /**
+     * A line break when the line after the offset's line is not blank. The
+     * first import of a file with no namespace goes between the open tag,
+     * the docblock or the `declare` and the next line, so a blank line goes
+     * below it when none is there.
+     */
+    private static function blankBelow(string $contents, int $offset, string $eol): string
+    {
+        return preg_match('/\G\r?\n(?:[ \t]*\r?\n|[ \t]*$)/', $contents, offset: $offset) === 1 ? '' : $eol;
+    }
+
+    /**
+     * The end of the first comment when it is a docblock with an `@file` tag
+     * that starts before the first code.
+     */
+    private static function fileDocblockEnd(SourceFile $file, int $codeStart): ?int
+    {
+        $comment = $file->getTrivia()[0] ?? null;
+        if (
+            $comment === null
+            || $comment->kind !== TriviaKind::DocBlockComment
+            || $comment->span->start >= $codeStart
+        ) {
+            return null;
+        }
+
+        foreach (Docblocks::tags($file, $comment->span) as $tag) {
+            if ($tag->name === 'file') {
+                return $comment->span->end;
+            }
+        }
+
+        return null;
     }
 
     /**

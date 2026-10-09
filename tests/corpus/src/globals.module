@@ -1,0 +1,176 @@
+<?php
+
+/**
+ * @file
+ * Exercises drupal/global-constant in a .module file.
+ */
+
+declare(strict_types=1);
+
+// @mago-expect lint:drupal/global-constant
+define('GLOBALS_PLAIN', 1);
+
+// @mago-expect lint:drupal/global-constant
+const GLOBALS_STATEMENT = 1;
+
+// One statement is one report, whatever number of names it declares.
+// @mago-expect lint:drupal/global-constant
+const GLOBALS_FIRST = 1, GLOBALS_SECOND = 2;
+
+// A fully qualified name and a name in other case call the same function.
+// @mago-expect lint:drupal/global-constant
+\define('GLOBALS_QUALIFIED', 1);
+
+// @mago-expect lint:drupal/global-constant
+DEFINE('GLOBALS_UPPER', 1);
+
+// A call inside another call is still at the top level of the file.
+// @mago-expect lint:drupal/global-constant
+$globals_defined = define('GLOBALS_ASSIGNED', 1);
+
+// A namespaced function is not the global one.
+Drupal\globals\define('GLOBALS_NAMESPACED', 1);
+
+// Only a plain call counts.
+$globals_object = new GlobalsConstants();
+$globals_object->define('GLOBALS_METHOD', 1);
+Drupal::define('GLOBALS_STATIC', 1);
+
+// @mago-expect lint:drupal/constant-prefix
+// @mago-expect lint:drupal/global-constant
+// @mago-expect lint:drupal/define-name
+define('unprefixed_constant', 1);
+
+/**
+ * Old limit.
+ *
+ * @deprecated in globals:1.0.0 and is removed from globals:2.0.0. Use
+ *   something else.
+ *
+ * @see https://www.drupal.org/node/1
+ */
+define('GLOBALS_DEPRECATED', 1);
+
+// A blank line between the docblock and the constant is fine.
+
+/**
+ * Old limit.
+ *
+ * @deprecated in globals:1.0.0 and is removed from globals:2.0.0. Use
+ *   something else.
+ *
+ * @see https://www.drupal.org/node/1
+ */
+
+const GLOBALS_DEPRECATED_CONST = 1;
+
+/**
+ * Old limit.
+ *
+ * @deprecated in globals:1.0.0 and is removed from globals:2.0.0. Use
+ *   something else.
+ *
+ * @see https://www.drupal.org/node/1
+ */
+// This comment hides the docblock from the constant.
+// @mago-expect lint:drupal/global-constant
+const GLOBALS_COMMENT_BETWEEN = 1;
+
+/**
+ * Old limit.
+ *
+ * @deprecated in globals:1.0.0 and is removed from globals:2.0.0. Use
+ *   something else.
+ *
+ * @see https://www.drupal.org/node/1
+ */
+$globals_statement_between = 1;
+// @mago-expect lint:drupal/global-constant
+define('GLOBALS_STATEMENT_BETWEEN', 1);
+
+// The tag name is case-sensitive.
+// @mago-expect lint:drupal/deprecated-tag(2)
+/**
+ * Old limit.
+ *
+ * @Deprecated in globals:1.0.0
+ */
+// @mago-expect lint:drupal/global-constant
+define('GLOBALS_CAPITAL_TAG', 1);
+
+/**
+ * The word @deprecated in running text is not a tag.
+ */
+// @mago-expect lint:drupal/global-constant
+define('GLOBALS_WORD', 1);
+
+if (function_exists('globals_define')) {
+  define('GLOBALS_IN_IF', 1);
+}
+else {
+  define('GLOBALS_IN_ELSE', 1);
+}
+
+// A body without braces is still below the top level.
+if (function_exists('globals_define'))
+  define('GLOBALS_IN_SHORT_IF', 1);
+
+try {
+  define('GLOBALS_IN_TRY', 1);
+}
+catch (Exception $exception) {
+  define('GLOBALS_IN_CATCH', 1);
+}
+
+foreach ([1] as $globals_item) {
+  define('GLOBALS_IN_FOREACH', $globals_item);
+}
+
+foreach ([1] as $globals_item):
+  define('GLOBALS_IN_ALTERNATIVE_FOREACH', $globals_item);
+endforeach;
+
+switch (1) {
+  case 1:
+    define('GLOBALS_IN_SWITCH', 1);
+}
+
+/**
+ * Defines in a function body.
+ */
+function globals_define(): void {
+  define('GLOBALS_IN_FUNCTION', 1);
+
+  $closure = function (): void {
+    define('GLOBALS_IN_CLOSURE', 1);
+  };
+  $closure();
+
+  $arrow = fn (): bool => define('GLOBALS_IN_ARROW', 1);
+  $arrow();
+}
+
+/**
+ * Declares constants in a class.
+ */
+class GlobalsConstants {
+
+  const IN_CLASS = 1;
+
+  /**
+   * Defines in a method body.
+   */
+  public function define(string $name = '', int $value = 0): void {
+    define('GLOBALS_IN_METHOD', 1);
+  }
+
+}
+
+/**
+ * Declares constants in an interface.
+ */
+interface GlobalsInterface {
+
+  const IN_INTERFACE = 1;
+
+}

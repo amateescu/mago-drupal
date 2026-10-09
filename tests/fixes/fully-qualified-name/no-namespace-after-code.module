@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+define('AFTER_CODE_LIMIT', 5);
+
+use Drupal\Core\Link;
+
+function after_code(): void {
+  \Drupal\Core\Url::fromRoute('x');
+}

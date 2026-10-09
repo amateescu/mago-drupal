@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Exercises drupal/class-prefix for a module name with an underscore.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Drops the underscore of the module name.
+ */
+class MyModThing {}
+
+/**
+ * Keeps the underscore of the module name.
+ */
+class My_Mod_Thing {}
+
+/**
+ * Has the module name in the middle.
+ */
+// @mago-expect lint:drupal/class-prefix
+class Thing_My_Mod {}
+
+/**
+ * Has a different second word.
+ */
+// @mago-expect lint:drupal/class-prefix
+class My_Thing {}
+
+/**
+ * Implements hook_form_alter().
+ */
+function my_mod_form_alter(array &$form): void {
+}

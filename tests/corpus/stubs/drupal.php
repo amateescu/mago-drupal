@@ -30,10 +30,22 @@ namespace {
 
     class Drupal
     {
+        public static function define(string $name, int $value): bool
+        {
+            return TRUE;
+        }
+
         public static function state(): \Drupal\Core\State\StateInterface
         {
             throw new \RuntimeException('stub');
         }
+    }
+}
+
+namespace Drupal\globals {
+    function define(string $name, int $value): bool
+    {
+        return TRUE;
     }
 }
 
@@ -79,6 +91,27 @@ namespace Drupal\corpus\Nested {
 namespace Drupal\corpus {
     #[\Attribute]
     class CorpusAttribute {}
+}
+
+namespace Drupal\corpus\Hook {
+    #[\Attribute(\Attribute::TARGET_ALL | \Attribute::IS_REPEATABLE)]
+    class Sample
+    {
+        public function __construct(public string $value = '') {}
+    }
+}
+
+namespace Drupal\Core\Hook\Attribute {
+    #[\Attribute(\Attribute::TARGET_ALL | \Attribute::IS_REPEATABLE)]
+    class Hook
+    {
+        public function __construct(
+            public string $hook = '',
+            public string $method = '',
+            public ?string $module = null,
+            public int $priority = 0,
+        ) {}
+    }
 }
 
 namespace Drupal\Component\Serialization {

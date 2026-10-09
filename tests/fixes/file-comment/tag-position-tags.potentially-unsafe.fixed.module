@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * Helpers for the module.
+ *
+ * @see helper_three()
+ */
+
+function helper_three(): void {}
