@@ -4,6 +4,9 @@ set dotenv-load := false
 # as a local build.
 mago := env_var_or_default("MAGO", "vendor/bin/mago")
 
+# The Zensical version that builds the docs site.
+zensical := "0.0.69"
+
 validate:
     composer validate --strict --no-check-publish
 
@@ -54,6 +57,23 @@ test-corpus:
 # tests/FixCases.php for the layout.
 test-fixes:
     php tests/FixCases.php {{mago}}
+
+# Rewrites the generated parts of the docs pages from the registered rules
+# and tests/coder-map.json. DocsTest fails when they are out of date.
+docs-gen:
+    php tests/GenerateDocs.php
+
+# Serves the docs site with live reload on http://127.0.0.1:8000.
+docs: docs-env
+    .venv/bin/zensical serve
+
+# Builds the docs site into site/ and fails on a broken link or anchor.
+docs-build: docs-env
+    .venv/bin/zensical build --strict
+
+# Installs the pinned Zensical into .venv, and again when the pin changes.
+docs-env:
+    test "$(.venv/bin/zensical --version 2>/dev/null)" = "{{zensical}}" || (python3 -m venv .venv && .venv/bin/pip install --quiet "zensical=={{zensical}}")
 
 check: validate format-check test lint analyze
 
