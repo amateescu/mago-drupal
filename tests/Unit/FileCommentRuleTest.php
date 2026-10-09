@@ -29,6 +29,8 @@ use function strpos;
  * `@mago-expect` comment that suppresses an issue becomes that trivia and
  * changes the result. The corpus can only make sure that a correct file
  * gets no report. This test covers the negative cases.
+ *
+ * @mago-expect lint:too-many-methods
  */
 final class FileCommentRuleTest extends TestCase
 {
@@ -119,7 +121,10 @@ final class FileCommentRuleTest extends TestCase
         self::assertSame([], $issues);
     }
 
-    public function testReadsPastAByteOrderMark(): void
+    /**
+     * Coder reads past a UTF-8 byte order mark before the opening tag.
+     */
+    public function testReportsNothingOnAFileCommentAfterAByteOrderMark(): void
     {
         $contents = "\xEF\xBB\xBF<?php\n\n/**\n * @file\n * Does something.\n */\n";
 
