@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Stands in for a Drupal 7 module, which the DrupalPractice rules skip.
+ */
+
+declare(strict_types=1);
+
+// Coder skips a Drupal 7 module, which legacy7.info marks as one.
+const LEGACY7_LIMIT = 10;
+
+define('LEGACY7_MAX', 20);
+
+/**
+ * Reads a query parameter the Drupal 7 way.
+ */
+function legacy7_paged(): bool {
+  return array_key_exists('page', $_GET);
+}
+
+/**
+ * Translates with t() in a class, which Coder does not report in Drupal 7.
+ */
+final class Legacy7Greeting {
+
+  /**
+   * Returns the greeting.
+   */
+  public function text(): string {
+    return t('Hello');
+  }
+
+}

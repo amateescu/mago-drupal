@@ -7,7 +7,6 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\FileTags;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use Mago\Sdk\Linter\LintContext;
@@ -30,12 +29,12 @@ use function strspn;
 use function substr;
 
 /**
- * Checks that a procedural file starts with a docblock tagged `@file`, and
- * that a file with a namespace and one class, interface, trait or enum does
- * not start with a comment.
+ * Checks that a PHP file starts with a docblock tagged `@file`, and that a
+ * file with a namespace and one class, interface, trait or enum does not
+ * start with a comment.
  *
- * Ports Drupal.Commenting.FileComment, with the sniff's skip of the
- * procedural checks for a file that holds a class.
+ * Ports Drupal.Commenting.FileComment, with the sniff's skip of the `@file`
+ * checks for a file that holds a class.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -52,7 +51,7 @@ final class FileCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/file-comment',
             name: 'File comment',
-            description: 'Checks that a procedural file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment.',
+            description: 'Checks that a PHP file that is not a class file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -61,9 +60,8 @@ final class FileCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Coder reports a comment at the start of a namespaced class file
-        // with any extension, so this check comes before the one for a
-        // procedural file. The tree scan runs only for a file that starts
+        // A namespaced class file has its own check, which comes before the
+        // `@file` checks. The tree scan runs only for a file that starts
         // with a comment.
         $first = $this->firstComment($context);
         if ($first !== null && self::isNamespacedClassFile($context->file)) {
@@ -72,7 +70,9 @@ final class FileCommentRule implements Rule
             return;
         }
 
-        if (!DrupalFile::fromSource($context->file)->isProcedural()) {
+        // Coder checks every file with a PHP open tag, a `.php` file too.
+        // A YAML file, which Mago parses as text outside PHP, has none.
+        if (preg_match('/<\?(?:php\b|\s)/i', $context->file->contents) !== 1) {
             return;
         }
 
@@ -250,12 +250,14 @@ final class FileCommentRule implements Rule
     }
 
     /**
-     * The file's first comment when only the opening tag and whitespace come
-     * before it, past any directive such as `// phpcs:ignoreFile`. A
+     * The file's first comment when only whitespace comes between it and the
+     * first opening tag, past any directive such as `// phpcs:ignoreFile`. A
      * directive is a tool instruction, not the file comment. Coder does not
      * look past one.
-     * A UTF-8 byte order mark may come before the opening tag, and
-     * `drupal/byte-order-mark` reports it.
+     *
+     * Coder reads from the first opening tag, so text before it, such as a
+     * `#!/usr/bin/env php` line or a byte order mark, does not count. A
+     * comment after a second opening tag does not count either.
      */
     private function firstComment(LintContext $context): ?Trivia
     {
@@ -263,7 +265,7 @@ final class FileCommentRule implements Rule
         $prefix = '';
         foreach ($context->file->getTrivia() as $trivia) {
             $prefix .= substr($context->file->contents, $start, $trivia->span->start - $start);
-            if (preg_match('/^(?:\xEF\xBB\xBF)?<\?php\s*$/', $prefix) !== 1) {
+            if (preg_match('/^(?:(?!<\?php).)*<\?php\s*$/si', $prefix) !== 1) {
                 return null;
             }
 

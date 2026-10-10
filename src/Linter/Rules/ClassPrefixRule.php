@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DrupalFile;
+use amateescu\MagoDrupal\Internal\InfoFile;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -52,15 +52,7 @@ final class ClassPrefixRule implements Rule
         }
 
         $file = $context->file;
-        $module = DrupalFile::fromSource($file);
-        if (!$module->isNamedByFile()) {
-            return;
-        }
-
-        // A module name with underscores gives two accepted prefixes. Views
-        // classes keep the underscores, and others drop them.
-        $name = strtolower($module->name);
-        $prefixes = [str_replace('_', replace: '', subject: $name), $name];
+        $module = null;
 
         // The target list is in source order. Everything after the first
         // namespace statement is in a namespace, a braced one included.
@@ -78,13 +70,26 @@ final class ClassPrefixRule implements Rule
                 continue;
             }
 
+            // The name can come from an info file on disk, so it is read
+            // only for a file with a class outside a namespace.
+            $module ??= InfoFile::moduleName($file->path) ?? '';
+            if ($module === '') {
+                return;
+            }
+
+            // A module name with underscores gives two accepted prefixes.
+            // Views classes keep the underscores, and others drop them.
             $declared = strtolower($file->getText($identifier));
-            if (str_starts_with($declared, $prefixes[0]) || str_starts_with($declared, $prefixes[1])) {
+            $name = strtolower($module);
+            if (
+                str_starts_with($declared, str_replace('_', replace: '', subject: $name))
+                || str_starts_with($declared, $name)
+            ) {
                 continue;
             }
 
             $kind = $declaration->kind === NodeKind::Class_ ? 'class' : 'interface';
-            $camel = implode('', array_map(ucfirst(...), explode('_', $module->name)));
+            $camel = implode('', array_map(ucfirst(...), explode('_', $module)));
             $suffix = $file->getText($identifier);
             $context->report(Issue::new(
                 "The {$kind} name must start with the module name, as in {$camel}{$suffix}.",

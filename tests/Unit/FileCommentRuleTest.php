@@ -122,6 +122,24 @@ final class FileCommentRuleTest extends TestCase
     }
 
     /**
+     * Coder reads from the opening tag, so a script's `#!` line before it
+     * does not count.
+     */
+    public function testReportsNothingOnAFileCommentAfterAShebangLine(): void
+    {
+        $contents = "#!/usr/bin/env php\n<?php\n\n/**\n * @file\n * Runs something.\n */\n";
+
+        $issues = self::lint(
+            'run.php',
+            $contents,
+            TriviaKind::DocBlockComment,
+            self::spanOf($contents, "/**\n * @file\n * Runs something.\n */"),
+        );
+
+        self::assertSame([], $issues);
+    }
+
+    /**
      * Coder reads past a UTF-8 byte order mark before the opening tag.
      */
     public function testReportsNothingOnAFileCommentAfterAByteOrderMark(): void
@@ -138,9 +156,17 @@ final class FileCommentRuleTest extends TestCase
         self::assertSame([], $issues);
     }
 
-    public function testReportsNothingOnANonProceduralFile(): void
+    public function testReportsNothingInAFileWithoutAPhpOpenTag(): void
     {
-        self::assertSame([], self::lint('Node.php', "<?php\n\nclass Node {}\n"));
+        self::assertSame([], self::lint('node.info.yml', "name: Node\ntype: module\n"));
+    }
+
+    public function testChecksAPhpFileOfFunctions(): void
+    {
+        $issues = self::lint('node.api.php', "<?php\n\nfunction hook_foo(): void {}\n");
+
+        self::assertCount(1, $issues);
+        self::assertStringContainsString('does not start with a docblock', $issues[0]->message);
     }
 
     public function testReportsMissingWhenNothingPrecedesTheCode(): void

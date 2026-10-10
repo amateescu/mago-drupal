@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Exercises drupal/translatable-string.
+ */
+
 declare(strict_types=1);
 
 namespace Drupal\corpus;

@@ -3,25 +3,29 @@
 These rules port sniffs of Coder's `DrupalPractice` standard that core's `phpcs.xml.dist` does not
 run, so the worker's [`--core` argument](../setup.md#checking-drupal-core) turns them off.
 
-The rules read the file name and the syntax tree, and no other file on disk. Coder's `Project`
-class also reads the nearest `*.info.yml` or `*.info` file, to find the module name and to skip a
-Drupal 7 module. Each rule says where that makes a difference.
+Coder's `Project` class reads the nearest `*.info.yml` or `*.info` file, to find the module name of
+a file that is not named after it and to skip a Drupal 7 module. The rules read the same file, from
+the worker's directory, which is the directory of the Mago config file. `drupal/class-prefix` and
+`drupal/form-alter-comment` read the module name from it. `drupal/global-constant`,
+`drupal/request-superglobal` and `drupal/global-function` skip a file whose info file is a `*.info`
+file that names a core version below 8, or no version, as Coder does.
 
 ## drupal/class-prefix
 
 - **Level:** warning
 - **Fix:** none
-- **Ports:** `DrupalPractice.General.ClassName.ClassPrefix` (partly)
+- **Ports:** `DrupalPractice.General.ClassName.ClassPrefix`
 - **Off with `--core`**
 
-A class or interface in a `.module`, `.install`, `.profile` or `.theme` file whose name does not
-start with the module name, with or without the underscores of the name. The rule skips every
-declaration from the first `namespace` statement on. Traits, enums and anonymous classes are not
-checked.
+A class or interface outside a namespace whose name does not start with the module name, with or
+without the underscores of the name. A `.module`, `.install`, `.profile` or `.theme` file takes the
+module name from its file name. Any other file takes it from the nearest `*.info.yml` file, or a
+Drupal 7 `*.info` file, in its directory or one above, as in Coder, and a file with neither is
+skipped. The rule skips every declaration from the first `namespace` statement on. Traits, enums and
+anonymous classes are not checked.
 
-**Compared with Coder:** the rule takes the module name from the file name, the part before the
-first dot, and skips other files. Coder finds the name in the info file, so it checks other files
-too, and for `foo.bar.module` it uses `foo.bar` where the rule uses `foo`.
+**Compared with Coder:** for `foo.bar.module`, Coder uses `foo.bar` as the module name, and the rule
+uses `foo`, the part before the first dot.
 
 ## drupal/curl-ssl-verify
 
@@ -45,19 +49,16 @@ arguments by position or by name, and skips a call that spreads its arguments.
 
 - **Level:** warning
 - **Fix:** none
-- **Ports:** `DrupalPractice.FunctionDefinitions.FormAlterDoc.Different` (partly)
+- **Ports:** `DrupalPractice.FunctionDefinitions.FormAlterDoc.Different`
 - **Off with `--core`**
 
-A function in a `.module`, `.install`, `.profile` or `.theme` file with a docblock line that starts
-with `Implements hook_form_alter().` and a name other than the module name and `_form_alter`. The
-docblock must be right above the `function` keyword, with no modifier, attribute or comment between
-them.
+A function with a docblock line that starts with `Implements hook_form_alter().` and a name other
+than the module name and `_form_alter`. The module name comes from the file name or the nearest
+info file, as in `drupal/class-prefix`. The docblock must be right above the `function` keyword,
+with no modifier, attribute or comment between them.
 
 **Compared with Coder:**
 
-- The rule takes the module name from the file name, as `drupal/class-prefix` does, and skips
-  other files. Coder reads the module name from the info file for a `.inc` or `.php` file, so it
-  checks those too.
 - It compares the function name without regard to case, because PHP does.
 - It finds the hook line only at the start of a docblock line, so
   `@see Implements hook_form_alter().` is not a hook line.
@@ -77,14 +78,12 @@ A `const` statement at the top level of a file, and a `define()` call at the top
 
 A docblock with a `@deprecated` tag right above the statement exempts it. The tag must be at the
 start of a docblock line, and its name is case-sensitive. A one-line docblock with only the tag
-counts, and a tag in the middle of a sentence does not.
+counts, and a tag in the middle of a sentence does not. A Drupal 7 module is skipped.
 
 **Compared with Coder:**
 
-- The rule does not skip a Drupal 7 module. Coder skips a module whose `.info` file names core 7
-  or has no core line.
-- It treats the body of an `if`, `elseif` or `else` written without braces, and an arrow function,
-  as nested. Coder sees no enclosing scope there.
+- The rule treats the body of an `if`, `elseif` or `else` written without braces, and an arrow
+  function, as nested. Coder sees no enclosing scope there.
 - It also reports `\define()` and `DEFINE()`, which Coder misses. It does not report
   `$object?->define()` or `define(...)`.
 - It keeps the exemption of a `@deprecated` docblock that is above an attribute list.
@@ -98,12 +97,12 @@ counts, and a tag in the middle of a sentence does not.
 
 A use of `$_GET`, `$_POST`, `$_COOKIE` or `$_FILES`, including a write, a parameter or `global`
 name, and a use inside a string. The message names the matching property of the request, and gives
-the source text of the key. `$_REQUEST` is left to Mago's `no-request-variable`.
+the source text of the key. `$_REQUEST` is left to Mago's `no-request-variable`. A Drupal 7 module
+is skipped.
 
 **Compared with Coder:**
 
-- The rule does not skip a Drupal 7 module, as `drupal/global-constant` does not.
-- It reports a use inside a double-quoted string or a heredoc, which Coder misses.
+- The rule reports a use inside a double-quoted string or a heredoc, which Coder misses.
 - It treats `$_GET /* note */ ['a']` as an access with a key.
 
 ## drupal/strict-config-schema

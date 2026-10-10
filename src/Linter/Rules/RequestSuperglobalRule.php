@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\InfoFile;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -66,6 +67,12 @@ final class RequestSuperglobalRule implements Rule
             $name = $file->getText($variable);
             if (!array_key_exists($name, self::PROPERTIES)) {
                 continue;
+            }
+
+            // Coder skips a Drupal 7 module. The version comes from an info
+            // file on disk, so it is read only for a file with a report.
+            if (InfoFile::coreVersion($file->path) < 8) {
+                return;
             }
 
             $property = self::PROPERTIES[$name];

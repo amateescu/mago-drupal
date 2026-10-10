@@ -58,7 +58,9 @@ most frequent case is `t()`, where `$this->t()` from `StringTranslationTrait` ap
 replace an injected service, and it cannot replace a procedural call.
 
 The wrappers are `t()`, `drupal_render()`, `drupal_get_destination()`, `format_date()`, and the
-`*_load()` functions of entities, such as `node_load()` and `user_load()`.
+`*_load()` functions of entities, such as `node_load()` and `user_load()`. A Drupal 7 module is
+skipped, as in Coder: one whose nearest info file is a `*.info` file that names a core version
+below 8, or no version.
 
 As in Coder, the rule reports `t()` in any class, and the other wrappers only in a class that can
 get services injected. That is a class that extends one of Drupal's base classes, such as

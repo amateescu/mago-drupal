@@ -1442,7 +1442,7 @@
         "standard": "DrupalPractice",
         "where": ["ext:drupal/form-alter-comment"],
         "codes": [
-            {"code": "Different", "status": "partial"}
+            {"code": "Different", "status": "report"}
         ]
     },
     {
@@ -1481,7 +1481,7 @@
         "standard": "DrupalPractice",
         "where": ["ext:drupal/class-prefix"],
         "codes": [
-            {"code": "ClassPrefix", "status": "partial"}
+            {"code": "ClassPrefix", "status": "report"}
         ]
     },
     {
