@@ -44,6 +44,12 @@ Two checks still need phpcs:
 - `DrupalPractice.Objects.GlobalDrupal` reports a `\Drupal::service()` call where injection is
   possible. That check needs the analyzer, not a linter rule.
 
+To keep the line length check of text files, run phpcs with that sniff on those files only:
+
+```shell
+vendor/bin/phpcs --standard=Drupal --sniffs=Drupal.Files.TxtFileLineLength --extensions=txt,md web/modules/custom
+```
+
 ## Differences that apply to every rule
 
 **Suppression comments.** A phpcs suppression comment (`phpcs:ignore`, `phpcs:disable`,
