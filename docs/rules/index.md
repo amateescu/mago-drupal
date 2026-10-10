@@ -33,8 +33,8 @@ from the source.
 
 ## Procedural files
 
-These rules report only in `.module` and `.install` files. They take the module name from the file
-name, the part before the first dot.
+These rules report only in `.module` and `.install` files, except `drupal/global-variable`, which
+checks every file. They take the module name from the file name, the part before the first dot.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ name, the part before the first dot.
 | [`drupal/constant-prefix`](procedural-files.md#drupalconstant-prefix) | warning | Reports define() constants that do not start with the module name. |
 | [`drupal/empty-install-hook`](procedural-files.md#drupalempty-install-hook) | error | Reports hook_install() and hook_uninstall() implementations with an empty body. |
 | [`drupal/function-prefix`](procedural-files.md#drupalfunction-prefix) | error | Reports functions in a .module file whose name does not start with the module name. |
-| [`drupal/global-variable`](procedural-files.md#drupalglobal-variable) | error | Reports module globals that do not start with an underscore and the module's name. |
+| [`drupal/global-variable`](procedural-files.md#drupalglobal-variable) | error | Reports global variables that do not start with an underscore. |
 | [`drupal/install-hook-location`](procedural-files.md#drupalinstall-hook-location) | error | Reports install-time hooks declared in a .module file instead of a .install file. |
 | [`drupal/t-in-hook-schema`](procedural-files.md#drupalt-in-hook-schema) | error | Reports a t() call inside hook_schema(). Drupal never shows those strings to users. |
 
@@ -60,7 +60,7 @@ Rules for the bytes of a file and for its open and close tags.
 
 ## Naming and imports
 
-Rules for the names of classes, constants, methods and properties, and for `use` statements. Mago's
+Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's
 own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drupal).
 
 | Rule | Level | What it reports |
@@ -69,6 +69,7 @@ own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drup
 | [`drupal/define-name`](naming-and-imports.md#drupaldefine-name) | error | Reports define() constants whose name is not upper case. |
 | [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports enum cases that do not use UpperCamelCase. |
 | [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports namespaced classes referenced in full instead of through a use statement. |
+| [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports functions whose name is not lower case. |
 | [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports Hook attributes whose name starts with hook_. |
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that do not use lowerCamelCase. |
@@ -131,7 +132,7 @@ analyzer](../coder/index.md#docblock-types-and-the-analyzer). The group has the 
 | [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Checks that a class, interface, trait or enum has a docblock. |
 | [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Checks the wording of a @deprecated docblock tag and the @see tag that must follow it. |
 | [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | warning | Checks a docblock's short description, long description and tag order. |
-| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks that a procedural file starts with a docblock tagged @file. |
+| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks that a procedural file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment. |
 | [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Checks that a function or method has a well-formed docblock. |
 | [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Checks the "Implements hook_x()." docblock convention on a hook implementation. |
 | [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |

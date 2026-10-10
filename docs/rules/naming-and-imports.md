@@ -1,6 +1,6 @@
 # Naming and imports
 
-Rules for the names of classes, constants, methods and properties, and for `use` statements. Mago's
+Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's
 own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drupal).
 
 ## drupal/class-name-acronym
@@ -30,7 +30,8 @@ covers `const`, the other half of the sniff.
 **Compared with Coder:** the rule matches `define` without regard to case, with or without a
 leading backslash. A name built from literals joined with `.` is checked as a whole. Coder 9 checks
 only the first literal. A name that has a variable in it is skipped. Coder 9 reports
-`'mymod_' . $x`.
+`'mymod_' . $x`. The rule also reports a `define()` call inside an attribute argument, and
+`namespace\define()` in a file with no namespace declaration. Coder 9 reports neither.
 
 ## drupal/enum-case-name
 
@@ -40,7 +41,8 @@ only the first literal. A name that has a variable in it is skipped. Coder 9 rep
 
 An enum case name that does not start with a capital letter, that holds an underscore, or that
 starts with three upper-case letters and has no lower-case letter after them. The last check is the
-one of `drupal/class-name-acronym`.
+one of `drupal/class-name-acronym`. A name that fails several checks gets one issue for each, as in
+Coder 9.
 
 ## drupal/fully-qualified-name
 
@@ -71,6 +73,24 @@ name, or a docblock that writes the short name in the same case.
 - There is no fix when the short name is taken by an interface, a trait, an enum, an import that
   differs in case only, or a class whose name has a comment before it. Coder reports a fixable
   error there, and its fix writes code that PHP rejects.
+- The rule also reports a namespace-relative name such as `namespace\Sub\Bar`. Coder never checks
+  that form.
+
+## drupal/function-name
+
+- **Level:** error
+- **Fix:** none
+- **Ports:** `Drupal.NamingConventions.ValidFunctionName.InvalidName`
+- **Off with `--core`**
+
+A function whose name is not lower case, such as `mymoduleHelper()` or `mymodule_Helper()`. The
+rule checks every function outside a class, interface, trait or enum, in every file. A leading or
+doubled underscore is fine, so a private helper such as `_mymodule_helper()` passes. A function
+that starts with `hook_` in an `.api.php` file is skipped, since such a file documents hooks with
+names such as `hook_ENTITY_TYPE_insert()`. Methods are left to Mago's `method-name`.
+
+Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which Coder
+accepts. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
 
 ## drupal/hook-attribute-name
 
@@ -125,8 +145,20 @@ so the lines differ when a declaration spans several lines.
 A class property whose name does not start with a lower-case letter or holds an underscore. Local
 variables are not checked, and Coder does not check them either.
 
+Config entities and plugin annotations may name their properties in any case. Like Coder, the rule
+skips a class whose parent name contains `ConfigEntity` or is `Plugin` or
+`ViewsPluginAnnotationBase`, and a class that implements `AnnotationInterface`. The names are
+compared as written, so `\Drupal\Core\Config\Entity\ConfigEntityBase` counts, while an alias of
+`Plugin` or `\Drupal\Component\Annotation\Plugin` does not. Only the first parent of an interface
+counts. The rule reads the outermost class around the property, and only when that class is at the
+top level of the file. An anonymous class in a method follows the class around it, and a class
+declared inside an `if` or a function is checked. A name that starts with an underscore is still
+reported in these classes.
+
 **Compared with Coder:** core's config turns `PSR2.Classes.PropertyDeclaration.Underscore` off. The
-rule still reports a leading underscore under `--core`, because the lowerCamelCase check covers it.
+rule still reports a leading underscore under `--core`. The lowerCamelCase check covers it in most
+classes, but not in the config entities and plugin annotations above, where Coder reports nothing
+under core's config.
 
 ## drupal/redundant-use
 
@@ -139,6 +171,12 @@ A `use` statement that imports a class from the global namespace. The fix reads 
 the resolved names. There is no fix while a docblock in the file names the class in the same case
 without a leading backslash, in a type, an annotation or prose. `drupal/doc-type-namespace` fixes
 the types.
+
+**Compared with Coder:** the rule skips `use const` and grouped imports such as `use Foo\{Bar, Baz};`.
+Coder reports both, and phpcbf breaks the code there: it writes `\const` for a constant import and
+the group prefix for a grouped name. The rule also reports an import with a leading backslash, such
+as `use \DateTime;`. Coder's sniff skips it, and Coder reports that line only for the backslash,
+which `drupal/use-leading-backslash` covers.
 
 ## drupal/use-leading-backslash
 

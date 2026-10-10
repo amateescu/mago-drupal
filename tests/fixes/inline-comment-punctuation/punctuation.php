@@ -18,4 +18,8 @@ function inline_punctuation(): void
     $e = 5;
     // Ends well.
     $f = 6;
+    if ($f > 1) {
+        $f = 1;
+    } // End of the if, which stays as it is
+    $g = 7;
 }

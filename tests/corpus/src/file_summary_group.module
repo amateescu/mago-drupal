@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * @defgroup corpus_file_group Corpus file group
+ *
+ * A file docblock that opens a group needs no summary, as in Coder.
+ */
+
+declare(strict_types=1);

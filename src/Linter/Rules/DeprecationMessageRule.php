@@ -22,11 +22,8 @@ use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function in_array;
-use function ltrim;
-use function str_contains;
+use function preg_match;
 use function stripos;
-use function strtoupper;
-use function trim;
 
 /**
  * Checks the wording of the deprecation messages that trigger_error() gets.
@@ -123,13 +120,8 @@ final class DeprecationMessageRule implements Rule
         // straight off the call view.
         $arguments = Calls::positionalArguments($context->file, CallExpression::fromNode($context->file, $call));
 
-        // The constant can be fully qualified. The rule removes the leading
-        // backslash before the comparison.
         $level = $arguments[1] ?? null;
-        if (
-            $level === null
-            || strtoupper(ltrim(trim($context->file->getText($level)), characters: '\\')) !== 'E_USER_DEPRECATED'
-        ) {
+        if ($level === null || !DeprecationText::isDeprecationLevel($context->file, $level)) {
             return;
         }
 
@@ -174,11 +166,35 @@ final class DeprecationMessageRule implements Rule
      */
     private function declarationStandard(SourceFile $file, Node $declaration): DeprecationStandard
     {
-        $docblock = Docblocks::attachedTo($file, $declaration);
+        // A docblock can sit above, between or below the attributes. Coder
+        // takes the nearest one before the call.
+        $anchor = Docblocks::commentAnchor($file, $declaration);
 
-        return $docblock !== null && str_contains($file->getText($docblock), '@deprecated')
-            ? DeprecationStandard::Strict
-            : DeprecationStandard::Relaxed;
+        return $this->standardOf($file, Docblocks::attachedTo($file, $anchor));
+    }
+
+    /**
+     * Returns the wording standard that a docblock sets.
+     *
+     * A `@deprecated` tag sets the strict one. A mention of the tag inside
+     * the text is not a tag.
+     */
+    private function standardOf(SourceFile $file, ?Span $docblock): DeprecationStandard
+    {
+        if ($docblock === null) {
+            return DeprecationStandard::Relaxed;
+        }
+
+        // Coder takes any `@` word at the start of a line for a tag, also
+        // one indented under another tag, and lowercases it. The tags that
+        // Docblocks::tags() parses leave out the indented ones.
+        foreach (Docblocks::lines($file, $docblock) as $line) {
+            if (preg_match('/^[ \t]*@deprecated(?:\s|$)/i', $line->text) === 1) {
+                return DeprecationStandard::Strict;
+            }
+        }
+
+        return DeprecationStandard::Relaxed;
     }
 
     /**
@@ -199,9 +215,7 @@ final class DeprecationMessageRule implements Rule
                 continue;
             }
 
-            return str_contains($file->getText($trivia->span), '@deprecated')
-                ? DeprecationStandard::Strict
-                : DeprecationStandard::Relaxed;
+            return $this->standardOf($file, $trivia->span);
         }
 
         return DeprecationStandard::Relaxed;

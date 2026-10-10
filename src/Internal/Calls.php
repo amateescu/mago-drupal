@@ -38,6 +38,12 @@ final class Calls
         NodeKind::StaticMethodCall,
     ];
 
+    /**
+     * Node kinds whose first child is a function callee. A first-class
+     * callable such as `dpm(...)` has the same callee as a call.
+     */
+    private const FUNCTION_KINDS = [NodeKind::FunctionCall, NodeKind::FunctionPartialApplication];
+
     private const IDENTIFIER_KINDS = [
         NodeKind::Identifier,
         NodeKind::LocalIdentifier,
@@ -147,7 +153,7 @@ final class Calls
         $id = $node->id;
         if (!array_key_exists($id, $names)) {
             $name = null;
-            if ($node->kind === NodeKind::FunctionCall) {
+            if (in_array($node->kind, self::FUNCTION_KINDS, strict: true)) {
                 $imported = $file->getResolvedName($node);
                 if ($imported !== null && $imported->imported) {
                     $name = $imported->name;
@@ -194,7 +200,7 @@ final class Calls
      */
     public static function writtenNameFast(SourceFile $file, Node $node): ?string
     {
-        if ($node->kind === NodeKind::FunctionCall) {
+        if (in_array($node->kind, self::FUNCTION_KINDS, strict: true)) {
             return self::leadingIdentifier($file->contents, $node->span->start);
         }
 
@@ -287,7 +293,7 @@ final class Calls
     {
         $children = $file->getChildren($node);
 
-        if ($node->kind === NodeKind::FunctionCall) {
+        if (in_array($node->kind, self::FUNCTION_KINDS, strict: true)) {
             $callee = $children[0] ?? null;
             while (
                 $callee !== null

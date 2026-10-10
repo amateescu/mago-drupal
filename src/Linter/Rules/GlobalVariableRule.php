@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DrupalFile;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -82,7 +81,7 @@ final class GlobalVariableRule implements Rule
         return new RuleDefinition(
             code: 'drupal/global-variable',
             name: 'Global variable name',
-            description: "Reports module globals that do not start with an underscore and the module's name.",
+            description: 'Reports global variables that do not start with an underscore.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Global],
@@ -91,13 +90,8 @@ final class GlobalVariableRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // The naming convention covers the globals that a module owns. The
-        // rule examines only the procedural entry files of the module.
-        $file = DrupalFile::fromSource($context->file);
-        if (!$file->isModule() && !$file->isInstall()) {
-            return;
-        }
-
+        // Coder checks every `global` statement in every file it scans, class
+        // methods included, so the rule does not look at the file type.
         foreach ($context->file->getDescendants($context->node, NodeKind::DirectVariable) as $variable) {
             $name = $context->file->getText($variable);
             if (in_array($name, self::CORE_GLOBALS, strict: true) || str_starts_with($name, '$_')) {

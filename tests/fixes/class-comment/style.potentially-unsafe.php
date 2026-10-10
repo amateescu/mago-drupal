@@ -15,6 +15,12 @@ final class BlockComment
 {
 }
 
+#[\Attribute]
+// Holds the example attribute.
+final class BelowAttribute
+{
+}
+
 $x = 1; // A trailing comment of the line above.
 final class Trailing
 {

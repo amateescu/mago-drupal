@@ -28,6 +28,77 @@ function tagged_and_correct(): void {
   );
 }
 
+// A file-scope notice reads the next docblock, and its tag counts in any
+// letter case, so the strict wording applies.
+// @mago-expect lint:drupal/deprecation-message
+@trigger_error(
+  'DeprecationMessage.php is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
+  E_USER_DEPRECATED,
+);
+
+/**
+ * Stands in for a function whose tag is in upper case.
+ *
+ * @DEPRECATED in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().
+ *
+ * @see https://www.drupal.org/node/1234567
+ */
+function tagged_in_upper_case(): void {
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    'foo() is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+}
+
+// The next docblock names the tag in its text but has no tag, so the relaxed
+// wording applies here and in the function below.
+@trigger_error(
+  'DeprecationMessage.php is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
+  E_USER_DEPRECATED,
+);
+
+/**
+ * Stands in for a function whose text mentions @deprecated.
+ */
+function mentions_the_tag(): void {
+  @trigger_error(
+    'foo() is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+}
+
+/**
+ * Stands in for a function with its tag indented under another tag.
+ *
+ * @see https://www.drupal.org/node/1234567
+ *   @deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().
+ */
+function tagged_under_another_tag(): void {
+  // Coder takes an indented tag for a tag too.
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    'foo() is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+}
+
+#[CorpusAttribute]
+/**
+ * Stands in for a function with its docblock below an attribute.
+ *
+ * @deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().
+ *
+ * @see https://www.drupal.org/node/1234567
+ */
+function tagged_below_an_attribute(): void {
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    'foo() is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+}
+
 // @mago-expect lint:drupal/function-comment
 function relaxed_and_correct(): void {
   @trigger_error(
@@ -75,6 +146,121 @@ function fully_qualified_level(): void {
 }
 
 // @mago-expect lint:drupal/function-comment
+function combined_level(): void {
+  // Coder reads only the first name of the level.
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    'foo() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+    E_USER_DEPRECATED | E_USER_WARNING,
+  );
+}
+
+// @mago-expect lint:drupal/function-comment
+function starts_with_a_variable(string $name): void {
+  // Coder skips a message that starts with a variable, so the second one
+  // passes without its change record.
+  @trigger_error(
+    $name
+    . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+  @trigger_error(
+    $name . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+    E_USER_DEPRECATED,
+  );
+}
+
+// @mago-expect lint:drupal/function-comment
+function starts_with_an_interpolated_variable(string $name): void {
+  // The variable stays in the text as the thing that is deprecated.
+  @trigger_error(
+    "$name is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567",
+    E_USER_DEPRECATED,
+  );
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    "$name is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().",
+    E_USER_DEPRECATED,
+  );
+}
+
+// @mago-expect lint:drupal/function-comment
+function starts_with_a_magic_constant(): void {
+  // The constant's name stays in the text as the thing that is deprecated.
+  @trigger_error(
+    __FUNCTION__
+    . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED,
+  );
+  // @mago-expect lint:drupal/deprecation-message
+  @trigger_error(
+    __FUNCTION__ . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+    E_USER_DEPRECATED,
+  );
+}
+
+/**
+ * Starts deprecation messages with parts that need a class.
+ */
+final class DeprecationMessageStarts {
+
+  /**
+   * The name of the deprecated thing.
+   *
+   * @var string
+   */
+  private string $name = 'foo';
+
+  /**
+   * Starts the message with an interpolated property.
+   */
+  public function interpolatedProperty(): void {
+    @trigger_error(
+      "{$this->name} is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567",
+      E_USER_DEPRECATED,
+    );
+    // @mago-expect lint:drupal/deprecation-message
+    @trigger_error(
+      "{$this->name} is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().",
+      E_USER_DEPRECATED,
+    );
+  }
+
+  /**
+   * Starts the message with the method name.
+   */
+  public function methodName(): void {
+    @trigger_error(
+      __METHOD__
+      . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+      E_USER_DEPRECATED,
+    );
+    // @mago-expect lint:drupal/deprecation-message
+    @trigger_error(
+      __METHOD__ . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+      E_USER_DEPRECATED,
+    );
+  }
+
+  /**
+   * Starts the message with a class constant.
+   */
+  public function className(): void {
+    @trigger_error(
+      static::class
+      . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+      E_USER_DEPRECATED,
+    );
+    // @mago-expect lint:drupal/deprecation-message
+    @trigger_error(
+      static::class . ' is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar().',
+      E_USER_DEPRECATED,
+    );
+  }
+
+}
+
+// @mago-expect lint:drupal/function-comment
 function not_a_deprecation(): void {
   trigger_error('something went wrong', E_USER_WARNING);
 }
@@ -96,6 +282,16 @@ function unsilenced_with_a_named_level(): void {
   trigger_error(
     'foo() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
     error_level: E_USER_DEPRECATED,
+  );
+}
+
+// @mago-expect lint:drupal/function-comment
+function unsilenced_with_a_combined_level(): void {
+  // Coder reads only the first name of the level.
+  // @mago-expect lint:drupal/unsilenced-deprecation
+  trigger_error(
+    'foo() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use bar(). See https://www.drupal.org/node/1234567',
+    E_USER_DEPRECATED | E_USER_WARNING,
   );
 }
 

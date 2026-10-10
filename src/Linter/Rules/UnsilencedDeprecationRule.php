@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\DeprecationText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -18,10 +19,7 @@ use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
 use function in_array;
-use function ltrim;
 use function stripos;
-use function strtoupper;
-use function trim;
 
 /**
  * Reports a deprecation notice that is not silenced with `@`.
@@ -81,12 +79,7 @@ final class UnsilencedDeprecationRule implements Rule
         $expression = CallExpression::fromNode($file, $call);
         $level = Calls::argument($file, $expression, index: 1, parameter: 'error_level');
 
-        // The constant can be fully qualified, so the rule removes the
-        // leading backslash before the comparison.
-        return (
-            $level !== null
-            && strtoupper(ltrim(trim($file->getText($level)), characters: '\\')) === 'E_USER_DEPRECATED'
-        );
+        return $level !== null && DeprecationText::isDeprecationLevel($file, $level);
     }
 
     /**

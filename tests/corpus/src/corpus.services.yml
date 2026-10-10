@@ -1,0 +1,4 @@
+services:
+  corpus.global_function:
+    class: Drupal\corpus\GlobalFunctionService
+  Drupal\corpus\GlobalFunctionAutowired: ~

@@ -44,27 +44,15 @@ use function strtoupper;
  * Both of those run on every docblock, inside function bodies too. The end
  * of the long description is `drupal/long-description-punctuation`'s, since
  * core's `phpcs.xml.dist` turns that check off. A `phpcs:` line inside the
- * docblock is not part of a description, as Coder reads it. The description
- * of a file docblock is the text after its `@file` tag.
+ * docblock is not part of a description. Coder reads it the same way below
+ * the summary, but above it Coder finds no summary. The description of a
+ * file docblock is the text after its `@file` tag.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */
 final class DocCommentRule implements Rule
 {
-    /**
-     * Tags that can make up a docblock on their own, with no short
-     * description.
-     *
-     * A file comment may be the `@file` tag alone. That is why `file` is in
-     * this list. The exemption only applies to a docblock whose only tag is
-     * `@file`. A docblock that mixes `@file` with other tags must still have
-     * a leading short description. `var` is not in the list, although a
-     * `@var`-only property docblock is common. Coder's own sniff does not
-     * exempt it either, and reports `MissingShort` there.
-     */
-    private const EXEMPT_ONLY_TAGS = ['covers', 'coversdefaultclass', 'file'];
-
     /**
      * Tags that this rule checks for order. Each must also be in one group.
      */
@@ -124,26 +112,8 @@ final class DocCommentRule implements Rule
             return;
         }
 
-        foreach ($tags as $tag) {
-            if ($tag->name !== 'inheritdoc') {
-                continue;
-            }
-
-            // A stray closing brace, as in `@inheritdoc}`, goes into the
-            // replacement too, so the result does not end in two of them.
-            $replaced = $tag->nameSpan;
-            if (($context->file->contents[$replaced->end] ?? '') === '}') {
-                $replaced = new Span($replaced->start, $replaced->end + 1);
-            }
-
-            $context->report(Issue::new(
-                'Write @inheritdoc as {@inheritdoc}, with curly braces, to make it an inline tag.',
-                $tag->nameSpan,
-            )->withEdit(TextEdit::replace($replaced, '{@inheritdoc}')));
-        }
-
-        if ($summary === [] && !$this->exemptFromShortDescription($tags)) {
-            $context->report(Issue::new('The docblock has no short description.', $span));
+        if ($summary === []) {
+            $this->checkNoSummary($context, $span, $tags);
         }
 
         if ($summary !== []) {
@@ -167,24 +137,49 @@ final class DocCommentRule implements Rule
     }
 
     /**
-     * Whether a docblock can have no short description, because it only has
-     * tags that stand on their own.
+     * Checks a docblock with no short description from its first tag, or
+     * from the tag after a leading `@file`, as Coder does.
+     *
+     * `@covers` there needs no summary, as PHPUnit test methods often have
+     * none. A bare `@inheritdoc` there gets the braces report alone. Coder
+     * reads no other tag, so `@covers` followed by `@group` is fine, and an
+     * `@inheritdoc` further down is not reported. `OuterDocblocks::isGroup()`
+     * skips the group markers and `@coversDefaultClass`.
      *
      * @param list<DocblockTag> $tags
      */
-    private function exemptFromShortDescription(array $tags): bool
+    private function checkNoSummary(LintContext $context, Span $span, array $tags): void
     {
-        if ($tags === []) {
-            return false;
-        }
-
-        foreach ($tags as $tag) {
-            if (!in_array($tag->name, self::EXEMPT_ONLY_TAGS, strict: true)) {
-                return false;
+        $tag = $tags[0];
+        if ($context->file->getText($tag->nameSpan) === '@file') {
+            // A docblock with `@file` alone is fine. Coder reports it, but
+            // core has many of those and runs `MissingShort` only in tests.
+            if (count($tags) === 1) {
+                return;
             }
+
+            $tag = $tags[1];
         }
 
-        return true;
+        if ($tag->name === 'inheritdoc') {
+            // A stray closing brace, as in `@inheritdoc}`, goes into the
+            // replacement too, so the result does not end in two of them.
+            $replaced = $tag->nameSpan;
+            if (($context->file->contents[$replaced->end] ?? '') === '}') {
+                $replaced = new Span($replaced->start, $replaced->end + 1);
+            }
+
+            $context->report(Issue::new(
+                'Write @inheritdoc as {@inheritdoc}, with curly braces, to make it an inline tag.',
+                $tag->nameSpan,
+            )->withEdit(TextEdit::replace($replaced, '{@inheritdoc}')));
+
+            return;
+        }
+
+        if ($context->file->getText($tag->nameSpan) !== '@covers') {
+            $context->report(Issue::new('The docblock has no short description.', $span));
+        }
     }
 
     /**

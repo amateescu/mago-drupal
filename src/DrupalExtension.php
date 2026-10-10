@@ -39,6 +39,7 @@ use amateescu\MagoDrupal\Linter\Rules\FileStartWhitespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\FormAlterCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\FunctionNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\GenderNeutralCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalConstantRule;
@@ -127,6 +128,7 @@ final class DrupalExtension
         'drupal/const-prefix',
         'drupal/curl-ssl-verify',
         'drupal/form-alter-comment',
+        'drupal/function-name',
         'drupal/function-prefix',
         'drupal/global-constant',
         'drupal/hook-attribute-name',
@@ -243,6 +245,7 @@ final class DrupalExtension
             new FormAlterCommentRule(),
             new FullyQualifiedNameRule(),
             new FunctionCommentRule(),
+            new FunctionNameRule(),
             new FunctionPrefixRule(),
             new GenderNeutralCommentRule(),
             new GlobalConstantRule(),

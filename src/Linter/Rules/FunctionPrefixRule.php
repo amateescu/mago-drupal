@@ -11,6 +11,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function str_starts_with;
@@ -40,19 +41,43 @@ final class FunctionPrefixRule implements Rule
             description: 'Reports functions in a .module file whose name does not start with the module name.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
-            targets: [NodeKind::Function],
+            // The Program pass reads the functions from the target list. Only
+            // its snapshot has the classes around a function. The Function
+            // dispatches do nothing.
+            targets: [NodeKind::Program, NodeKind::Function],
         );
     }
 
     public function lint(LintContext $context): void
     {
+        if ($context->node->kind !== NodeKind::Program) {
+            return;
+        }
+
         // Coder checks only `.module` files, not `.install` or `.inc` files.
         $file = DrupalFile::fromSource($context->file);
         if (!$file->isModule()) {
             return;
         }
 
-        $identifier = Nodes::declaredIdentifier($context->file, $context->node);
+        foreach ($context->file->getTargetNodes() as $function) {
+            if (
+                $function->kind !== NodeKind::Function
+                || Nodes::isNestedInside($context->file, $function, $context->node, Nodes::CLASS_LIKE)
+            ) {
+                continue;
+            }
+
+            $this->check($context, $file, $function);
+        }
+    }
+
+    /**
+     * Reports one function whose name lacks the module prefix.
+     */
+    private function check(LintContext $context, DrupalFile $file, Node $function): void
+    {
+        $identifier = Nodes::declaredIdentifier($context->file, $function);
         if ($identifier === null) {
             return;
         }

@@ -39,9 +39,10 @@ use function trim;
  * directly after a closing brace is exempt. The ported sniff treats the
  * brace as the end of a block, not as a statement to comment on. A
  * trailing directive (`$x = foo(); // phpcs:ignore Some.Sniff`) is exempt
- * too. It must be on the line of the statement to work. Also, phpcs reads
- * its own annotations as non-comment tokens, so the ported sniff never
- * sees them.
+ * too, and so is a `@mago-`, `@phpstan-`, `@psalm-` or
+ * `@codingStandardsIgnore` comment. Each must be on the line of the
+ * statement to work. phpcs reads only its own annotations as non-comment
+ * tokens, so the ported sniff skips `phpcs:` and reports the others.
  *
  * The fix moves the comment to its own line above the statement's last
  * line, with that line's indent, as Coder's fixer does. It is left out

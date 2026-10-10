@@ -40,8 +40,7 @@ final class HookDocblock
                 continue;
             }
 
-            $anchor = new Node($function->id, $function->kind, $child->span, $function->parentId);
-            $closest = Docblocks::closest($file, $anchor);
+            $closest = Docblocks::closest($file, Docblocks::anchorAt($function, $child));
 
             return $closest !== null && $closest->kind === TriviaKind::DocBlockComment ? $closest->span : null;
         }

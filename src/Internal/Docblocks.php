@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Internal;
 
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
+use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
@@ -46,7 +47,10 @@ final class Docblocks
      */
     private const DIRECTIVE_PATTERN = '/\G[\/#* \t]*(?:@mago-|phpcs:|@codingStandardsIgnore|@phpstan-|@psalm-)/';
 
-    private const TAG_NAME_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+    /**
+     * The characters of a tag name after its `@`.
+     */
+    public const TAG_NAME_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
 
     /**
      * Splits a docblock into its lines and removes the comment markers.
@@ -221,6 +225,43 @@ final class Docblocks
         $tail = substr($file->contents, $cursor, $declaration->span->start - $cursor);
 
         return trim($tail) === '' ? $candidate : null;
+    }
+
+    /**
+     * Returns the declaration cut to start where its comment is, for
+     * `closest()`. The head is tried first, then each attribute list from
+     * the last up. The first one with a comment right above it wins. With
+     * none, the result is the declaration itself.
+     */
+    public static function commentAnchor(SourceFile $file, Node $declaration): Node
+    {
+        $children = $file->getChildren($declaration);
+        $head = 0;
+        while (($children[$head] ?? null)?->kind === NodeKind::AttributeList) {
+            ++$head;
+        }
+
+        // Coder's class, function and property comment sniffs walk back
+        // from the head over the attribute lists, so a docblock below an
+        // attribute list counts too. The first attribute list starts the
+        // declaration, so the fallback covers it.
+        for ($index = $head; $index > 0; --$index) {
+            $anchor = self::anchorAt($declaration, $children[$index]);
+            if (self::closest($file, $anchor) !== null) {
+                return $anchor;
+            }
+        }
+
+        return $declaration;
+    }
+
+    /**
+     * Returns the declaration cut to start at one of its children, so that
+     * `closest()` reads the comment above that child.
+     */
+    public static function anchorAt(Node $declaration, Node $child): Node
+    {
+        return new Node($declaration->id, $declaration->kind, $child->span, $declaration->parentId);
     }
 
     /**
@@ -544,8 +585,8 @@ final class Docblocks
     /**
      * Whether a stripped docblock line is a phpcs instruction, such as
      * `phpcs:ignore Drupal.Commenting.FunctionComment.Missing`. It is part of
-     * neither a description nor the tag above it. Coder skips it the same
-     * way.
+     * neither a description nor the tag above it. Coder reads a line below
+     * the summary the same way.
      */
     private static function isDirectiveLine(string $text): bool
     {

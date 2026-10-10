@@ -17,6 +17,33 @@ function gender_neutral_bad(): void {
 function gender_neutral_fine(): void {
 }
 
+// @mago-expect lint:drupal/gender-neutral-comment(2)
+/**
+ * Checks the configuration.
+ *
+ * He reads it first.
+ * Then she writes it back.
+ */
+function gender_neutral_docblock_lines_bad(): void {
+}
+
+// @mago-expect lint:drupal/gender-neutral-comment(2)
+/*
+ * He reads it first.
+ * Then she writes it back.
+ */
+// @mago-expect lint:drupal/function-comment
+function gender_neutral_block_lines_bad(): void {
+}
+
+/**
+ * Checks the configuration. Coder skips the name of a tag.
+ *
+ * @his
+ */
+function gender_neutral_tag_name_fine(): void {
+}
+
 // @mago-expect lint:drupal/function-comment
 function post_statement_bad(): void {
   // @mago-expect lint:drupal/post-statement-comment
@@ -48,6 +75,23 @@ function todo_bad(): void {
 function todo_fine(): void {
 }
 
+// @mago-expect lint:drupal/todo-comment(2)
+/*
+ @TODO Fix the first thing.
+ @todo: Fix the second thing.
+ */
+// @mago-expect lint:drupal/function-comment
+function todo_block_bad(): void {
+}
+
+/*
+ @todo Fix the first thing.
+ @todo Fix the second thing.
+ */
+// @mago-expect lint:drupal/function-comment
+function todo_block_fine(): void {
+}
+
 // @mago-expect lint:drupal/doc-comment-array-syntax
 /**
  * Demonstrates array syntax inside a @code example.
@@ -57,6 +101,30 @@ function todo_fine(): void {
  * @endcode
  */
 function doc_comment_array_syntax_bad(): void {
+}
+
+// @mago-expect lint:drupal/doc-comment-array-syntax
+/**
+ * Demonstrates array syntax on the @code line itself.
+ *
+ * @code $foo = array(1, 2, 3);
+ * $bar = $foo;
+ * @endcode
+ */
+function doc_comment_array_syntax_opener_line_bad(): void {
+}
+
+// @mago-expect lint:drupal/doc-comment-array-syntax
+/**
+ * Demonstrates array syntax inside an indented @code example.
+ *
+ * @param array $items
+ *   The items, such as:
+ *   @code
+ *   array(1, 2, 3)
+ *   @endcode
+ */
+function doc_comment_array_syntax_indented_bad(array $items): void {
 }
 
 /**
@@ -81,6 +149,22 @@ class CommentingLegacyTest {
    * @expectedException \Exception
    */
   public function expectedExceptionBad(): void {
+  }
+
+  // @mago-expect lint:drupal/expected-exception-tag
+  /**
+   * Stands in for a test method with the tag indented under another tag.
+   *
+   * @dataProvider providerValues
+   *   @expectedException \Exception
+   */
+  public function expectedExceptionIndentedBad(): void {
+  }
+
+  /**
+   * Stands in for a test method that names @expectedException mid-line.
+   */
+  public function expectedExceptionMidLineFine(): void {
   }
 
   // @mago-expect lint:drupal/function-comment
@@ -153,6 +237,20 @@ function comment_line_length_docblock(string $value): void {
  * @see https://www.drupal.org/docs/develop/standards/php/php-coding-standards#s-line-length-and-wrapping
  */
 function comment_line_length_exempt(string $value): void {
+}
+
+// @mago-expect lint:drupal/comment-line-length
+/**
+ * Shows an example with no @endcode, which the next tag ends.
+ *
+ * @code
+ * $result = comment_line_length_unclosed_example();
+ *
+ * @return int
+ *   A description of the value, written long enough to run past the eighty-character limit.
+ */
+function comment_line_length_unclosed_example(): int {
+  return 1;
 }
 
 // @mago-expect lint:drupal/comment-line-length

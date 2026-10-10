@@ -29,6 +29,15 @@ class InheritdocFix
     }
 
     /**
+     * Has a summary, so the bare tag below stays as it is.
+     *
+     * @inheritdoc
+     */
+    public function afterSummary(): void
+    {
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function alreadyInline(): void

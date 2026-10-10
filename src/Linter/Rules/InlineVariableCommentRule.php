@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -14,22 +15,19 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
-use function count;
-use function in_array;
 use function ltrim;
 use function preg_match;
-use function rtrim;
 use function str_contains;
 use function str_starts_with;
 use function strlen;
 use function strpos;
 use function strrpos;
-use function strspn;
 use function substr;
 use function trim;
 
@@ -37,11 +35,11 @@ use function trim;
  * Checks the style and word order of an inline `@var` type declaration.
  *
  * Ports Drupal.Commenting.InlineVariableComment. A `//` or `#` comment that
- * has `@var` in it must use `/** *\/` delimiters instead. One exception: a
- * comment directly before a declaration is the docblock of that declaration
- * in the wrong style. `drupal/class-comment`, `drupal/file-comment` and
- * `drupal/variable-comment` already report that problem. A real `@var`
- * docblock tag must have the type before the variable name.
+ * has `@var` in it must use `/** *\/` delimiters instead. A real `@var`
+ * docblock tag must have the type before the variable name. Both checks skip
+ * a comment or docblock directly before a declaration, as Coder does. That is
+ * the docblock of the declaration. `drupal/class-comment`,
+ * `drupal/file-comment` and `drupal/variable-comment` check its style.
  *
  * A variable name written before the type moves after it, when the whole
  * type can be read. A comment that holds only the tag, alone on its line,
@@ -53,14 +51,9 @@ use function trim;
  */
 final class InlineVariableCommentRule implements Rule
 {
-    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include|require)\b/';
+    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include(_once)?|require(_once)?)\b/';
 
     private const LOOKAHEAD = 40;
-
-    /**
-     * A variable name at the start of the text.
-     */
-    private const VARIABLE = '/^\$[A-Za-z_\x80-\xff][\w\x80-\xff]*/';
 
     private ?FileGate $gate = null;
 
@@ -92,12 +85,21 @@ final class InlineVariableCommentRule implements Rule
                         continue;
                     }
 
+                    // Coder skips every tag in the docblock of a declaration.
+                    if ($this->precedesADeclaration($context->file->contents, $trivia->span->end)) {
+                        break;
+                    }
+
                     $issue = Issue::new('Put the variable name after the type in a @var tag.', $tag->contentSpan());
-                    $swapped = count($tag->lines) === 1 ? self::typeFirst(trim($tag->content())) : null;
+                    // Like phpcbf, the swap reads only the tag's own line. The
+                    // lines below it stay as they are.
+                    $line = $tag->lines[0];
+                    $swapped = DocType::typeFirst(trim($line->text));
                     // Mago skips the tag in this order, so the swap gives the
                     // variable a type the analyzers start to trust.
                     if ($swapped !== null) {
-                        $edit = TextEdit::replace($tag->contentSpan(), $swapped)->withSafety(Safety::PotentiallyUnsafe);
+                        $span = new Span($line->offset, $line->offset + strlen($line->text));
+                        $edit = TextEdit::replace($span, $swapped)->withSafety(Safety::PotentiallyUnsafe);
                         $issue = $issue->withEdit($edit);
                     }
 
@@ -163,7 +165,7 @@ final class InlineVariableCommentRule implements Rule
         }
 
         $content = $matches[1];
-        $ordered = str_starts_with($content, '$') ? self::typeFirst($content) : self::typed($content);
+        $ordered = str_starts_with($content, '$') ? DocType::typeFirst($content) : self::typed($content);
 
         return $ordered === null ? null : '/** @var ' . $ordered . ' */';
     }
@@ -174,55 +176,13 @@ final class InlineVariableCommentRule implements Rule
     private static function typed(string $content): ?string
     {
         $type = DocType::leading($content);
-        if ($type === null || !self::isType($type)) {
+        if ($type === null || !DocType::whole($type)) {
             return null;
         }
 
         $rest = ltrim(substr($content, strlen($type)));
 
-        return preg_match(self::VARIABLE, $rest) === 1 ? $content : null;
-    }
-
-    /**
-     * The `@var` content with the type moved before a variable name written
-     * first, as in `$items array` to `array $items`, or null when no clean
-     * type follows the name.
-     */
-    private static function typeFirst(string $content): ?string
-    {
-        $name = [];
-        if (preg_match(self::VARIABLE, $content, $name) !== 1) {
-            return null;
-        }
-
-        $after = substr($content, strlen($name[0]));
-        $gap = strspn($after, characters: " \t");
-        if ($gap === 0) {
-            return null;
-        }
-
-        $remainder = substr($after, $gap);
-        $type = DocType::leading($remainder);
-        $next = ltrim(substr($remainder, $type === null ? 0 : strlen($type)));
-        // A type with a space before `|`, `&` or `:` would be cut in two.
-        if ($type === null || !self::isType($type) || in_array($next[0] ?? '', ['|', '&', ':'], strict: true)) {
-            return null;
-        }
-
-        return rtrim($type . ' ' . $name[0] . substr($remainder, strlen($type)));
-    }
-
-    /**
-     * Whether the text is a whole type: balanced, and not cut short after a
-     * union, intersection, return-type or list separator.
-     */
-    private static function isType(string $type): bool
-    {
-        return (
-            $type[0] !== '$'
-            && DocType::balanced($type)
-            && !in_array(substr($type, offset: -1), ['|', '&', ':', ','], strict: true)
-        );
+        return preg_match(DocType::VARIABLE, $rest) === 1 ? $content : null;
     }
 
     /**
@@ -269,8 +229,14 @@ final class InlineVariableCommentRule implements Rule
         return false;
     }
 
+    /**
+     * Whether the first code after $offset is a declaration keyword. Like
+     * Coder, it skips comments on the way.
+     */
     private function precedesADeclaration(string $contents, int $offset): bool
     {
-        return preg_match(self::DECLARATION_KEYWORDS, ltrim(substr($contents, $offset, self::LOOKAHEAD))) === 1;
+        $code = SourceText::skipBlank($contents, $offset);
+
+        return preg_match(self::DECLARATION_KEYWORDS, substr($contents, $code, self::LOOKAHEAD)) === 1;
     }
 }

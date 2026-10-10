@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\ImportPlan;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -26,11 +27,8 @@ use function preg_match;
 use function preg_match_all;
 use function preg_quote;
 use function str_contains;
-use function strcspn;
 use function strlen;
-use function strpbrk;
 use function strrpos;
-use function strspn;
 use function strtolower;
 use function substr;
 
@@ -58,11 +56,11 @@ use function substr;
  * class.
  *
  * The fix writes the fully qualified name in place of each imported short
- * name of the tag's type. It is left out for a type that does not start on
- * the tag's first line, for a docblock above the import, and for a file with
- * more than one namespace, whose imports belong to their own block. The
- * import goes only when every mention of its name in the file's docblocks
- * is rewritten.
+ * name in the tag's type, generic arguments included. It is left out for a
+ * type that is not all on the tag's first line, for a docblock above the
+ * import, and for a file with more than one namespace, whose imports belong
+ * to their own block. The import goes only when every mention of its name
+ * in the file's docblocks is rewritten.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -302,47 +300,43 @@ final class DocTypeNamespaceRule implements Rule
      */
     private function checkTag(DocblockTag $tag, array $imports, bool $fixable): ?array
     {
-        [$type] = Docblocks::splitType($tag->content());
+        $type = DocType::leading($tag->content());
         if ($type === null) {
             return null;
         }
 
-        // The edits need the type's offset, which is known when the type
-        // starts the tag's first line.
-        $line = $tag->lines[0];
-        $indent = strspn($line->text, characters: " \t");
-        $start = $fixable && substr($line->text, $indent, strlen($type)) === $type ? $line->offset + $indent : null;
+        // The edits need the type's offset, which is known when the whole
+        // type is on the tag's first line.
+        $start = $fixable ? $tag->typeStart($type) : null;
 
         $first = null;
         $edits = [];
         $names = [];
-        $position = 0;
-        // Most types are plain, and a plain type is one member.
-        $members = strpbrk($type, characters: '|<[?') === false ? [$type] : explode('|', $type);
-        foreach ($members as $segment) {
-            $nullable = strspn($segment, characters: '?');
-            $member = substr($segment, $nullable, strcspn($segment, characters: '<[', offset: $nullable));
-            $import = $imports[$member] ?? null;
-            if ($import !== null) {
-                [$fullyQualified, $useEnd] = $import;
-                $first ??= [$member, $fullyQualified];
-                if ($start !== null && $tag->nameSpan->start >= $useEnd) {
-                    $offset = $start + $position + $nullable;
-                    $edits[] = TextEdit::replace(new Span($offset, $offset + strlen($member)), '\\' . $fullyQualified);
-                    $names[] = $member;
-                }
+        // Keywords such as `int` and `class-string` come out as names too.
+        // PHP reserves the type keywords and allows no hyphen in a class
+        // name, so no import matches them.
+        foreach (DocType::names($type) as [$name, $position]) {
+            $import = $imports[$name] ?? null;
+            if ($import === null) {
+                continue;
             }
 
-            $position += strlen($segment) + 1;
+            [$fullyQualified, $useEnd] = $import;
+            $first ??= [$name, $fullyQualified];
+            if ($start !== null && $tag->nameSpan->start >= $useEnd) {
+                $offset = $start + $position;
+                $edits[] = TextEdit::replace(new Span($offset, $offset + strlen($name)), '\\' . $fullyQualified);
+                $names[] = $name;
+            }
         }
 
         if ($first === null) {
             return null;
         }
 
-        [$member, $fullyQualified] = $first;
+        [$name, $fullyQualified] = $first;
         $issue = Issue::new(
-            "{$member} is imported only for docblocks. Write \\{$fullyQualified} in the @{$tag->name} type and remove the import.",
+            "{$name} is imported only for docblocks. Write \\{$fullyQualified} in the @{$tag->name} type and remove the import.",
             $tag->contentSpan(),
         )->withHelp('Coder 9 reports an import that only docblocks use as unused, and phpcbf deletes it.');
         foreach ($edits as $edit) {

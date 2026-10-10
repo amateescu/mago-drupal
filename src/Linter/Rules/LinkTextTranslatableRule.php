@@ -11,7 +11,9 @@ use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\CallExpression;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 
 use function str_starts_with;
 
@@ -43,13 +45,20 @@ final class LinkTextTranslatableRule extends CallRule
     protected function inspect(LintContext $context, CallExpression $call, string $name): void
     {
         $text = $this->argument($context, $call, 0, parameter: 'text');
-        if ($text === null || $text->kind !== NodeKind::LiteralString) {
+        if ($text === null) {
+            return;
+        }
+
+        // Text that starts with a literal is still untranslated when the rest
+        // is a variable, so `'Edit ' . $title` counts too.
+        $first = self::firstOperand($context->file, $text);
+        if ($first->kind !== NodeKind::LiteralString) {
             return;
         }
 
         // Markup passed as link text is a render array label, not a
         // sentence. The rule skips it.
-        $value = Values::literalString($context->file, $text);
+        $value = Values::literalString($context->file, $first);
         if ($value === null || str_starts_with($value, '<')) {
             return;
         }
@@ -57,5 +66,25 @@ final class LinkTextTranslatableRule extends CallRule
         $context->report(Issue::new('Wrap the link text passed to l() in t().', $text->span)->withHelp(
             'Users see the link text, so it must be translatable.',
         ));
+    }
+
+    /**
+     * The operand that starts the link text. This is the first token that Coder reads.
+     */
+    private static function firstOperand(SourceFile $file, Node $text): Node
+    {
+        // A ternary starts with its condition, which can be a concatenation
+        // itself.
+        $first = Values::leftmost($file, $text);
+        while ($first->kind === NodeKind::Conditional) {
+            $condition = $file->getChildren($first)[0] ?? null;
+            if ($condition === null) {
+                break;
+            }
+
+            $first = Values::leftmost($file, Values::unwrap($file, $condition));
+        }
+
+        return $first;
     }
 }

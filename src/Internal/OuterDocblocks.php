@@ -38,9 +38,10 @@ final class OuterDocblocks
      *
      * A `@defgroup` or `@addtogroup` block is topic markup, not a
      * declaration's docblock. Its closing block is a bare `@}`. Coder skips
-     * all of these on the first content token alone. A group block that
-     * also holds `@section` or `@see` markup is thus still exempt. A check
-     * that every tag is exempt reports real api.php group blocks.
+     * all of these on the first content token alone, or on the token after a
+     * leading `@file`. A group block that also holds `@section` or `@see`
+     * markup is thus still exempt. A check that every tag is exempt reports
+     * real api.php group blocks.
      */
     private const GROUP_MARKERS = ['@defgroup', '@addtogroup', '@coversdefaultclass', '@}'];
 
@@ -124,9 +125,18 @@ final class OuterDocblocks
      */
     public static function isGroup(SourceFile $file, Span $span): bool
     {
+        $afterFile = false;
         foreach (Docblocks::lines($file, $span) as $line) {
             $text = trim($line->text);
             if ($text === '') {
+                continue;
+            }
+
+            // Coder reads the line after a leading `@file` that stands alone
+            // on its line.
+            if ($text === '@file' && !$afterFile) {
+                $afterFile = true;
+
                 continue;
             }
 

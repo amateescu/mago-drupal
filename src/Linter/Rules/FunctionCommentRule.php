@@ -28,7 +28,6 @@ use function array_values;
 use function count;
 use function in_array;
 use function ltrim;
-use function mb_strtoupper;
 use function mb_substr;
 use function preg_match;
 use function preg_match_all;
@@ -41,6 +40,7 @@ use function strlen;
 use function strpos;
 use function strrpos;
 use function strtolower;
+use function strtoupper;
 use function substr;
 use function trim;
 
@@ -93,6 +93,12 @@ final class FunctionCommentRule implements Rule
     private const PARAM_LINE = '/((?:(?![$.]|&(?=\$)).)*)(?:((?:\.\.\.)?(?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/';
 
     /**
+     * A `@param` line with no type, a variable and one word after it that
+     * can be a type, such as `$a int` or `&$a \Drupal\node\NodeInterface`.
+     */
+    private const VARIABLE_THEN_TYPE = '/^([ \t]*)((?:&|\.\.\.)*\$[A-Za-z_]\w*)([ \t]+)([\w\\\\|?\[\]]+)[ \t]*$/';
+
+    /**
      * A type that stays a single token for a class name or a union of them.
      */
     private const THROWS_TYPE = '/^[\w\\\\|]+$/';
@@ -118,7 +124,8 @@ final class FunctionCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $closest = Docblocks::closest($context->file, $context->node);
+        $anchor = Docblocks::commentAnchor($context->file, $context->node);
+        $closest = Docblocks::closest($context->file, $anchor);
         if ($closest === null) {
             // A constructor with nothing above it needs no docblock. One with
             // a comment above it is checked like any other method.
@@ -133,7 +140,7 @@ final class FunctionCommentRule implements Rule
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
             $issue = Issue::new('The function docblock must start with "/**".', $context->node->span);
-            $fix = CommentDocblock::edit($context->file, $closest, $context->node->span->start);
+            $fix = CommentDocblock::edit($context->file, $closest, $context->node, $anchor);
             $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
@@ -282,7 +289,9 @@ final class FunctionCommentRule implements Rule
     {
         $content = $tag->content();
         $matches = [];
-        if (preg_match('/\$[A-Za-z_][A-Za-z0-9_]*/', $content, $matches) !== 1) {
+        // The `&` of a reference and the `...` of a variadic parameter belong
+        // to the variable, as in Coder. `@param &$a` has no type.
+        if (preg_match('/(?:&|\.\.\.)*\$[A-Za-z_][A-Za-z0-9_]*/', $content, $matches) !== 1) {
             if (trim($content) !== '') {
                 $context->report(Issue::new('The @param tag has no $variable name.', $tag->contentSpan()));
             }
@@ -297,7 +306,7 @@ final class FunctionCommentRule implements Rule
         $rest = substr($content, $offset + strlen($variable));
 
         if ($type === '') {
-            $context->report(Issue::new('The @param tag has no type.', $tag->contentSpan()));
+            $context->report(self::missingType($tag));
         }
 
         TypeNames::checkParam($context, $tag, $type);
@@ -318,14 +327,40 @@ final class FunctionCommentRule implements Rule
             $context->report($issue);
         }
 
-        $description = ltrim($rest, characters: ". \t");
+        $description = $type === '' ? self::untypedDescription($tag, $rest) : ltrim($rest, characters: ". \t");
         if ($description === '') {
             $context->report(Issue::new('The @param tag has no description.', $tag->contentSpan()));
 
             return;
         }
 
-        $this->checkProseStart($context, $description, $tag->contentSpan(), 'param description');
+        // Coder checks the wording only when the tag has a type.
+        if ($type !== '') {
+            $this->checkParamWording($context, $tag, $tags, $variable, $description);
+        }
+    }
+
+    /**
+     * Checks that a `@param` description has a capital letter and ends with
+     * terminal punctuation.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    private function checkParamWording(
+        LintContext $context,
+        DocblockTag $tag,
+        array $tags,
+        string $variable,
+        string $description,
+    ): void {
+        // Coder wants an upper-case letter anywhere in the first line of the
+        // description, so `lower Case.` passes and `_lower.` does not.
+        if (preg_match('/\p{Lu}/u', self::firstLineBelow($tag, $variable) ?? $description) === 0) {
+            $context->report(Issue::new(
+                'The param description must start with a capital letter.',
+                $tag->contentSpan(),
+            ));
+        }
 
         // A description with an example after it ends on the example, not on
         // a sentence. The ported sniff exempts that.
@@ -338,6 +373,64 @@ final class FunctionCommentRule implements Rule
                 self::fullStop($tag),
             );
         }
+    }
+
+    /**
+     * The issue for a `@param` with no type. phpcbf moves a single word
+     * after the variable in front of it, as the type. The fix does the same
+     * when the word is made of type characters, so a one-word sentence such
+     * as `Done.` stays where it is.
+     */
+    private static function missingType(DocblockTag $tag): Issue
+    {
+        $issue = Issue::new('The @param tag has no type.', $tag->contentSpan());
+        $line = $tag->lines[0];
+        $matches = [];
+        if (preg_match(self::VARIABLE_THEN_TYPE, $line->text, $matches) !== 1) {
+            return $issue;
+        }
+
+        $start = $line->offset + strlen($matches[1]);
+        $end = $start + strlen($matches[2]) + strlen($matches[3]) + strlen($matches[4]);
+
+        return $issue->withEdit(TextEdit::replace(new Span($start, $end), $matches[4] . ' ' . $matches[2]));
+    }
+
+    /**
+     * The description of a `@param` with no type. Coder reads a single word
+     * after the variable on the tag's line as the type. In that case the
+     * description is the lines below.
+     */
+    private static function untypedDescription(DocblockTag $tag, string $rest): string
+    {
+        $matches = [];
+        preg_match(self::PARAM_LINE, $tag->lines[0]->text, $matches);
+        $after = trim($matches[4] ?? '');
+        if ($after !== '' && preg_match('/\s/', $after) !== 1) {
+            return self::textBelow($tag);
+        }
+
+        return ltrim($rest, characters: ". \t");
+    }
+
+    /**
+     * The first line of text below the line that holds the variable, or
+     * null when there is none. The variable is on the tag's own line unless
+     * the type spans several lines.
+     */
+    private static function firstLineBelow(DocblockTag $tag, string $variable): ?string
+    {
+        $below = false;
+        foreach ($tag->lines as $line) {
+            $text = trim($line->text);
+            if ($below && $text !== '') {
+                return $text;
+            }
+
+            $below = $below || str_contains($line->text, $variable);
+        }
+
+        return null;
     }
 
     /**
@@ -626,17 +719,14 @@ final class FunctionCommentRule implements Rule
 
             $deprecated = $deprecatedAt !== null && $index > $deprecatedAt;
 
-            if ($tag->content() === '') {
-                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
-
-                continue;
-            }
-
             // The reference is the tag's own line, as Coder reads it. The
             // lines below it are a description, which may end in a period.
+            // A tag with its reference on the next line counts as empty.
             $line = $tag->lines[0];
             $reference = rtrim($line->text);
             if (trim($reference) === '') {
+                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
+
                 continue;
             }
 
@@ -692,12 +782,14 @@ final class FunctionCommentRule implements Rule
     }
 
     /**
-     * Checks that free-form text starts with a capital letter.
+     * Checks that free-form text starts with a capital letter. Coder runs
+     * `strtoupper()` on the first byte, so only a lower-case ASCII letter is
+     * reported.
      */
     private function checkProseStart(LintContext $context, string $text, Span $span, string $label): void
     {
-        $first = mb_substr($text, start: 0, length: 1);
-        if ($first !== mb_strtoupper($first)) {
+        $first = substr($text, offset: 0, length: 1);
+        if ($first !== strtoupper($first)) {
             $context->report(Issue::new("The {$label} must start with a capital letter.", $span));
         }
     }

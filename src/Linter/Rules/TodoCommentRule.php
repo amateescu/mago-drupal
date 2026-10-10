@@ -16,6 +16,7 @@ use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
+use function explode;
 use function preg_match;
 use function strlen;
 use function strspn;
@@ -92,7 +93,13 @@ final class TodoCommentRule implements Rule
                 continue;
             }
 
-            $this->check($context, $context->file->getText($trivia->span), $trivia->span->start);
+            // Coder reads each line of a `/* */` comment as its own token,
+            // so every line gets its own check, issue and fix.
+            $offset = $trivia->span->start;
+            foreach (explode("\n", $context->file->getText($trivia->span)) as $line) {
+                $this->check($context, $line, $offset);
+                $offset += strlen($line) + 1;
+            }
         }
     }
 

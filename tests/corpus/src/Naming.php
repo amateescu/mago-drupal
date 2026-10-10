@@ -154,15 +154,24 @@ enum Status {
 
   case Enabled;
 
-  // @mago-expect lint:drupal/enum-case-name
+  // A lower-case start and an underscore are two issues.
+  // @mago-expect lint:drupal/enum-case-name(2)
   case not_enabled;
 
   // @mago-expect lint:drupal/enum-case-name
   case Half_Enabled;
 
+  // An underscore and an acronym are two issues.
+  // @mago-expect lint:drupal/enum-case-name(2)
+  case ABC_D;
+
+  // A leading underscore is not a capital letter.
+  // @mago-expect lint:drupal/enum-case-name(2)
+  case _Foo;
+
   // The attribute's identifier comes first in the subtree.
   // This pins the rule to the case name rather than the attribute name.
-  // @mago-expect lint:drupal/enum-case-name
+  // @mago-expect lint:drupal/enum-case-name(2)
   #[CorpusAttribute]
   case attributed_bad_name;
 

@@ -11,7 +11,12 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
+
+use function array_pop;
+use function count;
 
 /**
  * Reports an exception message wrapped in t().
@@ -45,12 +50,22 @@ final class TranslatedExceptionRule implements Rule
             return;
         }
 
-        $instantiation = $context->file->getFirstDescendant($context->node, NodeKind::Instantiation);
-        if ($instantiation === null) {
+        $new = self::firstNew($context->file, $context->node);
+        if ($new === null) {
             return;
         }
 
-        $call = Calls::findFirst($context->file, $instantiation, ['t']);
+        // An anonymous class node also holds the class body. Coder reads
+        // only the first parentheses after `new`, so only the constructor
+        // arguments count.
+        if ($new->kind === NodeKind::AnonymousClass) {
+            $new = self::constructorArguments($context->file, $new);
+            if ($new === null) {
+                return;
+            }
+        }
+
+        $call = Calls::findFirst($context->file, $new, ['t']);
         if ($call === null) {
             return;
         }
@@ -58,5 +73,44 @@ final class TranslatedExceptionRule implements Rule
         $context->report(Issue::new('Do not translate an exception message.', $call->span)->withHelp(
             'Developers read exception text in logs. A translation hides the original text.',
         ));
+    }
+
+    /**
+     * Returns the first `new` expression in a subtree, in source order.
+     *
+     * `new class(...)` is an AnonymousClass node, not an Instantiation.
+     */
+    private static function firstNew(SourceFile $file, Node $node): ?Node
+    {
+        $stack = [$node];
+        while (($current = array_pop($stack)) !== null) {
+            if ($current->kind === NodeKind::Instantiation || $current->kind === NodeKind::AnonymousClass) {
+                return $current;
+            }
+
+            $children = $file->getChildren($current);
+            for ($index = count($children) - 1; $index >= 0; --$index) {
+                $stack[] = $children[$index];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the constructor argument list of an anonymous class, or NULL.
+     *
+     * The list is a direct child. Without one, a search over all
+     * descendants reaches into the class body.
+     */
+    private static function constructorArguments(SourceFile $file, Node $class): ?Node
+    {
+        foreach ($file->getChildren($class) as $child) {
+            if ($child->kind === NodeKind::PartialArgumentList) {
+                return $child;
+            }
+        }
+
+        return null;
     }
 }

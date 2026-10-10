@@ -21,10 +21,25 @@ use function trim;
 /**
  * Structural lookups on declaration nodes.
  *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
+ *
  * @internal
  */
 final class Nodes
 {
+    /**
+     * The class-like declarations. Coder checks a function name only outside
+     * them.
+     */
+    public const CLASS_LIKE = [
+        NodeKind::Class_,
+        NodeKind::Interface,
+        NodeKind::Trait,
+        NodeKind::Enum,
+        NodeKind::AnonymousClass,
+    ];
+
     private function __construct() {}
 
     /**
@@ -95,6 +110,31 @@ final class Nodes
         }
 
         return null;
+    }
+
+    /**
+     * The names in a class-like's extends or implements clause, as written.
+     *
+     * @return list<string>
+     */
+    public static function clauseNames(SourceFile $file, Node $class, NodeKind $clause): array
+    {
+        $names = [];
+        foreach ($file->getChildren($class) as $child) {
+            if ($child->kind !== $clause) {
+                continue;
+            }
+
+            foreach ($file->getChildren($child) as $name) {
+                if ($name->kind !== NodeKind::Identifier) {
+                    continue;
+                }
+
+                $names[] = $file->getText($name);
+            }
+        }
+
+        return $names;
     }
 
     /**

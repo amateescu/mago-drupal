@@ -85,6 +85,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/form-alter-comment' => [Level::Warning, true],
             'drupal/fully-qualified-name' => [Level::Error, true],
             'drupal/function-comment' => [Level::Error, true],
+            'drupal/function-name' => [Level::Error, true],
             'drupal/function-prefix' => [Level::Error, true],
             'drupal/gender-neutral-comment' => [Level::Warning, true],
             'drupal/global-constant' => [Level::Warning, true],

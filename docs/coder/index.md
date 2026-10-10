@@ -28,15 +28,17 @@ rulesets exclude are not listed, and neither are codes that Coder never reports.
 | Part of the standard | Checked by |
 | --- | --- |
 | Whitespace, indentation, braces, code line width, docblock star alignment | `mago format` |
-| Class, interface, function and file naming | Mago's naming rules |
+| Class, interface and file naming | Mago's naming rules |
 | Function aliases, unused imports | `no-alias-function`, `no-redundant-use`, enabled by default |
 | Unreachable code, deprecated PHP functions, wrong `@param` and `@return` types | `mago analyze` |
 | Everything specific to Drupal | This extension |
 
 Two checks still need phpcs:
 
-- `Drupal.InfoFiles.*` and `DrupalPractice.InfoFiles.NamespacedDependency` check `.info.yml` files.
-  Mago cannot report an issue in a YAML file.
+- `Drupal.InfoFiles.AutoAddedKeys`, `Drupal.InfoFiles.DependenciesArray` and
+  `DrupalPractice.InfoFiles.NamespacedDependency` check `.info.yml` files. Mago cannot report an
+  issue in a YAML file. The other `Drupal.InfoFiles` sniffs check only the `.info` files of
+  Drupal 7.
 - `DrupalPractice.Objects.GlobalDrupal` reports a `\Drupal::service()` call where injection is
   possible. That check needs the analyzer, not a linter rule.
 

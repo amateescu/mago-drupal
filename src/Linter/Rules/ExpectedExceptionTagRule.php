@@ -10,11 +10,16 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function in_array;
 use function stripos;
+use function strlen;
+use function strspn;
+use function strtolower;
+use function substr;
 
 /**
  * Reports the legacy PHPUnit `@expectedException*` docblock tags.
@@ -58,14 +63,28 @@ final class ExpectedExceptionTagRule implements Rule
                 continue;
             }
 
-            foreach (Docblocks::tags($context->file, $trivia->span) as $tag) {
-                if (!in_array($tag->name, self::TAGS, strict: true)) {
+            // phpcs finds a tag at the start of every docblock line, at any
+            // indent. Docblocks::tags() puts a tag indented under another tag
+            // into that tag's text, so this scans the lines instead.
+            foreach (Docblocks::lines($context->file, $trivia->span) as $line) {
+                $at = strspn($line->text, characters: " \t");
+                if (($line->text[$at] ?? '') !== '@') {
                     continue;
                 }
 
+                $name = substr(
+                    $line->text,
+                    offset: $at + 1,
+                    length: strspn($line->text, Docblocks::TAG_NAME_CHARACTERS, offset: $at + 1),
+                );
+                if (!in_array(strtolower($name), self::TAGS, strict: true)) {
+                    continue;
+                }
+
+                $start = $line->offset + $at;
                 $context->report(Issue::new(
-                    "Do not use @{$tag->name}. Use \$this->expectException() and the related methods instead.",
-                    $tag->nameSpan,
+                    "Do not use @{$name}. Use \$this->expectException() and the related methods instead.",
+                    new Span($start, $start + 1 + strlen($name)),
                 )->withLink('https://thephp.cc/news/2016/02/questioning-phpunit-best-practices'));
             }
         }

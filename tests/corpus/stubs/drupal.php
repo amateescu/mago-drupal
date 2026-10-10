@@ -114,6 +114,24 @@ namespace Drupal\Core\Hook\Attribute {
     }
 }
 
+namespace Drupal\Component\Annotation {
+    interface AnnotationInterface {}
+
+    abstract class Plugin implements AnnotationInterface {}
+}
+
+namespace Drupal\Core\Config\Entity {
+    abstract class ConfigEntityBase {}
+}
+
+namespace Drupal\Core\Form {
+    abstract class FormBase {}
+}
+
+namespace Drupal\Core\DependencyInjection {
+    interface ContainerInjectionInterface {}
+}
+
 namespace Drupal\Component\Serialization {
     class Yaml
     {

@@ -23,8 +23,8 @@ final class Values
     /**
      * Returns the decoded value of a literal-string node.
      *
-     * If the snapshot sends a raw literal, the result is the text without
-     * its quotes.
+     * Linter snapshots hold no decoded values. The value is then read from
+     * the source text the way PHP reads it.
      */
     public static function literalString(SourceFile $file, Node $node): ?string
     {
@@ -32,7 +32,7 @@ final class Values
             return null;
         }
 
-        return $file->getLiteralString($node) ?? trim($file->getText($node), characters: '\'"');
+        return $file->getLiteralString($node) ?? QuotedStrings::value($file->getText($node));
     }
 
     /**

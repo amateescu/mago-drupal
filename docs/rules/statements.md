@@ -7,7 +7,7 @@ are declared.
 
 - **Level:** error
 - **Fix:** safe. It adds the line, or removes the extra ones.
-- **Ports:** `Squiz.ControlStructures.SwitchDeclaration.SpacingAfterBreak`
+- **Ports:** `Squiz.ControlStructures.SwitchDeclaration.SpacingAfterBreak` (partly)
 
 A `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and is
 not followed by exactly one blank line. A comment on the statement's line does not count, and one
@@ -122,8 +122,13 @@ Operands match by syntax tree, so quotes, spacing and parentheses do not matter,
 the same before and after `mago format`.
 
 The fix writes `X ?? B` when X is a plain variable, property, index or constant read and B does
-not need parentheses after `??`. A call as X, a side effect in an index, or a cast before `isset`
-is reported without a fix.
+not need parentheses after `??`. These are reported without a fix:
+
+- an X that is a call, a variable variable such as `$$a`, or a property with its name in braces,
+  such as `$a->{$b}`;
+- a side effect in an index, or a cast before `isset`;
+- a B without parentheses that is a ternary, an assignment, or a `throw`, `print`, `yield`,
+  `include` or `require` expression.
 
 **Compared with Coder:**
 
@@ -137,6 +142,8 @@ is reported without a fix.
   fix would change the result.
 - It does not report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an
   `(array)` or `(object)` cast before `isset`, which always gives `true`.
+- It also reports `X === null ? B : X` where B is a ternary without parentheses, such as
+  `$a === null ? $b ?: 1 : $a`, and reports B as well when B matches. The sniff reports neither.
 - The sniff's fix drops comments and casts without notice. Here a comment makes the fix
   potentially unsafe, and a cast gets no fix.
 
@@ -191,7 +198,7 @@ A property declared with `var`, or declared without `public`, `protected` or `pr
 `static $count;`.
 
 **Compared with Coder:** a `var` property is reported once. Coder 9 also reports the missing
-visibility.
+visibility. phpcbf has no fix for a property declared without a visibility.
 
 ## drupal/redundant-return
 
@@ -210,6 +217,7 @@ or `switch`, a `return` with a value, and one that code follows are fine.
   changes the loop. Coder reports it.
 - It reports a `return;` that ends a `{ }` block at the end of a body. Coder stops with an internal
   exception there and loses the rest of the file's reports.
+- Coder has no fix for the statement.
 
 ## drupal/short-list
 

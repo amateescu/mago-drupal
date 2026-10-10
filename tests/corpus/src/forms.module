@@ -52,6 +52,7 @@ function forms_blank_line_below(array &$form): void {
  * Implements hook_form_alter().
  */
 // @mago-expect lint:drupal/function-prefix
+// @mago-expect lint:drupal/function-name
 function Forms_Form_Alter(array &$form): void {
 }
 

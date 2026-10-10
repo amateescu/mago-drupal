@@ -11,4 +11,11 @@ class PropertyStyle
      * The weight.
      */
     public int $weight = 0;
+
+    /**
+     * The size.
+     */
+    #[Size]
+    // Between the attribute and the property.
+    public int $size = 0;
 }

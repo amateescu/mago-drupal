@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
-use function format_date;
 use function t;
 
 /**
@@ -28,20 +27,15 @@ class Practice {
   }
 
   // @mago-expect lint:drupal/function-comment
-  public function proceduralCall(int $timestamp): string {
-    // @mago-expect lint:drupal/global-function
-    return format_date($timestamp);
+  public function translatedAnonymousException(): never {
+    // The rule reads the constructor arguments of an anonymous class too.
+    // @mago-expect lint:drupal/translated-exception
+    throw new class($this->t('This should not be translated.')) extends \RuntimeException {};
   }
 
   // @mago-expect lint:drupal/function-comment
-  public function fullyQualifiedProceduralCall(int $timestamp): string {
-    // @mago-expect lint:drupal/global-function
-    return \format_date($timestamp);
-  }
-
-  // @mago-expect lint:drupal/function-comment
-  public static function staticCallIsExempt(int $timestamp): string {
-    return format_date($timestamp);
+  public function plainAnonymousException(): never {
+    throw new class('This is fine.') extends \RuntimeException {};
   }
 
   /**
@@ -66,8 +60,16 @@ class Practice {
     unserialize($payload, ['max_depth' => 2]);
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($payload, ['allowed_classes' => TRUE]);
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, array('allowed_classes' => TRUE));
+    // A leading backslash names the same constant.
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, ['allowed_classes' => \TRUE]);
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, ['allowed_classes' => \true]);
 
     unserialize($payload, ['allowed_classes' => FALSE]);
+    unserialize($payload, array('allowed_classes' => FALSE));
     unserialize($payload, ['allowed_classes' => [self::class]]);
 
     // PHP binds this by parameter name, so the options are there.
@@ -127,8 +129,9 @@ class Practice {
   }
 
   // @mago-expect lint:drupal/function-comment
-  public function globalInAClassFileIsNotChecked(): void {
-    // drupal/global-variable only fires in .module and .install files.
+  public function globalInAClassMethod(): void {
+    // drupal/global-variable checks a class method too.
+    // @mago-expect lint:drupal/global-variable
     global $corpus_unprefixed;
 
     $corpus_unprefixed = [];

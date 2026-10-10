@@ -16,6 +16,22 @@ function legacy_form_alter(array &$form, array $form_state): void {
 
   $form['ok'] = l(t('Read the docs'), 'https://example.com');
 
+  $topic = t('Forms');
+
+  // A literal followed by a variable is still untranslated.
+  // @mago-expect lint:drupal/link-text-translatable
+  $form['topic'] = l('Read about ' . $topic, 'https://example.com');
+
+  // A ternary starts with its condition, so Coder reads the literal there.
+  // @mago-expect lint:drupal/link-text-translatable
+  $form['mode'] = l('Forms' === $topic ? 'Read the docs' : 'Docs', 'https://example.com');
+
+  // The literal is not the first operand.
+  $form['suffix'] = l($topic . ' docs', 'https://example.com');
+
+  // Markup at the start is a label, not a sentence.
+  $form['markup'] = l('<em>' . $topic . '</em>', 'https://example.com');
+
   // @mago-expect lint:drupal/watchdog-message
   watchdog('legacy', t('Form altered.'));
 

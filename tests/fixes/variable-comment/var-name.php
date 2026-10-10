@@ -20,6 +20,20 @@ class VarName
     public $weight = 0;
 
     /**
+     * The weights by name.
+     *
+     * @var array<string, int> $weights
+     */
+    public $weights = [];
+
+    /**
+     * The sort callback.
+     *
+     * @var callable(int, int): int $sort The comparison.
+     */
+    public $sort;
+
+    /**
      * Names another property.
      *
      * @var int $other
