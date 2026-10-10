@@ -3,10 +3,10 @@
         "sniff": "Drupal.Arrays.Array",
         "standard": "Drupal",
         "where": ["format"],
-        "note": "The drupal preset writes the trailing comma, the indentation and the line breaks of a long array. A few nested layouts still differ.",
+        "note": "The drupal preset writes the trailing comma, the indentation and the line breaks of a long array.",
         "codes": [
-            {"code": "ArrayClosingIndentation", "status": "format"},
-            {"code": "ArrayIndentation", "status": "format"},
+            {"code": "ArrayClosingIndentation", "status": "partial", "note": "An array that opens on a continuation line gets the indent of the statement's first line. Coder counts from the line the array opens on, and reports its items and closing bracket."},
+            {"code": "ArrayIndentation", "status": "partial", "note": "When the value after `=>` breaks over lines, such as a long condition, the formatter writes the next lines at the key's indent. Coder wants them one level deeper."},
             {"code": "CommaLastItem", "status": "format"},
             {"code": "LongLineDeclaration", "status": "format"}
         ]
@@ -36,7 +36,7 @@
             {"code": "ImplementsLine", "status": "format"},
             {"code": "InterfaceSameLine", "status": "format"},
             {"code": "InterfaceWrongIndent", "status": "format"},
-            {"code": "MissingBrace", "status": "format"},
+            {"code": "MissingBrace", "status": "report", "where": ["lint:parse"], "note": "A class without braces does not parse. Mago reports a `parse` error, and the formatter skips the file."},
             {"code": "NewlineBeforeKeyword", "status": "format"},
             {"code": "NoSpaceBeforeName", "status": "format"},
             {"code": "OpenBraceNewLine", "status": "format"},
@@ -365,7 +365,6 @@
         "sniff": "Drupal.Formatting.SpaceUnaryOperator",
         "standard": "Drupal",
         "where": ["format"],
-        "note": "The formatter can break a long `!(...)` condition after the `!`, which Coder then reports.",
         "codes": [
             {"code": "BooleanNot", "status": "format"},
             {"code": "IncDecLeft", "status": "format"},
@@ -418,6 +417,7 @@
         "sniff": "Drupal.InfoFiles.ClassFiles",
         "standard": "Drupal",
         "where": ["phpcs"],
+        "note": "Checks the `files[]` lines of a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files.",
         "codes": [
             {"code": "DeclaredFileNotFound", "status": "phpcs"},
             {"code": "UnnecessaryFileDeclaration", "status": "phpcs"}
@@ -435,6 +435,7 @@
         "sniff": "Drupal.InfoFiles.DuplicateEntry",
         "standard": "Drupal",
         "where": ["phpcs"],
+        "note": "Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files.",
         "codes": [
             {"code": "DuplicateEntry", "status": "phpcs"}
         ]
@@ -443,6 +444,7 @@
         "sniff": "Drupal.InfoFiles.Required",
         "standard": "Drupal",
         "where": ["phpcs"],
+        "note": "Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files.",
         "codes": [
             {"code": "Core", "status": "phpcs"},
             {"code": "D7PHPVersion", "status": "phpcs"},
@@ -474,13 +476,13 @@
         "sniff": "Drupal.NamingConventions.ValidFunctionName",
         "standard": "Drupal",
         "where": ["lint:function-name"],
-        "note": "Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the README does not turn it on.",
+        "note": "Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the configuration in Setup does not turn it on. When on, it accepts a run of capitals, as in `getURL()`, which Coder reports.",
         "codes": [
             {"code": "InvalidName", "status": "partial", "note": "Coder only wants a lower-case name. Mago's `function-name` wants snake case, so it also reports a name with a leading, trailing or doubled underscore, such as `_mymodule_helper()`. With `either = true` it accepts a camelCase name, which Coder reports."},
             {"code": "InvalidPrefix", "status": "report", "where": ["ext:drupal/function-prefix"]},
             {"code": "MethodDoubleUnderscore", "status": "report", "where": ["ext:drupal/method-name-underscore"]},
-            {"code": "NotCamelCaps", "status": "gap", "where": ["lint:method-name"], "note": "Mago's `method-name` rule, off by default. The README does not turn it on."},
-            {"code": "ScopeNotCamelCaps", "status": "gap", "where": ["lint:method-name"], "note": "Mago's `method-name` rule, off by default. The README does not turn it on."}
+            {"code": "NotCamelCaps", "status": "gap", "where": ["lint:method-name"]},
+            {"code": "ScopeNotCamelCaps", "status": "gap", "where": ["lint:method-name"]}
         ]
     },
     {
@@ -497,7 +499,7 @@
         "where": ["ext:drupal/property-name"],
         "codes": [
             {"code": "LowerCamelName", "status": "report"},
-            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The README does not turn it on. It checks for camel or snake case, not for a lower-case first letter, and skips `foreach`, `catch`, `static` and `global` variables."}
+            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup does not turn it on. It checks for camel or snake case, not for a lower-case first letter, and skips `foreach`, `catch`, `static` and `global` variables."}
         ]
     },
     {
@@ -529,9 +531,9 @@
         "sniff": "Drupal.Semantics.FunctionAlias",
         "standard": "Drupal",
         "where": ["lint:no-alias-function"],
-        "note": "Mago's rule, on by default, with a fix.",
+        "note": "Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.",
         "codes": [
-            {"code": "FunctionAlias", "status": "report"}
+            {"code": "FunctionAlias", "status": "fix"}
         ]
     },
     {
@@ -674,7 +676,7 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
-            {"code": "OpeningWhitespace", "status": "format"}
+            {"code": "OpeningWhitespace", "status": "partial", "note": "The formatter writes a space between an opening bracket and a comment that follows it, as in `foo( /* note */ $x)`, and Coder reports that space."}
         ]
     },
     {
@@ -691,7 +693,7 @@
         "where": ["format"],
         "codes": [
             {"code": "BreakIndent", "status": "format"},
-            {"code": "Indent", "status": "format"},
+            {"code": "Indent", "status": "partial", "note": "A closing brace after inline HTML, on a `<?php }` line, keeps the indent of the HTML. The formatter does not change it, and Coder reports it."},
             {"code": "Line", "status": "format"}
         ]
     },
@@ -699,10 +701,10 @@
         "sniff": "Drupal.WhiteSpace.ScopeIndent",
         "standard": "Drupal",
         "where": ["format"],
-        "note": "The formatter writes the indentation. A few layouts it writes differ from what Coder expects.",
+        "note": "The formatter writes the indentation.",
         "codes": [
             {"code": "Incorrect", "status": "format"},
-            {"code": "IncorrectExact", "status": "format"}
+            {"code": "IncorrectExact", "status": "partial", "note": "The formatter puts a comment that ends a `case` body, such as `// Fall-through.`, at the indent of the `case` label, and Coder reports it."}
         ]
     },
     {
@@ -788,17 +790,17 @@
         "sniff": "Generic.NamingConventions.ConstructorName",
         "standard": "Drupal",
         "where": ["none"],
-        "note": "A PHP 4 constructor named after its class. Not ported yet. Since PHP 8 such a method is an ordinary method.",
+        "note": "A PHP 4 constructor named after its class. Not ported. Since PHP 8 such a method is an ordinary method.",
         "codes": [
             {"code": "OldStyle", "status": "gap"},
-            {"code": "OldStyleCall", "status": "gap", "note": "A call to such a constructor through `parent::`. Not ported yet."}
+            {"code": "OldStyleCall", "status": "gap", "note": "A call to such a constructor through `parent::`. Not ported."}
         ]
     },
     {
         "sniff": "Generic.NamingConventions.InterfaceNameSuffix",
         "standard": "Drupal",
         "where": ["lint:interface-name"],
-        "note": "With `interface-name = { psr = true }`.",
+        "note": "With `interface-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that is not in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
         "codes": [
             {"code": "Missing", "status": "report"}
         ]
@@ -825,7 +827,7 @@
         "sniff": "Generic.PHP.DeprecatedFunctions",
         "standard": "Drupal",
         "where": ["analyze:deprecated-function"],
-        "note": "Mago's stub for `strptime()` has no deprecation, so the analyzer does not report it.",
+        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` has no deprecation, so the analyzer does not report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
         "codes": [
             {"code": "Deprecated", "status": "report"}
         ]
@@ -837,7 +839,7 @@
         "codes": [
             {"code": "EchoFound", "status": "fix", "where": ["ext:drupal/short-echo-tag"]},
             {"code": "Found", "status": "fix", "note": "Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix writes no space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which does not parse."},
-            {"code": "PossibleFound", "status": "report"}
+            {"code": "PossibleFound", "status": "fix", "note": "Mago always reads `<?` as an opening tag, so a `<?` in HTML text that is not PHP code gives parse errors."}
         ]
     },
     {
@@ -871,8 +873,8 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
-            {"code": "NonIndentTabsUsed", "status": "format"},
-            {"code": "TabsUsed", "status": "format"}
+            {"code": "NonIndentTabsUsed", "status": "partial", "note": "The formatter keeps comment text as written, so a tab inside a comment stays."},
+            {"code": "TabsUsed", "status": "partial", "note": "The formatter does not change the indent of HTML outside the PHP tags."}
         ]
     },
     {
@@ -881,7 +883,7 @@
         "where": ["format"],
         "codes": [
             {"code": "Incorrect", "status": "format"},
-            {"code": "IncorrectSingle", "status": "partial", "note": "The formatter can break a long expression right after `print`, which Coder reports."},
+            {"code": "IncorrectSingle", "status": "partial", "note": "The formatter can break a long expression right after `echo`, `print`, `include`, `include_once`, `require` or `require_once`, which Coder reports."},
             {"code": "IncorrectYieldFrom", "status": "format"},
             {"code": "IncorrectYieldFromWithComment", "status": "report", "where": ["ext:drupal/comment-in-expression"]}
         ]
@@ -943,6 +945,7 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
+            {"code": "BodyOnNextLineDEFAULT", "status": "format"},
             {"code": "BreakNotNewLine", "status": "format"},
             {"code": "caseNotLower", "status": "format"},
             {"code": "defaultNotLower", "status": "format"},
@@ -1038,6 +1041,7 @@
         "sniff": "SlevomatCodingStandard.Namespaces.UseFromSameNamespace",
         "standard": "Drupal",
         "where": ["lint:no-redundant-use"],
+        "note": "Mago also reports each name in a group import and each name after the first in a comma list. Coder skips those.",
         "codes": [
             {"code": "UseFromSameNamespace", "status": "fix"}
         ]
@@ -1066,7 +1070,7 @@
         "where": ["lint:explicit-nullable-param"],
         "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on.",
         "codes": [
-            {"code": "NullabilityTypeMissing", "status": "gap", "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later. With the README's 8.3, nothing reports it, even with the rule switched on."}
+            {"code": "NullabilityTypeMissing", "status": "gap"}
         ]
     },
     {
@@ -1084,8 +1088,8 @@
         "where": ["format"],
         "codes": [
             {"code": "CommaAfterLast", "status": "format"},
-            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported yet. Core turns the code off."},
-            {"code": "NoKeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported yet. Core turns the code off."},
+            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported. Core turns the code off."},
+            {"code": "NoKeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported. Core turns the code off."},
             {"code": "NoSpaceAfterComma", "status": "format"},
             {"code": "NoSpaceAfterDoubleArrow", "status": "format"},
             {"code": "NoSpaceBeforeDoubleArrow", "status": "format"},
@@ -1140,12 +1144,18 @@
         "codes": [
             {"code": "CaseNotLower", "status": "format"},
             {"code": "ContentAfterCase", "status": "format"},
+            {"code": "ContentAfterDefault", "status": "format"},
             {"code": "ContentBeforeBreak", "status": "format"},
+            {"code": "ContentBeforeCase", "status": "partial", "note": "The formatter keeps a block comment before the label on the label's line, as in `/* note */ case 1:`, which Coder reports."},
+            {"code": "ContentBeforeDefault", "status": "partial", "note": "The formatter keeps a block comment before the label on the label's line, as in `/* note */ default:`, which Coder reports."},
             {"code": "DefaultNotLower", "status": "format"},
             {"code": "MissingCase", "status": "report", "where": ["ext:drupal/empty-switch"]},
-            {"code": "SpaceBeforeColonCase", "status": "format"},
-            {"code": "SpaceBeforeColonDefault", "status": "format"},
-            {"code": "SpacingAfterBreak", "status": "fix", "where": ["ext:drupal/case-break-blank-line"]}
+            {"code": "SpaceBeforeColonCase", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `case 1: {`. Mago reports the braces as a redundant block."},
+            {"code": "SpaceBeforeColonDefault", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `default: {`. Mago reports the braces as a redundant block."},
+            {"code": "SpacingAfterBreak", "status": "partial", "where": ["ext:drupal/case-break-blank-line"]},
+            {"code": "SpacingAfterDefault", "status": "format"},
+            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago cannot parse it and reports a parse error."},
+            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago cannot parse it and reports a parse error."}
         ]
     },
     {
@@ -1153,6 +1163,8 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
+            {"code": "NoSpaceBeforeHint", "status": "format"},
+            {"code": "NoSpaceBeforePropertyModifier", "status": "format"},
             {"code": "SpaceAfterEquals", "status": "format"},
             {"code": "SpaceBeforeComma", "status": "format"},
             {"code": "SpaceBeforeEquals", "status": "format"},
@@ -1163,8 +1175,10 @@
             {"code": "SpacingAfterSetVisibility", "status": "format"},
             {"code": "SpacingAfterVariadic", "status": "format"},
             {"code": "SpacingAfterVisibility", "status": "format"},
+            {"code": "SpacingBeforeArg", "status": "format"},
             {"code": "SpacingBeforeClose", "status": "format"},
             {"code": "SpacingBeforeHint", "status": "format"},
+            {"code": "SpacingBeforePropertyModifier", "status": "format"},
             {"code": "SpacingBetween", "status": "format"}
         ]
     },
@@ -1172,7 +1186,7 @@
         "sniff": "Squiz.PHP.LowercasePHPFunctions",
         "standard": "Drupal",
         "where": ["analyze:incorrect-function-casing"],
-        "note": "With `check-name-casing = true`. Reported without a fix. The analyzer skips a first-class callable such as `STRLEN(...)`.",
+        "note": "With `check-name-casing = true`. Reported without a fix. The analyzer skips a first-class callable such as `STRLEN(...)`. It also reports a call to a function of the codebase whose case differs from the declaration, where Coder checks only PHP's own functions.",
         "codes": [
             {"code": "CallUppercase", "status": "report-only"},
             {"code": "UseStatementUppercase", "status": "report-only"}
@@ -1184,7 +1198,7 @@
         "where": ["analyze:unevaluated-code"],
         "codes": [
             {"code": "ReturnNotRequired", "status": "fix", "where": ["ext:drupal/redundant-return"]},
-            {"code": "Unreachable", "status": "report", "where": ["analyze:unevaluated-code", "analyze:useless-control-flow"], "note": "A `break;` after `return` is `useless-control-flow`."}
+            {"code": "Unreachable", "status": "report", "where": ["analyze:unevaluated-code", "analyze:useless-control-flow"], "note": "A `break;` after `return` is `useless-control-flow`. The analyzer also reports code after an `if` and `else` that both exit, and code after an exit on the same line, which Coder skips."}
         ]
     },
     {
@@ -1232,7 +1246,8 @@
     {
         "sniff": "Squiz.WhiteSpace.SemicolonSpacing",
         "standard": "Drupal",
-        "where": ["format"],
+        "where": ["format", "lint:no-noop"],
+        "note": "The formatter puts an empty statement after a `}`, as in `};`, on a line of its own, which Coder reports. `no-noop` removes that statement.",
         "codes": [
             {"code": "Incorrect", "status": "format"}
         ]
@@ -1252,7 +1267,7 @@
         "sniff": "Zend.Files.ClosingTag",
         "standard": "Drupal",
         "where": ["format", "lint:no-closing-tag"],
-        "note": "The formatter removes a closing tag at the end of the file. When the last statement has no `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line.",
+        "note": "The formatter removes a closing tag at the end of the file. When the last statement has no `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
         "codes": [
             {"code": "NotAllowed", "status": "format"}
         ]
@@ -1340,7 +1355,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "Reports a `'#default_value'` set to the result of `check_plain()`, `check_markup()`, `check_url()`, `filter_xss()` or `filter_xss_admin()`. Not ported. Of these, only `check_markup()` exists on Drupal 11, and it is deprecated in 11.4.",
         "codes": [
             {"code": "DefaultValue", "status": "gap"}
         ]
@@ -1418,7 +1433,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "Reports an `'access callback' => TRUE` with no comment above it in `hook_menu()`, a Drupal 7 API. Not ported, and nothing in Mago reports it.",
         "codes": [
             {"code": "OpenCallback", "status": "gap"}
         ]
@@ -1428,7 +1443,7 @@
         "standard": "DrupalPractice",
         "where": ["ext:drupal/form-alter-comment"],
         "codes": [
-            {"code": "Different", "status": "report"}
+            {"code": "Different", "status": "partial"}
         ]
     },
     {
@@ -1447,7 +1462,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "Coder runs it only on a Drupal 7 module, for `t()` and `st()` in `hook_install()` and `hook_requirements()`. Not ported.",
         "codes": [
             {"code": "TranslationFound", "status": "gap"}
         ]
@@ -1457,7 +1472,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "Reports the `access administration pages` permission in `hook_menu()`, a Drupal 7 API. Not ported, and nothing in Mago reports it.",
         "codes": [
             {"code": "PermissionFound", "status": "gap"}
         ]
@@ -1473,9 +1488,8 @@
     {
         "sniff": "DrupalPractice.General.DescriptionT",
         "standard": "DrupalPractice",
-        "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A `#description` value that starts with a string literal of more than three characters, not counting tags, as in `'#description' => 'Some text'`. Not ported.",
         "codes": [
             {"code": "DescriptionT", "status": "gap"}
         ]
@@ -1493,7 +1507,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "Reports `$form_state['input']`, a read of the Drupal 7 form state array. Not ported, and nothing in Mago reports the key.",
         "codes": [
             {"code": "Input", "status": "gap"}
         ]
@@ -1503,7 +1517,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "Reports an `'und'` array key, where Drupal 7 field code uses `LANGUAGE_NONE`. Not ported, and nothing in Mago reports the key.",
         "codes": [
             {"code": "Und", "status": "gap"}
         ]
@@ -1558,7 +1572,7 @@
         "sniff": "DrupalPractice.Objects.GlobalClass",
         "standard": "DrupalPractice",
         "where": ["none"],
-        "note": "A static `Node::load()` style call in a class that can have the storage injected. Needs the analyzer; not ported yet.",
+        "note": "A static `Node::load()` style call in a class that can have the storage injected. Not ported: it needs the analyzer.",
         "codes": [
             {"code": "GlobalClass", "status": "gap"}
         ]
@@ -1567,7 +1581,7 @@
         "sniff": "DrupalPractice.Objects.GlobalDrupal",
         "standard": "DrupalPractice",
         "where": ["branch:GlobalDrupalCallHook"],
-        "note": "The analyzer half, on the `analyzer` branch, reports `\\Drupal::` calls in a class with a `create()` method, ported from phpstan-drupal.",
+        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer half, on the `analyzer` branch, needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, so it skips services and a `BlockBase` plugin without `create()`.",
         "codes": [
             {"code": "GlobalDrupal", "status": "partial"}
         ]
@@ -1592,7 +1606,7 @@
         "sniff": "DrupalPractice.Objects.UnusedPrivateMethod",
         "standard": "DrupalPractice",
         "where": ["analyze:unused-method"],
-        "note": "The analyzer also reports an unused private static method and an unused private method of an enum, which Coder skips. Coder reports a private method that is called only on another instance, such as `$other->helper()`; the analyzer counts that call.",
+        "note": "The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer reports none of them.",
         "codes": [
             {"code": "UnusedMethod", "status": "report"}
         ]
@@ -1620,10 +1634,13 @@
         "sniff": "VariableAnalysis.CodeAnalysis.VariableAnalysis",
         "standard": "DrupalPractice",
         "where": ["lint:no-redundant-variable", "analyze"],
+        "note": "Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
         "codes": [
-            {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "A variable read after `unset()`. Not ported yet: it needs flow analysis."},
-            {"code": "UnusedVariable", "status": "partial", "where": ["lint:no-redundant-variable"], "note": "With `no-redundant-variable = { enabled = true }`. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows."},
-            {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported yet: it needs flow analysis."}
+            {"code": "SelfOutsideClass", "status": "report", "where": ["analyze:self-outside-class-scope"]},
+            {"code": "StaticOutsideClass", "status": "report", "where": ["analyze:static-outside-class-scope"]},
+            {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "A variable read after `unset()`. Not ported: it needs flow analysis."},
+            {"code": "UnusedVariable", "status": "partial", "where": ["lint:no-redundant-variable", "lint:no-unused-closure-capture"], "note": "With `no-redundant-variable = { enabled = true }`, and `no-unused-closure-capture = { enabled = true }` for a variable in a closure's `use` list. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows."},
+            {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported: it needs flow analysis."}
         ]
     }
 ]

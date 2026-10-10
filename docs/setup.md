@@ -84,6 +84,9 @@ function-name = { either = true }
 # Report a variable that is assigned and never read. That is the part of
 # DrupalPractice.CodeAnalysis.VariableAnalysis that core enables.
 no-redundant-variable = { enabled = true }
+# Report a variable in a closure's `use` list that the closure never reads, the other part of that
+# check.
+no-unused-closure-capture = { enabled = true }
 
 [analyzer]
 # Report a PHP function that is called with the wrong case. That is Drupal's

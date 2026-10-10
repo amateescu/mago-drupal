@@ -32,3 +32,6 @@ renders the item, so a translation here comes too early.
 
 A `watchdog()` call with no message argument, or with a message that is wrapped in `t()` or built
 by concatenation. Use placeholders.
+
+**Compared with Coder:** the rule ignores the case of `watchdog()` and `t()`, and accepts a leading
+backslash on both, as PHP does. Coder skips `\watchdog()`, `WATCHDOG()`, `\t()` and `T()`.

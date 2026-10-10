@@ -9,7 +9,7 @@ standards are on [Sniffs from other standards](other-standards.md).
 
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
-| `Drupal.Arrays.Array` | `mago format` | The drupal preset writes the trailing comma, the indentation and the line breaks of a long array. A few nested layouts still differ. |
+| `Drupal.Arrays.Array` | `ArrayClosingIndentation`, `ArrayIndentation`: `mago format`, partly<br>`CommaLastItem`, `LongLineDeclaration`: `mago format` | The drupal preset writes the trailing comma, the indentation and the line breaks of a long array. `ArrayClosingIndentation`: An array that opens on a continuation line gets the indent of the statement's first line. Coder counts from the line the array opens on, and reports its items and closing bracket. `ArrayIndentation`: When the value after `=>` breaks over lines, such as a long condition, the formatter writes the next lines at the key's indent. Coder wants them one level deeper. |
 
 ## Attributes
 
@@ -21,7 +21,7 @@ standards are on [Sniffs from other standards](other-standards.md).
 
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
-| `Drupal.Classes.ClassDeclaration` | `BraceOnNewLine`, `CloseBraceAfterBody`, `ExtendsIndentation`, `ExtendsInterfaceSameLine`, `ExtendsLine`, `FirstExtendsInterfaceSameLine`, `FirstInterfaceSameLine`, `ImplementsLine`, `InterfaceSameLine`, `InterfaceWrongIndent`, `MissingBrace`, `NewlineBeforeKeyword`, `NoSpaceBeforeName`, `OpenBraceNewLine`, `OpenBraceNotAlone`, `OpenBraceWrongLine`, `SpaceAfterKeyword`, `SpaceAfterName`, `SpaceBeforeBrace`, `SpaceBeforeComma`, `SpaceBeforeExtends`, `SpaceBeforeImplements`, `SpaceBeforeKeyword`, `SpaceBeforeName`: `mago format`<br>`CloseBraceSameLine`: Nothing<br>`ContentAfterBrace`: `mago format`, partly | `CloseBraceSameLine`: A comment after the closing brace of a class, such as `} // end class`. The formatter keeps it and nothing reports it. phpcbf has no fix for it either. `ContentAfterBrace`: The formatter keeps a comment that follows the opening brace on the brace line, such as `class Foo { // Comment.`, which Coder reports. |
+| `Drupal.Classes.ClassDeclaration` | `BraceOnNewLine`, `CloseBraceAfterBody`, `ExtendsIndentation`, `ExtendsInterfaceSameLine`, `ExtendsLine`, `FirstExtendsInterfaceSameLine`, `FirstInterfaceSameLine`, `ImplementsLine`, `InterfaceSameLine`, `InterfaceWrongIndent`, `NewlineBeforeKeyword`, `NoSpaceBeforeName`, `OpenBraceNewLine`, `OpenBraceNotAlone`, `OpenBraceWrongLine`, `SpaceAfterKeyword`, `SpaceAfterName`, `SpaceBeforeBrace`, `SpaceBeforeComma`, `SpaceBeforeExtends`, `SpaceBeforeImplements`, `SpaceBeforeKeyword`, `SpaceBeforeName`: `mago format`<br>`CloseBraceSameLine`: Nothing<br>`ContentAfterBrace`: `mago format`, partly<br>`MissingBrace`: Mago `parse` | `CloseBraceSameLine`: A comment after the closing brace of a class, such as `} // end class`. The formatter keeps it and nothing reports it. phpcbf has no fix for it either. `ContentAfterBrace`: The formatter keeps a comment that follows the opening brace on the brace line, such as `class Foo { // Comment.`, which Coder reports. `MissingBrace`: A class without braces does not parse. Mago reports a `parse` error, and the formatter skips the file. |
 | `Drupal.Classes.FullyQualifiedNamespace` | [`drupal/fully-qualified-name`](../rules/naming-and-imports.md#drupalfully-qualified-name) |  |
 | `Drupal.Classes.PropertyDeclaration` | [`drupal/property-visibility`](../rules/statements.md#drupalproperty-visibility) |  |
 | `Drupal.Classes.UseGlobalClass` | [`drupal/redundant-use`](../rules/naming-and-imports.md#drupalredundant-use) |  |
@@ -68,7 +68,7 @@ standards are on [Sniffs from other standards](other-standards.md).
 | `Drupal.Formatting.MultiLineAssignment` | `mago format` |  |
 | `Drupal.Formatting.MultipleStatementAlignment` | `mago format` |  |
 | `Drupal.Formatting.SpaceInlineIf` | `mago format` |  |
-| `Drupal.Formatting.SpaceUnaryOperator` | `mago format` | The formatter can break a long `!(...)` condition after the `!`, which Coder then reports. |
+| `Drupal.Formatting.SpaceUnaryOperator` | `mago format` |  |
 
 ## Functions
 
@@ -82,10 +82,10 @@ standards are on [Sniffs from other standards](other-standards.md).
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
 | `Drupal.InfoFiles.AutoAddedKeys` | phpcs | Checks `.info.yml` files. Mago cannot report an issue in a YAML file. |
-| `Drupal.InfoFiles.ClassFiles` | phpcs |  |
+| `Drupal.InfoFiles.ClassFiles` | phpcs | Checks the `files[]` lines of a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files. |
 | `Drupal.InfoFiles.DependenciesArray` | phpcs |  |
-| `Drupal.InfoFiles.DuplicateEntry` | phpcs |  |
-| `Drupal.InfoFiles.Required` | phpcs |  |
+| `Drupal.InfoFiles.DuplicateEntry` | phpcs | Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files. |
+| `Drupal.InfoFiles.Required` | phpcs | Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files. |
 
 ## NamingConventions
 
@@ -93,9 +93,9 @@ standards are on [Sniffs from other standards](other-standards.md).
 | --- | --- | --- |
 | `Drupal.NamingConventions.ValidClassName` | `NoUnderscores`, `StartWithCapital`: Mago `class-name`, Mago `interface-name`, Mago `trait-name`, Mago `enum-name`<br>`NoUpperAcronyms`: [`drupal/class-name-acronym`](../rules/naming-and-imports.md#drupalclass-name-acronym) |  |
 | `Drupal.NamingConventions.ValidEnumCase` | [`drupal/enum-case-name`](../rules/naming-and-imports.md#drupalenum-case-name) |  |
-| `Drupal.NamingConventions.ValidFunctionName` | `InvalidName`: Mago `function-name`, partly<br>`InvalidPrefix`: [`drupal/function-prefix`](../rules/procedural-files.md#drupalfunction-prefix)<br>`MethodDoubleUnderscore`: [`drupal/method-name-underscore`](../rules/naming-and-imports.md#drupalmethod-name-underscore)<br>`NotCamelCaps`, `ScopeNotCamelCaps`: Mago `method-name` (off by default) | Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the README does not turn it on. `InvalidName`: Coder only wants a lower-case name. Mago's `function-name` wants snake case, so it also reports a name with a leading, trailing or doubled underscore, such as `_mymodule_helper()`. With `either = true` it accepts a camelCase name, which Coder reports. `NotCamelCaps`: Mago's `method-name` rule, off by default. The README does not turn it on. `ScopeNotCamelCaps`: Mago's `method-name` rule, off by default. The README does not turn it on. |
+| `Drupal.NamingConventions.ValidFunctionName` | `InvalidName`: Mago `function-name`, partly<br>`InvalidPrefix`: [`drupal/function-prefix`](../rules/procedural-files.md#drupalfunction-prefix)<br>`MethodDoubleUnderscore`: [`drupal/method-name-underscore`](../rules/naming-and-imports.md#drupalmethod-name-underscore)<br>`NotCamelCaps`, `ScopeNotCamelCaps`: Mago `method-name` (off by default) | Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the configuration in Setup does not turn it on. When on, it accepts a run of capitals, as in `getURL()`, which Coder reports. `InvalidName`: Coder only wants a lower-case name. Mago's `function-name` wants snake case, so it also reports a name with a leading, trailing or doubled underscore, such as `_mymodule_helper()`. With `either = true` it accepts a camelCase name, which Coder reports. |
 | `Drupal.NamingConventions.ValidGlobal` | [`drupal/global-variable`](../rules/procedural-files.md#drupalglobal-variable) |  |
-| `Drupal.NamingConventions.ValidVariableName` | `LowerCamelName`: [`drupal/property-name`](../rules/naming-and-imports.md#drupalproperty-name)<br>`LowerStart`: Mago `variable-name` (off by default) | `LowerStart`: Mago's `variable-name` rule, off by default. The README does not turn it on. It checks for camel or snake case, not for a lower-case first letter, and skips `foreach`, `catch`, `static` and `global` variables. |
+| `Drupal.NamingConventions.ValidVariableName` | `LowerCamelName`: [`drupal/property-name`](../rules/naming-and-imports.md#drupalproperty-name)<br>`LowerStart`: Mago `variable-name` (off by default) | `LowerStart`: Mago's `variable-name` rule, off by default. The configuration in Setup does not turn it on. It checks for camel or snake case, not for a lower-case first letter, and skips `foreach`, `catch`, `static` and `global` variables. |
 
 ## Scope
 
@@ -109,7 +109,7 @@ standards are on [Sniffs from other standards](other-standards.md).
 | --- | --- | --- |
 | `Drupal.Semantics.ConstantName` | `ConstConstantStart`: [`drupal/const-prefix`](../rules/procedural-files.md#drupalconst-prefix)<br>`ConstantStart`: [`drupal/constant-prefix`](../rules/procedural-files.md#drupalconstant-prefix) |  |
 | `Drupal.Semantics.EmptyInstall` | [`drupal/empty-install-hook`](../rules/procedural-files.md#drupalempty-install-hook) |  |
-| `Drupal.Semantics.FunctionAlias` | Mago `no-alias-function` | Mago's rule, on by default, with a fix. |
+| `Drupal.Semantics.FunctionAlias` | Mago `no-alias-function` | Mago's rule, on by default, with a fix that needs `--potentially-unsafe`. |
 | `Drupal.Semantics.FunctionT` | `BackslashDoubleQuote`: [`drupal/translatable-string`](../rules/right-api.md#drupaltranslatable-string), `mago format`<br>`BackslashSingleQuote`, `Concat`, `ConcatString`, `EmptyString`, `EmptyT`, `NotLiteralString`, `WhiteSpace`: [`drupal/translatable-string`](../rules/right-api.md#drupaltranslatable-string) |  |
 | `Drupal.Semantics.FunctionTriggerError` | [`drupal/deprecation-message`](../rules/right-api.md#drupaldeprecation-message) |  |
 | `Drupal.Semantics.FunctionWatchdog` | [`drupal/watchdog-message`](../rules/drupal-7.md#drupalwatchdog-message) |  |
@@ -130,9 +130,9 @@ standards are on [Sniffs from other standards](other-standards.md).
 | `Drupal.WhiteSpace.EmptyLines` | `mago format` |  |
 | `Drupal.WhiteSpace.ObjectOperatorIndent` | `mago format` |  |
 | `Drupal.WhiteSpace.ObjectOperatorSpacing` | `mago format` |  |
-| `Drupal.WhiteSpace.OpenBracketSpacing` | `mago format` |  |
+| `Drupal.WhiteSpace.OpenBracketSpacing` | `mago format`, partly | The formatter writes a space between an opening bracket and a comment that follows it, as in `foo( /* note */ $x)`, and Coder reports that space. |
 | `Drupal.WhiteSpace.OpenTagNewline` | `mago format` |  |
-| `Drupal.WhiteSpace.ScopeClosingBrace` | `mago format` |  |
-| `Drupal.WhiteSpace.ScopeIndent` | `mago format` | The formatter writes the indentation. A few layouts it writes differ from what Coder expects. |
+| `Drupal.WhiteSpace.ScopeClosingBrace` | `BreakIndent`, `Line`: `mago format`<br>`Indent`: `mago format`, partly | `Indent`: A closing brace after inline HTML, on a `<?php }` line, keeps the indent of the HTML. The formatter does not change it, and Coder reports it. |
+| `Drupal.WhiteSpace.ScopeIndent` | `Incorrect`: `mago format`<br>`IncorrectExact`: `mago format`, partly | The formatter writes the indentation. `IncorrectExact`: The formatter puts a comment that ends a `case` body, such as `// Fall-through.`, at the indent of the `case` label, and Coder reports it. |
 
 <!-- /docs-gen -->

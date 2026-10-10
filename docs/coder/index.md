@@ -35,8 +35,10 @@ rulesets exclude are not listed, and neither are codes that Coder never reports.
 
 Two checks still need phpcs:
 
-- `Drupal.InfoFiles.*` and `DrupalPractice.InfoFiles.NamespacedDependency` check `.info.yml` files.
-  Mago cannot report an issue in a YAML file.
+- `Drupal.InfoFiles.AutoAddedKeys`, `Drupal.InfoFiles.DependenciesArray` and
+  `DrupalPractice.InfoFiles.NamespacedDependency` check `.info.yml` files. Mago cannot report an
+  issue in a YAML file. The other `Drupal.InfoFiles` sniffs check only the `.info` files of
+  Drupal 7.
 - `DrupalPractice.Objects.GlobalDrupal` reports a `\Drupal::service()` call where injection is
   possible. That check needs the analyzer, not a linter rule.
 

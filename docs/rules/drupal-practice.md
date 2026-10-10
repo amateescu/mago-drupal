@@ -45,7 +45,7 @@ arguments by position or by name, and skips a call that spreads its arguments.
 
 - **Level:** warning
 - **Fix:** none
-- **Ports:** `DrupalPractice.FunctionDefinitions.FormAlterDoc.Different`
+- **Ports:** `DrupalPractice.FunctionDefinitions.FormAlterDoc.Different` (partly)
 - **Off with `--core`**
 
 A function in a `.module`, `.install`, `.profile` or `.theme` file with a docblock line that starts
@@ -55,7 +55,9 @@ them.
 
 **Compared with Coder:**
 
-- The rule takes the module name from the file name, as `drupal/class-prefix` does.
+- The rule takes the module name from the file name, as `drupal/class-prefix` does, and skips
+  other files. Coder reads the module name from the info file for a `.inc` or `.php` file, so it
+  checks those too.
 - It compares the function name without regard to case, because PHP does.
 - It finds the hook line only at the start of a docblock line, so
   `@see Implements hook_form_alter().` is not a hook line.
@@ -116,8 +118,10 @@ the default is not `TRUE`, or where there is none. A test class has `Test` or `T
 its name.
 
 **Compared with Coder:** for a property of an anonymous class, the rule uses the nearest named class
-or trait, and not the outermost scope. It does not read a name like `Testimonial` or `Testable` as
-a test class.
+or trait, and not the outermost scope. An anonymous class outside any named class or trait is not a
+test class. Coder reads the first name after its `class` keyword, such as `FooTest` in
+`new class extends FooTest`. The rule does not read a name like `Testimonial` or `Testable` as a
+test class.
 
 ## drupal/untranslated-options
 
@@ -134,7 +138,8 @@ Labels in nested option groups count.
 
 - The rule takes the `#type` from the array that holds the `#options`, in either order and in
   either quote style. Coder takes the first `'#type'` of the statement.
-- It reports the last label of an array and a label in an `array()` group, which Coder skips, and
-  it does not need a comma after the label. It accepts `Array(`.
+- It reports the last label of an array, a label with a comment before its comma, and a label in
+  an `array()` group, which Coder skips, and it does not need a comma after the label. It accepts
+  `Array(`.
 - It does not read a `$form['x']['#options'] = [...]` assignment. Coder reads one only when a
   `'#type'` is in the same statement.
