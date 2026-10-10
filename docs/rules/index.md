@@ -58,6 +58,21 @@ Rules for the bytes of a file and for its open and close tags.
 | [`drupal/file-start-whitespace`](files-and-tags.md#drupalfile-start-whitespace) | error | Reports whitespace before the first PHP open tag of a file. |
 | [`drupal/short-echo-tag`](files-and-tags.md#drupalshort-echo-tag) | error | Reports the <?= echo tag. Drupal writes <?php echo. |
 
+## Info and routing files
+
+Rules for the `.info.yml` file of a module, theme or profile and for `.routing.yml` files. They need
+`yml` in Mago's extensions, as [Setup](../setup.md#install) shows. Mago reads a YAML file as text
+outside PHP tags, and these rules read the YAML in it.
+
+| Rule | Level | What it reports |
+| --- | --- | --- |
+| [`drupal/info-auto-added-keys`](info-and-routing-files.md#drupalinfo-auto-added-keys) | warning | Reports the keys of an .info.yml file that drupal.org packaging adds. |
+| [`drupal/info-core-version-requirement`](info-and-routing-files.md#drupalinfo-core-version-requirement) | warning | Reports an .info.yml file without a core_version_requirement key. |
+| [`drupal/info-dependencies-array`](info-and-routing-files.md#drupalinfo-dependencies-array) | error | Reports a dependencies key of an .info.yml file that is not a list. |
+| [`drupal/info-description`](info-and-routing-files.md#drupalinfo-description) | warning | Reports an .info.yml file with no description or an empty one. |
+| [`drupal/info-namespaced-dependency`](info-and-routing-files.md#drupalinfo-namespaced-dependency) | warning | Reports a dependency in an .info.yml file without its project name. |
+| [`drupal/routing-access`](info-and-routing-files.md#drupalrouting-access) | warning | Reports an open route without a comment, and the "access administration pages" permission. |
+
 ## Naming and imports
 
 Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's

@@ -8,13 +8,13 @@ use function dirname;
 use function file_get_contents;
 use function getcwd;
 use function glob;
+use function is_array;
 use function is_file;
+use function is_string;
 use function ltrim;
-use function preg_match_all;
-use function str_replace;
+use function str_contains;
 use function str_starts_with;
 use function strlen;
-use function trim;
 
 /**
  * Reads the classes that a `*.services.yml` file registers as services.
@@ -101,10 +101,8 @@ final class ServiceClasses
 
     /**
      * The classes in a services file: each `class` value, and each service
-     * whose name is a class, as in `Drupal\foo\Bar: ~`. The text is read
-     * line by line, without a YAML parser. Only the lines under the
-     * top-level `services` key count. Other keys, such as `parameters`, can
-     * hold class names too.
+     * whose name is a class, as in `Drupal\foo\Bar: ~`. A file that does
+     * not parse has none.
      *
      * @return array<string, true>
      */
@@ -118,23 +116,18 @@ final class ServiceClasses
             return $classes;
         }
 
-        // The block runs to the next line that starts with a key.
-        $block = [];
-        preg_match('/^services:.*\n((?:(?:[ \t#].*)?\n?)*)/m', (string) file_get_contents($file), $block);
-        $matches = [];
-        preg_match_all(
-            '/^[ \t]+(?:class:[ \t]*([^\s#]+)|([\'"]?[\w\\\\]*\\\\[\w\\\\]+[\'"]?)[ \t]*:)/m',
-            $block[1] ?? '',
-            $matches,
-        );
-
+        $parsed = YamlFile::decode((string) file_get_contents($file)) ?? [];
+        /** @var mixed $services */
+        $services = $parsed['services'] ?? [];
         $classes = [];
-        foreach ([...$matches[1], ...$matches[2]] as $value) {
-            // A double-quoted YAML string writes each backslash twice.
-            $value = str_replace(search: '\\\\', replace: '\\', subject: trim($value, characters: '\'"'));
-            $class = ltrim($value, characters: '\\');
-            if ($class !== '') {
-                $classes[$class] = true;
+        /** @var mixed $service */
+        foreach (is_array($services) ? $services : [] as $name => $service) {
+            if (is_array($service) && is_string($service['class'] ?? null)) {
+                $classes[ltrim($service['class'], characters: '\\')] = true;
+            }
+
+            if (is_string($name) && str_contains($name, needle: '\\')) {
+                $classes[ltrim($name, characters: '\\')] = true;
             }
         }
 

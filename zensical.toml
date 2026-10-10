@@ -14,6 +14,7 @@ nav = [
     { "Using the right API" = "rules/right-api.md" },
     { "Procedural files" = "rules/procedural-files.md" },
     { "Files and PHP tags" = "rules/files-and-tags.md" },
+    { "Info and routing files" = "rules/info-and-routing-files.md" },
     { "Naming and imports" = "rules/naming-and-imports.md" },
     { "Statements and declarations" = "rules/statements.md" },
     { "Comment text" = "rules/comment-text.md" },

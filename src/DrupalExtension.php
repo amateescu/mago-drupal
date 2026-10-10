@@ -47,6 +47,11 @@ use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\HookAttributeNameRule;
 use amateescu\MagoDrupal\Linter\Rules\HookCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\InfoAutoAddedKeysRule;
+use amateescu\MagoDrupal\Linter\Rules\InfoCoreVersionRequirementRule;
+use amateescu\MagoDrupal\Linter\Rules\InfoDependenciesArrayRule;
+use amateescu\MagoDrupal\Linter\Rules\InfoDescriptionRule;
+use amateescu\MagoDrupal\Linter\Rules\InfoNamespacedDependencyRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentRule;
@@ -70,6 +75,7 @@ use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
 use amateescu\MagoDrupal\Linter\Rules\RenderCallbackRule;
 use amateescu\MagoDrupal\Linter\Rules\RequestSuperglobalRule;
+use amateescu\MagoDrupal\Linter\Rules\RoutingAccessRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortEchoTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortListRule;
 use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
@@ -132,12 +138,16 @@ final class DrupalExtension
         'drupal/function-prefix',
         'drupal/global-constant',
         'drupal/hook-attribute-name',
+        'drupal/info-core-version-requirement',
+        'drupal/info-dependencies-array',
+        'drupal/info-description',
         'drupal/inline-comment-blank-line',
         'drupal/inline-comment-punctuation',
         'drupal/insecure-unserialize',
         'drupal/long-description-punctuation',
         'drupal/method-name-underscore',
         'drupal/request-superglobal',
+        'drupal/routing-access',
         'drupal/short-list',
         'drupal/strict-config-schema',
         'drupal/untranslated-options',
@@ -253,6 +263,11 @@ final class DrupalExtension
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
             new HookCommentRule(),
+            new InfoAutoAddedKeysRule(),
+            new InfoCoreVersionRequirementRule(),
+            new InfoDependenciesArrayRule(),
+            new InfoDescriptionRule(),
+            new InfoNamespacedDependencyRule(),
             new InlineCommentRule(),
             new InlineCommentBlankLineRule(),
             new InlineCommentPunctuationRule(),
@@ -276,6 +291,7 @@ final class DrupalExtension
             new RemoteAddressRule(),
             new RenderCallbackRule(),
             new RequestSuperglobalRule(),
+            new RoutingAccessRule(),
             new ShortEchoTagRule(),
             new ShortListRule(),
             new StrictConfigSchemaRule(),
