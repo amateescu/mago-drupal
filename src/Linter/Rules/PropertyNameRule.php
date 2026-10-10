@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\Nodes;
 use amateescu\MagoDrupal\Internal\TopLevel;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -154,37 +155,12 @@ final class PropertyNameRule implements Rule
         // Coder compares the names as written, so `\Drupal\...\Plugin` or an
         // alias of Plugin does not match. An interface can extend several,
         // and Coder reads the first.
-        $parent = $this->names($file, $class, NodeKind::Extends)[0] ?? '';
+        $parent = Nodes::clauseNames($file, $class, NodeKind::Extends)[0] ?? '';
 
         return (
             str_contains($parent, 'ConfigEntity')
             || in_array($parent, ['Plugin', 'ViewsPluginAnnotationBase'], strict: true)
-            || in_array('AnnotationInterface', $this->names($file, $class, NodeKind::Implements), strict: true)
+            || in_array('AnnotationInterface', Nodes::clauseNames($file, $class, NodeKind::Implements), strict: true)
         );
-    }
-
-    /**
-     * The names in the class's extends or implements clause, as written.
-     *
-     * @return list<string>
-     */
-    private function names(SourceFile $file, Node $class, NodeKind $clause): array
-    {
-        $names = [];
-        foreach ($file->getChildren($class) as $child) {
-            if ($child->kind !== $clause) {
-                continue;
-            }
-
-            foreach ($file->getChildren($child) as $name) {
-                if ($name->kind !== NodeKind::Identifier) {
-                    continue;
-                }
-
-                $names[] = $file->getText($name);
-            }
-        }
-
-        return $names;
     }
 }

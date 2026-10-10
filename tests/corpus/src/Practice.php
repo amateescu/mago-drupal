@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
-use function format_date;
 use function t;
 
 /**
@@ -37,23 +36,6 @@ class Practice {
   // @mago-expect lint:drupal/function-comment
   public function plainAnonymousException(): never {
     throw new class('This is fine.') extends \RuntimeException {};
-  }
-
-  // @mago-expect lint:drupal/function-comment
-  public function proceduralCall(int $timestamp): string {
-    // @mago-expect lint:drupal/global-function
-    return format_date($timestamp);
-  }
-
-  // @mago-expect lint:drupal/function-comment
-  public function fullyQualifiedProceduralCall(int $timestamp): string {
-    // @mago-expect lint:drupal/global-function
-    return \format_date($timestamp);
-  }
-
-  // @mago-expect lint:drupal/function-comment
-  public static function staticCallIsExempt(int $timestamp): string {
-    return format_date($timestamp);
   }
 
   /**

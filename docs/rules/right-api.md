@@ -53,20 +53,32 @@ mention of the tag inside the text does not.
 - **Fix:** none
 - **Ports:** `DrupalPractice.Objects.GlobalFunction.GlobalFunction`
 
-A procedural wrapper called from inside a class, interface, trait or enum, where a service or a
-trait method applies. The most frequent case is `t()`, where `$this->t()` from
-`StringTranslationTrait` applies. A test can replace an injected service, and it cannot replace a
-procedural call.
+A procedural wrapper called from inside a class, where a service or a trait method applies. The
+most frequent case is `t()`, where `$this->t()` from `StringTranslationTrait` applies. A test can
+replace an injected service, and it cannot replace a procedural call.
 
 The wrappers are `t()`, `drupal_render()`, `drupal_get_destination()`, `format_date()`, and the
 `*_load()` functions of entities, such as `node_load()` and `user_load()`.
 
-**Compared with Coder:** Coder reports only in a class. It reports a wrapper other than `t()` only
-when the class extends one of Drupal's base classes, such as `ControllerBase` or `FormBase`,
-implements `ContainerInjectionInterface`, or is a service in the module's `services.yml`. The rule
-reports in every class, interface, trait, enum and anonymous class, and does not read
-`services.yml`. It also reports a call written in another case, such as `T()`, or with a leading
-backslash, such as `\t()`. Coder skips both. Both skip a call in a static method.
+As in Coder, the rule reports `t()` in any class, and the other wrappers only in a class that can
+get services injected. That is a class that extends one of Drupal's base classes, such as
+`ControllerBase` or `FormBase`, implements `ContainerInjectionInterface`, or is a service. A
+service is a class that the nearest `*.services.yml` file lists, in the class's directory or a
+directory above it. An interface, a trait, an enum and a static method are not checked. An
+anonymous class inside a method is part of the class around it.
+
+The rule reads the `*.services.yml` file from disk. Mago gives the path of each file from the
+workspace, and starts the worker in the directory of its config file, so the rule finds the file
+when the config file is at the root of the workspace.
+
+**Compared with Coder:**
+
+- The rule matches the base class and the interface by the last part of the name, so
+  `extends \Drupal\Core\Form\FormBase` counts. Coder compares the names as written.
+- A service named after its class, as in `Drupal\mymodule\Foo: ~`, counts as a service. Coder
+  reads only the `class` keys.
+- It also reports a call written in another case, such as `T()`, or with a leading backslash, such
+  as `\t()`. Coder skips both.
 
 ## drupal/translatable-string
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\InjectableClass;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -27,10 +28,15 @@ use function trim;
  * Reports procedural wrappers called from inside a class.
  *
  * Ports DrupalPractice.Objects.GlobalFunction. Object-oriented code must use
- * the service instead. The service is what makes the code testable.
+ * the service instead. The service is what makes the code testable. As in
+ * Coder, `t()` counts in any class, and the other wrappers only in a class
+ * that can get services injected.
  *
  * The rule targets the class, not the call. A linter snapshot holds only the
  * subtree under the target node. A rule cannot ask a call what encloses it.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class GlobalFunctionRule implements Rule
 {
@@ -53,14 +59,6 @@ final class GlobalFunctionRule implements Rule
         'user_role_load' => 'the "entity_type.manager" service',
     ];
 
-    private const TARGETS = [
-        NodeKind::Class_,
-        NodeKind::Interface,
-        NodeKind::Trait,
-        NodeKind::Enum,
-        NodeKind::AnonymousClass,
-    ];
-
     public function getDefinition(): RuleDefinition
     {
         // `FunctionCall` is a target so that Rust collects every call into
@@ -73,7 +71,9 @@ final class GlobalFunctionRule implements Rule
             description: 'Reports procedural Drupal functions called from inside a class.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: [...self::TARGETS, NodeKind::FunctionCall],
+            // Coder reports only in a class. An anonymous class inside a
+            // method counts as part of the class around it.
+            targets: [NodeKind::Class_, NodeKind::FunctionCall],
         );
     }
 
@@ -89,21 +89,28 @@ final class GlobalFunctionRule implements Rule
             return;
         }
 
+        $injectable = null;
         foreach (Calls::findFunctionsInTargets(
             $context->file,
             within: $context->node,
             names: array_keys(self::REPLACEMENTS),
         ) as $name => $calls) {
             foreach ($calls as $call) {
-                // A class nested inside this one is its own target. The rule
-                // reports its calls there.
-                if (Nodes::isNestedInside($context->file, $call, $context->node, self::TARGETS)) {
+                // A class declared inside a method of this one is its own
+                // target. The rule reports its calls there.
+                if (Nodes::isNestedInside($context->file, $call, $context->node, [NodeKind::Class_])) {
                     continue;
                 }
 
                 // A static method has no `$this`. The trait and service
                 // replacements have nothing to bind to.
-                if ($this->inStaticMethod($context->file, $call)) {
+                if ($this->inStaticMethod($context->file, $call, $context->node)) {
+                    continue;
+                }
+
+                // StringTranslationTrait works in any class. A service needs
+                // a class that can get it injected.
+                if ($name !== 't' && !($injectable ??= InjectableClass::check($context->file, $context->node))) {
                     continue;
                 }
 
@@ -134,14 +141,16 @@ final class GlobalFunctionRule implements Rule
     }
 
     /**
-     * Whether the call is in a static method of the target class.
+     * Whether the call is in a static method of the class, or of an
+     * anonymous class inside it. Coder skips the call when any method around
+     * it is static.
      */
-    private function inStaticMethod(SourceFile $file, Node $call): bool
+    private function inStaticMethod(SourceFile $file, Node $call, Node $class): bool
     {
         $parent = $file->getParent($call);
-        while ($parent !== null) {
-            if ($parent->kind === NodeKind::Method) {
-                return $this->isStatic($file, $parent);
+        while ($parent !== null && $parent->id !== $class->id) {
+            if ($parent->kind === NodeKind::Method && $this->isStatic($file, $parent)) {
+                return true;
             }
 
             $parent = $file->getParent($parent);
