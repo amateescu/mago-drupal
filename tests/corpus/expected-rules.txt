@@ -38,6 +38,11 @@ drupal/global-function
 drupal/global-variable
 drupal/hook-attribute-name
 drupal/hook-comment
+drupal/info-auto-added-keys
+drupal/info-core-version-requirement
+drupal/info-dependencies-array
+drupal/info-description
+drupal/info-namespaced-dependency
 drupal/inline-comment
 drupal/inline-comment-blank-line
 drupal/inline-comment-punctuation
@@ -61,6 +66,7 @@ drupal/redundant-use
 drupal/remote-address
 drupal/render-callback
 drupal/request-superglobal
+drupal/routing-access
 drupal/short-echo-tag
 drupal/short-list
 drupal/strict-config-schema

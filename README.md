@@ -17,13 +17,14 @@ Register the worker in `mago.toml`, and add Drupal's file extensions:
 
 ```toml
 [source]
-extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
+extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
 
 [extension-hosts.drupal]
 command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
-Then run the linter:
+[Setup](docs/setup.md) has the formatter and analyzer excludes that go with `yml`. Then run the
+linter:
 
 ```shell
 vendor/bin/mago lint

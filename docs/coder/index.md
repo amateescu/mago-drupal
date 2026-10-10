@@ -33,14 +33,22 @@ rulesets exclude are not listed, and neither are codes that Coder never reports.
 | Unreachable code, deprecated PHP functions, wrong `@param` and `@return` types | `mago analyze` |
 | Everything specific to Drupal | This extension |
 
+The checks of `.info.yml` and `.routing.yml` files need `yml` in Mago's extensions, as
+[Setup](../setup.md#install) shows. The `Drupal.InfoFiles` sniffs that are not ported check only the
+`.info` files of Drupal 7.
+
 Two checks still need phpcs:
 
-- `Drupal.InfoFiles.AutoAddedKeys`, `Drupal.InfoFiles.DependenciesArray` and
-  `DrupalPractice.InfoFiles.NamespacedDependency` check `.info.yml` files. Mago cannot report an
-  issue in a YAML file. The other `Drupal.InfoFiles` sniffs check only the `.info` files of
-  Drupal 7.
+- `Drupal.Files.TxtFileLineLength` checks the line length of `.txt` and `.md` files. Mago reads every
+  file as PHP, and a `<?php` example in such a file gives parse errors.
 - `DrupalPractice.Objects.GlobalDrupal` reports a `\Drupal::service()` call where injection is
   possible. That check needs the analyzer, not a linter rule.
+
+To keep the line length check of text files, run phpcs with that sniff on those files only:
+
+```shell
+vendor/bin/phpcs --standard=Drupal --sniffs=Drupal.Files.TxtFileLineLength --extensions=txt,md web/modules/custom
+```
 
 ## Differences that apply to every rule
 
@@ -66,7 +74,7 @@ The rules that port those checks are on by default for contrib and custom code, 
 its phpcs config can turn off the matching rules with [`--disable`](../setup.md#turning-rules-off).
 
 **File types.** Mago reads only the file extensions in its `[source]` block. Coder also checks
-`.test` files, a Drupal 7 format, and core's config checks `.yml` files, which Mago does not parse.
+`.test` files, a Drupal 7 format, and `.txt` and `.md` files.
 
 ## Comment whitespace and the formatter
 

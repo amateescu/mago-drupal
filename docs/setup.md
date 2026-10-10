@@ -10,11 +10,16 @@ Then register the shipped worker in `mago.toml` and widen the scanned extensions
 
 ```toml
 [source]
-extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
+extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
 
 [extension-hosts.drupal]
 command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
+
+`yml` lets the rules for [info and routing files](rules/info-and-routing-files.md) read
+`.info.yml` and `.routing.yml` files. Mago reads a file without a PHP open tag as text outside PHP.
+The [configuration below](#configure-mago-for-drupal) keeps the formatter and the analyzer out of
+YAML files.
 
 Coder also checks `.test` files, a Drupal 7 format. Add `test` to the extensions to check them too.
 
@@ -25,13 +30,15 @@ Coder also checks `.test` files, a Drupal 7 format. Add `test` to the extensions
 Add `"--core"` to the command when you check Drupal core itself. It turns off the rules whose checks
 core's `phpcs.xml.dist` turns off or does not run:
 
-- `case-fall-through`, `const-prefix`, `function-prefix`, `hook-attribute-name`,
+- `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
   `method-name-underscore` and `short-list`;
 - `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
 - `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](rules/drupal-practice.md):
   `class-prefix`, `curl-ssl-verify`, `form-alter-comment`, `global-constant`,
   `request-superglobal`, `strict-config-schema` and `untranslated-options`. All of them port
-  DrupalPractice sniffs.
+  DrupalPractice sniffs;
+- the rules for info and routing files that core does not run: `info-core-version-requirement`,
+  `info-dependencies-array`, `info-description` and `routing-access`.
 
 ### Turning rules off
 
@@ -64,12 +71,22 @@ php-version = "8.3"
 [formatter]
 # Drupal's style for braces, indentation and line length.
 preset = "drupal"
+# Mago reads a YAML file as text outside PHP, and the formatter would trim the end of its lines.
+excludes = ["**/*.yml"]
 
 [linter]
 # Mago's own Drupal switch. The formatter's drupal preset writes TRUE, FALSE and NULL. This switch
 # stops `lowercase-keyword` from reporting those three keywords. The rule still reports every other
 # upper-case keyword.
 integrations = ["drupal"]
+# A config export can hold any text. Mago reads a `<?` in it, as in `<?xml`, as a PHP open tag and
+# reports parse errors. The info and routing files are never in these directories.
+excludes = [
+    "**/config/install/**/*.yml",
+    "**/config/optional/**/*.yml",
+    "**/config/schema/**/*.yml",
+    "**/config/sync/**/*.yml",
+]
 
 [linter.rules]
 # Report an interface name without the "Interface" suffix.
@@ -92,6 +109,8 @@ no-unused-closure-capture = { enabled = true }
 # Report a PHP function that is called with the wrong case. That is Drupal's
 # Squiz.PHP.LowercasePHPFunctions.
 check-name-casing = true
+# A YAML file holds no PHP for the analyzer.
+excludes = ["**/*.yml"]
 ```
 
 ## Turn off what Drupal's standard does not ask for

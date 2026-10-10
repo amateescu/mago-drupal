@@ -8,7 +8,7 @@ paths = ["src"]
 includes = ["stubs"]
 # Drupal keeps procedural code in files PHP does not name `.php`, and several
 # rules only fire inside those.
-extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
+extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
 
 # The fixtures stand in for Drupal code, so they follow Drupal's layout: the
 # comment rules measure lines and read comments the way Drupal writes them.
@@ -16,8 +16,13 @@ extensions = ["php", "module", "install", "inc", "theme", "profile", "engine"]
 preset = "drupal"
 # The formatter sorts imports, splits groups and statements with several names,
 # and moves comments out of a `use` statement. The fixtures of
-# drupal/use-leading-backslash need those shapes as written.
-excludes = ["src/UseLeadingBackslash.php"]
+# drupal/use-leading-backslash need those shapes as written. Mago reads a YAML
+# file as text outside PHP tags, which only the rules for info and routing files
+# check, as in the Setup config.
+excludes = ["src/UseLeadingBackslash.php", "**/*.yml"]
+
+[analyzer]
+excludes = ["**/*.yml"]
 
 [extension-hosts.drupal]
 command = ["php", "../../resources/worker.php"]

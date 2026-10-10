@@ -59,7 +59,7 @@ standards are on [Sniffs from other standards](other-standards.md).
 | `Drupal.Files.EndFileNewline` | `mago format` | PHP files only. Coder also checks the last line of `.txt`, `.md` and `.yml` files, which Mago does not read. |
 | `Drupal.Files.FileEncoding` | [`drupal/file-encoding`](../rules/files-and-tags.md#drupalfile-encoding) |  |
 | `Drupal.Files.LineLength` | [`drupal/comment-line-length`](../rules/comment-text.md#drupalcomment-line-length) |  |
-| `Drupal.Files.TxtFileLineLength` | phpcs | Checks `.txt` and `.md` files. Mago reads only PHP. |
+| `Drupal.Files.TxtFileLineLength` | phpcs | Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` example in such a file gives parse errors, so they stay with phpcs. |
 
 ## Formatting
 
@@ -81,9 +81,9 @@ standards are on [Sniffs from other standards](other-standards.md).
 
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
-| `Drupal.InfoFiles.AutoAddedKeys` | phpcs | Checks `.info.yml` files. Mago cannot report an issue in a YAML file. |
+| `Drupal.InfoFiles.AutoAddedKeys` | [`drupal/info-auto-added-keys`](../rules/info-and-routing-files.md#drupalinfo-auto-added-keys) |  |
 | `Drupal.InfoFiles.ClassFiles` | phpcs | Checks the `files[]` lines of a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files. |
-| `Drupal.InfoFiles.DependenciesArray` | phpcs |  |
+| `Drupal.InfoFiles.DependenciesArray` | [`drupal/info-dependencies-array`](../rules/info-and-routing-files.md#drupalinfo-dependencies-array) |  |
 | `Drupal.InfoFiles.DuplicateEntry` | phpcs | Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files. |
 | `Drupal.InfoFiles.Required` | phpcs | Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files. |
 

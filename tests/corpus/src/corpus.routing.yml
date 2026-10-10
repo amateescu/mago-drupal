@@ -1,0 +1,12 @@
+corpus.help:
+  path: '/corpus/help'
+  defaults:
+    _title: 'Help'
+  requirements:
+    # Anyone may read the help page.
+    _access: 'TRUE'
+
+corpus.settings:
+  path: '/admin/config/corpus'
+  requirements:
+    _permission: 'administer site configuration'

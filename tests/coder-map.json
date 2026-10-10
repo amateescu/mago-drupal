@@ -331,7 +331,7 @@
         "sniff": "Drupal.Files.TxtFileLineLength",
         "standard": "Drupal",
         "where": ["phpcs"],
-        "note": "Checks `.txt` and `.md` files. Mago reads only PHP.",
+        "note": "Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` example in such a file gives parse errors, so they stay with phpcs.",
         "codes": [
             {"code": "TooLong", "status": "phpcs"}
         ]
@@ -405,12 +405,11 @@
     {
         "sniff": "Drupal.InfoFiles.AutoAddedKeys",
         "standard": "Drupal",
-        "where": ["phpcs"],
-        "note": "Checks `.info.yml` files. Mago cannot report an issue in a YAML file.",
+        "where": ["ext:drupal/info-auto-added-keys"],
         "codes": [
-            {"code": "Project", "status": "phpcs"},
-            {"code": "Timestamp", "status": "phpcs"},
-            {"code": "Version", "status": "phpcs"}
+            {"code": "Project", "status": "report"},
+            {"code": "Timestamp", "status": "report"},
+            {"code": "Version", "status": "report"}
         ]
     },
     {
@@ -426,9 +425,9 @@
     {
         "sniff": "Drupal.InfoFiles.DependenciesArray",
         "standard": "Drupal",
-        "where": ["phpcs"],
+        "where": ["ext:drupal/info-dependencies-array"],
         "codes": [
-            {"code": "Dependencies", "status": "phpcs"}
+            {"code": "Dependencies", "status": "report"}
         ]
     },
     {
@@ -1543,29 +1542,26 @@
     {
         "sniff": "DrupalPractice.InfoFiles.CoreVersionRequirement",
         "standard": "DrupalPractice",
-        "where": ["phpcs"],
-        "note": "Checks `.info.yml` files.",
+        "where": ["ext:drupal/info-core-version-requirement"],
         "codes": [
-            {"code": "CoreVersionRequirement", "status": "phpcs"}
+            {"code": "CoreVersionRequirement", "status": "report"}
         ]
     },
     {
         "sniff": "DrupalPractice.InfoFiles.Description",
         "standard": "DrupalPractice",
-        "where": ["phpcs"],
-        "note": "Checks `.info.yml` files.",
+        "where": ["ext:drupal/info-description"],
         "codes": [
-            {"code": "Empty", "status": "phpcs"},
-            {"code": "Missing", "status": "phpcs"}
+            {"code": "Empty", "status": "report"},
+            {"code": "Missing", "status": "report"}
         ]
     },
     {
         "sniff": "DrupalPractice.InfoFiles.NamespacedDependency",
         "standard": "DrupalPractice",
-        "where": ["phpcs"],
-        "note": "Checks `.info.yml` files.",
+        "where": ["ext:drupal/info-namespaced-dependency"],
         "codes": [
-            {"code": "NonNamespaced", "status": "phpcs"}
+            {"code": "NonNamespaced", "status": "report"}
         ]
     },
     {
@@ -1623,11 +1619,10 @@
     {
         "sniff": "DrupalPractice.Yaml.RoutingAccess",
         "standard": "DrupalPractice",
-        "where": ["phpcs"],
-        "note": "Checks `.routing.yml` files.",
+        "where": ["ext:drupal/routing-access"],
         "codes": [
-            {"code": "OpenCallback", "status": "phpcs"},
-            {"code": "PermissionFound", "status": "phpcs"}
+            {"code": "OpenCallback", "status": "report"},
+            {"code": "PermissionFound", "status": "report"}
         ]
     },
     {
