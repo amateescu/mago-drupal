@@ -30,7 +30,8 @@ covers `const`, the other half of the sniff.
 **Compared with Coder:** the rule matches `define` without regard to case, with or without a
 leading backslash. A name built from literals joined with `.` is checked as a whole. Coder 9 checks
 only the first literal. A name that has a variable in it is skipped. Coder 9 reports
-`'mymod_' . $x`.
+`'mymod_' . $x`. The rule also reports a `define()` call inside an attribute argument, and
+`namespace\define()` in a file with no namespace declaration. Coder 9 reports neither.
 
 ## drupal/enum-case-name
 
@@ -40,7 +41,8 @@ only the first literal. A name that has a variable in it is skipped. Coder 9 rep
 
 An enum case name that does not start with a capital letter, that holds an underscore, or that
 starts with three upper-case letters and has no lower-case letter after them. The last check is the
-one of `drupal/class-name-acronym`.
+one of `drupal/class-name-acronym`. A name that fails several checks gets one issue for each, as in
+Coder 9.
 
 ## drupal/fully-qualified-name
 
@@ -71,6 +73,8 @@ name, or a docblock that writes the short name in the same case.
 - There is no fix when the short name is taken by an interface, a trait, an enum, an import that
   differs in case only, or a class whose name has a comment before it. Coder reports a fixable
   error there, and its fix writes code that PHP rejects.
+- The rule also reports a namespace-relative name such as `namespace\Sub\Bar`. Coder never checks
+  that form.
 
 ## drupal/hook-attribute-name
 
@@ -154,7 +158,9 @@ the types.
 
 **Compared with Coder:** the rule skips `use const` and grouped imports such as `use Foo\{Bar, Baz};`.
 Coder reports both, and phpcbf breaks the code there: it writes `\const` for a constant import and
-the group prefix for a grouped name.
+the group prefix for a grouped name. The rule also reports an import with a leading backslash, such
+as `use \DateTime;`. Coder's sniff skips it, and Coder reports that line only for the backslash,
+which `drupal/use-leading-backslash` covers.
 
 ## drupal/use-leading-backslash
 

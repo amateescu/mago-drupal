@@ -16,9 +16,11 @@ use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
 use function str_contains;
-use function str_starts_with;
+use function strcspn;
 use function strlen;
 use function strpos;
+use function strspn;
+use function substr;
 
 /**
  * Reports `array()` syntax inside a docblock's `@code` example block.
@@ -60,13 +62,20 @@ final class DocCommentArraySyntaxRule implements Rule
 
             $inCode = false;
             foreach (Docblocks::lines($context->file, $trivia->span) as $line) {
-                if (str_starts_with($line->text, '@endcode')) {
+                // Coder's tokenizer reads a tag only at the start of a line,
+                // after any indent, up to the first space or tab.
+                $indent = strspn($line->text, characters: " \t");
+                $tag = substr($line->text, $indent, strcspn($line->text, characters: " \t", offset: $indent));
+                if ($tag === '@endcode') {
                     $inCode = false;
                     continue;
                 }
 
-                if (str_starts_with($line->text, '@code')) {
+                if ($tag === '@code') {
+                    // The text after the tag on its line is part of the example.
                     $inCode = true;
+                    $start = $indent + strlen($tag);
+                    $this->checkLine($context, substr($line->text, $start), $line->offset + $start);
                     continue;
                 }
 

@@ -131,7 +131,7 @@ analyzer](../coder/index.md#docblock-types-and-the-analyzer). The group has the 
 | [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Checks that a class, interface, trait or enum has a docblock. |
 | [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Checks the wording of a @deprecated docblock tag and the @see tag that must follow it. |
 | [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | warning | Checks a docblock's short description, long description and tag order. |
-| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks that a procedural file starts with a docblock tagged @file. |
+| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks that a procedural file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment. |
 | [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Checks that a function or method has a well-formed docblock. |
 | [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Checks the "Implements hook_x()." docblock convention on a hook implementation. |
 | [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |

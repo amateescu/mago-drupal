@@ -110,6 +110,12 @@ class ClassCommentWrongStyle {}
  */
 class ClassCommentFine {}
 
+#[CorpusAttribute]
+/**
+ * Describes what this class does, with the docblock below an attribute.
+ */
+class ClassCommentBelowAttributeFine {}
+
 // @mago-expect lint:drupal/class-comment
 /**
  * ClassCommentShort.
@@ -227,6 +233,15 @@ function inline_variable_comment_bad(): void {
   echo $bar->getMessage();
 }
 
+// @mago-expect lint:drupal/function-comment
+function inline_variable_comment_before_include_once(): void {
+  // Coder skips a comment before an include_once or require_once statement.
+  // @var int $once
+  include_once __DIR__ . '/inline_variable.inc';
+  // @var int $required
+  require_once __DIR__ . '/inline_variable.inc';
+}
+
 // @mago-expect lint:drupal/class-comment
 class InlineVariableCommentExempted {
 
@@ -297,6 +312,22 @@ function inline_comment_examples(): void {
 }
 
 // @mago-expect lint:drupal/function-comment
+function inline_comment_punctuation_last_word(): void {
+  // @mago-expect lint:drupal/inline-comment-punctuation
+  // Value (foo)x
+  $a = 1;
+
+  // @mago-expect lint:drupal/inline-comment-punctuation
+  // Last word httpd
+  $b = 2;
+
+  // See <a href="http://x.com">
+  $c = 3;
+
+  echo $a . $b . $c;
+}
+
+// @mago-expect lint:drupal/function-comment
 function inline_comment_after_brace(bool $flag): bool {
   // A comment after a closing brace is skipped, as Coder skips it.
   if ($flag) {
@@ -342,6 +373,24 @@ class VariableCommentFixture {
    */
   protected $wrongStyle;
 
+  // @mago-expect lint:drupal/variable-comment
+  /**
+   * Coder reads the comment between the attribute and the property.
+   *
+   * @var string
+   */
+  #[CorpusAttribute]
+  // Explains the property.
+  protected $attributeThenComment;
+
+  #[CorpusAttribute]
+  /**
+   * Has its docblock below an attribute, which Coder accepts.
+   *
+   * @var string
+   */
+  protected $docblockBelowAttribute;
+
   /**
    * A fine property.
    *
@@ -364,11 +413,38 @@ class VariableCommentFixture {
   protected $duplicateVar;
 
   // @mago-expect lint:drupal/variable-comment
+  /**
+   * Coder wants the @see reference on the tag's own line.
+   *
+   * @var string
+   *
+   * @see
+   *   https://www.drupal.org/node/1234567
+   */
+  protected $seeBelow;
+
+  // @mago-expect lint:drupal/variable-comment
   // @mago-expect lint:drupal/doc-comment
   /**
    * @var string $inlineRepeat Should not repeat the name.
    */
   protected $inlineRepeat;
+
+  // @mago-expect lint:drupal/variable-comment
+  /**
+   * Repeats the name after a type with spaces in its brackets.
+   *
+   * @var array<string, int> $spacedRepeat
+   */
+  protected $spacedRepeat;
+
+  /**
+   * Coder looks for the repeated name on the tag's own line only.
+   *
+   * @var string
+   *   $nextLine
+   */
+  protected $nextLine;
 
   // @mago-expect lint:drupal/variable-comment
   /**

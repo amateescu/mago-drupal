@@ -1,5 +1,6 @@
 <?php
 
+// @mago-expect lint:drupal/file-comment
 /**
  * @file
  * Docblock types named by imports that the code uses, and by one it does not.

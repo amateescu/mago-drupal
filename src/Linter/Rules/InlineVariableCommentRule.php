@@ -15,12 +15,12 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
-use function count;
 use function ltrim;
 use function preg_match;
 use function str_contains;
@@ -51,7 +51,7 @@ use function trim;
  */
 final class InlineVariableCommentRule implements Rule
 {
-    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include|require)\b/';
+    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include(_once)?|require(_once)?)\b/';
 
     private const LOOKAHEAD = 40;
 
@@ -91,11 +91,15 @@ final class InlineVariableCommentRule implements Rule
                     }
 
                     $issue = Issue::new('Put the variable name after the type in a @var tag.', $tag->contentSpan());
-                    $swapped = count($tag->lines) === 1 ? DocType::typeFirst(trim($tag->content())) : null;
+                    // Like phpcbf, the swap reads only the tag's own line. The
+                    // lines below it stay as they are.
+                    $line = $tag->lines[0];
+                    $swapped = DocType::typeFirst(trim($line->text));
                     // Mago skips the tag in this order, so the swap gives the
                     // variable a type the analyzers start to trust.
                     if ($swapped !== null) {
-                        $edit = TextEdit::replace($tag->contentSpan(), $swapped)->withSafety(Safety::PotentiallyUnsafe);
+                        $span = new Span($line->offset, $line->offset + strlen($line->text));
+                        $edit = TextEdit::replace($span, $swapped)->withSafety(Safety::PotentiallyUnsafe);
                         $issue = $issue->withEdit($edit);
                     }
 

@@ -52,6 +52,10 @@ final class TranslatableStringRule implements Rule
 {
     private const HELP = 'The string extractor reads the source code, so it sees only whole literals.';
 
+    private const PADDED = 'Do not start or end a translatable string with whitespace.';
+
+    private const PADDED_HELP = 'Use placeholders for the variable parts instead of padding the literal.';
+
     /**
      * The strings that may follow a translated call after a `.`, as Coder's
      * checkConcatString() lists them. They are compared once the quotes,
@@ -291,10 +295,7 @@ final class TranslatableStringRule implements Rule
         }
 
         if ($value !== trim($value)) {
-            $context->report(Issue::new(
-                'Do not start or end a translatable string with whitespace.',
-                $message->span,
-            )->withHelp('Use placeholders for the variable parts instead of padding the literal.'));
+            $context->report(Issue::new(self::PADDED, $message->span)->withHelp(self::PADDED_HELP));
         }
     }
 
@@ -370,6 +371,15 @@ final class TranslatableStringRule implements Rule
                 'Do not concatenate a translatable string. Use placeholders instead.',
                 $message->span,
             )->withHelp(self::HELP));
+
+            // Coder also checks the padding of the first token, so a padded
+            // leftmost literal gets its own report. The later parts are not
+            // checked.
+            $first = Values::leftmost($context->file, $message);
+            $value = Values::literalString($context->file, $first);
+            if ($value !== null && $value !== trim($value)) {
+                $context->report(Issue::new(self::PADDED, $first->span)->withHelp(self::PADDED_HELP));
+            }
 
             return;
         }

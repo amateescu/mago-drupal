@@ -162,9 +162,9 @@
         "codes": [
             {"code": "FileTag", "status": "fix"},
             {"code": "Missing", "status": "report-only"},
-            {"code": "NamespaceNoFileDoc", "status": "gap", "where": ["none"], "note": "A file docblock above the namespace of a file that holds one class, interface, trait or enum. Not ported: `drupal/file-comment` skips such a file, as Coder does for its other codes, and it does not read `.php` files."},
+            {"code": "NamespaceNoFileDoc", "status": "fix"},
             {"code": "SpacingAfterComment", "status": "fix", "where": ["ext:drupal/file-comment", "format"]},
-            {"code": "TemplateSpacingAfterComment", "status": "gap", "where": ["none"], "note": "The shape of a Drupal 7 `.tpl.php` template. Not ported."},
+            {"code": "TemplateSpacingAfterComment", "status": "gap", "where": ["none"], "note": "A blank line between the file docblock and the `?>` that follows it, in a file of any extension. Not ported."},
             {"code": "WrongStyle", "status": "partial"}
         ]
     },
@@ -237,7 +237,7 @@
         "codes": [
             {"code": "DocBlock", "status": "report"},
             {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"], "note": "Mago's rule, at note level."},
-            {"code": "InvalidEndChar", "status": "partial", "where": ["ext:drupal/inline-comment-punctuation"]},
+            {"code": "InvalidEndChar", "status": "fix", "where": ["ext:drupal/inline-comment-punctuation"]},
             {"code": "NoSpaceBefore", "status": "fix"},
             {"code": "NotCapital", "status": "fix"},
             {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"]},

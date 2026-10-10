@@ -87,6 +87,15 @@ class SpacingMethods
     {
     }
 
+    #[\Deprecated]
+    /**
+     * Has a blank line below it, and an attribute above it.
+     */
+
+    public function belowAttribute(): void
+    {
+    }
+
     /**
      * Fixes a constructor docblock like any other.
      *

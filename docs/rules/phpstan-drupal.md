@@ -13,7 +13,7 @@ only the syntax.
 
 A call to a dump helper of the devel module, such as `dpm()`, `dsm()`, `ksm()` or `kint()`, or a
 call to `fnmatch()`, which some PHP builds do not have. The devel helpers are the ones that Coder 9
-lists.
+lists. A first-class callable such as `dpm(...)` counts as a call, as in Coder 9.
 
 Coder 9 also lists `eval`, which Mago's own `no-eval` rule reports.
 

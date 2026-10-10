@@ -10,17 +10,31 @@ use Mago\Sdk\Syntax\SourceFile;
 
 use function count;
 use function implode;
+use function preg_match;
 use function preg_replace;
 use function trim;
 
 /**
- * Flattens a deprecation message argument into the text to check.
+ * Reads the arguments of a trigger_error() deprecation notice: the level
+ * that marks it, and the message flattened into the text to check.
  *
  * @internal
  */
 final class DeprecationText
 {
     private function __construct() {}
+
+    /**
+     * Whether a trigger_error() level argument is E_USER_DEPRECATED.
+     *
+     * Coder reads only the first name of the level, so a level such as
+     * `E_USER_DEPRECATED | E_USER_WARNING` counts too. The constant can be
+     * fully qualified, and its case does not matter.
+     */
+    public static function isDeprecationLevel(SourceFile $file, Node $level): bool
+    {
+        return preg_match('/^\\\\?E_USER_DEPRECATED\b/i', trim($file->getText($level))) === 1;
+    }
 
     /**
      * Returns the message text, or an empty string if it cannot be read.

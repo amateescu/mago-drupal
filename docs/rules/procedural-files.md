@@ -30,12 +30,20 @@ that the name starts with the upper-case module name, so for a module named `mym
 A `define()` constant whose name does not start with the upper-case module name and an underscore.
 The constants of every module share one global namespace, and the prefix keeps them apart.
 
+For a name built with `.`, the rule checks the first string literal, as Coder checks the first
+token. A name that starts with anything else, such as a variable, is not checked, as in Coder.
+
 **Compared with Coder:**
 
 - The rule needs the underscore after the module name, as `drupal/const-prefix` does.
 - The rule checks a `define()` call at any depth: in a function, a method, a closure, an `if` or a
   braced `namespace Foo { }`. Coder checks only the calls at the top level of the file. A constant
   from `define()` is global wherever the call is.
+- The rule also reports `\define()`, and a `define()` with a comment before its first argument.
+  Coder skips both.
+- In a name built with `.`, a first literal that is the start of the prefix, as in
+  `'MY' . 'MODULE_X'` in `mymodule.module`, is not reported, because the rest of the name can
+  complete the prefix. Coder reports it.
 
 ## drupal/empty-install-hook
 
@@ -54,7 +62,8 @@ An empty `hook_install()` or `hook_uninstall()` body in an `.install` file.
 
 A function in a `.module` file whose name does not start with the module name and an underscore,
 with an optional leading underscore. A name that starts with `template_preprocess` or `theme` is
-fine. `.install` files are not checked, as in Coder 9.
+fine. `.install` files are not checked, as in Coder 9, and neither is a function declared inside a
+class, trait, enum or anonymous class, such as in a method body.
 
 ## drupal/global-variable
 

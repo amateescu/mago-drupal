@@ -19,7 +19,8 @@ file comment that already starts with `@file` keeps it once.
 The fix is potentially unsafe. PHP's reflection returns a docblock and not a comment, so
 annotation discovery, PHPUnit and the analyzers start to read the text. It skips a trailing comment
 of the line above, a comment that a blank line parts from the declaration, a directive, and a line
-comment that holds `*/`.
+comment that holds `*/`. It also skips a comment below the attributes when a docblock sits above
+them, because PHP reads only the lower of two docblocks.
 
 ## drupal/class-comment
 
@@ -32,10 +33,15 @@ A class, interface, trait or enum with no docblock, with a comment in the wrong 
 summary that only repeats the name. Also a blank line between the docblock and the declaration,
 which the fix removes.
 
-A docblock tagged `@file` does not count as the class docblock. `drupal/file-comment` checks it.
+A docblock tagged `@file` does not count as the class docblock. `drupal/file-comment` checks it. A
+docblock above or below the attributes counts, as in Coder.
 
-**Compared with Coder:** phpcbf writes an empty docblock for a class that has none, which Coder
-then reports as `DocComment.Empty`. The rule has no fix there.
+**Compared with Coder:**
+
+- phpcbf writes an empty docblock for a class that has none, which Coder then reports as
+  `DocComment.Empty`. The rule has no fix there.
+- A summary that only repeats the name is matched in any case, so `bar.` above `class Bar` is
+  reported. Coder's match is case-sensitive.
 
 ## drupal/deprecated-tag
 
@@ -122,6 +128,8 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 - Core runs `MissingShort` only in tests. `--core` does not narrow it, so the rule reports a
   missing summary in any file.
 - A file docblock that holds only `@file` gets no report. Coder reports it as `MissingShort`.
+- A `phpcs:` line above the summary is skipped, and the line below it is the summary. Coder
+  reports `MissingShort` there.
 - Text on the line of the opening `/**` is reported once. Coder also reports it as
   `SpacingBeforeShort`.
 - The space after the star is checked in the docblocks that Coder's `DocCommentAlignment` picks:
@@ -135,8 +143,8 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
   no blank line, is reported, and so is a `@param` inside an `@code` example that sits at the
   column of the first tag.
 - phpcbf has no fix for a closer. Its two-dot fix also takes the space after the opening `/**` or
-  the star, and deletes a docblock that has nothing else in it. The rule removes the dots and the
-  spaces before them, and leaves the docblock.
+  the star, and deletes a docblock that has nothing else in it. The rule turns the two dots and the
+  spaces before them into one full stop, and leaves the docblock.
 - Mago's `no-empty-comment` also reports an empty docblock, and its safe fix deletes it.
 - The pattern in core's phpcs config that forbids `@inheritDoc` anywhere in a docblock line is not
   ported.
@@ -144,13 +152,14 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 ## drupal/file-comment
 
 - **Level:** error
-- **Fix:** safe for the `@file` tag and the blank line. Potentially unsafe for moving the tag and
-  for the [comment style](#comment-style-fixes).
+- **Fix:** safe for the `@file` tag and the blank line. Potentially unsafe for moving the tag, for
+  deleting the docblock of a namespaced class file, and for the
+  [comment style](#comment-style-fixes).
 - **Ports:**
-    - `Drupal.Commenting.FileComment`: `FileTag`, `Missing`, `SpacingAfterComment`, `WrongStyle` (partly)
+    - `Drupal.Commenting.FileComment`: `FileTag`, `Missing`, `NamespaceNoFileDoc`, `SpacingAfterComment`, `WrongStyle` (partly)
     - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare` (partly)
 
-A procedural file that does not start with a docblock that has the `@file` tag. The rule reads
+A procedural file that does not start with a docblock that has the `@file` tag. This check reads
 `.module`, `.install`, `.inc`, `.theme`, `.profile` and `.engine` files. A directive such as
 `// phpcs:ignoreFile` above the docblock is skipped, and so is a byte order mark before the open
 tag, which `drupal/byte-order-mark` reports.
@@ -167,21 +176,32 @@ It also reports:
 
 A tag that is not exactly `@file`, such as `@FILE` or `@File`, counts as no tag, as in Coder.
 
-The rule skips the same files as Coder. It skips a file that holds a class, interface, trait or enum
-and a `namespace` statement. It also skips a file that holds exactly one class, interface, trait or
-enum, no function or method outside it, and no `@file` tag in any docblock. A closure or an arrow
-function does not count as a function. A method of an anonymous class outside the class does.
+The checks above skip the same files as Coder. They skip a file that holds a class, interface,
+trait or enum and a `namespace` statement. They also skip a file that holds exactly one class,
+interface, trait or enum, no function or method outside it, and no `@file` tag in any docblock. A
+closure or an arrow function does not count as a function. A method of an anonymous class outside
+the class does.
+
+A file with a `namespace` statement and exactly one class, interface, trait or enum must not start
+with a comment, as in Coder. This check runs on every file that Mago reads, `.php` files included.
+A file with two or more of them may start with a docblock. The fix deletes a docblock at the start,
+with the whitespace after it. The text of the docblock is lost, so the fix is potentially unsafe. A
+plain comment gets no fix, as in Coder.
 
 **Compared with Coder:**
 
 - Coder also checks a `.php` file that has no class.
-- In a file with a namespace and exactly one class, interface, trait or enum, Coder reports a
-  comment or docblock at the start of the file (`NamespaceNoFileDoc`). The rule does not.
+- A directive at the start of the file, such as `// phpcs:disable` or `// @mago-expect`, is
+  skipped, and the comment below it is checked. Coder finds no file comment after a `phpcs:`
+  directive, so it reports a missing one in a procedural file and nothing in a namespaced class
+  file. It takes a `@codingStandardsIgnore`, `@mago-`, `@phpstan-` or `@psalm-` comment for the
+  file comment.
 - phpcbf writes an empty stub for a missing docblock. The rule has no fix there.
 - The report of a missing `@file` sits on the second line of the docblock, where Coder puts it, or
   on the opener when the docblock has no star line. Coder puts it on the first line of the file in
   that case.
-- The template check of the sniff is not ported. `.tpl.php` templates are a Drupal 7 format.
+- A blank line between the docblock and a `?>` that follows it is not reported. Coder reports it
+  (`TemplateSpacingAfterComment`).
 
 ## drupal/function-comment
 
@@ -193,7 +213,7 @@ function does not count as a function. A method of an anonymous class outside th
 A function or method with no docblock, or with a comment in the wrong style. A constructor with a
 docblock is checked, and one with nothing above it needs no docblock, as in Coder. A docblock
 tagged `@file` above a function is reported as no docblock for the function, and its tags are not
-checked, as in Coder.
+checked, as in Coder. A docblock above or below the attributes counts, as in Coder.
 
 The rule checks the tags, with a fix where the list says so:
 
@@ -290,13 +310,14 @@ An inline `@var` declaration that uses `//` and not `/** */`, or that writes the
 before the type. A `//` or `#` comment that holds `*/`, such as a commented-out docblock, is
 skipped. As in Coder, the rule also skips a comment or docblock when the first code after it, past
 any other comments, is a declaration keyword such as `public`, `const`, `static` or `function`,
-or `include` or `require`. A comment in the wrong style there is left to the comment-style check
-of that declaration's rule. On a property, `drupal/variable-comment` reports a `@var` tag that
-starts with a variable name.
+or `include`, `require` or their `_once` forms. A comment in the wrong style there is left to the
+comment-style check of that declaration's rule. On a property, `drupal/variable-comment` reports a
+`@var` tag that starts with a variable name.
 
-One fix moves a variable name written first after the type, when the whole type can be read. The
-other turns a comment that holds only the tag, alone on its line, into a docblock. It skips a
-comment with more text than the tag, and a `//` line inside a run of `//` lines.
+One fix moves a variable name written first after the type, when the tag's own line holds a whole
+type. The lines below the tag stay as they are. The other turns a comment that holds only the tag,
+alone on its line, into a docblock. It skips a comment with more text than the tag, and a `//` line
+inside a run of `//` lines.
 
 ## drupal/variable-comment
 
@@ -306,16 +327,19 @@ comment with more text than the tag, and a `//` line inside a run of `//` lines.
   [comment style](#comment-style-fixes).
 - **Ports:** `Drupal.Commenting.VariableComment`: `DuplicateVar`, `EmptySees`, `EmptyVar`, `IncorrectVarType` (partly), `InlineVariableName`, `Missing`, `MissingVar`, `VarOrder`, `WrongStyle`
 
-A class property with no docblock, or with a comment in the wrong style. A property with a native
-type needs a docblock but no `@var` tag. In the docblock, the rule reports:
+A class property with no docblock, or with a comment in the wrong style. A docblock above or below
+the attributes counts, as in Coder, and a comment between the attributes and the property is the
+property's comment. A property with a native type needs a docblock but no `@var` tag. In the
+docblock, the rule reports:
 
 - no `@var` tag on a property with no native type, more than one, and one that is not the first
   tag;
-- a `@var` tag with no type, and a `@see` tag with no content;
+- a `@var` tag with no type, and a `@see` tag with nothing after it on its line;
 - a `@var` type name that Coder wants written another way, such as `integer` for `int`, `Boolean`
   for `bool` or `NULL` for `null`;
 - a `@var` tag that starts with a variable name, as in `@var $count int`;
-- the property name repeated after the `@var` type.
+- the property name repeated after the `@var` type on the tag's line, also after a type with
+  spaces such as `array<string, int>`.
 
 The fixes remove a property name repeated after the `@var` type, and write Coder's type name. In a
 `@var` tag that starts with a variable name, a fix writes the type first when a whole type follows
@@ -331,6 +355,12 @@ the name. It drops the property's own name, and moves any other name after the t
   where Coder takes the whole text as the type and does not report it.
 - Coder reports a `@var` tag that starts with a variable name as `IncorrectVarType`, and phpcbf
   writes `count int` for `$count int`, which is broken. The rule writes the type first.
+- Coder reports a name after a type with spaces, as in `@var array<string, int> $name`, as
+  `IncorrectVarType`, and phpcbf drops the `$` of the name. The rule reports it as a repeated name,
+  and the fix removes it.
+- The rule skips a docblock with `{@inheritdoc}` in any letter case, and reads tag names in any
+  letter case. Coder skips only `{@inheritdoc}` and `{@inheritDoc}`, and does not take `@VAR` for
+  `@var`.
 - The fix removes a repeated name only when it is the property's own name, in a declaration of one
   property, followed by a space or the end of the line. It keeps a description after the name.
   phpcbf also removes another name, and drops the description.

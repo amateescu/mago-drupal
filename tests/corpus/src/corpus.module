@@ -19,6 +19,16 @@ define('CORPUSCACHE_TTL', 3600);
 // @mago-expect lint:drupal/global-constant
 define('CORPUS_DEFAULT_LIMIT', 50);
 
+// A name built with `.` is checked by its first literal, as in Coder.
+// @mago-expect lint:drupal/constant-prefix
+// @mago-expect lint:drupal/global-constant
+define('CACHE_' . 'MAX_AGE', 3600);
+
+// A first literal that is the start of the prefix can still lead to a
+// prefixed name.
+// @mago-expect lint:drupal/global-constant
+define('CORPUS' . '_MAX_AGE', 3600);
+
 // A prefixed name that is not upper case is a name problem only.
 // @mago-expect lint:drupal/define-name
 // @mago-expect lint:drupal/global-constant
@@ -124,6 +134,51 @@ function template_preprocess_corpus_page(array &$variables): void {
 function corpus_(): void {
 }
 
+/**
+ * Declares a function in a function, which Coder checks.
+ */
+function corpus_declares_helper(): void {
+  /**
+   * Lives in a function without the module name.
+   */
+  // @mago-expect lint:drupal/function-prefix
+  function inner_without_prefix(): void {
+  }
+}
+
+/**
+ * Declares functions in methods, which Coder does not check.
+ */
+final class CorpusNestedFunctions {
+
+  /**
+   * Declares a function when it runs.
+   */
+  public function build(): object {
+    /**
+     * Lives in a class method without the module name.
+     */
+    function nested_without_prefix(): void {
+    }
+
+    return new class {
+
+      /**
+       * Declares a function when it runs.
+       */
+      public function build(): void {
+        /**
+         * Lives in an anonymous class method without the module name.
+         */
+        function anonymous_without_prefix(): void {
+        }
+      }
+
+    };
+  }
+
+}
+
 // @mago-expect lint:drupal/hook-comment
 /**
  * Implements corpus_repeat().
@@ -164,7 +219,6 @@ function corpus_tag_below(array $form): void {
 final class CorpusHook {}
 
 // @mago-expect lint:drupal/hook-comment
-// @mago-expect lint:drupal/function-comment
 #[CorpusHook]
 /**
  * Implements corpus_after_attribute().

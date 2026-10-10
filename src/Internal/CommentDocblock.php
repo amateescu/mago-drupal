@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Internal;
 use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
@@ -51,10 +52,20 @@ final class CommentDocblock
      * comment may not document the declaration: a trailing comment of the
      * line above, a comment parted from the declaration by a blank line, an
      * empty one, a directive, or one holding `*\/`.
+     *
+     * $anchor is the part of the declaration that the comment sits above,
+     * from Docblocks::commentAnchor().
      */
-    public static function edit(SourceFile $file, Trivia $comment, int $declarationStart): ?TextEdit
+    public static function edit(SourceFile $file, Trivia $comment, Node $declaration, Node $anchor): ?TextEdit
     {
-        return self::build($file, $comment, $declarationStart, []);
+        // A comment below the attributes with a docblock above them gets no
+        // fix. The fix would leave two docblocks, and PHP reads only the
+        // lower one.
+        if ($anchor->span->start !== $declaration->span->start && Docblocks::attachedTo($file, $declaration) !== null) {
+            return null;
+        }
+
+        return self::build($file, $comment, $anchor->span->start, []);
     }
 
     /**

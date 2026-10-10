@@ -1,5 +1,6 @@
 <?php
 
+// @mago-expect lint:drupal/file-comment
 /**
  * @file
  * Linter ports: discouraged functions, Yaml::parse() and render callbacks.
@@ -31,6 +32,19 @@ final class LintRules {
 
     // @mago-expect lint:drupal/symfony-yaml-parse
     return Yaml::parse($yaml);
+  }
+
+  /**
+   * Debug helpers as first-class callables.
+   */
+  public function callables(): array {
+    return [
+      // @mago-expect lint:drupal/discouraged-function
+      dpm(...),
+      // @mago-expect lint:drupal/discouraged-function
+      \fnmatch(...),
+      strlen(...),
+    ];
   }
 
   /**

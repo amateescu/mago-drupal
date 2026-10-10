@@ -17,6 +17,11 @@ function inline_variable_order(array $rows): void
      *   int
      */
     $multi = $rows[4];
+    /**
+     * @var array<int, string> $names
+     *   The names by row.
+     */
+    $names = $rows[8];
     /** @var \Drupal\node\NodeInterface $node */
     $node = $rows[5];
 }

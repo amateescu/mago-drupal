@@ -30,6 +30,19 @@ function function_comment_fine(string $a): string {
   return $a;
 }
 
+#[CorpusAttribute]
+/**
+ * A fine function with its docblock below an attribute, as Coder allows.
+ */
+function function_comment_below_attribute_fine(): void {
+}
+
+// @mago-expect lint:drupal/function-comment
+#[CorpusAttribute]
+// Wrong style below an attribute.
+function function_comment_below_attribute_wrong_style(): void {
+}
+
 // @mago-expect lint:drupal/function-comment
 /**
  * Missing param type.
@@ -263,6 +276,16 @@ function function_comment_throws_type_only(): void {
  * @see
  */
 function function_comment_empty_sees(): void {
+}
+
+// @mago-expect lint:drupal/function-comment
+/**
+ * See reference on the next line.
+ *
+ * @see
+ *   FunctionCommentFixture::method()
+ */
+function function_comment_see_next_line(): void {
 }
 
 // @mago-expect lint:drupal/function-comment

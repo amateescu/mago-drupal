@@ -58,7 +58,8 @@ final class ClassCommentRule implements Rule
     public function lint(LintContext $context): void
     {
         $keyword = self::KEYWORDS[$context->node->kind->name];
-        $closest = Docblocks::closest($context->file, $context->node);
+        $anchor = Docblocks::commentAnchor($context->file, $context->node);
+        $closest = Docblocks::closest($context->file, $anchor);
 
         if ($closest === null) {
             $context->report(Issue::new("The {$keyword} has no docblock.", $context->node->span));
@@ -68,7 +69,7 @@ final class ClassCommentRule implements Rule
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
             $issue = Issue::new("The {$keyword} docblock must start with \"/**\".", $context->node->span);
-            $fix = CommentDocblock::edit($context->file, $closest, $context->node->span->start);
+            $fix = CommentDocblock::edit($context->file, $closest, $context->node, $anchor);
             $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;

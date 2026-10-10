@@ -21,8 +21,16 @@ function placeholder(string $name): string {
 
 // @mago-expect lint:drupal/function-comment
 function concatenated(string $name): string {
-  // @mago-expect lint:drupal/translatable-string
+  // The padding of the first literal gets its own report, as in Coder.
+  // @mago-expect lint:drupal/translatable-string(2)
   return t('Hello ' . $name);
+}
+
+// @mago-expect lint:drupal/function-comment
+function concatenated_with_padded_last_literal(string $name): string {
+  // Coder checks the padding of the first literal only.
+  // @mago-expect lint:drupal/translatable-string
+  return t('Hello' . $name . ' ');
 }
 
 // @mago-expect lint:drupal/function-comment
@@ -62,7 +70,7 @@ function named_argument_is_not_an_empty_call(): string {
 
 // @mago-expect lint:drupal/function-comment
 function markup_object(string $name): TranslatableMarkup {
-  // @mago-expect lint:drupal/translatable-string
+  // @mago-expect lint:drupal/translatable-string(2)
   return new TranslatableMarkup('Hello ' . $name);
 }
 
@@ -73,14 +81,14 @@ function markup_object_is_fine(string $name): TranslatableMarkup {
 
 // @mago-expect lint:drupal/function-comment
 function qualified_markup_object(string $name): TranslatableMarkup {
-  // @mago-expect lint:drupal/translatable-string
+  // @mago-expect lint:drupal/translatable-string(2)
   // @mago-expect lint:drupal/fully-qualified-name
   return new \Drupal\Core\StringTranslation\TranslatableMarkup('Hello ' . $name);
 }
 
 // @mago-expect lint:drupal/function-comment
 function nullsafe_method_call(?TranslationManager $translation, string $name): string {
-  // @mago-expect lint:drupal/translatable-string
+  // @mago-expect lint:drupal/translatable-string(2)
   return (string) $translation?->t('Hello ' . $name);
 }
 
@@ -167,7 +175,7 @@ function escaped_quote_in_markup(): TranslatableMarkup {
 
 // @mago-expect lint:drupal/function-comment
 function escaped_quote_in_concatenation(string $name): string {
-  // @mago-expect lint:drupal/translatable-string(2)
+  // @mago-expect lint:drupal/translatable-string(3)
   return t('It\'s ' . $name);
 }
 

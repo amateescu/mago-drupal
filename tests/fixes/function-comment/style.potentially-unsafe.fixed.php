@@ -21,6 +21,14 @@ function line_comment(): void
 {
 }
 
+#[\Deprecated]
+/**
+ * Uses a line comment below an attribute.
+ */
+function line_comment_below_attribute(): void
+{
+}
+
 $x = 1; // Trails the line above.
 function trailing(): void
 {

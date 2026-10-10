@@ -122,7 +122,8 @@ final class InsecureUnserializeRule implements Rule
                 continue;
             }
 
-            return strtolower(trim($file->getText($value))) === 'true'
+            // `\TRUE` names the same constant as `TRUE`.
+            return strtolower(ltrim(trim($file->getText($value)), characters: '\\')) === 'true'
                 ? 'allowed_classes is TRUE. That accepts every class in the payload.'
                 : null;
         }

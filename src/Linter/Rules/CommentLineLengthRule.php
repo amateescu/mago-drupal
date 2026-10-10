@@ -190,13 +190,10 @@ final class CommentLineLengthRule implements Rule
             }
 
             // Only the lines above the measured line show whether it is in
-            // an example block.
-            if (str_starts_with($candidate, '@code')) {
-                $inExample = true;
-            }
-
-            if (str_starts_with($candidate, '@endcode')) {
-                $inExample = false;
+            // an example block. Coder looks at the nearest tag above, so any
+            // tag other than `@code` ends the example, not only `@endcode`.
+            if (preg_match('/^@\S/', $candidate) === 1) {
+                $inExample = preg_match('/^@code(?!\S)/', $candidate) === 1;
             }
         }
 

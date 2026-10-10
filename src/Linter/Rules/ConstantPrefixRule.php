@@ -13,6 +13,8 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\CallExpression;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function str_starts_with;
+
 /**
  * Reports define() constants in a procedural file that have no module prefix.
  *
@@ -46,12 +48,21 @@ final class ConstantPrefixRule extends CallRule
         }
 
         $name = $this->argument($context, $call, 0);
-        if ($name === null || $name->kind !== NodeKind::LiteralString) {
+        if ($name === null) {
             return;
         }
 
-        $constant = Values::literalString($context->file, $name);
-        $issue = $constant === null ? null : ModulePrefix::issue($constant, $expected, $name->span);
+        // Coder reads the first token of the name, so a name built with `.`
+        // is checked by its leftmost literal. A leftmost literal that is the
+        // start of the prefix, such as 'MYMODULE' in 'MYMODULE' . '_X', can
+        // still lead to a prefixed name, so it is not reported.
+        $first = Values::leftmost($context->file, $name);
+        $constant = Values::literalString($context->file, $first);
+        if ($constant === null || $first->id !== $name->id && str_starts_with($expected, $constant)) {
+            return;
+        }
+
+        $issue = ModulePrefix::issue($constant, $expected, $first->span);
         if ($issue !== null) {
             $context->report($issue);
         }

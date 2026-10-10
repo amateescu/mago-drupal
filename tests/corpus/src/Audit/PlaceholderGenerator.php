@@ -1,5 +1,6 @@
 <?php
 
+// @mago-expect lint:drupal/file-comment
 /**
  * @file
  * Stands in for the core class that filters render arrays by key.

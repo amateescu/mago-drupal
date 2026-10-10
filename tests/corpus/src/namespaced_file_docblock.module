@@ -1,0 +1,14 @@
+<?php
+
+// @mago-expect lint:drupal/file-comment
+/**
+ * @file
+ * Sits above the namespace of a module file that holds one interface.
+ */
+
+namespace Drupal\namespaced_file_docblock;
+
+/**
+ * Is the only declaration of the file.
+ */
+interface NamespacedFileDocblockInterface {}

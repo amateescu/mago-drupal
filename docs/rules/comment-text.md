@@ -16,6 +16,9 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter) says which co
 An `@author` tag. The tag goes out of date as other people edit the file, and git already records
 who wrote what.
 
+**Compared with Coder:** the rule matches the tag in any letter case, such as `@Author`. Coder
+reports only `@author`.
+
 ## drupal/comment-line-length
 
 - **Level:** warning
@@ -30,15 +33,16 @@ The rule keeps the sniff's exemptions. All of them are for text that cannot be w
 damage:
 
 - docblock tag lines;
-- `@code` examples;
+- `@code` examples, up to `@endcode` or the next tag;
 - `// @see`-style reference lines;
 - annotation values;
 - the `Implements hook_foo()` and `Contains ...` lines;
 - a line whose last word is too long for a line of its own, such as a URL or a long class path.
 
-**Compared with Coder:** the rule reports a `/* ... */` line that holds the closing `*/`. phpcs
-skips it, because such a line ends on a whitespace token and not on a comment token. Both tools
-report the lines above the closer.
+**Compared with Coder:** the rule reports a line that ends in `*/`. That includes a one-line
+`/* ... */` or `/** ... */` comment, a `/* ... */` comment after code, and the last line of a
+longer comment with text before the `*/`. phpcs skips these lines, because each one ends on a
+whitespace token and not on a comment token. Both tools report the lines above the closer.
 
 ## drupal/doc-comment-array-syntax
 
@@ -48,6 +52,9 @@ report the lines above the closer.
 
 The `array()` syntax inside a docblock `@code` example. Mago does not parse the example as code, so
 no other rule sees it.
+
+**Compared with Coder:** the rule reports `array()` in a `@code` example that has no `@endcode`, up
+to the end of the docblock. Coder takes such a docblock as malformed and skips the rest of it.
 
 ## drupal/doc-type-namespace
 
@@ -70,7 +77,9 @@ import when every mention of the name in the file's docblocks is rewritten.
 not read docblocks. It reports such an import as unused, and phpcbf deletes it, which leaves the
 docblock naming a class that no longer resolves. Mago counts a docblock mention as a use, so its
 `no-redundant-use` reports only the imports that nothing uses, and this rule reports the ones that
-only docblocks use.
+only docblocks use. An import that only a `@see` tag mentions is reported by neither rule, and the
+same goes for any tag other than `@param`, `@return`, `@var` and `@throws`. Coder reports it as
+unused.
 
 ## drupal/expected-exception-tag
 
@@ -85,13 +94,18 @@ The rule finds the tag at the start of any docblock line, after the star and any
 includes a tag indented under the description of another tag. A tag name after other text on the
 line is not a tag. Coder reads both cases the same way.
 
+**Compared with Coder:** the rule matches the tag in any letter case, such as
+`@ExpectedException`. Coder reports only the exact spelling, such as `@expectedException`.
+
 ## drupal/gender-neutral-comment
 
 - **Level:** warning
 - **Fix:** none
 - **Ports:** `Drupal.Commenting.GenderNeutralComment.GenderNeutral`
 
-A gendered pronoun in a comment: he, her, hers, him, his or she, in any letter case.
+A gendered pronoun in a comment: he, her, hers, him, his or she, in any letter case. Each line of
+a comment that holds one is reported on its own. On a docblock line the tag name is skipped and the
+text after it is read, as Coder does.
 
 ## drupal/inline-comment
 
@@ -145,21 +159,23 @@ pass applies it.
 includes Coder's `SpacingAfterAtFunctionEnd`. The formatter takes such a line out, except before
 the closing brace of a class, interface, trait or enum with members, where it always writes one,
 after a comment too. Coder reports that line, and a fix that removes it would undo the formatter on
-every run.
+every run. The rule also skips a `//` comment with no text, a comment right before a docblock and a
+`// @code` example, as `Drupal.Commenting.InlineComment` does. DrupalPractice's `CommentEmptyLine`
+reports all three.
 
 ## drupal/inline-comment-punctuation
 
 - **Level:** warning
 - **Fix:** safe. It appends a full stop, as phpcbf does, so a comment that ends with `,` ends with
   `,.`.
-- **Ports:** `Drupal.Commenting.InlineComment.InvalidEndChar` (partly)
+- **Ports:** `Drupal.Commenting.InlineComment.InvalidEndChar`
 - **Off with `--core`**
 
 A `//` comment that does not end with a full stop, an exclamation mark, a question mark, a colon or
 a closing parenthesis. The rule skips a comment whose first word does not start with a letter, a
-numbered list item, a comment with a `cspell:` line, and a last word that is a url, a tag or a
-function call. It also skips a comment after a `}` on its line, such as `} // end if`. The `//`
-lines right below such a comment are checked as a comment of their own.
+numbered list item, a comment with a `cspell:` line, and a last word that holds a url or a function
+call such as `foo()`, or starts with `@`. It also skips a comment after a `}` on its line, such as
+`} // end if`. The `//` lines right below such a comment are checked as a comment of their own.
 
 ## drupal/long-description-punctuation
 
@@ -185,6 +201,10 @@ There is no fix where the move could attach the comment to something else:
 - a line inside a string;
 - a comment that the next line continues;
 - a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`.
+
+**Compared with Coder:** the rule skips a trailing `@mago-`, `@phpstan-`, `@psalm-` or
+`@codingStandardsIgnore` comment as well as a `phpcs:` one, because a tool pragma works only on the
+line of its statement. Coder skips only `phpcs:`.
 
 ## drupal/todo-comment
 

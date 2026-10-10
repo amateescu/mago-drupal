@@ -28,7 +28,8 @@ use function strlen;
  * comment wrapped over several lines is one sentence. A run whose first
  * word starts with `@`, a digit or punctuation is exempt, and so is a run
  * with a `cspell:` or `spell-checker:` directive on any line. A last word
- * that is a url, a tag or a function call needs no punctuation.
+ * that holds a url or a function call, or starts with `@`, needs no
+ * punctuation.
  *
  * The fix appends a full stop to the last line, as phpcbf does.
  */
@@ -54,11 +55,13 @@ final class InlineCommentPunctuationRule implements Rule
                 continue;
             }
 
+            // These are Coder's tests. Its two regexes are not anchored, so
+            // a url or a call such as `foo()` counts anywhere in the word.
             $lastWord = $words[count($words) - 1];
             $exempt =
-                str_starts_with($lastWord, 'http')
-                || str_starts_with($lastWord, '@')
-                || preg_match('/[()]/', $lastWord) === 1;
+                str_starts_with($lastWord, '@')
+                || preg_match('~https?://.+~', $lastWord) === 1
+                || preg_match('/[$a-zA-Z_]+\([$a-zA-Z_]*\)/', $lastWord) === 1;
             if ($exempt || preg_match('/[.!?:)]/', mb_substr($lastWord, start: -1)) === 1) {
                 continue;
             }

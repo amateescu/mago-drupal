@@ -55,8 +55,24 @@ final class DiscouragedFunctionRule extends CallRule
             description: 'Reports calls to the devel dump helpers and to fnmatch(). Some PHP builds do not have fnmatch().',
             defaultLevel: Level::Error,
             defaultEnabled: true,
-            targets: [NodeKind::FunctionCall],
+            targets: [NodeKind::FunctionCall, NodeKind::FunctionPartialApplication],
         );
+    }
+
+    public function lint(LintContext $context): void
+    {
+        if ($context->node->kind !== NodeKind::FunctionPartialApplication) {
+            parent::lint($context);
+
+            return;
+        }
+
+        // A first-class callable such as `dpm(...)` has no argument list to
+        // view, so it skips inspect(). Coder reports it like a call.
+        $name = $this->match($context);
+        if ($name !== null) {
+            $this->reportName($context, $name);
+        }
     }
 
     protected function names(): array
@@ -65,6 +81,14 @@ final class DiscouragedFunctionRule extends CallRule
     }
 
     protected function inspect(LintContext $context, CallExpression $call, string $name): void
+    {
+        $this->reportName($context, $name);
+    }
+
+    /**
+     * Reports the dispatched node for the matched function name.
+     */
+    private function reportName(LintContext $context, string $name): void
     {
         $help = $name === 'fnmatch'
             ? 'Some PHP builds do not have fnmatch(). Use preg_match() instead.'

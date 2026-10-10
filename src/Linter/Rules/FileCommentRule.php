@@ -15,8 +15,10 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
@@ -24,13 +26,16 @@ use Mago\Sdk\Syntax\TriviaKind;
 
 use function count;
 use function preg_match;
+use function strspn;
 use function substr;
 
 /**
- * Checks that a procedural file starts with a docblock tagged `@file`.
+ * Checks that a procedural file starts with a docblock tagged `@file`, and
+ * that a file with a namespace and one class, interface, trait or enum does
+ * not start with a comment.
  *
- * Ports Drupal.Commenting.FileComment for procedural files, with the
- * sniff's skip for a file that holds a class.
+ * Ports Drupal.Commenting.FileComment, with the sniff's skip of the
+ * procedural checks for a file that holds a class.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -47,7 +52,7 @@ final class FileCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/file-comment',
             name: 'File comment',
-            description: 'Checks that a procedural file starts with a docblock tagged @file.',
+            description: 'Checks that a procedural file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -56,11 +61,21 @@ final class FileCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
+        // Coder reports a comment at the start of a namespaced class file
+        // with any extension, so this check comes before the one for a
+        // procedural file. The tree scan runs only for a file that starts
+        // with a comment.
+        $first = $this->firstComment($context);
+        if ($first !== null && self::isNamespacedClassFile($context->file)) {
+            $this->reportNamespacedFileComment($context, $first);
+
+            return;
+        }
+
         if (!DrupalFile::fromSource($context->file)->isProcedural()) {
             return;
         }
 
-        $first = $this->firstComment($context);
         if ($first === null) {
             $this->report($context, Issue::new('The file does not start with a docblock.', new Span(0, 0)));
 
@@ -137,6 +152,29 @@ final class FileCommentRule implements Rule
     }
 
     /**
+     * Reports the comment at the start of a file with a namespace and one
+     * class, interface, trait or enum. The fix deletes a docblock and the
+     * whitespace after it. Coder has no fix for a plain comment.
+     */
+    private function reportNamespacedFileComment(LintContext $context, Trivia $first): void
+    {
+        $issue = Issue::new(
+            'A file with a namespace and one class, interface, trait or enum must not start with a file comment.',
+            $first->span,
+        );
+        if ($first->kind !== TriviaKind::DocBlockComment) {
+            $context->report($issue);
+
+            return;
+        }
+
+        // The text of the docblock is lost, so the fix is potentially unsafe.
+        $end = $first->span->end + strspn($context->file->contents, characters: " \t\r\n", offset: $first->span->end);
+        $edit = TextEdit::delete(new Span($first->span->start, $end))->withSafety(Safety::PotentiallyUnsafe);
+        $context->report($issue->withEdit($edit));
+    }
+
+    /**
      * Reports the issue unless Coder skips the file comment of the file.
      */
     private function report(LintContext $context, Issue $issue): void
@@ -156,11 +194,7 @@ final class FileCommentRule implements Rule
      */
     private static function isClassFile(SourceFile $file): bool
     {
-        $declarations = [];
-        foreach (self::CLASS_LIKES as $kind) {
-            $declarations = [...$declarations, ...$file->getNodes($kind)];
-        }
-
+        $declarations = self::classLikes($file);
         if ($declarations === []) {
             return false;
         }
@@ -192,9 +226,34 @@ final class FileCommentRule implements Rule
     }
 
     /**
+     * Whether the file has a namespace and exactly one class, interface,
+     * trait or enum, which Coder wants without a file comment.
+     */
+    private static function isNamespacedClassFile(SourceFile $file): bool
+    {
+        return $file->getNodes(NodeKind::Namespace) !== [] && count(self::classLikes($file)) === 1;
+    }
+
+    /**
+     * The class, interface, trait and enum declarations of the file.
+     *
+     * @return list<Node>
+     */
+    private static function classLikes(SourceFile $file): array
+    {
+        $declarations = [];
+        foreach (self::CLASS_LIKES as $kind) {
+            $declarations = [...$declarations, ...$file->getNodes($kind)];
+        }
+
+        return $declarations;
+    }
+
+    /**
      * The file's first comment when only the opening tag and whitespace come
-     * before it, past any directive such as `// phpcs:ignoreFile`. phpcs
-     * reads those as instructions, not comments, so Coder skips them too.
+     * before it, past any directive such as `// phpcs:ignoreFile`. A
+     * directive is a tool instruction, not the file comment. Coder does not
+     * look past one.
      * A UTF-8 byte order mark may come before the opening tag, and
      * `drupal/byte-order-mark` reports it.
      */

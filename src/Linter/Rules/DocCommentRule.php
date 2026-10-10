@@ -44,8 +44,9 @@ use function strtoupper;
  * Both of those run on every docblock, inside function bodies too. The end
  * of the long description is `drupal/long-description-punctuation`'s, since
  * core's `phpcs.xml.dist` turns that check off. A `phpcs:` line inside the
- * docblock is not part of a description, as Coder reads it. The description
- * of a file docblock is the text after its `@file` tag.
+ * docblock is not part of a description. Coder reads it the same way below
+ * the summary, but above it Coder finds no summary. The description of a
+ * file docblock is the text after its `@file` tag.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect

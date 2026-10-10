@@ -80,6 +80,11 @@ class Practice {
     unserialize($payload, ['allowed_classes' => TRUE]);
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($payload, array('allowed_classes' => TRUE));
+    // A leading backslash names the same constant.
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, ['allowed_classes' => \TRUE]);
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, ['allowed_classes' => \true]);
 
     unserialize($payload, ['allowed_classes' => FALSE]);
     unserialize($payload, array('allowed_classes' => FALSE));

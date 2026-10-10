@@ -124,7 +124,8 @@ final class FunctionCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $closest = Docblocks::closest($context->file, $context->node);
+        $anchor = Docblocks::commentAnchor($context->file, $context->node);
+        $closest = Docblocks::closest($context->file, $anchor);
         if ($closest === null) {
             // A constructor with nothing above it needs no docblock. One with
             // a comment above it is checked like any other method.
@@ -139,7 +140,7 @@ final class FunctionCommentRule implements Rule
 
         if ($closest->kind !== TriviaKind::DocBlockComment) {
             $issue = Issue::new('The function docblock must start with "/**".', $context->node->span);
-            $fix = CommentDocblock::edit($context->file, $closest, $context->node->span->start);
+            $fix = CommentDocblock::edit($context->file, $closest, $context->node, $anchor);
             $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
@@ -718,17 +719,14 @@ final class FunctionCommentRule implements Rule
 
             $deprecated = $deprecatedAt !== null && $index > $deprecatedAt;
 
-            if ($tag->content() === '') {
-                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
-
-                continue;
-            }
-
             // The reference is the tag's own line, as Coder reads it. The
             // lines below it are a description, which may end in a period.
+            // A tag with its reference on the next line counts as empty.
             $line = $tag->lines[0];
             $reference = rtrim($line->text);
             if (trim($reference) === '') {
+                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
+
                 continue;
             }
 

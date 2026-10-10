@@ -43,31 +43,33 @@ final class EnumCaseNameRule implements Rule
         }
 
         $name = $context->file->getText($identifier);
-        $problem = $this->problem($name);
-        if ($problem === null) {
-            return;
+        foreach ($this->problems($name) as $problem) {
+            $context->report(Issue::new($problem, $identifier->span));
         }
-
-        $context->report(Issue::new($problem, $identifier->span));
     }
 
     /**
-     * Returns how $name differs from UpperCamelCase, if it does.
+     * Returns each way $name differs from UpperCamelCase.
+     *
+     * @return list<string>
      */
-    private function problem(string $name): ?string
+    private function problems(string $name): array
     {
+        // Coder reports each failing check under its own code, so one name
+        // can get several issues.
+        $problems = [];
         if (preg_match('/^[A-Z]/', $name) !== 1) {
-            return "Enum case {$name} must start with a capital letter.";
+            $problems[] = "Enum case {$name} must start with a capital letter.";
         }
 
         if (str_contains($name, '_')) {
-            return "Enum case {$name} must use UpperCamelCase without underscores.";
+            $problems[] = "Enum case {$name} must use UpperCamelCase without underscores.";
         }
 
         if (preg_match('/^[A-Z]{3}[^a-z]*$/', $name) === 1) {
-            return "Enum case {$name} must not have several upper-case letters in a row.";
+            $problems[] = "Enum case {$name} must not have several upper-case letters in a row.";
         }
 
-        return null;
+        return $problems;
     }
 }
