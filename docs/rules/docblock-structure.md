@@ -159,17 +159,18 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
     - `Drupal.Commenting.FileComment`: `FileTag`, `Missing`, `NamespaceNoFileDoc`, `SpacingAfterComment`, `WrongStyle` (partly)
     - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare` (partly)
 
-A procedural file that does not start with a docblock that has the `@file` tag. This check reads
-`.module`, `.install`, `.inc`, `.theme`, `.profile` and `.engine` files. A directive such as
-`// phpcs:ignoreFile` above the docblock is skipped, and so is a byte order mark before the open
-tag, which `drupal/byte-order-mark` reports.
+A file that does not start with a docblock that has the `@file` tag. This check reads every file
+with a PHP open tag, `.php` files included, and skips the class files below. The docblock must
+follow the first open tag. Text before that tag, such as a `#!/usr/bin/env php` line or a byte order
+mark, which `drupal/byte-order-mark` reports, does not count. A directive such as
+`// phpcs:ignoreFile` above the docblock is skipped.
 
 It also reports:
 
 - a docblock with no `@file` tag. The fix adds `@file` below the opener when a blank line parts the
   docblock from the code;
 - no blank line between the docblock and the code. The fix adds it. `mago format` turns more than
-  one into one. This covers a file docblock right above `declare`, in a procedural file;
+  one into one. This covers a file docblock right above `declare`;
 - an `@file` tag that is not on the line right below the opener. A potentially unsafe fix moves a
   tag that stands alone on its line, when the opener is alone on its line too;
 - a comment in the wrong style. A `@codingStandardsIgnoreFile` line stays a directive.
@@ -190,11 +191,10 @@ plain comment gets no fix, as in Coder.
 
 **Compared with Coder:**
 
-- Coder also checks a `.php` file that has no class.
 - A directive at the start of the file, such as `// phpcs:disable` or `// @mago-expect`, is
   skipped, and the comment below it is checked. Coder finds no file comment after a `phpcs:`
-  directive, so it reports a missing one in a procedural file and nothing in a namespaced class
-  file. It takes a `@codingStandardsIgnore`, `@mago-`, `@phpstan-` or `@psalm-` comment for the
+  directive, so it reports a missing one in a file that is not a class file and nothing in a
+  namespaced class file. It takes a `@codingStandardsIgnore`, `@mago-`, `@phpstan-` or `@psalm-` comment for the
   file comment.
 - phpcbf writes an empty stub for a missing docblock. The rule has no fix there.
 - The report of a missing `@file` sits on the second line of the docblock, where Coder puts it, or

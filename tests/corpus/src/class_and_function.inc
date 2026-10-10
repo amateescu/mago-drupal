@@ -4,7 +4,7 @@
 /**
  * Shares its file with a function.
  */
-final class ClassAndFunction {}
+final class CorpusClassAndFunction {}
 
 /**
  * Makes the file need a docblock of its own.

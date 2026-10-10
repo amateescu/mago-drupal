@@ -74,7 +74,9 @@ The rules that port those checks are on by default for contrib and custom code, 
 its phpcs config can turn off the matching rules with [`--disable`](../setup.md#turning-rules-off).
 
 **File types.** Mago reads only the file extensions in its `[source]` block. Coder also checks
-`.test` files, a Drupal 7 format, and `.txt` and `.md` files.
+`.test` files, a Drupal 7 format, and `.txt` and `.md` files. phpcs skips a file or directory whose
+name starts with a dot, such as `.phpstan-baseline.php`, when it scans a directory, and Mago reads
+it.
 
 ## Comment whitespace and the formatter
 

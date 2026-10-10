@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Exercises drupal/preg-security.
+ */
+
 declare(strict_types=1);
 
 namespace Drupal\corpus;

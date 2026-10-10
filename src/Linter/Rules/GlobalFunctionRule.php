@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\InfoFile;
 use amateescu\MagoDrupal\Internal\InjectableClass;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
@@ -114,6 +115,12 @@ final class GlobalFunctionRule implements Rule
                     continue;
                 }
 
+                // Coder skips a Drupal 7 module. The version comes from an
+                // info file on disk, so it is read only for a report.
+                if ($this->isDrupal7($context)) {
+                    return;
+                }
+
                 $this->report($context, $call, $name);
             }
         }
@@ -157,6 +164,14 @@ final class GlobalFunctionRule implements Rule
         }
 
         return false;
+    }
+
+    /**
+     * Whether the file belongs to a Drupal 7 module, as its info file says.
+     */
+    private function isDrupal7(LintContext $context): bool
+    {
+        return InfoFile::coreVersion($context->file->path) < 8;
     }
 
     /**

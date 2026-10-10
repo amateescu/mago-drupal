@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Exercises drupal/untranslated-options.
+ */
+
 declare(strict_types=1);
 
 namespace Drupal\corpus;

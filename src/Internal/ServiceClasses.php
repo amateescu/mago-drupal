@@ -4,27 +4,15 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
-use function dirname;
 use function file_get_contents;
-use function getcwd;
-use function glob;
 use function is_array;
-use function is_file;
 use function is_string;
 use function ltrim;
 use function str_contains;
-use function str_starts_with;
-use function strlen;
 
 /**
- * Reads the classes that a `*.services.yml` file registers as services.
- *
- * Coder's DrupalPractice standard looks for the file in the directory of the
- * checked file and then in each directory above it. It takes the first
- * directory that has one, and the shortest file name there. This class
- * finds the same file.
- *
- * @mago-expect lint:cyclomatic-complexity
+ * Reads the classes that the nearest `*.services.yml` file registers as
+ * services, the file that Coder's DrupalPractice standard reads.
  *
  * @internal
  */
@@ -35,68 +23,13 @@ final class ServiceClasses
     /**
      * Whether $class, a fully qualified name without a leading backslash,
      * is a service of the code that holds the file at $path.
-     *
-     * Mago gives the path from the workspace, and starts the worker in the
-     * directory of its config file. In a usual setup that is the workspace.
      */
     public static function has(string $path, string $class): bool
     {
-        if (!str_starts_with($path, '/')) {
-            $directory = getcwd();
-            if ($directory === false) {
-                return false;
-            }
-
-            $path = $directory . '/' . $path;
-        }
-
-        $file = self::servicesFile(dirname($path));
+        $directory = NearestFile::directoryOf($path);
+        $file = $directory === null ? null : NearestFile::find($directory, ['*.services.yml']);
 
         return $file !== null && (self::classes($file)[$class] ?? false);
-    }
-
-    /**
-     * The services file for a directory: the shortest `*.services.yml` in the
-     * nearest directory, at or above it, that has one.
-     */
-    private static function servicesFile(string $directory): ?string
-    {
-        // A worker lints many files of one module, so each directory is
-        // searched once.
-        /** @var array<string, string> $memo */
-        static $memo = [];
-
-        $found = $memo[$directory] ?? null;
-        if ($found === null) {
-            $found = self::shortest($directory);
-            $parent = dirname($directory);
-            if ($found === '' && $parent !== $directory) {
-                $found = self::servicesFile($parent) ?? '';
-            }
-
-            $memo[$directory] = $found;
-        }
-
-        return $found === '' ? null : $found;
-    }
-
-    /**
-     * The `*.services.yml` file with the shortest name in a directory, or an
-     * empty string when there is none.
-     */
-    private static function shortest(string $directory): string
-    {
-        $found = '';
-        foreach ((array) glob($directory . '/*.services.yml') as $file) {
-            $file = (string) $file;
-            if (!is_file($file) || $found !== '' && strlen($file) >= strlen($found)) {
-                continue;
-            }
-
-            $found = $file;
-        }
-
-        return $found;
     }
 
     /**

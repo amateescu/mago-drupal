@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\DeprecatedDeclaration;
 use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\InfoFile;
 use amateescu\MagoDrupal\Internal\TopLevel;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -62,6 +63,12 @@ final class GlobalConstantRule implements Rule
             $span = $this->candidate($file, $node, $wanted);
             if ($span === null || TopLevel::isNested($file, $node) || DeprecatedDeclaration::isMarked($file, $node)) {
                 continue;
+            }
+
+            // Coder skips a Drupal 7 module. The version comes from an info
+            // file on disk, so it is read only for a file with a report.
+            if (InfoFile::coreVersion($file->path) < 8) {
+                return;
             }
 
             $context->report(Issue::new('Move the global constant into a class or interface.', $span)->withHelp(

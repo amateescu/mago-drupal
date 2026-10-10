@@ -55,7 +55,7 @@ function function_name_declares_helper(): void {
 /**
  * Declares functions in methods, which Coder does not check.
  */
-final class FunctionNameNested {
+final class CorpusFunctionNameNested {
 
   /**
    * Declares a function when it runs.

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\InfoFile;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -63,11 +63,6 @@ final class FormAlterCommentRule implements Rule
             return;
         }
 
-        $module = DrupalFile::fromSource($file);
-        if (!$module->isNamedByFile()) {
-            return;
-        }
-
         $identifier = $this->nameRightAfterKeyword($file, $context->node);
         if ($identifier === null) {
             return;
@@ -83,10 +78,16 @@ final class FormAlterCommentRule implements Rule
             return;
         }
 
+        // The name can come from an info file on disk, so it is read last.
+        $module = InfoFile::moduleName($file->path);
+        if ($module === null) {
+            return;
+        }
+
         // PHP ignores the case of a function name, so a name in other case
         // still implements the hook.
         $name = $file->getText($identifier);
-        $expected = $module->name . '_form_alter';
+        $expected = $module . '_form_alter';
         if (strcasecmp($name, $expected) === 0) {
             return;
         }
