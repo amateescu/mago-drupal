@@ -25,6 +25,18 @@ use function trim;
  */
 final class Nodes
 {
+    /**
+     * The class-like declarations. Coder checks a function name only outside
+     * them.
+     */
+    public const CLASS_LIKE = [
+        NodeKind::Class_,
+        NodeKind::Interface,
+        NodeKind::Trait,
+        NodeKind::Enum,
+        NodeKind::AnonymousClass,
+    ];
+
     private function __construct() {}
 
     /**

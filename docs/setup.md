@@ -78,9 +78,9 @@ interface-name = { psr = true }
 trait-name = { psr = true }
 # Report a file whose name differs from the class that it declares.
 file-name = { enabled = true }
-# Accept snake_case functions and camelCase methods. With the drupal integration, the rule skips
-# the hook documentation in *.api.php files, such as hook_ENTITY_TYPE_insert().
-function-name = { either = true }
+# drupal/function-name checks function names the way Coder does. Mago's rule wants snake case, so
+# it also reports a private helper such as _mymodule_helper(), which Coder accepts.
+function-name = { enabled = false }
 # Report a variable that is assigned and never read. That is the part of
 # DrupalPractice.CodeAnalysis.VariableAnalysis that core enables.
 no-redundant-variable = { enabled = true }

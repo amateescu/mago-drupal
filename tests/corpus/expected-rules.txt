@@ -30,6 +30,7 @@ drupal/file-start-whitespace
 drupal/form-alter-comment
 drupal/fully-qualified-name
 drupal/function-comment
+drupal/function-name
 drupal/function-prefix
 drupal/gender-neutral-comment
 drupal/global-constant

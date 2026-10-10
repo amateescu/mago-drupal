@@ -1,6 +1,6 @@
 # Naming and imports
 
-Rules for the names of classes, constants, methods and properties, and for `use` statements. Mago's
+Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's
 own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drupal).
 
 ## drupal/class-name-acronym
@@ -75,6 +75,22 @@ name, or a docblock that writes the short name in the same case.
   error there, and its fix writes code that PHP rejects.
 - The rule also reports a namespace-relative name such as `namespace\Sub\Bar`. Coder never checks
   that form.
+
+## drupal/function-name
+
+- **Level:** error
+- **Fix:** none
+- **Ports:** `Drupal.NamingConventions.ValidFunctionName.InvalidName`
+- **Off with `--core`**
+
+A function whose name is not lower case, such as `mymoduleHelper()` or `mymodule_Helper()`. The
+rule checks every function outside a class, interface, trait or enum, in every file. A leading or
+doubled underscore is fine, so a private helper such as `_mymodule_helper()` passes. A function
+that starts with `hook_` in an `.api.php` file is skipped, since such a file documents hooks with
+names such as `hook_ENTITY_TYPE_insert()`. Methods are left to Mago's `method-name`.
+
+Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which Coder
+accepts. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
 
 ## drupal/hook-attribute-name
 

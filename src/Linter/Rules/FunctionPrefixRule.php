@@ -33,17 +33,6 @@ final class FunctionPrefixRule implements Rule
      */
     private const EXEMPT_PREFIXES = ['template_preprocess', 'theme'];
 
-    /**
-     * Class-like kinds. Coder skips a function declared anywhere inside one.
-     */
-    private const CLASS_LIKE = [
-        NodeKind::Class_,
-        NodeKind::Interface,
-        NodeKind::Trait,
-        NodeKind::Enum,
-        NodeKind::AnonymousClass,
-    ];
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -74,7 +63,7 @@ final class FunctionPrefixRule implements Rule
         foreach ($context->file->getTargetNodes() as $function) {
             if (
                 $function->kind !== NodeKind::Function
-                || Nodes::isNestedInside($context->file, $function, $context->node, self::CLASS_LIKE)
+                || Nodes::isNestedInside($context->file, $function, $context->node, Nodes::CLASS_LIKE)
             ) {
                 continue;
             }

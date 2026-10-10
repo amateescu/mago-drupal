@@ -84,6 +84,7 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/const-prefix',
                 'drupal/curl-ssl-verify',
                 'drupal/form-alter-comment',
+                'drupal/function-name',
                 'drupal/function-prefix',
                 'drupal/global-constant',
                 'drupal/hook-attribute-name',

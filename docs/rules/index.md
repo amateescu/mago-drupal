@@ -60,7 +60,7 @@ Rules for the bytes of a file and for its open and close tags.
 
 ## Naming and imports
 
-Rules for the names of classes, constants, methods and properties, and for `use` statements. Mago's
+Rules for the names of classes, constants, functions, methods and properties, and for `use` statements. Mago's
 own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drupal).
 
 | Rule | Level | What it reports |
@@ -69,6 +69,7 @@ own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drup
 | [`drupal/define-name`](naming-and-imports.md#drupaldefine-name) | error | Reports define() constants whose name is not upper case. |
 | [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports enum cases that do not use UpperCamelCase. |
 | [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports namespaced classes referenced in full instead of through a use statement. |
+| [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports functions whose name is not lower case. |
 | [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports Hook attributes whose name starts with hook_. |
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that do not use lowerCamelCase. |
