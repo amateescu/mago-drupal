@@ -84,19 +84,19 @@ class CaseFallThrough {
     switch ($value) {
       case 1:
         $this->step();
-      // Falls through.
+        // Falls through.
       case 2:
         $this->step();
-      /* Falls through. */
+        /* Falls through. */
       case 3:
         $this->step();
-      // @mago-expect lint:drupal/inline-comment
-      /** Falls through. */
+        // @mago-expect lint:drupal/inline-comment
+        /** Falls through. */
       case 4:
         $this->step();
-      // Not a note about falling through.
+        // Not a note about falling through.
       case 5:
-      // Only a comment.
+        // Only a comment.
       case 6:
         $this->step();
         break;
@@ -210,7 +210,7 @@ class CaseFallThrough {
       case 2:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 3:
         if ($this->ready()) {
           return 1;
@@ -221,7 +221,7 @@ class CaseFallThrough {
       case 4:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 5:
         if ($this->ready()) {
           return 1;
@@ -232,7 +232,7 @@ class CaseFallThrough {
       case 6:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 7:
         if ($this->ready()) {
           return 1;
@@ -264,7 +264,7 @@ class CaseFallThrough {
       case 2:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 3:
         if ($this->ready()) {
           throw new \RuntimeException('three');
@@ -343,7 +343,7 @@ class CaseFallThrough {
       case 2:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 3:
         try {
           $this->step();
@@ -354,7 +354,7 @@ class CaseFallThrough {
       case 4:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 5:
         try {
           $this->step();
@@ -416,7 +416,7 @@ class CaseFallThrough {
       case 2:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 3:
         switch ($this->pick()) {
           case 1:
@@ -428,7 +428,7 @@ class CaseFallThrough {
       case 4:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 5:
         switch ($this->pick()) {
           case 1:
@@ -456,7 +456,7 @@ class CaseFallThrough {
       case 2:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 3:
         foreach ([1, 2] as $item) {
           return;
@@ -464,7 +464,7 @@ class CaseFallThrough {
       case 4:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 5:
         $callback = function (): int {
           return 3;
@@ -472,13 +472,13 @@ class CaseFallThrough {
       case 6:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 7:
         $callback = fn (): int => 4;
       case 8:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 9:
         $this->step();
         ?>
@@ -500,7 +500,7 @@ class CaseFallThrough {
       case 2:
         break;
 
-      // @mago-expect lint:drupal/case-fall-through
+        // @mago-expect lint:drupal/case-fall-through
       case 3:
         // @mago-expect analysis:unused-statement
         $this->ready() or exit();
@@ -574,7 +574,7 @@ class CaseFallThrough {
       // @mago-expect lint:drupal/case-semicolon
       case 1;
         $this->step();
-      // @mago-expect lint:drupal/case-semicolon
+        // @mago-expect lint:drupal/case-semicolon
       case 2;
         $this->step();
         break;

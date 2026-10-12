@@ -703,7 +703,7 @@
         "note": "The formatter writes the indentation.",
         "codes": [
             {"code": "Incorrect", "status": "format"},
-            {"code": "IncorrectExact", "status": "partial", "note": "The formatter puts a comment that ends a `case` body, such as `// Fall-through.`, at the indent of the `case` label, and Coder reports it."}
+            {"code": "IncorrectExact", "status": "partial", "note": "The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it."}
         ]
     },
     {

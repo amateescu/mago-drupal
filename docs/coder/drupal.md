@@ -133,6 +133,6 @@ standards are on [Sniffs from other standards](other-standards.md).
 | `Drupal.WhiteSpace.OpenBracketSpacing` | `mago format`, partly | The formatter writes a space between an opening bracket and a comment that follows it, as in `foo( /* note */ $x)`, and Coder reports that space. |
 | `Drupal.WhiteSpace.OpenTagNewline` | `mago format` |  |
 | `Drupal.WhiteSpace.ScopeClosingBrace` | `BreakIndent`, `Line`: `mago format`<br>`Indent`: `mago format`, partly | `Indent`: A closing brace after inline HTML, on a `<?php }` line, keeps the indent of the HTML. The formatter does not change it, and Coder reports it. |
-| `Drupal.WhiteSpace.ScopeIndent` | `Incorrect`: `mago format`<br>`IncorrectExact`: `mago format`, partly | The formatter writes the indentation. `IncorrectExact`: The formatter puts a comment that ends a `case` body, such as `// Fall-through.`, at the indent of the `case` label, and Coder reports it. |
+| `Drupal.WhiteSpace.ScopeIndent` | `Incorrect`: `mago format`<br>`IncorrectExact`: `mago format`, partly | The formatter writes the indentation. `IncorrectExact`: The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it. |
 
 <!-- /docs-gen -->
