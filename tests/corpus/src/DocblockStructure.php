@@ -518,6 +518,26 @@ function doc_comment_long_description_may_end_with_a_colon(): void {
 function doc_comment_long_description_must_not_end_with_a_letter(): void {
 }
 
+/**
+ * Parses front matter.
+ *
+ * The long description goes on through a link on a line of its own, as in
+ * @link https://example.com/front-matter front matter @endlink
+ * from a source.
+ */
+function doc_comment_long_description_reads_a_link_line(): void {
+}
+
+// @mago-expect lint:drupal/long-description-punctuation
+/**
+ * Points to the documentation.
+ *
+ * The long description ends with a link on a line of its own, see
+ * @link https://example.com/docs the documentation @endlink
+ */
+function doc_comment_long_description_ending_with_a_link_line(): void {
+}
+
 // @mago-expect lint:drupal/doc-comment
 // @mago-expect lint:drupal/function-comment
 /**

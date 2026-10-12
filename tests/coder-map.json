@@ -110,7 +110,7 @@
             {"code": "InheritDocWithoutBraces", "status": "fix"},
             {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
             {"code": "LongNotCapital", "status": "fix"},
-            {"code": "MissingShort", "status": "partial"},
+            {"code": "MissingShort", "status": "partial", "note": "A file docblock that holds only `@file` is not reported. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
             {"code": "ParamGroup", "status": "report"},
             {"code": "ParamNotFirst", "status": "report"},
             {"code": "ShortFullStop", "status": "fix"},
@@ -388,10 +388,13 @@
             {"code": "BraceOnNewLine", "status": "format"},
             {"code": "CloseBracketLine", "status": "format"},
             {"code": "CloseBracketNewLine", "status": "format"},
+            {"code": "ContentAfterBrace", "status": "format"},
             {"code": "EmptyLine", "status": "fix", "where": ["ext:drupal/parameter-blank-line"]},
+            {"code": "FirstParamSpacing", "status": "format"},
             {"code": "Indent", "status": "format"},
             {"code": "MissingTrailingComma", "status": "format"},
             {"code": "NewlineBeforeOpenBrace", "status": "format"},
+            {"code": "OneParamPerLine", "status": "format"},
             {"code": "SpaceAfterFunction", "status": "format"},
             {"code": "SpaceAfterUse", "status": "format"},
             {"code": "SpaceBeforeBrace", "status": "format"},
@@ -498,7 +501,7 @@
         "where": ["ext:drupal/property-name"],
         "codes": [
             {"code": "LowerCamelName", "status": "report"},
-            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup does not turn it on. It checks for camel or snake case, not for a lower-case first letter, and skips `foreach`, `catch`, `static` and `global` variables."}
+            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup does not turn it on. It reports a name that is neither camel case nor snake case, such as `$Foo`, and also `$foo_Bar`, which Coder accepts. It skips `foreach`, `catch`, `static` and `global` variables."}
         ]
     },
     {

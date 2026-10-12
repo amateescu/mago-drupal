@@ -67,7 +67,9 @@ A `@param`, `@return`, `@var` or `@throws` type written as the short name of a c
 docblocks use. The rule reads every name in the type, including generic arguments, array shape
 values and callable parameters, such as `Cc` in `array<string, Cc>`. The type ends at the first
 space outside brackets, so the return type in `callable(Foo): Bar` is not read. A short name whose
-import the code uses too is fine.
+import the code uses too is fine, as in Coder 9. Drupal's standard wants every type fully
+qualified, and Coder 8's `Drupal.Commenting.DataTypeNamespace`, which core 11.4's
+`phpcs.xml.dist` still runs, reports that short name too. Coder 9 has no such sniff.
 
 The fix writes the fully qualified name for each such name in the type, when the whole type is on
 the tag's line and the docblock is below the import, in a file with one namespace. It removes the

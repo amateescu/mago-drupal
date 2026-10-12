@@ -35,7 +35,9 @@ use function strpos;
 
 /**
  * The three checks that core's `phpcs.xml.dist` turns off are rules of their
- * own, so `--core` and `--disable` can turn them off by default.
+ * own, so `--core` and `--disable` can turn them off by default. Core runs
+ * the missing short description check in some test directories only, so
+ * `--core` scopes that check inside `drupal/doc-comment`.
  */
 final class RuleSwitchesTest extends TestCase
 {
@@ -107,6 +109,33 @@ final class RuleSwitchesTest extends TestCase
         self::assertSame([], self::offCodes(DrupalExtension::fromArguments([])->linterRules));
     }
 
+    public function testCoreChecksTheMissingSummaryInTestDirectoriesOnly(): void
+    {
+        $contents = <<<'PHP'
+            <?php
+
+            /**
+             * @return int
+             *   Nothing.
+             */
+            function rule_switches(): int
+            {
+                // Counts nothing and ends with a letter
+
+                return 0;
+            }
+
+            PHP;
+        $missing = ['The docblock has no short description.'];
+
+        $core = new DocCommentRule(core: true);
+
+        self::assertSame($missing, self::messages(new DocCommentRule(), $contents, 'core/lib/Drupal/Core'));
+        self::assertSame([], self::messages($core, $contents, 'core/lib/Drupal/Core'));
+        self::assertSame($missing, self::messages($core, $contents, 'core/tests/Drupal/KernelTests/Core'));
+        self::assertSame($missing, self::messages($core, $contents, 'core/modules/node/tests/src/Unit'));
+    }
+
     public function testDisableTurnsOffTheNamedRules(): void
     {
         $rules = DrupalExtension::fromArguments([
@@ -157,16 +186,15 @@ final class RuleSwitchesTest extends TestCase
     }
 
     /**
-     * Lints the sample with a docblock and a `//` comment as its trivia.
+     * Lints a sample with a docblock and a `//` comment as its trivia, in a
+     * file under $directory.
      *
      * @return list<string>
      */
-    private static function messages(Rule $rule): array
+    private static function messages(Rule $rule, string $contents = self::CONTENTS, string $directory = '.'): array
     {
         static $counter = 0;
         ++$counter;
-
-        $contents = self::CONTENTS;
         $docblock = (int) strpos($contents, needle: '/**');
         $comment = (int) strpos($contents, needle: '// Counts');
         $records =
@@ -174,7 +202,7 @@ final class RuleSwitchesTest extends TestCase
             . pack('CNN', 1, $comment, (int) strpos($contents, needle: "\n", offset: $comment));
         $file = new SourceFile(
             PHPVersion::fromParts(8, 1),
-            "rule-switches-{$counter}.php",
+            "{$directory}/rule-switches-{$counter}.php",
             $contents,
             [],
             new NodeStore([], '', 0),

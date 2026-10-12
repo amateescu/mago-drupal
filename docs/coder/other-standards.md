@@ -92,3 +92,17 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | `SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue` | Mago `explicit-nullable-param` (off by default) | Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on. |
 
 <!-- /docs-gen -->
+
+## Sniffs that only core adds
+
+Core's `phpcs.xml.dist` runs four Slevomat sniffs that Coder's rulesets leave out, and gives
+`ForbiddenComments` one more pattern. They apply to core, and to a project that copies core's
+configuration.
+
+| Sniff | Handled by | Notes |
+| --- | --- | --- |
+| `SlevomatCodingStandard.Commenting.ForbiddenAnnotations` | [`drupal/doc-comment`](../rules/docblock-structure.md#drupaldoc-comment), partly | Core forbids `@encode`, `@inheritDoc`, `@inheritdoc` and `@returns`. `drupal/doc-comment` reports a bare `@inheritdoc` that opens a docblock, as Coder does. Nothing reports the other tags, or a bare `@inheritdoc` below a summary. |
+| `SlevomatCodingStandard.Commenting.ForbiddenComments` | Nothing | Core's extra pattern rejects `{@inheritDoc}` with a capital D. Not ported. |
+| `SlevomatCodingStandard.ControlStructures.RequireShortTernaryOperator` | Nothing | `$a ? $a : $b`, which core writes as `$a ?: $b`. Not ported. |
+| `SlevomatCodingStandard.Exceptions.RequireNonCapturingCatch` | Mago `no-redundant-variable` | Mago reports a `catch` variable that the block never reads, with no fix. |
+| `SlevomatCodingStandard.PHP.TypeCast` | Mago `deprecated-cast`, partly | Mago reports `(integer)`, `(boolean)`, `(double)` and the other long cast names only when `php-version` is 8.5 or later, where PHP deprecates them. |

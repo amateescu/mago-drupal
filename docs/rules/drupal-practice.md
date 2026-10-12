@@ -76,6 +76,9 @@ A `const` statement at the top level of a file, and a `define()` call at the top
 `.module` file. A statement in a class, a function, a closure, an arrow function, a block of `if`,
 `switch`, `try`, a loop or `declare`, or a braced namespace is not at the top level.
 
+Drupal's standard allows a global constant whose name starts with the module name, and asks for
+`const` over `define()`. DrupalPractice, and this rule, still report it.
+
 A docblock with a `@deprecated` tag right above the statement exempts it. The tag must be at the
 start of a docblock line, and its name is case-sensitive. A one-line docblock with only the tag
 counts, and a tag in the middle of a sentence does not. A Drupal 7 module is skipped.

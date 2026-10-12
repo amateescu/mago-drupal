@@ -50,6 +50,7 @@ use function strtoupper;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final class DocCommentRule implements Rule
 {
@@ -57,6 +58,19 @@ final class DocCommentRule implements Rule
      * Tags that this rule checks for order. Each must also be in one group.
      */
     private const ORDERED_TAGS = ['param', 'return', 'throws'];
+
+    /**
+     * The directories where core's `phpcs.xml.dist` runs `MissingShort`.
+     */
+    private const CORE_SUMMARY_DIRECTORIES = '#/(?:KernelTests|Unit|FunctionalJavascript)/#';
+
+    /**
+     * @param bool $core Reports a docblock with no short description only in
+     *   the test directories where core's `phpcs.xml.dist` checks it.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
 
     public function getDefinition(): RuleDefinition
     {
@@ -177,9 +191,15 @@ final class DocCommentRule implements Rule
             return;
         }
 
-        if ($context->file->getText($tag->nameSpan) !== '@covers') {
-            $context->report(Issue::new('The docblock has no short description.', $span));
+        if ($context->file->getText($tag->nameSpan) === '@covers') {
+            return;
         }
+
+        if ($this->core && preg_match(self::CORE_SUMMARY_DIRECTORIES, $context->file->path) !== 1) {
+            return;
+        }
+
+        $context->report(Issue::new('The docblock has no short description.', $span));
     }
 
     /**

@@ -10,8 +10,9 @@ own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drup
 - **Ports:** `Drupal.NamingConventions.ValidClassName.NoUpperAcronyms`
 
 A class, interface, trait or enum name that starts with three upper-case letters and has no
-lower-case letter after them, such as `HTTP` or `URL_2`. `HTTPClient` is fine. Digits, underscores
-and multi-byte letters do not count as lower case, as in Coder 9.
+lower-case letter after them, such as `HTTP` or `URL_2`. `HTTPClient` passes, as in Coder, although
+Drupal's standard asks for `HttpClient`. Digits, underscores and multi-byte letters do not count as
+lower case, as in Coder 9.
 
 **Compared with Coder:** the rule reports on the name. Coder 9 reports on the `class` keyword, so
 the lines differ when a declaration spans several lines.
