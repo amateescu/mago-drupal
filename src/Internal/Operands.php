@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
@@ -15,6 +16,10 @@ use function implode;
 use function in_array;
 use function ltrim;
 use function preg_replace;
+use function preg_replace_callback;
+use function str_repeat;
+use function strlen;
+use function strpos;
 use function strtolower;
 use function trim;
 
@@ -27,6 +32,7 @@ use function trim;
  * @internal
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final class Operands
 {
@@ -248,5 +254,26 @@ final class Operands
         }
 
         return true;
+    }
+
+    /**
+     * The span of the `?` between a ternary's condition and its middle part.
+     * A comment in between may hold a `?` too, so comments are blanked first.
+     */
+    public static function questionMark(SourceFile $file, Node $condition, Node $then): Span
+    {
+        $start = $condition->span->end;
+        $gap = $file->getText(new Span($start, $then->span->start));
+        $code = preg_replace_callback(
+            '~/\*.*?\*/|//[^\n]*|#[^\n]*~s',
+            static fn(array $comment): string => str_repeat(' ', strlen($comment[0])),
+            $gap,
+        );
+        $offset = strpos($code ?? $gap, needle: '?');
+        if ($offset !== false) {
+            return new Span($start + $offset, $start + $offset + 1);
+        }
+
+        return $condition->span;
     }
 }

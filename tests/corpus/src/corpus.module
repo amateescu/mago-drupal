@@ -219,7 +219,7 @@ function corpus_tag_below(array $form): void {
 final class CorpusHook {}
 
 // @mago-expect lint:drupal/hook-comment
-#[CorpusHook]
+#[\CorpusHook]
 /**
  * Implements corpus_after_attribute().
  */
@@ -229,7 +229,7 @@ function corpus_after_attribute(): void {
 /**
  * Implements corpus_before_attribute().
  */
-#[CorpusHook]
+#[\CorpusHook]
 function corpus_before_attribute(): void {
 }
 

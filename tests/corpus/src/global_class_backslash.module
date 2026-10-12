@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Global classes with and without their leading backslash.
+ */
+
+use Drupal\Core\State\StateInterface;
+
+/**
+ * Reads a date from the state.
+ */
+function global_class_backslash_date(StateInterface $state): \DateTime {
+  // @mago-expect lint:drupal/global-class-backslash
+  $date = new DateTime();
+  // @mago-expect lint:drupal/global-class-backslash
+  if ($state instanceof Countable) {
+    return new \DateTime();
+  }
+  return $date;
+}

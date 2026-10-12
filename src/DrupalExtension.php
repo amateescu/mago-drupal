@@ -42,6 +42,7 @@ use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\GenderNeutralCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\GlobalClassBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalConstantRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
@@ -77,8 +78,10 @@ use amateescu\MagoDrupal\Linter\Rules\RequestSuperglobalRule;
 use amateescu\MagoDrupal\Linter\Rules\RoutingAccessRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortEchoTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortListRule;
+use amateescu\MagoDrupal\Linter\Rules\ShortTernaryRule;
 use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
+use amateescu\MagoDrupal\Linter\Rules\TestClassSuffixRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatableStringRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatedExceptionRule;
@@ -135,6 +138,7 @@ final class DrupalExtension
         'drupal/form-alter-comment',
         'drupal/function-name',
         'drupal/function-prefix',
+        'drupal/global-class-backslash',
         'drupal/global-constant',
         'drupal/hook-attribute-name',
         'drupal/info-core-version-requirement',
@@ -259,6 +263,7 @@ final class DrupalExtension
             new FunctionNameRule(),
             new FunctionPrefixRule(),
             new GenderNeutralCommentRule(),
+            new GlobalClassBackslashRule(),
             new GlobalConstantRule(),
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
@@ -294,8 +299,10 @@ final class DrupalExtension
             new RoutingAccessRule(),
             new ShortEchoTagRule(),
             new ShortListRule(),
+            new ShortTernaryRule(),
             new StrictConfigSchemaRule(),
             new SymfonyYamlParseRule(),
+            new TestClassSuffixRule(),
             new TodoCommentRule(),
             new TranslatableStringRule(),
             new TranslatedExceptionRule(),

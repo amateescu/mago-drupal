@@ -71,7 +71,7 @@ function forms_node_form_alter(array &$form): void {
 /**
  * Implements hook_form_alter().
  */
-#[Deprecated]
+#[\Deprecated]
 function forms_attribute_between(array &$form): void {
 }
 

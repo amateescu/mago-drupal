@@ -88,6 +88,7 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/form-alter-comment',
                 'drupal/function-name',
                 'drupal/function-prefix',
+                'drupal/global-class-backslash',
                 'drupal/global-constant',
                 'drupal/hook-attribute-name',
                 'drupal/info-core-version-requirement',

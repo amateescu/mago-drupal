@@ -85,10 +85,12 @@ own naming rules cover the rest, see [Setup](../setup.md#configure-mago-for-drup
 | [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports enum cases that do not use UpperCamelCase. |
 | [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports namespaced classes referenced in full instead of through a use statement. |
 | [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports functions whose name is not lower case. |
+| [`drupal/global-class-backslash`](naming-and-imports.md#drupalglobal-class-backslash) | error | Reports a global class written without a leading backslash in a file with no namespace. |
 | [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports Hook attributes whose name starts with hook_. |
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that do not use lowerCamelCase. |
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |
+| [`drupal/test-class-suffix`](naming-and-imports.md#drupaltest-class-suffix) | error | Reports a test class whose name does not end in Test, which PHPUnit never runs. |
 | [`drupal/use-leading-backslash`](naming-and-imports.md#drupaluse-leading-backslash) | error | Reports a use statement whose first name starts with a backslash. |
 
 ## Statements and declarations
@@ -110,6 +112,7 @@ are declared.
 | [`drupal/property-per-statement`](statements.md#drupalproperty-per-statement) | error | Reports a statement that declares more than one property. |
 | [`drupal/property-visibility`](statements.md#drupalproperty-visibility) | error | Reports properties declared with var or without an explicit visibility keyword. |
 | [`drupal/redundant-return`](statements.md#drupalredundant-return) | warning | Reports a `return;` that is the last statement of a function body. |
+| [`drupal/short-ternary`](statements.md#drupalshort-ternary) | error | Reports a ternary that repeats its condition, which "?:" replaces. |
 | [`drupal/short-list`](statements.md#drupalshort-list) | error | Reports a list(...) destructuring that can be written as [...]. |
 
 ## Comment text

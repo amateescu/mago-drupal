@@ -219,6 +219,33 @@ or `switch`, a `return` with a value, and one that code follows are fine.
   exception there and loses the rest of the file's reports.
 - Coder has no fix for the statement.
 
+## drupal/short-ternary
+
+- **Level:** error
+- **Fix:** safe, or potentially unsafe when it drops a comment.
+- **Ports:** core's `SlevomatCodingStandard.ControlStructures.RequireShortTernaryOperator`, which
+  Coder's rulesets leave out. Drupal's coding standards ask for `?:` too.
+
+A ternary that repeats its condition, which `?:` replaces:
+
+- `X ? X : B`
+- `!X ? B : X`
+
+Both become `X ?: B`. Operands match by syntax tree, as in
+[`drupal/null-coalesce`](#drupalnull-coalesce), so quotes, spacing, comments and parentheses do not
+matter.
+
+The fix runs when X is a plain variable, property, index or constant read, since `X ?: B` reads X
+once where the ternary reads it twice. In the second shape B moves to the end, so it also needs to
+bind tighter than `??`, as in `drupal/null-coalesce`. Other matches are reported without a fix.
+
+Mago's own `no-shorthand-ternary` asks for the opposite.
+[Setup](../setup.md#turn-off-what-drupals-standard-does-not-ask-for) turns it off.
+
+**Compared with the sniff:** the sniff compares the source text, so it skips `($a) ? $a : $b`,
+operands that differ in quotes or comments, and `(!$a) ? $b : $a`. On Drupal core 11.4 the rule
+reports 4 such ternaries that core's phpcs accepts.
+
 ## drupal/short-list
 
 - **Level:** error
