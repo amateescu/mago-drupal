@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\AttributeArguments;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\HookDocblock;
+use amateescu\MagoDrupal\Internal\LiteralText;
 use amateescu\MagoDrupal\Internal\Nodes;
 use amateescu\MagoDrupal\Internal\TopLevel;
 use Mago\Sdk\Linter\LintContext;
@@ -19,25 +21,47 @@ use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 
 use function count;
 use function ltrim;
 use function preg_match;
 use function preg_quote;
 use function str_contains;
+use function strcasecmp;
 use function strlen;
 
 /**
  * Checks the "Implements hook_x()." docblock convention on a function that
- * is declared at the top level of a file.
+ * is declared at the top level of a file, and on a `#[Hook]` method.
  *
  * Ports Drupal.Commenting.HookComment. Like the sniff, the rule skips a
  * function inside a block, a braced namespace, another function or a class.
  * Only the docblock right above the `function` keyword counts, so a comment
  * or an attribute between the two hides it.
+ *
+ * Coder reads no methods. A `#[Hook]` method is a hook implementation for
+ * sure, so the rule also wants its summary to be "Implements hook_x().", as
+ * Drupal's coding standards ask. Its docblock may sit above the attributes,
+ * as for any method. Core's `phpcs.xml.dist` has no such check, so `--core`
+ * leaves methods out.
+ *
+ * Functions and hook methods together need many branches.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class HookCommentRule implements Rule
 {
+    private const HOOK_CLASS = 'Drupal\Core\Hook\Attribute\Hook';
+
+    /**
+     * @param bool $core Leaves `#[Hook]` methods out, as core's phpcs does.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
+
     private const IMPLEMENTS_HOOK = '/^Implement[^\n]+?hook_[^\n]+/i';
 
     private const WELL_FORMED = '/ (drush_)?hook_[a-zA-Z0-9_]+\(\)( for .+)?\.$/';
@@ -50,15 +74,75 @@ final class HookCommentRule implements Rule
             description: 'Checks the "Implements hook_x()." docblock convention on a hook implementation.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: [NodeKind::Program],
+            targets: [NodeKind::Program, NodeKind::Method],
         );
     }
 
     public function lint(LintContext $context): void
     {
+        if ($context->node->kind === NodeKind::Method) {
+            if (!$this->core) {
+                $this->checkMethod($context, $context->node);
+            }
+
+            return;
+        }
+
         foreach (TopLevel::functions($context->file) as $function) {
             $this->checkFunction($context, $function);
         }
+    }
+
+    /**
+     * Checks the docblock of a method that has a `#[Hook]` attribute.
+     */
+    private function checkMethod(LintContext $context, Node $method): void
+    {
+        $file = $context->file;
+        $hook = $this->hookAttribute($file, $method);
+        $docblock = $hook === null ? null : Docblocks::attachedTo($file, Docblocks::commentAnchor($file, $method));
+        $summary = $docblock === null ? [] : HookDocblock::summary($file, $docblock);
+        if ($hook === null || $docblock === null || $summary === []) {
+            return;
+        }
+
+        $short = $this->text($summary);
+        if (preg_match(self::IMPLEMENTS_HOOK, $short) === 1) {
+            $this->checkImplementsHook($context, $docblock, $short, $summary);
+
+            return;
+        }
+
+        $argument = AttributeArguments::first($file, $file->getChildren($hook)[1] ?? null, parameter: 'hook');
+        $name = $argument === null ? null : LiteralText::of($file, $argument);
+        $issue = Issue::new('Document a hook implementation with "Implements hook_foo().".', $this->span($summary));
+        if ($name !== null) {
+            $issue = $issue->withHelp("This method implements hook_{$name}().");
+        }
+
+        $context->report($issue);
+    }
+
+    /**
+     * The method's first `#[Hook]` attribute, or null. The name resolves
+     * through imports and aliases, and PHP ignores its case.
+     */
+    private function hookAttribute(SourceFile $file, Node $method): ?Node
+    {
+        foreach ($file->getChildren($method) as $list) {
+            if ($list->kind !== NodeKind::AttributeList) {
+                continue;
+            }
+
+            foreach ($file->getChildren($list) as $attribute) {
+                $name = $file->getChildren($attribute)[0] ?? null;
+                if ($name !== null && strcasecmp(Nodes::resolved($file, $name) ?? '', self::HOOK_CLASS) === 0) {
+                    return $attribute;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function checkFunction(LintContext $context, Node $function): void

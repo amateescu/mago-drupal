@@ -22,11 +22,7 @@ use function array_values;
 use function count;
 use function in_array;
 use function preg_match;
-use function preg_replace_callback;
 use function str_contains;
-use function str_repeat;
-use function strlen;
-use function strpos;
 use function strtolower;
 use function trim;
 
@@ -91,7 +87,7 @@ final class NullCoalesceRule implements Rule
             return;
         }
 
-        $issue = Issue::new(self::MESSAGE, $this->questionMark($file, $condition, $then));
+        $issue = Issue::new(self::MESSAGE, Operands::questionMark($file, $condition, $then));
         $edits = $match['fixable'] ? $this->edits($context->node, $match) : [];
         if ($edits !== []) {
             $dropped = '';
@@ -232,26 +228,6 @@ final class NullCoalesceRule implements Rule
         $edits[] = [new Span($branch->end, $whole->end), ''];
 
         return $edits;
-    }
-
-    /**
-     * The span of the `?` between the condition and the middle part.
-     */
-    private function questionMark(SourceFile $file, Node $condition, Node $then): Span
-    {
-        $start = $condition->span->end;
-        $gap = $file->getText(new Span($start, $then->span->start));
-        $code = preg_replace_callback(
-            '~/\*.*?\*/|//[^\n]*|#[^\n]*~s',
-            static fn(array $comment): string => str_repeat(' ', strlen($comment[0])),
-            $gap,
-        );
-        $offset = strpos($code ?? $gap, needle: '?');
-        if ($offset !== false) {
-            return new Span($start + $offset, $start + $offset + 1);
-        }
-
-        return $condition->span;
     }
 
     /**

@@ -93,6 +93,26 @@ names such as `hook_ENTITY_TYPE_insert()`. Methods are left to Mago's `method-na
 Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which Coder
 accepts. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
 
+## drupal/global-class-backslash
+
+- **Level:** error
+- **Fix:** safe. It adds the backslash.
+- **Ports:** the rule of Drupal's coding standards that writes a class with no namespace fully
+  qualified, as in `new \Exception()`. Coder has no such sniff.
+- **Off with `--core`**
+
+A class name without a leading backslash in a file with no `namespace`, such as `new DateTime()`
+or `Drupal::service()` in a `.module` file. The rule reads class names in types, `extends`,
+`implements`, trait `use`, attributes, `new`, static calls and accesses, `::class`, and on the
+right of `instanceof`. A name that a `use` statement imports is fine, and `self`, `static`,
+`parent` and the built-in types are not class names. In a file with no namespace both forms name
+the same class, so the fix does not change what the code does.
+
+`.api.php` files are skipped. Their examples leave out the imports, so a short name there, such as
+`Url`, stands for a namespaced class.
+
+Mago's `no-fully-qualified-global-class-like`, off by default, asks for the opposite.
+
 ## drupal/hook-attribute-name
 
 - **Level:** warning
@@ -178,6 +198,20 @@ Coder reports both, and phpcbf breaks the code there: it writes `\const` for a c
 the group prefix for a grouped name. The rule also reports an import with a leading backslash, such
 as `use \DateTime;`. Coder's sniff skips it, and Coder reports that line only for the backslash,
 which `drupal/use-leading-backslash` covers.
+
+## drupal/test-class-suffix
+
+- **Level:** error
+- **Fix:** none
+- **Ports:** the "Test" suffix of Drupal's coding standards. Coder has no such sniff.
+
+A concrete class in a PHPUnit test directory whose parent's name ends in `Test`, `TestBase` or
+`TestCase`, and whose own name does not end in `Test`. PHPUnit runs only the files named
+`*Test.php`, and so do `phpunit -c core` and run-tests.sh, so such a test never runs. The test
+directories are `Unit`, `Kernel`, `Functional`, `FunctionalJavascript` and `Build` under a module's
+`tests/src`, and `Tests`, `KernelTests`, `FunctionalTests`, `FunctionalJavascriptTests` and
+`BuildTests` under `core/tests/Drupal`. Outside them, the parent's name says nothing: core's test
+entity class is called `EntityTest`.
 
 ## drupal/use-leading-backslash
 

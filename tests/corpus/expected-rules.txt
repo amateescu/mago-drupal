@@ -33,6 +33,7 @@ drupal/function-comment
 drupal/function-name
 drupal/function-prefix
 drupal/gender-neutral-comment
+drupal/global-class-backslash
 drupal/global-constant
 drupal/global-function
 drupal/global-variable
@@ -68,10 +69,12 @@ drupal/request-superglobal
 drupal/routing-access
 drupal/short-echo-tag
 drupal/short-list
+drupal/short-ternary
 drupal/strict-config-schema
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema
+drupal/test-class-suffix
 drupal/todo-comment
 drupal/translatable-string
 drupal/translated-exception

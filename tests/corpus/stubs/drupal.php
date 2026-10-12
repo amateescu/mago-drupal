@@ -124,6 +124,10 @@ namespace Drupal\Core\Config\Entity {
     abstract class ConfigEntityBase {}
 }
 
+namespace Drupal\Tests {
+    abstract class BrowserTestBase {}
+}
+
 namespace Drupal\Core\Form {
     abstract class FormBase {}
 }

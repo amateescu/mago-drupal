@@ -12,6 +12,7 @@ use amateescu\MagoDrupal\Internal\DocCommentSpacing;
 use amateescu\MagoDrupal\Internal\DocDoubleDot;
 use amateescu\MagoDrupal\Internal\DocStarSpacing;
 use amateescu\MagoDrupal\Internal\OuterDocblocks;
+use amateescu\MagoDrupal\Internal\SeeTags;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -20,7 +21,9 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 
+use function array_key_exists;
 use function basename;
 use function count;
 use function in_array;
@@ -92,8 +95,14 @@ final class DocCommentRule implements Rule
             return;
         }
 
+        // `drupal/function-comment` checks the `@see` tags of a function's
+        // docblock. Core's phpcs checks no others.
+        $functionDocblocks = $this->core ? null : $this->functionDocblocks($context->file);
         foreach (OuterDocblocks::of($context->file) as $span) {
             $this->checkDocblock($context, $span);
+            if ($functionDocblocks !== null && !array_key_exists($span->start, $functionDocblocks)) {
+                $this->checkSeeReferences($context, $span);
+            }
         }
 
         // Coder checks the stars and the end of a description line in every
@@ -148,6 +157,36 @@ final class DocCommentRule implements Rule
         }
 
         $this->checkTagOrder($context, $tags);
+    }
+
+    /**
+     * Checks the `@see` references of a docblock that is not a function's.
+     * Coder reports an empty `@see` in a property docblock, which
+     * `drupal/variable-comment` ports, and nowhere else outside functions.
+     */
+    private function checkSeeReferences(LintContext $context, Span $span): void
+    {
+        if (!OuterDocblocks::isGroup($context->file, $span)) {
+            SeeTags::checkReferences($context, Docblocks::tags($context->file, $span));
+        }
+    }
+
+    /**
+     * The start offsets of the docblocks of functions and methods.
+     *
+     * @return array<int, true>
+     */
+    private function functionDocblocks(SourceFile $file): array
+    {
+        $starts = [];
+        foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
+            $docblock = Docblocks::attachedTo($file, Docblocks::commentAnchor($file, $function));
+            if ($docblock !== null) {
+                $starts[$docblock->start] = true;
+            }
+        }
+
+        return $starts;
     }
 
     /**

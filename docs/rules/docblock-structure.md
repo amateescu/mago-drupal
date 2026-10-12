@@ -103,7 +103,12 @@ The tags:
 - `@param` tags that are not in one group, or that are not in the first group;
 - tags of one kind that are not grouped;
 - `@inheritdoc` without braces in a docblock with no summary, as its first tag or the tag after a
-  leading `@file`. The fix writes `{@inheritdoc}`.
+  leading `@file`. The fix writes `{@inheritdoc}`;
+- a `@see` reference with other text after it, or with punctuation at its end, in a docblock that
+  is not a function's or a method's. [`drupal/function-comment`](#drupalfunction-comment) checks
+  those of functions and methods. Coder reads no other `@see` tags, but Drupal's coding standards
+  ask the same of every docblock. The fix removes the punctuation after a one-word reference. With
+  `--core` the rule skips this check, as core's phpcs does.
 
 The whitespace, each with a fix:
 
@@ -292,6 +297,12 @@ A hook implementation that is not documented as `Implements hook_foo().`, or tha
 of a file, and only a docblock that touches the `function` keyword. It skips a function in a block,
 in `namespace X { }` or in another function, and a docblock that has a comment, an attribute or a
 `?>` between it and the `function` keyword, as Coder does.
+
+The rule also reads a method with a `#[Hook]` attribute, which Coder skips. Such a method is a hook
+implementation for sure, so its summary must be `Implements hook_foo().`, as Drupal's coding
+standards ask, and the format and the `@param` and `@return` checks apply as for a function. A
+method's docblock may sit above or below its attributes. With `--core` the rule leaves methods out,
+as core's phpcs does.
 
 The fix replaces a description that repeats the function name, as in `Implements my_mod_help().`,
 with `Implements hook_help().`. For a hook with a placeholder it writes the function's own words,

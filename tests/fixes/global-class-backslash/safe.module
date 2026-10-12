@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Global classes in a file with no namespace.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Builds things.
+ */
+function safe_build(Exception $e, ?DateTime $date, Url $url, int $count): stdClass {
+  $service = Drupal::service('date.formatter');
+  $class = DateTime::class;
+  if ($e instanceof RuntimeException) {
+    return new stdClass();
+  }
+  try {
+    $url = new Url('<front>');
+  }
+  catch (LogicException | TypeError $error) {
+    throw new \RuntimeException($error->getMessage());
+  }
+  return new \stdClass();
+}

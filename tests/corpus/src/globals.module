@@ -32,9 +32,9 @@ $globals_defined = define('GLOBALS_ASSIGNED', 1);
 Drupal\globals\define('GLOBALS_NAMESPACED', 1);
 
 // Only a plain call counts.
-$globals_object = new GlobalsConstants();
+$globals_object = new \GlobalsConstants();
 $globals_object->define('GLOBALS_METHOD', 1);
-Drupal::define('GLOBALS_STATIC', 1);
+\Drupal::define('GLOBALS_STATIC', 1);
 
 // @mago-expect lint:drupal/constant-prefix
 // @mago-expect lint:drupal/global-constant
@@ -118,7 +118,7 @@ if (function_exists('globals_define'))
 try {
   define('GLOBALS_IN_TRY', 1);
 }
-catch (Exception $exception) {
+catch (\Exception $exception) {
   define('GLOBALS_IN_CATCH', 1);
 }
 
