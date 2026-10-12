@@ -11,6 +11,7 @@ use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\SeeTags;
 use amateescu\MagoDrupal\Internal\TypeNames;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -159,7 +160,7 @@ final class FunctionCommentRule implements Rule
         $this->checkParamTags($context, $tags);
         $this->checkReturnTags($context, $tags);
         $this->checkThrowsTags($context, $tags);
-        $this->checkSeeTags($context, $tags);
+        SeeTags::check($context, $tags);
         $this->checkSpacing($context, $closest->span);
     }
 
@@ -692,66 +693,6 @@ final class FunctionCommentRule implements Rule
         }
 
         $context->report($issue);
-    }
-
-    /**
-     * @param list<DocblockTag> $tags
-     */
-    private function checkSeeTags(LintContext $context, array $tags): void
-    {
-        // A `@see` after `@deprecated` holds the change-record url, whose
-        // trailing periods `drupal/deprecated-tag` removes. A second edit
-        // there would overlap that one.
-        $deprecatedAt = null;
-        foreach ($tags as $index => $tag) {
-            if ($tag->name !== 'deprecated') {
-                continue;
-            }
-
-            $deprecatedAt = $index;
-            break;
-        }
-
-        foreach ($tags as $index => $tag) {
-            if ($tag->name !== 'see') {
-                continue;
-            }
-
-            $deprecated = $deprecatedAt !== null && $index > $deprecatedAt;
-
-            // The reference is the tag's own line, as Coder reads it. The
-            // lines below it are a description, which may end in a period.
-            // A tag with its reference on the next line counts as empty.
-            $line = $tag->lines[0];
-            $reference = rtrim($line->text);
-            if (trim($reference) === '') {
-                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
-
-                continue;
-            }
-
-            [, $rest] = Docblocks::splitType(ltrim($reference));
-            if ($rest !== '') {
-                $context->report(Issue::new(
-                    'The @see tag must have only a reference, with no other text.',
-                    $tag->contentSpan(),
-                ));
-            }
-
-            $kept = rtrim($reference, characters: '.!?');
-            if ($kept === $reference) {
-                continue;
-            }
-
-            $issue = Issue::new('Do not end the @see reference with punctuation.', $tag->contentSpan());
-            if ($rest === '' && trim($kept) !== '' && !$deprecated) {
-                $issue = $issue->withEdit(TextEdit::delete(
-                    new Span($line->offset + strlen($kept), $line->offset + strlen($reference)),
-                ));
-            }
-
-            $context->report($issue);
-        }
     }
 
     /**

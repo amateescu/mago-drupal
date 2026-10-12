@@ -13,6 +13,8 @@ use Drupal\Core\Hook\Attribute\Hook as DrupalHook;
 class HookAttributeFixture {
 
   /**
+   * Implements hook_cron().
+   *
    * A hook name that starts with the prefix.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -21,6 +23,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A double-quoted hook name.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -29,6 +33,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A named argument.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -37,6 +43,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * An import under another name.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -45,6 +53,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A fully qualified name.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -53,6 +63,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The name is written in lower case. PHP does not read the case.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -61,6 +73,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A hook name that is built from two literals.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -69,6 +83,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * Both attributes in one group are checked.
    */
   // @mago-expect lint:drupal/hook-attribute-name(2)
@@ -77,6 +93,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The Hook attribute follows another attribute in its group.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -85,6 +103,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A doubled prefix is one report.
    */
   // @mago-expect lint:drupal/hook-attribute-name
@@ -103,6 +123,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The rule skips a prefix that is not at the start.
    */
   #[Hook('cron')]
@@ -110,6 +132,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The prefix alone is no hook name.
    */
   #[Hook('hook_')]
@@ -117,6 +141,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The match is case sensitive and starts at the first character.
    */
   #[Hook('Hook_cron')]
@@ -124,6 +150,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A space before the prefix.
    */
   #[Hook(' hook_cron')]
@@ -131,6 +159,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * Another word before the prefix.
    */
   #[Hook('xhook_cron')]
@@ -138,6 +168,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The value is not the hook name.
    */
   #[Hook('cron', module: 'hook_corpus')]
@@ -145,6 +177,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * The hook name is not a literal.
    */
   #[Hook(self::CRON)]
@@ -152,6 +186,8 @@ class HookAttributeFixture {
   }
 
   /**
+   * Implements hook_cron().
+   *
    * A string below the attribute is not read.
    */
   #[Hook]

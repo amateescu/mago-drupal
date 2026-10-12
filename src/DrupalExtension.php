@@ -268,7 +268,7 @@ final class DrupalExtension
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
-            new HookCommentRule(),
+            new HookCommentRule(core: $core),
             new InfoAutoAddedKeysRule(),
             new InfoCoreVersionRequirementRule(),
             new InfoDependenciesArrayRule(),
