@@ -234,7 +234,7 @@ function switch_semicolons(int $x): int {
       return 1;
 
     case 2:
-    // @mago-expect lint:drupal/case-semicolon
+      // @mago-expect lint:drupal/case-semicolon
     case 3;
       return 3;
 
@@ -249,7 +249,7 @@ function switch_default_semicolon(int $x): int {
     case 1:
       return 1;
 
-    // @mago-expect lint:drupal/case-semicolon
+      // @mago-expect lint:drupal/case-semicolon
     default;
       return 0;
   }
