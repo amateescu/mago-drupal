@@ -38,7 +38,7 @@ final class GlobalConstantRule implements Rule
         return new RuleDefinition(
             code: 'drupal/global-constant',
             name: 'Global constant',
-            description: 'Reports a top-level const statement or define() call. A constant belongs in a class or interface.',
+            description: 'Reports a top-level const statement or define() call, as DrupalPractice does.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             // Program gives the walk up from each node a parent chain. The

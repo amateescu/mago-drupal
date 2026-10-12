@@ -193,7 +193,7 @@ final class DrupalExtension
     {
         $off = array_fill_keys($core ? [...self::CORE_OFF, ...$disabled] : $disabled, value: true);
         $rules = [];
-        foreach (self::linterRules() as $rule) {
+        foreach (self::linterRules($core) as $rule) {
             $code = $rule->getDefinition()->code;
             $rules[] = new Utf8IssueRule(array_key_exists($code, $off) ? new DefaultOffRule($rule) : $rule);
             unset($off[$code]);
@@ -217,9 +217,11 @@ final class DrupalExtension
     }
 
     /**
+     * @param bool $core Whether the worker runs on Drupal core.
+     *
      * @return list<Rule>
      */
-    private static function linterRules(): array
+    private static function linterRules(bool $core): array
     {
         return [
             new AuthorTagRule(),
@@ -240,7 +242,7 @@ final class DrupalExtension
             new DeprecationMessageRule(),
             new DiscouragedFunctionRule(),
             new DocCommentArraySyntaxRule(),
-            new DocCommentRule(),
+            new DocCommentRule(core: $core),
             new DocTypeNamespaceRule(),
             new ElseIfRule(),
             new EmptyPhpTagsRule(),

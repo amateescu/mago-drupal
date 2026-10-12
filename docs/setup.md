@@ -69,7 +69,8 @@ and not Mago's defaults:
 php-version = "8.3"
 
 [formatter]
-# Drupal's style for braces, indentation and line length.
+# Drupal's style for braces and indentation. Lines wrap at 120 columns. Drupal's standard asks for
+# about 80, which phpcs does not check for code.
 preset = "drupal"
 # Mago reads a YAML file as text outside PHP, and the formatter would trim the end of its lines.
 excludes = ["**/*.yml"]
@@ -126,7 +127,10 @@ you disable those rules, you lose no check that phpcs did:
 # missing @.
 # drupal/inline-comment already reports a "#" comment. drupal/todo-comment already checks the
 # "@todo Fix problem X here." format, and tagged-todo contradicts that format.
+# Drupal's standard allows a global variable named _mymodule_name, and core keeps its settings in
+# globals such as $base_url and $GLOBALS['config']. no-global reports every use, at error level.
 no-error-control-operator = { enabled = false }
+no-global = { enabled = false }
 no-hash-comment = { enabled = false }
 tagged-todo = { enabled = false }
 
@@ -158,8 +162,9 @@ prefer-first-class-callable = { enabled = false }
 prefer-static-closure = { enabled = false }
 readable-literal = { enabled = false }
 too-many-methods = { enabled = false }
-# Drupal core mostly does not declare strict types, but many contrib modules do. Examine your own
-# codebase before you disable this rule.
+# Drupal core declares strict types in its tests, where its phpcs.xml.dist requires them, and in few
+# other files. Many contrib modules declare them everywhere. Examine your own codebase before you
+# disable this rule.
 strict-types = { enabled = false }
 ```
 

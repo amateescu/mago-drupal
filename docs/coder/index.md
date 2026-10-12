@@ -27,7 +27,7 @@ rulesets exclude are not listed, and neither are codes that Coder never reports.
 
 | Part of the standard | Checked by |
 | --- | --- |
-| Whitespace, indentation, braces, code line width, docblock star alignment | `mago format` |
+| Whitespace, indentation, braces, docblock star alignment | `mago format` |
 | Class, interface and file naming | Mago's naming rules |
 | Function aliases, unused imports | `no-alias-function`, `no-redundant-use`, enabled by default |
 | Unreachable code, deprecated PHP functions, wrong `@param` and `@return` types | `mago analyze` |

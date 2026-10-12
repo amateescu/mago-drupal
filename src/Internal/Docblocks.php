@@ -383,7 +383,10 @@ final class Docblocks
                 continue;
             }
 
-            if (self::isTagLine($line->text, inTag: false)) {
+            // Coder reads a `@link` or `@endlink` line right below a line of
+            // the long description as part of it.
+            $inDescription = count($paragraphs) > 1 && $paragraphs[count($paragraphs) - 1] !== [];
+            if (self::isTagLine($line->text, inTag: false) && !($inDescription && self::isLinkLine($line->text))) {
                 break;
             }
 
@@ -591,6 +594,14 @@ final class Docblocks
     private static function isDirectiveLine(string $text): bool
     {
         return preg_match('/^\s*phpcs:(?:ignore|disable|enable|set)\b/', $text) === 1;
+    }
+
+    /**
+     * Whether a stripped docblock line starts with `@link` or `@endlink`.
+     */
+    private static function isLinkLine(string $text): bool
+    {
+        return preg_match('/^\s*@(?:end)?link\b/', $text) === 1;
     }
 
     /**

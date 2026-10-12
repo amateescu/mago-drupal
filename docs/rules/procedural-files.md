@@ -71,9 +71,10 @@ class, trait, enum or anonymous class, such as in a method body.
 - **Fix:** none
 - **Ports:** `Drupal.NamingConventions.ValidGlobal.GlobalUnderScore`
 
-A variable in a `global` statement that does not start with an underscore. The globals of every
-module share one namespace, and the underscore marks the ones that a module owns. The globals that
-Drupal core owns, such as `$base_url` and `$user`, are fine.
+A variable in a `global` statement that does not start with an underscore. Drupal's standard asks
+for the module name between two underscores, as in `$_mymodule_cache`. Coder, and this rule, check
+the first underscore only. The globals that Drupal core owns, such as `$base_url` and `$user`, are
+fine.
 
 Unlike the other rules on this page, the rule checks every file that Mago reads, such as `.inc`
 files and class methods in `.php` files, as Coder 9 does.

@@ -53,7 +53,8 @@ docblock above or below the attributes counts, as in Coder.
 A `@deprecated` tag that breaks the [deprecation grammar](https://www.drupal.org/node/2856820),
 `@deprecated in %deprecation-version% and is removed from %removal-version%. %extra-info%.`, or
 that has no `@see` tag after it. A version is `drupal:n.n.n`, `project:n.x-n.n` or
-`project:n.n.n`, as in `drupal/deprecation-message`.
+`project:n.n.n`, with an optional release label such as `-alpha1`, as in
+`drupal/deprecation-message`.
 
 The change-record url is the first line of the `@see` tag. Coder 9 accepts
 `https://www.drupal.org/node/n`, `https://www.drupal.org/project/name/issues/n` and
@@ -86,12 +87,14 @@ The summary and the description:
   instead. A docblock whose tag there is `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`
   gets only the checks on its first and last lines, the star check and the two-dot check. A file
   docblock that holds only `@file` is exempt. `{@inheritdoc}` and a summary that is the file's name
-  are fine;
+  are fine. With `--core`, the rule reports no summary only in `KernelTests`, `Unit` and
+  `FunctionalJavascript` directories, where core's `phpcs.xml.dist` runs that check;
 - a summary that does not start with an upper-case letter. As in Coder 9, a summary that starts
   with a digit, `#`, `_` or other punctuation counts, and one that starts with a multi-byte
   character does not. The fix uppercases a lower-case letter;
-- a summary with no punctuation at the end. The fix adds a full stop to a one-line summary that
-  ends with a letter or a digit;
+- a summary with no punctuation at the end. As in Coder, `!`, `?` and `)` pass too, although
+  Drupal's standard asks for a full stop. The fix adds a full stop to a one-line summary that ends
+  with a letter or a digit;
 - a summary that spans more than one line;
 - a long description that starts with a lower-case letter. The fix uppercases it.
 
@@ -244,6 +247,10 @@ The rule checks the tags, with a fix where the list says so:
 
 A `@return` variable name and a `@see` reference are read from the tag's own line.
 
+Drupal's standard lets a `@param` or `@return` description be left out when the type says it all,
+such as a single class type that cannot be null, and asks for no `@return` when nothing is
+returned. Coder, core and this rule still want the description, and accept `@return void`.
+
 **Compared with Coder:**
 
 - The constructor name is matched in any case, because PHP ignores case in method names. Coder
@@ -329,8 +336,10 @@ inside a run of `//` lines.
 
 A class property with no docblock, or with a comment in the wrong style. A docblock above or below
 the attributes counts, as in Coder, and a comment between the attributes and the property is the
-property's comment. A property with a native type needs a docblock but no `@var` tag. In the
-docblock, the rule reports:
+property's comment. A property with a native type needs a docblock but no `@var` tag. Drupal's
+standard lets such a property skip the comment when its name matches the type, as in
+`protected EntityTypeManagerInterface $entityTypeManager`, but Coder, core and this rule still
+want it. In the docblock, the rule reports:
 
 - no `@var` tag on a property with no native type, more than one, and one that is not the first
   tag;
