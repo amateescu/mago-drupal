@@ -62,7 +62,6 @@ use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
-use amateescu\MagoDrupal\Linter\Rules\NullableParamTagRule;
 use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
@@ -279,7 +278,6 @@ final class DrupalExtension
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
             new NullCoalesceRule(),
-            new NullableParamTagRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
             new PregSecurityRule(),
