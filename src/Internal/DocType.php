@@ -13,7 +13,6 @@ use function str_contains;
 use function strlen;
 use function strspn;
 use function substr;
-use function trim;
 
 use const PREG_OFFSET_CAPTURE;
 
@@ -123,32 +122,6 @@ final class DocType
             && self::balanced($type)
             && !in_array(substr($type, offset: -1), ['|', '&', ':', ','], strict: true)
         );
-    }
-
-    /**
-     * The members of a union, split at the `|` outside brackets.
-     *
-     * @return list<string>
-     */
-    public static function members(string $type): array
-    {
-        $members = [];
-        $depth = 0;
-        $start = 0;
-        $length = strlen($type);
-        for ($i = 0; $i < $length; $i++) {
-            $character = $type[$i];
-            $i = self::quoteEnd($type, $i);
-            $depth += self::depthChange($character);
-            if ($character === '|' && $depth === 0) {
-                $members[] = trim(substr($type, $start, $i - $start));
-                $start = $i + 1;
-            }
-        }
-
-        $members[] = trim(substr($type, $start));
-
-        return $members;
     }
 
     /**

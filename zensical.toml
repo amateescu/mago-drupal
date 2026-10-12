@@ -19,7 +19,6 @@ nav = [
     { "Statements and declarations" = "rules/statements.md" },
     { "Comment text" = "rules/comment-text.md" },
     { "Docblock structure" = "rules/docblock-structure.md" },
-    { "Docblock types" = "rules/docblock-types.md" },
     { "DrupalPractice checks" = "rules/drupal-practice.md" },
     { "Drupal 7 era" = "rules/drupal-7.md" },
     { "Ported from phpstan-drupal" = "rules/phpstan-drupal.md" },

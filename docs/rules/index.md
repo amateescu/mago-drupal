@@ -153,14 +153,6 @@ analyzer](../coder/index.md#docblock-types-and-the-analyzer). The group has the 
 | [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |
 | [`drupal/variable-comment`](docblock-structure.md#drupalvariable-comment) | error | Checks that a class property has a @var docblock. |
 
-## Docblock types
-
-This rule compares a docblock with the declaration's signature. Coder has no matching sniff.
-
-| Rule | Level | What it reports |
-| --- | --- | --- |
-| [`drupal/nullable-param-tag`](docblock-types.md#drupalnullable-param-tag) | warning | Reports an @param type without null on an untyped parameter that defaults to NULL. |
-
 ## DrupalPractice checks
 
 These rules port sniffs of Coder's `DrupalPractice` standard that core's `phpcs.xml.dist` does not
