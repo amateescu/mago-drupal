@@ -238,6 +238,19 @@ final class DocblocksTest extends TestCase
         self::assertSame(['', 'Summary.', ''], array_map(static fn($line) => $line->text, $lines));
     }
 
+    public function testLinesTakeTheWholeRunOfStarsAsTheOpener(): void
+    {
+        $contents = "/*******\n * Summary.\n */";
+        $lines = Docblocks::lines(self::sourceFile($contents), new Span(0, strlen($contents)));
+
+        self::assertSame(['', 'Summary.', ''], array_map(static fn($line) => $line->text, $lines));
+
+        $contents = '/*** Summary. */';
+        $lines = Docblocks::lines(self::sourceFile($contents), new Span(0, strlen($contents)));
+
+        self::assertSame(['Summary.'], array_map(static fn($line) => $line->text, $lines));
+    }
+
     public function testParagraphsReadAFileDocblockAfterTheFileTag(): void
     {
         $contents = "/**\n * @file\n * Summary.\n *\n * Long description.\n *\n * @see foo()\n */";

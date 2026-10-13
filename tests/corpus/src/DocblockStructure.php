@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
-// @mago-expect lint:drupal/doc-comment
 /**
  */
-function doc_comment_empty(): void {
+function doc_comment_empty_left_to_mago(): void {
 }
 
 // @mago-expect lint:drupal/doc-comment
@@ -167,6 +166,38 @@ function my_module_hook_dup_param($node): void {
  * @see https://www.drupal.org/node/1234567
  */
 function deprecated_tag_fine(): void {
+}
+
+/**
+ * Does something that got replaced.
+ *
+ * @deprecated in drupal:10.1.0 and is removed from
+ *   drupal:11.0.0. Use bar() instead.
+ *
+ * @see https://www.drupal.org/node/1234567
+ */
+function deprecated_tag_wrapped_removal_version(): void {
+}
+
+/**
+ * Does something that got replaced.
+ *
+ * @deprecated in
+ *   drupal:10.1.0 and is removed from drupal:11.0.0. Use bar() instead.
+ *
+ * @see https://www.drupal.org/node/1234567
+ */
+function deprecated_tag_wrapped_deprecation_version(): void {
+}
+
+/******************************************************************************
+ * Helpers below a banner, whose extra stars Coder reads as its opener.
+ */
+
+/**
+ * Sits below a banner comment.
+ */
+function docblock_after_banner(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag

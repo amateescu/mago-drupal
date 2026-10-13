@@ -152,7 +152,7 @@ final class DeprecatedTagRule implements Rule
     private function checkLayout(LintContext $context, DocblockTag $tag): void
     {
         $matches = [];
-        if (preg_match(self::LAYOUT, $tag->content(), $matches) !== 1) {
+        if (preg_match(self::LAYOUT, self::text($tag), $matches) !== 1) {
             $issue = Issue::new(
                 'The @deprecated text does not match the standard format: ' . self::FORMAT,
                 $tag->contentSpan(),
@@ -179,6 +179,30 @@ final class DeprecatedTagRule implements Rule
                 $tag->contentSpan(),
             ));
         }
+    }
+
+    /**
+     * Returns the tag's text the way Coder collects it. Each line loses its
+     * indent, so a version wrapped onto the next line reads as one word, and
+     * the text ends at the first blank line.
+     */
+    private static function text(DocblockTag $tag): string
+    {
+        $parts = [];
+        foreach ($tag->lines as $index => $line) {
+            $text = trim($line->text);
+            if ($text !== '') {
+                $parts[] = $text;
+
+                continue;
+            }
+
+            if ($index > 0) {
+                break;
+            }
+        }
+
+        return implode(' ', $parts);
     }
 
     /**

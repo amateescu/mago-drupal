@@ -55,7 +55,9 @@ final class Docblocks
     /**
      * Splits a docblock into its lines and removes the comment markers.
      *
-     * Line 0 loses the opening `/**` and one space or tab after it. Every
+     * Line 0 loses the opening `/**`, any more stars after it and one space
+     * or tab. Coder's tokenizer counts the stars of a banner such as
+     * `/*****` as part of the opener, and so does DocblockRows. Every
      * other line loses its leading whitespace, its star and one space or
      * tab, unless the star is the one in the closing `*\/`. The line that
      * holds the closer loses it and the whitespace before it. The closer is
@@ -64,7 +66,7 @@ final class Docblocks
      * `\r` from a CRLF file is removed too. The rest of the line, with its
      * trailing whitespace, is the text. The capture keeps its byte offset.
      */
-    private const LINE_PATTERN = '/^(?:\/\*\*[ \t]?|[ \t]*\*(?!\/)[ \t]?)?(.*?)(?:[ \t]*[*\/]*\*\/)?\r?$/m';
+    private const LINE_PATTERN = '/^(?:\/\*\*\**[ \t]?|[ \t]*\*(?!\/)[ \t]?)?(.*?)(?:[ \t]*[*\/]*\*\/)?\r?$/m';
 
     /**
      * Tags that mark an example inside another tag's description.

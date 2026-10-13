@@ -129,9 +129,9 @@ final class DocCommentRule implements Rule
         $tags = Docblocks::tags($context->file, $span);
         [$summary, $description] = Docblocks::paragraphs($context->file, $span);
 
+        // Mago's no-empty-comment reports an empty docblock, and its safe fix
+        // deletes it.
         if ($summary === [] && $tags === []) {
-            $context->report(Issue::new('The docblock is empty.', $span));
-
             return;
         }
 
