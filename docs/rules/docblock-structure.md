@@ -71,7 +71,7 @@ Other layouts are reported without a fix, as with phpcbf.
 - **Level:** warning
 - **Fix:** safe for most checks. The closer fix and the two-dot fix are potentially unsafe.
 - **Ports:**
-    - `Drupal.Commenting.DocComment`: `ContentAfterOpen`, `Empty`, `InheritDocWithoutBraces`, `LongNotCapital`, `MissingShort` (partly), `ParamGroup`, `ParamNotFirst`, `ShortFullStop`, `ShortNotCapital`, `ShortSingleLine`, `ShortStartSpace`, `SpacingAfter`, `SpacingAfterTagGroup`, `SpacingBeforeShort`, `SpacingBeforeTags`, `SpacingBetween`, `TagGroupSpacing`, `TagValueIndent`, `TagsNotGrouped`, `WrongEnd`
+    - `Drupal.Commenting.DocComment`: `ContentAfterOpen`, `InheritDocWithoutBraces`, `LongNotCapital`, `MissingShort` (partly), `ParamGroup`, `ParamNotFirst`, `ShortFullStop`, `ShortNotCapital`, `ShortSingleLine`, `ShortStartSpace`, `SpacingAfter`, `SpacingAfterTagGroup`, `SpacingBeforeShort`, `SpacingBeforeTags`, `SpacingBetween`, `TagGroupSpacing`, `TagValueIndent`, `TagsNotGrouped`, `WrongEnd`
     - `Drupal.Commenting.DocCommentAlignment`: `NoSpaceAfterStar`, `SpaceAfterStar`
     - `SlevomatCodingStandard.Commenting.ForbiddenComments.CommentForbidden`
 
@@ -81,7 +81,6 @@ long description of a file docblock are the lines after `@file`, checked like an
 
 The summary and the description:
 
-- an empty docblock;
 - no summary. As in Coder, the rule looks only at the first tag, or at the tag after a leading
   `@file`. `@covers` there needs no summary. A bare `@inheritdoc` there gets the braces report below
   instead. A docblock whose tag there is `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`
@@ -153,7 +152,8 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 - phpcbf has no fix for a closer. Its two-dot fix also takes the space after the opening `/**` or
   the star, and deletes a docblock that has nothing else in it. The rule turns the two dots and the
   spaces before them into one full stop, and leaves the docblock.
-- Mago's `no-empty-comment` also reports an empty docblock, and its safe fix deletes it.
+- An empty docblock is left to Mago's `no-empty-comment`, which reports it at note level. Its safe
+  fix deletes the docblock.
 - The pattern in core's phpcs config that forbids `@inheritDoc` anywhere in a docblock line is not
   ported.
 

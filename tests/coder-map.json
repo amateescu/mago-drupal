@@ -106,7 +106,7 @@
         "where": ["ext:drupal/doc-comment"],
         "codes": [
             {"code": "ContentAfterOpen", "status": "fix"},
-            {"code": "Empty", "status": "report", "where": ["ext:drupal/doc-comment", "lint:no-empty-comment"]},
+            {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"], "note": "Mago's rule, at note level."},
             {"code": "InheritDocWithoutBraces", "status": "fix"},
             {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
             {"code": "LongNotCapital", "status": "fix"},

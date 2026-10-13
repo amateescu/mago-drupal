@@ -77,6 +77,16 @@ final class TranslatableStringRule implements Rule
     ];
 
     /**
+     * How the messages name each entry point.
+     */
+    private const CALLEES = [
+        't' => 't()',
+        'translatablemarkup' => 'new TranslatableMarkup()',
+        'translationwrapper' => 'new TranslationWrapper()',
+        'formatplural' => 'formatPlural()',
+    ];
+
+    /**
      * Text shapes that only a file with a translation entry point has.
      *
      * `t` and `formatPlural` are too short for a bare text search, so they
@@ -139,8 +149,9 @@ final class TranslatableStringRule implements Rule
 
         // A call with only named or only unpacked arguments is not empty. It
         // has no readable positional argument, so the rule does not check it.
+        $callee = self::CALLEES[$name];
         if ($invocation->isEmpty()) {
-            $context->report(Issue::new('Do not call t() without arguments.', $context->node->span));
+            $context->report(Issue::new('Do not call ' . $callee . ' without arguments.', $context->node->span));
 
             return;
         }
@@ -152,7 +163,7 @@ final class TranslatableStringRule implements Rule
         foreach ($positions as $position) {
             $message = $invocation->argument($position);
             if ($message !== null) {
-                $this->check($context, $message);
+                $this->check($context, $message, $callee);
 
                 // Coder reads the quotes of the first argument of t() and the
                 // two markup classes only, not the strings of formatPlural().
@@ -264,21 +275,21 @@ final class TranslatableStringRule implements Rule
     /**
      * Checks one translatable string argument.
      */
-    private function check(LintContext $context, Node $message): void
+    private function check(LintContext $context, Node $message, string $callee): void
     {
         $nowdoc = $message->kind === NodeKind::CompositeString
             ? DocumentStrings::nowdoc($context->file, $message)
             : null;
         if ($nowdoc !== null) {
             if ($nowdoc === '') {
-                $context->report(Issue::new('Do not pass an empty string to t().', $message->span));
+                $context->report(Issue::new('Do not pass an empty string to ' . $callee . '.', $message->span));
             }
 
             return;
         }
 
         if ($message->kind !== NodeKind::LiteralString) {
-            $this->reportNonLiteral($context, $message);
+            $this->reportNonLiteral($context, $message, $callee);
 
             return;
         }
@@ -289,7 +300,7 @@ final class TranslatableStringRule implements Rule
         }
 
         if ($value === '') {
-            $context->report(Issue::new('Do not pass an empty string to t().', $message->span));
+            $context->report(Issue::new('Do not pass an empty string to ' . $callee . '.', $message->span));
 
             return;
         }
@@ -364,7 +375,7 @@ final class TranslatableStringRule implements Rule
      * Concatenation and interpolation each get their own message. Both are
      * frequent, and a message that names the mistake makes the fix clear.
      */
-    private function reportNonLiteral(LintContext $context, Node $message): void
+    private function reportNonLiteral(LintContext $context, Node $message, string $callee): void
     {
         if (Values::concatenates($context->file, $message)) {
             $context->report(Issue::new(
@@ -395,7 +406,9 @@ final class TranslatableStringRule implements Rule
 
         // A variable, a constant or a heredoc gets here. A call sometimes
         // passes one on purpose, so the message says "where possible".
-        $issue = Issue::new('Pass only a string literal to t() where possible.', $message->span)->withHelp(self::HELP);
+        $issue = Issue::new('Pass only a string literal to ' . $callee . ' where possible.', $message->span)->withHelp(
+            self::HELP,
+        );
         $context->report($issue);
     }
 }
