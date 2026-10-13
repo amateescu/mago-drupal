@@ -16,7 +16,7 @@ use function strlen;
  * Drupal writes the same sentence in `@trigger_error()` calls and in
  * `@deprecated` docblocks, so both rules share this class.
  *
- * @see https://www.drupal.org/node/2856820
+ * @see https://www.drupal.org/about/core/policies/core-change-policies/how-to-deprecate#s-format-of-the-deprecation-message
  *
  * @internal
  */

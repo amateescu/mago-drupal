@@ -58,6 +58,12 @@ test-corpus:
 test-fixes:
     php tests/FixCases.php {{mago}}
 
+# Lints the reported and the fine half of every example in the rule docs, and
+# runs the fix where the example says it turns one into the other. See
+# tests/DocExamples.php for the format.
+test-examples:
+    php tests/DocExamples.php {{mago}}
+
 # Rewrites the generated parts of the docs pages from the registered rules
 # and tests/coder-map.json. DocsTest fails when they are out of date.
 docs-gen:
@@ -77,4 +83,4 @@ docs-env:
 
 check: validate format-check test lint analyze
 
-check-all: check test-corpus test-fixes
+check-all: check test-corpus test-fixes test-examples

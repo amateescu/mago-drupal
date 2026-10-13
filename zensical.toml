@@ -70,6 +70,9 @@ separator = '[\s\-,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
 
 [project.markdown_extensions]
 tables = {}
+# Collapsible `??? note` blocks, which hold the comparisons with Coder.
+admonition = {}
+pymdownx.details = {}
 toc.permalink = true
 pymdownx.highlight = {}
 pymdownx.inlinehilite = {}

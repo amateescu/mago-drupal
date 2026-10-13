@@ -1,7 +1,7 @@
 # mago-drupal
 
-A [Mago](https://github.com/carthage-software/mago) extension that adds Drupal's coding standard to
-the Mago linter. With `mago format` and Mago's own rules, it replaces phpcs and Coder for the PHP
+A [Mago](https://github.com/carthage-software/mago) extension that adds
+[Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) to the Mago linter. With `mago format` and Mago's own rules, it replaces phpcs and Coder for the PHP
 files of a Drupal project. The parity target is
 [Coder 9](https://www.drupal.org/project/coder/releases/9.0.0).
 
@@ -34,8 +34,9 @@ vendor/bin/mago lint
 
 - [Setup](docs/setup.md): the worker's `--core` and `--disable` arguments, the rest of the
   configuration that matches Drupal's standard, and the fix levels.
-- [Rules](docs/rules/index.md): every linter rule, with what it reports, what its fix does, and the
-  Coder checks that it ports.
+- [Rules](docs/rules/index.md): every linter rule, with what it reports, what its fix does, the
+  section of Drupal's coding standards or the source that it checks, and the Coder checks that it
+  ports.
 - [Coming from Coder](docs/coder/index.md): every sniff of Coder's `Drupal` and `DrupalPractice`
   standards, and what takes its place.
 - [Development](docs/development.md): the checks, the test corpus and building the docs.
