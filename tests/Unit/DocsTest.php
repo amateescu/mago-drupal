@@ -98,6 +98,15 @@ final class DocsTest extends TestCase
         self::assertSame([], $problems, implode("\n", $problems));
     }
 
+    public function testEntriesAreSeparated(): void
+    {
+        self::assertSame(
+            [],
+            EntrySeparators::missing(self::pages()),
+            'Put a `---` line, with a blank line below it, above these entries.',
+        );
+    }
+
     private static function pages(): DocsPages
     {
         return new DocsPages(self::root());

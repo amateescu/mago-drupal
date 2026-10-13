@@ -1,7 +1,12 @@
 # Rules
 
 Every linter rule of the extension, in groups by what it checks. Each rule's entry gives its level,
-what its fix does, and the Coder checks that it ports.
+what its fix does, the section of [Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) that it checks or
+the source of a check that the standards do not cover, and the Coder checks that it ports.
+
+Where the written standards ask for less than Coder 9, the parity target, the rules follow Coder.
+Where they ask for more, some rules follow the standards, and their entries say so. A collapsed
+"Compared with Coder" note under an entry lists where the rule and Coder differ.
 
 Every code starts with `drupal/`. The codes are stable, see [Development](../development.md#rule-codes).
 
@@ -140,10 +145,12 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter) says which co
 
 ## Docblock structure
 
-These rules read a docblock's summary, description and tag list. They do not need the declaration's
-real signature, which `mago analyze` checks, see [Docblock types and the
-analyzer](../coder/index.md#docblock-types-and-the-analyzer). The group has the rest of
-`Drupal.Commenting.*`.
+These rules check the docblocks that Drupal's
+[API documentation and comment standards](https://project.pages.drupalcode.org/coding_standards/php/documentation/)
+ask for: a docblock on every file, class, function and property, its summary and description, and
+its tags. They do not check the types in a docblock against the real signature, which
+`mago analyze` does, see
+[Docblock types and the analyzer](../coder/index.md#docblock-types-and-the-analyzer).
 
 | Rule | Level | What it reports |
 | --- | --- | --- |

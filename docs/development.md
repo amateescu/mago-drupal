@@ -6,12 +6,13 @@ just check-all
 ```
 
 `just check` runs `validate`, `format-check`, `test`, `lint` and `analyze`. `just check-all` also
-runs `test-corpus` and `test-fixes`.
+runs `test-corpus`, `test-fixes` and `test-examples`.
 
 - `test-corpus` starts a real worker over `tests/corpus/src/` and fails if an `@mago-expect`
   annotation is not fulfilled. `tests/corpus/expected-rules.txt` pins the registered rule codes.
   Add your code there when you add a rule.
 - `test-fixes` runs every rule's fix over the before and after pairs in `tests/fixes/`.
+- `test-examples` lints the examples in the rule docs, see [Rule entries](#rule-entries).
 
 Set `MAGO=/path/to/mago` to run the checks against a different build.
 
@@ -36,3 +37,33 @@ and when an entry's level, `--core` line or Ports codes differ from the rule and
 
 When you add a rule, add its entry to the page of its group, mark the Coder codes that it ports
 with `ext:drupal/<code>` in the map, and run `just docs-gen`.
+
+## Rule entries
+
+A `---` line above each entry's heading separates it from the entry before, and `DocsTest` checks it. An entry starts with its
+facts: the level, what the fix does, a Standard line that links the sections of Drupal's coding
+standards that the rule checks or a Source line that names where the check comes from, and the
+Coder codes that it ports. `DocsTest` checks them. Then come:
+
+- for a rule with a Standard line, the standard's own sentence, quoted, so its "must" or "should"
+  stays as written;
+- a **Reports:** list, and a **Not reported:** list when the rule skips cases;
+- an example, when it shows something that the text cannot;
+- the differences from Coder, in a collapsed `??? note "Compared with Coder"` block.
+
+How to show an example:
+
+- open, as `???+ example "Example"`, when the rule checks a layout across lines or a shape that the
+  text describes badly, such as the blank line after a `break` or `!X ? B : X`;
+- collapsed, as `??? example "Example"`, when the reported code fits in a sentence, but the fine
+  version still helps;
+- not at all, when the Reports list already shows the reported code and the fix changes one word,
+  such as `else if` or `var`.
+
+An example holds one `php` or `yaml` code block. A `// Reported` comment line opens it, and a
+`// Fine.` line splits it into the reported half and the fine half, with `#` in YAML. Add the line "The fix turns the reported code
+into the fine code." above the code when it does. `just test-examples` lints both halves with the
+entry's rule: the reported half must get an issue and the fine half none, and the fix must give the
+fine half where the example says so. A half runs as `example.module`. A `title` on the code block,
+such as `title="tests/src/Unit/FooTest.php"`, runs it under that path. A YAML example needs one, such
+as `title="example.info.yml"`.

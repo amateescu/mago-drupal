@@ -39,14 +39,14 @@ use function stripos;
  * docblock. The ported sniff reads it the same way. The scope classification
  * needs its branches, so the complexity is intended.
  *
- * @see https://www.drupal.org/node/2856820
+ * @see https://www.drupal.org/about/core/policies/core-change-policies/how-to-deprecate#how-trigger-error
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */
 final class DeprecationMessageRule implements Rule
 {
-    private const LINK = 'https://www.drupal.org/node/2856820';
+    private const LINK = 'https://www.drupal.org/about/core/policies/core-change-policies/how-to-deprecate#how-trigger-error';
 
     private const DECLARATION_KINDS = [NodeKind::Function, NodeKind::Method];
 

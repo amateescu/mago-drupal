@@ -70,7 +70,7 @@ final class RuleEntry
                 . '.';
         }
 
-        return $problems;
+        return [...$problems, ...SourceLine::problems($this->code, $facts)];
     }
 
     /**
