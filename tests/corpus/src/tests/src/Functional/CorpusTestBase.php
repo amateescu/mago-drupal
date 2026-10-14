@@ -9,4 +9,11 @@ use Drupal\Tests\BrowserTestBase;
 /**
  * Holds what the corpus tests share, so it needs no Test suffix.
  */
-abstract class CorpusTestBase extends BrowserTestBase {}
+abstract class CorpusTestBase extends BrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+}

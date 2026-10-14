@@ -11,17 +11,17 @@
 declare(strict_types=1);
 
 namespace {
-    function t(string $string, array $args = [], array $options = []): string
+    function t(string $string, array $args = [], array $options = []): \Drupal\Core\StringTranslation\TranslatableMarkup
     {
-        return $string;
+        return new \Drupal\Core\StringTranslation\TranslatableMarkup($string, $args, $options);
     }
 
-    function l(string $text, string $path, array $options = []): string
+    function l(string|\Stringable $text, string $path, array $options = []): string
     {
-        return $text;
+        return (string) $text;
     }
 
-    function watchdog(string $type, string $message, array $variables = [], int $severity = 5): void {}
+    function watchdog(string $type, string|\Stringable $message, array $variables = [], int $severity = 5): void {}
 
     function format_date(int $timestamp, string $type = 'medium'): string
     {
@@ -30,12 +30,62 @@ namespace {
 
     class Drupal
     {
+        const VERSION = '11.4.0';
+
         public static function define(string $name, int $value): bool
         {
             return TRUE;
         }
 
         public static function state(): \Drupal\Core\State\StateInterface
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function service(string $id): object
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function hasService(string $id): bool
+        {
+            return false;
+        }
+
+        public static function classResolver(?string $class = null): object
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function config(string $name): \Drupal\Core\Config\ImmutableConfig
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function entityQuery(string $entity_type, string $conjunction = 'AND'): \Drupal\Core\Entity\Query\QueryInterface
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function entityQueryAggregate(string $entity_type, string $conjunction = 'AND'): \Drupal\Core\Entity\Query\QueryAggregateInterface
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function configFactory(): \Drupal\Core\Config\ConfigFactoryInterface
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        public static function formBuilder(): \Drupal\Core\Form\FormBuilderInterface
+        {
+            throw new \RuntimeException('stub');
+        }
+
+        /**
+         * @return \Drupal\Component\DependencyInjection\ContainerInterface
+         */
+        public static function getContainer()
         {
             throw new \RuntimeException('stub');
         }
@@ -61,13 +111,18 @@ namespace Drupal\Core\State {
 }
 
 namespace Drupal\Core\StringTranslation {
-    class TranslatableMarkup
+    class TranslatableMarkup implements \Drupal\Component\Render\MarkupInterface
     {
         public function __construct(
             protected string $string,
             protected array $arguments = [],
             protected array $options = [],
         ) {}
+
+        public function __toString(): string
+        {
+            return $this->string;
+        }
     }
 
     class TranslationManager
@@ -85,7 +140,50 @@ namespace Drupal\Core\StringTranslation {
 }
 
 namespace Drupal\corpus\Nested {
-    class Thing {}
+    class Thing
+    {
+        public function onlyOnThing(): void {}
+    }
+
+    final class SealedThing {}
+
+    class Other
+    {
+        public function onlyOnOther(): void {}
+    }
+
+    interface Greeter
+    {
+        public function greet(): string;
+    }
+
+    class HomeGreeter implements Greeter
+    {
+        public function greet(): string
+        {
+            return 'hello';
+        }
+    }
+
+    interface Waver
+    {
+        public function wave(): string;
+    }
+
+    class HomeHost implements Greeter, Waver
+    {
+        public function greet(): string
+        {
+            return 'hello';
+        }
+
+        public function wave(): string
+        {
+            return 'bye';
+        }
+
+        public function onlyAtHome(): void {}
+    }
 }
 
 namespace Drupal\corpus {
@@ -101,19 +199,6 @@ namespace Drupal\corpus\Hook {
     }
 }
 
-namespace Drupal\Core\Hook\Attribute {
-    #[\Attribute(\Attribute::TARGET_ALL | \Attribute::IS_REPEATABLE)]
-    class Hook
-    {
-        public function __construct(
-            public string $hook = '',
-            public string $method = '',
-            public ?string $module = null,
-            public int $priority = 0,
-        ) {}
-    }
-}
-
 namespace Drupal\Component\Annotation {
     interface AnnotationInterface {}
 
@@ -124,16 +209,131 @@ namespace Drupal\Core\Config\Entity {
     abstract class ConfigEntityBase {}
 }
 
-namespace Drupal\Tests {
-    abstract class BrowserTestBase {}
+namespace Psr\Container {
+    interface ContainerInterface
+    {
+        public function get(string $id): mixed;
+
+        public function has(string $id): bool;
+    }
 }
 
-namespace Drupal\Core\Form {
-    abstract class FormBase {}
+namespace Symfony\Component\DependencyInjection {
+    interface ContainerInterface extends \Psr\Container\ContainerInterface
+    {
+        public const RUNTIME_EXCEPTION_ON_INVALID_REFERENCE = 0;
+        public const EXCEPTION_ON_INVALID_REFERENCE = 1;
+        public const NULL_ON_INVALID_REFERENCE = 2;
+        public const IGNORE_ON_INVALID_REFERENCE = 3;
+        public const IGNORE_ON_UNINITIALIZED_REFERENCE = 4;
+
+        public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object;
+
+        public function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null;
+    }
+}
+
+namespace Drupal\Component\DependencyInjection {
+    interface ContainerInterface extends \Symfony\Component\DependencyInjection\ContainerInterface {}
 }
 
 namespace Drupal\Core\DependencyInjection {
-    interface ContainerInjectionInterface {}
+    interface ContainerInterface extends \Symfony\Component\DependencyInjection\ContainerInterface {}
+
+    interface ClassResolverInterface
+    {
+        public function getInstanceFromDefinition(string $definition): object;
+    }
+
+    class Container implements ContainerInterface
+    {
+        public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object
+        {
+            return null;
+        }
+
+        public function has(string $id): bool
+        {
+            return false;
+        }
+
+        public function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null
+        {
+            return null;
+        }
+    }
+}
+
+namespace Symfony\Component\DependencyInjection {
+    class Definition
+    {
+        public function __construct(?string $class = null, array $arguments = []) {}
+
+        public function setClass(?string $class): static
+        {
+            return $this;
+        }
+
+        public function addTag(string $name, array $attributes = []): static
+        {
+            return $this;
+        }
+
+        public function setArguments(array $arguments): static
+        {
+            return $this;
+        }
+
+        public function setPublic(bool $boolean): static
+        {
+            return $this;
+        }
+    }
+
+    class ChildDefinition extends Definition
+    {
+        public function __construct(string $parent) {}
+    }
+
+    class Alias
+    {
+        public function __construct(string $id, bool $public = false) {}
+
+        public function setPublic(bool $boolean): static
+        {
+            return $this;
+        }
+    }
+}
+
+namespace Drupal\Core\DependencyInjection {
+    class ContainerBuilder
+    {
+        public function register(string $id, ?string $class = null): \Symfony\Component\DependencyInjection\Definition
+        {
+            return new \Symfony\Component\DependencyInjection\Definition($class);
+        }
+
+        public function setDefinition(string $id, \Symfony\Component\DependencyInjection\Definition $definition): \Symfony\Component\DependencyInjection\Definition
+        {
+            return $definition;
+        }
+
+        public function setAlias(string $alias, string|\Symfony\Component\DependencyInjection\Alias $id): \Symfony\Component\DependencyInjection\Alias
+        {
+            return new \Symfony\Component\DependencyInjection\Alias($alias);
+        }
+
+        public function getDefinition(string $id): \Symfony\Component\DependencyInjection\Definition
+        {
+            return new \Symfony\Component\DependencyInjection\Definition();
+        }
+    }
+
+    abstract class ServiceProviderBase
+    {
+        public function register(ContainerBuilder $container): void {}
+    }
 }
 
 namespace Drupal\Component\Serialization {
@@ -146,21 +346,11 @@ namespace Drupal\Component\Serialization {
     }
 }
 
-namespace Symfony\Component\Yaml {
-    class Yaml
-    {
-        public static function parse(string $input): mixed
-        {
-            return null;
-        }
-    }
-}
+namespace Symfony\Component\HttpFoundation {
+    class Response {}
 
-namespace {
-    function dpm(mixed $input, ?string $name = null): mixed
+    class RedirectResponse extends Response
     {
-        return $input;
+        public function __construct(string $url) {}
     }
-
-    function ksm(mixed ...$input): void {}
 }

@@ -1,0 +1,4 @@
+services:
+  extra.thing:
+    class: Drupal\extra\Thing
+    decorates: thing

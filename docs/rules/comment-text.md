@@ -1,10 +1,9 @@
 # Comment text
 
-These rules read only a comment's text. They do not compare it against the declaration that it
-documents. The group has the part of `Drupal.Commenting.*` that works that way, the `@author` ban,
-and the line-length check for comments. [Comment whitespace and the
-formatter](../coder/index.md#comment-whitespace-and-the-formatter) says which comment whitespace
-`mago format` sets.
+These rules read only the text of a comment, and do not compare it against the declaration that it
+documents. They cover the part of `Drupal.Commenting.*` that works that way, the `@author` ban and
+the line-length check for comments. For the comment whitespace that `mago format` sets, see
+[Comment whitespace and the formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 ---
 
@@ -16,8 +15,8 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter) says which co
 - **Ports:** `DrupalPractice.Commenting.AuthorTag.AuthorFound`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks for no `@author` tag. The tag goes out of date as other
-people edit the file, and git already records who wrote what.
+DrupalPractice asks for no `@author` tag. The tag goes out of date as other people edit the file,
+and git already records who wrote what.
 
 **Reports:**
 
@@ -220,8 +219,8 @@ import when every mention of the name in the file's docblocks is rewritten.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Commenting.ExpectedException.TagFound`
 
-Coder's `DrupalPractice` standard asks for no legacy PHPUnit `@expectedException*` docblock tags.
-PHPUnit no longer has these tags. Use `expectException()` and the related methods.
+DrupalPractice asks for no legacy PHPUnit `@expectedException*` docblock tags. PHPUnit no longer has
+these tags. Use `expectException()` and the related methods.
 
 **Reports:**
 

@@ -15,43 +15,43 @@ use Drupal\Core\StringTranslation\TranslationManager;
 use function t;
 
 // @mago-expect lint:drupal/missing-function-comment
-function plain_literal(): string {
+function plain_literal(): TranslatableMarkup {
   return t('Save configuration');
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function placeholder(string $name): string {
+function placeholder(string $name): TranslatableMarkup {
   return t('Hello @name', ['@name' => $name]);
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function concatenated(string $name): string {
+function concatenated(string $name): TranslatableMarkup {
   // The padding of the first literal gets its own report, as in Coder.
   // @mago-expect lint:drupal/translatable-string(2)
   return t('Hello ' . $name);
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function concatenated_with_padded_last_literal(string $name): string {
+function concatenated_with_padded_last_literal(string $name): TranslatableMarkup {
   // Coder checks the padding of the first literal only.
   // @mago-expect lint:drupal/translatable-string
   return t('Hello' . $name . ' ');
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function interpolated(string $name): string {
+function interpolated(string $name): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-literal
   return t("Hello {$name}");
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function padded(): string {
+function padded(): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-string
   return t('Save ');
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function empty_string(): string {
+function empty_string(): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-string
   return t('');
 }
@@ -59,22 +59,22 @@ function empty_string(): string {
 // @mago-expect lint:drupal/missing-function-comment
 function lone_quote_is_not_empty(): string {
   // Only the outer quotes are delimiters. The quote between them is the text.
-  return t('"') . t("'");
+  return (string) t('"') . (string) t("'");
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function variable_message(string $message): string {
+function variable_message(string $message): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-literal
   return t($message);
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function named_argument_is_not_an_empty_call(): string {
+function named_argument_is_not_an_empty_call(): TranslatableMarkup {
   return t(string: 'Save configuration');
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function unpacked_argument_is_not_an_empty_call(array $arguments): string {
+function unpacked_argument_is_not_an_empty_call(array $arguments): TranslatableMarkup {
   // The call has no positional first argument to read. The analyzer does
   // not count the unpacked arguments.
   // @mago-expect analysis:too-few-arguments
@@ -130,7 +130,7 @@ function nullsafe_method_call(?TranslationManager $translation, string $name): s
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function nowdoc_message(): string {
+function nowdoc_message(): TranslatableMarkup {
   // A nowdoc holds no variable, so Coder 9 takes it as a literal.
   return t(<<<'TEXT'
     Save configuration
@@ -138,7 +138,7 @@ function nowdoc_message(): string {
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function empty_nowdoc(): string {
+function empty_nowdoc(): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-string
   return t(<<<'TEXT'
 
@@ -146,7 +146,7 @@ function empty_nowdoc(): string {
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function heredoc_message(): string {
+function heredoc_message(): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-literal
   return t(<<<TEXT
     Save configuration
@@ -156,13 +156,13 @@ function heredoc_message(): string {
 // @mago-expect lint:drupal/missing-function-comment
 function concatenated_after(string $name): string {
   // @mago-expect lint:drupal/translatable-literal
-  return t('Name') . ': ' . $name;
+  return (string) t('Name') . ': ' . $name;
 }
 
 // @mago-expect lint:drupal/missing-function-comment
 function concatenated_after_markup(string $name): string {
   // Coder lets through a string that is only space, markup or a bracket.
-  return t('Name') . ' ' . t('Other') . '<br>' . t('Last') . ' (' . $name;
+  return (string) t('Name') . ' ' . (string) t('Other') . '<br>' . (string) t('Last') . ' (' . $name;
 }
 
 // @mago-expect lint:drupal/missing-function-comment
@@ -175,13 +175,13 @@ function concatenated_after_method(TranslationManager $translation): string {
 function concatenated_after_variable_message(string $message): string {
   // Only the non-literal message is reported, as in Coder.
   // @mago-expect lint:drupal/translatable-literal
-  return t($message) . ': ';
+  return (string) t($message) . ': ';
 }
 
 // @mago-expect lint:drupal/missing-function-comment
 function concatenated_after_interpolation(string $name): string {
   // A double-quoted string with a variable is not a constant string.
-  return t('Name') . ": {$name}";
+  return (string) t('Name') . ": {$name}";
 }
 
 // @mago-expect lint:drupal/missing-function-comment
@@ -191,13 +191,13 @@ function concatenated_after_plural(TranslationManager $translation, int $count):
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function escaped_apostrophe(): string {
+function escaped_apostrophe(): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-string
   return t('It\'s here');
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function escaped_double_quote(): string {
+function escaped_double_quote(): TranslatableMarkup {
   // @mago-format-ignore-start
   // @mago-expect lint:drupal/translatable-string
   return t("Say \"hi\"");
@@ -211,19 +211,19 @@ function escaped_quote_in_markup(): TranslatableMarkup {
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function escaped_quote_in_concatenation(string $name): string {
+function escaped_quote_in_concatenation(string $name): TranslatableMarkup {
   // @mago-expect lint:drupal/translatable-string(3)
   return t('It\'s ' . $name);
 }
 
 // @mago-expect lint:drupal/missing-function-comment
 function escaped_backslash_is_not_an_escaped_quote(): string {
-  return t('Path \\') . t("Path \\");
+  return (string) t('Path \\') . (string) t("Path \\");
 }
 
 // @mago-expect lint:drupal/missing-function-comment
 function both_quotes_need_the_escape(): string {
-  return t('Say "it\'s"') . t("Say \"it's\"");
+  return (string) t('Say "it\'s"') . (string) t("Say \"it's\"");
 }
 
 // @mago-expect lint:drupal/missing-function-comment
@@ -233,12 +233,12 @@ function escaped_quote_in_plural(TranslationManager $translation, int $count): s
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function escaped_quote_in_other_argument(): string {
+function escaped_quote_in_other_argument(): TranslatableMarkup {
   return t('Hello @name', ['@name' => 'O\'Brien']);
 }
 
 // @mago-expect lint:drupal/missing-function-comment
-function escaped_quote_in_capital_call(): string {
+function escaped_quote_in_capital_call(): TranslatableMarkup {
   // PHP ignores the case of a function name.
   // @mago-expect lint:drupal/translatable-string
   return T('It\'s here');

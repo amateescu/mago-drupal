@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # Development
 
 ```shell
@@ -12,7 +17,8 @@ runs `test-corpus`, `test-fixes` and `test-examples`.
   annotation is not fulfilled. `tests/corpus/expected-rules.txt` pins the registered rule codes.
   Add your code there when you add a rule.
 - `test-fixes` runs every rule's fix over the before and after pairs in `tests/fixes/`.
-- `test-examples` lints the examples in the rule docs, see [Rule entries](#rule-entries).
+- `test-examples` checks the examples in the rule and analyzer docs, see [Rule entries](#rule-entries)
+  and [Analyzer entries](#analyzer-entries).
 
 Set `MAGO=/path/to/mago` to run the checks against a different build.
 
@@ -40,10 +46,16 @@ with `ext:drupal/<code>` in the map, and run `just docs-gen`.
 
 ## Rule entries
 
-A `---` line above each entry's heading separates it from the entry before, and `DocsTest` checks it. An entry starts with its
-facts: the level, what the fix does, a Standard line that links the sections of Drupal's coding
-standards that the rule checks or a Source line that names where the check comes from, and the
-Coder codes that it ports. `DocsTest` checks them. Then come:
+A `---` line above each entry's heading separates it from the entry before, and `DocsTest` checks
+it. An entry starts with its facts, which `DocsTest` also checks:
+
+- the level;
+- what the fix does;
+- a Standard line that links the sections of Drupal's coding standards that the rule checks, or a
+  Source line that names where the check comes from;
+- the Coder codes that it ports.
+
+Then come:
 
 - for a rule with a Standard line, the standard's own sentence, quoted, so its "must" or "should"
   stays as written;
@@ -61,9 +73,31 @@ How to show an example:
   such as `else if` or `var`.
 
 An example holds one `php` or `yaml` code block. A `// Reported` comment line opens it, and a
-`// Fine.` line splits it into the reported half and the fine half, with `#` in YAML. Add the line "The fix turns the reported code
-into the fine code." above the code when it does. `just test-examples` lints both halves with the
-entry's rule: the reported half must get an issue and the fine half none, and the fix must give the
-fine half where the example says so. A half runs as `example.module`. A `title` on the code block,
-such as `title="tests/src/Unit/FooTest.php"`, runs it under that path. A YAML example needs one, such
-as `title="example.info.yml"`.
+`// Fine.` line splits it into the reported half and the fine half, with `#` in YAML. When the fix
+turns one into the other, add the line "The fix turns the reported code into the fine code." above
+the code.
+
+`just test-examples` lints both halves with the entry's rule. The reported half must get an issue
+and the fine half none, and the fix must give the fine half where the example says so. A half runs
+as `example.module`. A `title` on the code block, such as `title="tests/src/Unit/FooTest.php"`, runs
+it under that path. A YAML example needs one, such as `title="example.info.yml"`.
+
+## Analyzer entries
+
+An analyzer page under `docs/analyzer/` starts with the types for its topic, then has an entry for
+each check, in the same form as a rule entry. The facts are the level, a Source line that names
+where the check comes from, the phpstan-drupal rules that it ports, and whether `--core` turns it
+off. A check has no fix, so there is no Fix line. A Level line with two levels names the case for
+the second, as in "error, or warning for extra arguments". Then come a **Reports:** list, a
+**Not reported:** list, an example, and the differences from phpstan-drupal in a collapsed
+`??? note "Compared with phpstan-drupal"` block. `AnalyzerDocsTest` checks that every check the
+corpus pins has one entry, with its facts, and `just docs-gen` builds the table of checks on the
+analyzer index from the entries.
+
+An analyzer example can hold several code blocks, since a check often needs a services file or a
+class next to the code it reports. A block with a `// Fine.` line, or `# Fine.` in YAML, splits into
+the reported and the fine half, and a block without one belongs to both halves. `just test-examples`
+analyzes each half on its own, with the corpus's stand-ins for core: the reported half must get an
+issue from the entry's check, at a level that the Level line names, and the fine half none. A block
+runs as `modules/example/example.module`, or at the path that its `title` gives from the workspace
+root, such as `title="modules/example/src/Greeter.php"`.

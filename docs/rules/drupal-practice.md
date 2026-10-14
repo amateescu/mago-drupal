@@ -5,10 +5,12 @@ run, so the worker's [`--core` argument](../setup.md#checking-drupal-core) turns
 
 Coder's `Project` class reads the nearest `*.info.yml` or `*.info` file, to find the module name of
 a file that is not named after it and to skip a Drupal 7 module. The rules read the same file, from
-the worker's directory, which is the directory of the Mago config file. `drupal/class-prefix` and
-`drupal/form-alter-comment` read the module name from it. `drupal/global-constant`,
-`drupal/request-superglobal` and `drupal/global-function` skip a file whose info file is a `*.info`
-file that names a core version below 8, or no version, as Coder does.
+the worker's directory, which is the directory of the Mago config file:
+
+- `drupal/class-prefix` and `drupal/form-alter-comment` read the module name from it;
+- `drupal/global-constant`, `drupal/request-superglobal` and `drupal/global-function` skip a file
+  whose info file is a `*.info` file that names a core version below 8, or no version, as Coder
+  does.
 
 ---
 
@@ -20,8 +22,7 @@ file that names a core version below 8, or no version, as Coder does.
 - **Ports:** `DrupalPractice.General.ClassName.ClassPrefix`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks a class or interface outside a namespace to start with the
-module name.
+DrupalPractice asks a class or interface outside a namespace to start with the module name.
 
 **Reports:**
 
@@ -65,7 +66,7 @@ directory or one above.
 - **Ports:** `DrupalPractice.FunctionCalls.CurlSslVerifier.SslPeerVerificationDisabled`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks not to turn off curl's check of the server's SSL certificate.
+DrupalPractice asks not to turn off curl's check of the server's SSL certificate.
 
 **Reports:**
 
@@ -95,8 +96,8 @@ Coder's `DrupalPractice` standard asks not to turn off curl's check of the serve
 - **Ports:** `DrupalPractice.FunctionDefinitions.FormAlterDoc.Different`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks that only the module's own `hook_form_alter()` be documented
-as `Implements hook_form_alter().`.
+DrupalPractice asks that only the module's own `hook_form_alter()` be documented as
+`Implements hook_form_alter().`.
 
 **Reports:**
 
@@ -145,8 +146,7 @@ as `Implements hook_form_alter().`.
     - `DrupalPractice.Constants.GlobalDefine.GlobalConstant`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks for constants on a class or interface, not in the global
-namespace.
+DrupalPractice asks for constants on a class or interface, not in the global namespace.
 
 **Reports:**
 
@@ -198,8 +198,8 @@ Drupal's standard allows a global constant whose name starts with the module nam
 - **Ports:** `DrupalPractice.Variables.GetRequestData`: `SuperglobalAccessed`, `SuperglobalAccessedWithVar`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks for the request object in place of the `$_GET`, `$_POST`,
-`$_COOKIE` and `$_FILES` superglobals.
+DrupalPractice asks for the request object in place of the `$_GET`, `$_POST`, `$_COOKIE` and
+`$_FILES` superglobals.
 
 **Reports:**
 
@@ -238,8 +238,7 @@ The message names the matching property of the request, and gives the source tex
 - **Ports:** `DrupalPractice.Objects.StrictSchemaDisabled.StrictConfigSchema`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks test classes to keep the strict check of the config schema
-on.
+DrupalPractice asks test classes to keep the strict check of the config schema on.
 
 **Reports:**
 
@@ -270,7 +269,7 @@ rule uses the nearest named class or trait.
 - **Ports:** `DrupalPractice.General.OptionsT.OptionsValue`
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks for `#options` labels that run through `t()`.
+DrupalPractice asks for `#options` labels that run through `t()`.
 
 **Reports:**
 

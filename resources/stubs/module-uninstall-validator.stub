@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * Drupal documents the reasons a module cannot be uninstalled as `string[]`,
+ * but core's own validators return translatable markup, which keeps their
+ * placeholders safe to render. A validator returning markup is not wrong.
+ *
+ * A stub replaces the interface header, so the one method is restated.
+ */
+
+namespace Drupal\Core\Extension;
+
+interface ModuleUninstallValidatorInterface
+{
+    /**
+     * @param string $module
+     * @return array<string|\Drupal\Component\Render\MarkupInterface>
+     */
+    public function validate($module);
+}

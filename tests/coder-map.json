@@ -1579,8 +1579,8 @@
     {
         "sniff": "DrupalPractice.Objects.GlobalDrupal",
         "standard": "DrupalPractice",
-        "where": ["branch:GlobalDrupalCallHook"],
-        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer half, on the `analyzer` branch, needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, so it skips services and a `BlockBase` plugin without `create()`.",
+        "where": ["check:drupal/global-drupal-call"],
+        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer check needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, or a `#[Hook]` on the class or one of its methods, so it skips other services and a `BlockBase` plugin without `create()`.",
         "codes": [
             {"code": "GlobalDrupal", "status": "partial"}
         ]

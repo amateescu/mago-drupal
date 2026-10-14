@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Types the placeholder arguments as `formattable-markup.stub` explains.
+ *
+ * A stub replaces the whole trait, so every member is restated here even
+ * though only two of them change.
+ */
+
+namespace Drupal\Core\StringTranslation;
+
+trait StringTranslationTrait
+{
+    /**
+     * @var \Drupal\Core\StringTranslation\TranslationInterface
+     */
+    protected $stringTranslation;
+
+    /**
+     * @param string $string
+     * @param array<string, scalar|\Stringable> $args
+     * @param array $options
+     * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+     */
+    protected function t($string, array $args = [], array $options = [])
+    {
+    }
+
+    /**
+     * @param array<string, scalar|\Stringable> $args
+     * @return \Drupal\Core\StringTranslation\PluralTranslatableMarkup
+     */
+    protected function formatPlural($count, $singular, $plural, array $args = [], array $options = [])
+    {
+    }
+
+    /**
+     * @return int
+     */
+    protected function getNumberOfPlurals($langcode = null)
+    {
+    }
+
+    /**
+     * @return \Drupal\Core\StringTranslation\TranslationInterface
+     */
+    protected function getStringTranslation()
+    {
+    }
+
+    /**
+     * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
+     * @return $this
+     */
+    public function setStringTranslation(TranslationInterface $translation)
+    {
+    }
+}

@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * Types the placeholder arguments as `formattable-markup.stub` explains.
+ *
+ * A stub replaces the class header, and the descendants of a stubbed class
+ * inherit only the members the stub declares, so the header and every member
+ * are restated here even though only two of them change.
+ */
+
+namespace Drupal\Core\StringTranslation;
+
+class PluralTranslatableMarkup extends TranslatableMarkup
+{
+    /**
+     * @var numeric
+     */
+    protected $count;
+
+    /**
+     * @var string
+     */
+    protected $translatedString;
+
+    /**
+     * @param numeric $count
+     * @param string $singular
+     * @param string $plural
+     * @param array<string, scalar|\Stringable> $args
+     * @param array $options
+     * @param \Drupal\Core\StringTranslation\TranslationInterface|null $string_translation
+     */
+    public function __construct($count, $singular, $plural, array $args = [], array $options = [], ?TranslationInterface $string_translation = null)
+    {
+    }
+
+    /**
+     * @param numeric $count
+     * @param string $translated_string
+     * @param array<string, scalar|\Stringable> $args
+     * @param array $options
+     * @return static
+     */
+    public static function createFromTranslatedString($count, $translated_string, array $args = [], array $options = [])
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function render()
+    {
+    }
+
+    /**
+     * @return int
+     */
+    protected function getPluralIndex()
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+    }
+}

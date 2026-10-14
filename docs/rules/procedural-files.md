@@ -1,7 +1,8 @@
 # Procedural files
 
-These rules report only in `.module` and `.install` files, except `drupal/global-variable`, which
-checks every file. They take the module name from the file name, the part before the first dot.
+Rules for the procedural files of a module. They take the module name from the file name, the part
+before the first dot. All of them report only in `.module` and `.install` files, except
+`drupal/global-variable`, which checks every file.
 
 ---
 

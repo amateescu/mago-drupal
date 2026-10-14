@@ -10,6 +10,8 @@ use Composer\InstalledVersions;
 use Mago\Sdk\Reporting\Level;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
+
 final class DrupalExtensionTest extends TestCase
 {
     public function testFactoryOwnsStableRegistration(): void
@@ -19,7 +21,10 @@ final class DrupalExtensionTest extends TestCase
         self::assertSame('amateescu/mago-drupal', $extension->identifier);
         self::assertSame('Drupal', $extension->name);
         self::assertSame(InstalledVersions::getPrettyVersion('amateescu/mago-drupal'), $extension->version);
-        self::assertCount(1, $extension->analyzerPlugins);
+        self::assertSame(
+            ['drupal', 'phpunit', 'phpstan-ignores'],
+            array_map(static fn($plugin): string => $plugin->getDefinition()->identifier, $extension->analyzerPlugins),
+        );
         self::assertNull($extension->workerReducer);
     }
 
@@ -143,6 +148,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/t-in-hook-schema' => [Level::Error, true],
             'drupal/test-class-suffix' => [Level::Error, true],
             'drupal/todo-comment' => [Level::Warning, true],
+            'drupal/todo-current-issue' => [Level::Error, true],
             'drupal/translatable-literal' => [Level::Warning, true],
             'drupal/translatable-string' => [Level::Warning, true],
             'drupal/translated-exception' => [Level::Warning, true],

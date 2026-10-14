@@ -1,0 +1,18 @@
+services:
+  _defaults:
+    public: false
+  hidden:
+    class: Drupal\Core\Hidden
+  shown:
+    class: Drupal\Core\Shown
+    public: true
+  shown.alias: '@shown'
+  shown.keyed:
+    alias: shown
+  shown.open:
+    alias: shown
+    public: true
+  shown.child:
+    parent: shown
+  hidden.child:
+    parent: hidden

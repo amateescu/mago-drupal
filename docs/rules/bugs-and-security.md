@@ -12,8 +12,8 @@ Rules for code that runs input it should not trust, or reads the wrong value.
 - **Ports:** `DrupalPractice.FunctionCalls.InsecureUnserialize.InsecureUnserialize` (partly)
 - **Off with `--core`**
 
-Coder's `DrupalPractice` standard asks an `unserialize()` call to limit the classes it builds.
-Without a limit, the payload decides which objects PHP builds, and their destructors run.
+DrupalPractice asks an `unserialize()` call to limit the classes it builds. Without a limit, the
+payload decides which objects PHP builds, and their destructors run.
 
 **Reports:**
 

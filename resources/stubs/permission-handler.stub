@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * Drupal documents a permission's title as a string, but `PermissionHandler`
+ * wraps the title and description of every permission from a
+ * `*.permissions.yml` file in `t()`. A permission callback's title is
+ * whatever the callback returns, which the docs ask to be translated too.
+ *
+ * A stub replaces the interface header and Mago builds the descendants of a
+ * stubbed interface from the stub alone, so the type aliases and every method
+ * are restated here.
+ */
+
+namespace Drupal\user;
+
+/**
+ * @phpstan-type PermissionInfo array{
+ *   title: \Drupal\Core\StringTranslation\TranslatableMarkup|string,
+ *   description?: \Drupal\Core\StringTranslation\TranslatableMarkup|string|null,
+ *   "restrict access"?: bool,
+ *   warning?: string|\Stringable,
+ *   dependencies?: array,
+ *   provider: string,
+ * }
+ * @phpstan-type PermissionInfoList array<string, PermissionInfo>
+ */
+interface PermissionHandlerInterface
+{
+    /**
+     * @return PermissionInfoList
+     */
+    public function getPermissions();
+
+    /**
+     * @param string $module_name
+     * @return bool
+     */
+    public function moduleProvidesPermissions($module_name);
+}

@@ -42,14 +42,16 @@ fix:
 # tests/CorpusPins.php, which holds every issue to the lines its expectation is
 # written above. The fixtures are bad on purpose, so the lint run is
 # limited to the rule codes of this extension. That keeps the built-in rules
-# from failing the run. The first step compares the rules that Mago registers
+# from failing the run. The lint run poses as the GitLab merge request of issue
+# 3456789, so drupal/todo-current-issue has an issue to compare links with.
+# The first step compares the rules that Mago registers
 # against tests/corpus/expected-rules.txt. That step is necessary because
 # `--only` skips the expectations for the rules it filters out. Without
 # the step, a rule can lose its registration and its fixtures are no longer
 # checked, and the run stays green.
 test-corpus:
     {{mago}} --workspace tests/corpus extension list --json | php -r '$registered = json_decode(json: stream_get_contents(STDIN), associative: true, flags: JSON_THROW_ON_ERROR); $actual = []; foreach ($registered["extensions"] as $extension) { foreach ($extension["linter-rules"] as $rule) { $actual[] = $rule["code"]; } } sort($actual); $expected = array_map("trim", file("tests/corpus/expected-rules.txt")); sort($expected); if ($actual === $expected) { exit(0); } fwrite(STDERR, "Registered rules drifted from tests/corpus/expected-rules.txt\n"); foreach (array_diff($expected, $actual) as $code) { fwrite(STDERR, "  no longer registered: " . $code . "\n"); } foreach (array_diff($actual, $expected) as $code) { fwrite(STDERR, "  not pinned: " . $code . "\n"); } exit(1);'
-    {{mago}} --workspace tests/corpus lint --only "$(paste -sd, - < tests/corpus/expected-rules.txt)"
+    CI_MERGE_REQUEST_SOURCE_BRANCH_NAME=3456789-corpus {{mago}} --workspace tests/corpus lint --only "$(paste -sd, - < tests/corpus/expected-rules.txt)"
     {{mago}} --workspace tests/corpus analyze
     php tests/CorpusPins.php {{mago}}
 
@@ -60,9 +62,11 @@ test-fixes:
 
 # Lints the reported and the fine half of every example in the rule docs, and
 # runs the fix where the example says it turns one into the other. See
-# tests/DocExamples.php for the format.
+# tests/DocExamples.php for the format. Then analyzes both halves of every
+# example in the analyzer docs, see tests/CheckExamples.php.
 test-examples:
     php tests/DocExamples.php {{mago}}
+    php tests/CheckExamples.php {{mago}}
 
 # Rewrites the generated parts of the docs pages from the registered rules
 # and tests/coder-map.json. DocsTest fails when they are out of date.

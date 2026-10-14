@@ -9,14 +9,17 @@ declare(strict_types=1);
 
 /**
  * Implements hook_form_alter().
+ *
+ * Drupal 7 passed the form state as an array.
  */
+// @mago-expect analysis:drupal/hook-form-alter-signature
 function legacy_form_alter(array &$form, array $form_state): void {
   // @mago-expect lint:drupal/link-text-translatable
   $form['help'] = l('Read the docs', 'https://example.com');
 
   $form['ok'] = l(t('Read the docs'), 'https://example.com');
 
-  $topic = t('Forms');
+  $topic = (string) t('Forms');
 
   // A literal followed by a variable is still untranslated.
   // @mago-expect lint:drupal/link-text-translatable

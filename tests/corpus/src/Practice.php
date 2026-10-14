@@ -18,6 +18,8 @@ class Practice {
     // $this->t().
     // @mago-expect lint:drupal/translated-exception
     // @mago-expect lint:drupal/global-function
+    // Under strict types the markup object is also a TypeError.
+    // @mago-expect analysis:invalid-argument
     throw new \RuntimeException(t('This should not be translated.'));
   }
 

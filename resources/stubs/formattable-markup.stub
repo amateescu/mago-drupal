@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * Drupal documents placeholder arguments as a plain array, but
+ * `placeholderFormat()` hands every value to `Html::escape()`, which takes a
+ * string. A scalar or an object with `__toString()` is cast; NULL, an array or
+ * any other object throws a TypeError. The translation stubs type the same
+ * argument of `t()`, `formatPlural()` and the markup classes this way.
+ *
+ * A stub replaces the class header, and the descendants of a stubbed class
+ * inherit only the members the stub declares, so the header and every member
+ * are restated here even though only the constructor changes. Native return
+ * types that only newer core releases declare are left to the docblocks.
+ */
+
+namespace Drupal\Component\Render;
+
+class FormattableMarkup implements MarkupInterface, \Countable
+{
+    /**
+     * @var string
+     */
+    protected $string;
+
+    /**
+     * @var array
+     */
+    protected $arguments = [];
+
+    /**
+     * @param string $string
+     * @param array<string, scalar|\Stringable> $arguments
+     */
+    public function __construct($string, array $arguments)
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+    }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+    }
+
+    /**
+     * @param string $string
+     * @param array $args
+     * @return string
+     */
+    protected static function placeholderFormat($string, array $args)
+    {
+    }
+
+    /**
+     * @param string|\Drupal\Component\Render\MarkupInterface $value
+     * @return string
+     */
+    protected static function placeholderEscape($value)
+    {
+    }
+}

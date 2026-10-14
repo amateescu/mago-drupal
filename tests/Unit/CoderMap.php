@@ -17,9 +17,10 @@ use const JSON_THROW_ON_ERROR;
  *
  * A sniff lists its handlers in `where`, and a code has a `where` of its own
  * when it goes elsewhere. A handler is `format`, `analyze`, `analyze:<issue>`,
- * `ext:<rule code>`, `lint:<rule>`, `branch:<name>`, `phpcs` or `none`. A
- * note is kept only where no rule of this extension ports the check, because
- * a rule's docs entry describes how it differs from Coder.
+ * `ext:<rule code>`, `check:<analyzer check code>`, `lint:<rule>`,
+ * `branch:<name>`, `phpcs` or `none`. A note is kept only where no rule of
+ * this extension ports the check, because a rule's docs entry describes how
+ * it differs from Coder.
  *
  * @phpstan-type Code array{code: string, status: string, where?: list<string>, note?: string}
  * @phpstan-type Sniff array{sniff: string, standard: string, drupal7?: bool, where: list<string>, note?: string, codes: list<Code>}

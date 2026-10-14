@@ -1,8 +1,8 @@
 # Drupal 7 era
 
-These rules target APIs that Drupal 8 removed, so they do not report on a modern codebase. Core's
-`phpcs.xml.dist` still enables the matching sniffs, and Coder 9 still ships them. Without these
-rules, a part of the standard is not checked.
+These rules check APIs that Drupal 8 removed, so they find nothing in a modern codebase. Core's
+`phpcs.xml.dist` enables the matching sniffs and Coder 9 ships them, so without these rules a part
+of the standard would go unchecked.
 
 ---
 
