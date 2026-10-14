@@ -1,8 +1,8 @@
 # Comment text
 
-These rules read only the text of a comment, and do not compare it against the declaration that it
+These rules read only the text of a comment, and don't compare it against the declaration that it
 documents. They cover the part of `Drupal.Commenting.*` that works that way, the `@author` ban and
-the line-length check for comments. For the comment whitespace that `mago format` sets, see
+the line-length check for comments. For the comment whitespace set by `mago format`, see
 [Comment whitespace and the formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 ---
@@ -51,10 +51,10 @@ and git already records who wrote what.
 - the `Implements hook_foo()` and `Contains ...` lines;
 - a line whose last word is too long for a line of its own, such as a URL or a long class path.
 
-Each of these holds text that cannot be wrapped without damage.
+Each of these holds text that can't be wrapped without damage.
 
 `mago format` wraps code to its line width, but leaves comment text as written, so the formatter
-cannot do this check. A deeper indent from the formatter can push a comment past 80 characters.
+can't do this check. A deeper indent from the formatter can push a comment past 80 characters.
 
 ??? note "Compared with Coder"
 
@@ -79,7 +79,7 @@ cannot do this check. A deeper indent from the formatter can push a comment past
 
 - the `array()` syntax inside a docblock `@code` example.
 
-Mago does not parse the example as code, so no other rule sees it.
+Mago doesn't parse the example as code, so no other rule sees it.
 
 ??? example "Example"
 
@@ -138,7 +138,7 @@ Mago does not parse the example as code, so no other rule sees it.
 
 - a short name whose import the code uses too;
 - a name after the first space outside brackets, where the type ends, so the return type in
-  `callable(Foo): Bar` is not read.
+  `callable(Foo): Bar` isn't read.
 
 The fix writes the fully qualified name for each such name in the type, when the whole type is on
 the tag's line and the docblock is below the import, in a file with one namespace. It removes the
@@ -200,15 +200,16 @@ import when every mention of the name in the file's docblocks is rewritten.
 
 ??? note "Compared with Coder"
 
-    - Coder 9 accepts short names in docblocks, but its `UnusedUses` sniff does not read docblocks.
+    - Coder 9 accepts short names in docblocks, but its `UnusedUses` sniff doesn't read docblocks.
       It reports such an import as unused, and phpcbf deletes it, which leaves the docblock naming a
       class that no longer resolves. Mago counts a docblock mention as a use, so its
       `no-redundant-use` reports only the imports that nothing uses, and this rule reports the ones
       that only docblocks use.
     - An import that only a `@see` tag mentions is reported by neither rule, and the same goes for
       any tag other than `@param`, `@return`, `@var` and `@throws`. Coder reports it as unused.
-    - Coder 8's `Drupal.Commenting.DataTypeNamespace`, which core 11.4's `phpcs.xml.dist` still
-      runs, reports a short name even when the code uses its import too. Coder 9 has no such sniff.
+    - Coder 8's `Drupal.Commenting.DataTypeNamespace`, which is still run by core 11.4's
+      `phpcs.xml.dist`, reports a short name even when the code uses its import too. No such sniff
+      exists in Coder 9.
 
 ---
 
@@ -320,11 +321,11 @@ Coder asks for no gendered pronouns in comments.
 
 - a `//` comment that starts with a lower-case letter;
 - a `#` comment. `mago format` also writes it as `//`;
-- a `//` comment that does not have one space after `//`, or has a tab. More spaces are fine to
-  line up with a list item or `@todo` on the line above. A line indented deeper than the comment
-  line above for no such reason is reported without a fix;
-- a `/**` docblock inside a body, such as a function, a class or an `if`, that does not start with
-  a tag and is not in front of a declaration, an enum case, an include or a modifier.
+- a `//` comment that doesn't have one space after `//`, or has a tab. More spaces are fine to line
+  up with a list item or `@todo` on the line above. A line indented deeper than the comment line
+  above for no such reason is reported without a fix;
+- a `/**` docblock inside a body, such as a function, a class or an `if`, that doesn't start with a
+  tag and isn't in front of a declaration, an enum case, an include or a modifier.
 
 **Not reported:**
 
@@ -358,8 +359,8 @@ Coder asks for no gendered pronouns in comments.
 ??? note "Compared with Coder"
 
     - A tab after spaces after `//` is reported once, as a tab.
-    - The rule does not report an empty docblock inside a body, which Mago's `no-empty-comment`
-      reports. It treats `/***` and `/**/` as no docblock, as Coder does.
+    - The rule doesn't report an empty docblock inside a body, which is reported by Mago's
+      `no-empty-comment`. It treats `/***` and `/**/` as no docblock, as Coder does.
     - Coder reports the docblock of an enum case and of a property declared `readonly` with no
       visibility keyword, because its list of declaration keywords has neither. The rule takes both
       for declarations, as PHP does.
@@ -386,8 +387,8 @@ Coder asks for no gendered pronouns in comments.
 
 - a `cspell:` line, and a directive such as a `@codingStandardsIgnore*` line;
 - a `//` comment with no text, a comment right before a docblock, and a `// @code` example;
-- a blank line before a closing bracket, which `mago format` handles. The formatter takes such a
-  line out, except before the closing brace of a class, interface, trait or enum with members,
+- a blank line before a closing bracket, which is handled by `mago format`. The formatter takes such
+  a line out, except before the closing brace of a class, interface, trait or enum with members,
   where it always writes one, after a comment too.
 
 `drupal/parameter-blank-line` also reports a blank line below a `//` comment in a parameter list,
@@ -439,12 +440,12 @@ pass applies it.
 
 **Reports:**
 
-- a `//` comment that does not end with a full stop, an exclamation mark, a question mark, a colon
-  or a closing parenthesis.
+- a `//` comment that doesn't end with a full stop, an exclamation mark, a question mark, a colon or
+  a closing parenthesis.
 
 **Not reported:**
 
-- a comment whose first word does not start with a letter;
+- a comment whose first word doesn't start with a letter;
 - a numbered list item;
 - a comment with a `cspell:` line;
 - a comment whose last word holds a url or a function call such as `foo()`, or starts with `@`;
@@ -563,7 +564,7 @@ text, in a docblock and in a `//` comment.
 
 **Reports:**
 
-- a to-do comment that does not follow the
+- a to-do comment that doesn't follow the
   [`@todo Fix problem X here.`](https://www.drupal.org/node/1354) format, such as `TODO:`, `@TODO`,
   `to-do` or `@todo - fix`.
 
@@ -573,5 +574,6 @@ text, in a docblock and in a `//` comment.
 - a word that only starts with "todo", such as "todos".
 
 Mago's own `tagged-todo` rule asks for a `TODO(@user)` or `TODO(#123)` reference. That format
-contradicts Drupal's, so do not run the two rules on the same codebase.
-[Setup](../setup.md#turn-off-what-drupals-standard-does-not-ask-for) turns `tagged-todo` off.
+contradicts Drupal's, so don't run the two rules on the same codebase. The
+[configuration](../setup/configuration.md#turn-off-what-drupals-standard-doesnt-ask-for) turns
+`tagged-todo` off.

@@ -28,7 +28,7 @@ final class ConstantPrefixRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/constant-prefix',
             name: 'Constant prefix',
-            description: 'Reports define() constants that do not start with the module name.',
+            description: "Reports define() constants that don't start with the module name.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],

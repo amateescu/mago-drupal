@@ -67,7 +67,7 @@ final class TodoCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/todo-comment',
             name: 'To-do comment format',
-            description: 'Reports a to-do comment that does not follow the "@todo Fix problem X here." format.',
+            description: 'Reports a to-do comment that doesn\'t follow the "@todo Fix problem X here." format.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

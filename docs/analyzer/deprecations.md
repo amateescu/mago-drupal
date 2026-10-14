@@ -1,7 +1,7 @@
 # Deprecations
 
-Where the analyzer leaves Drupal's deprecations alone, how to report only what the next Drupal
-major removes, and the checks for the deprecations that Mago does not report.
+Where the analyzer leaves Drupal's deprecations alone, how to report only what is removed in the
+next Drupal major, and the checks for the deprecations not reported by Mago.
 
 ## Deprecation scopes
 
@@ -65,9 +65,9 @@ since it is about PHP language features, not about the Drupal API that a legacy 
 
 ## Deprecation target
 
-`--deprecations=12` on the worker command reports only the Drupal deprecations that Drupal 12 or an
-earlier major removes. A project getting ready for Drupal 12 can leave the ones that Drupal 13
-removes for later. This is the "fix now" list of upgrade_status.
+`--deprecations=12` on the worker command reports only the Drupal deprecations removed in Drupal 12
+or an earlier major. A project getting ready for Drupal 12 can leave the ones removed in Drupal 13
+for later. This is the "fix now" list of upgrade_status.
 
 ```toml
 [extension-hosts.drupal]
@@ -79,9 +79,9 @@ The removal version comes from the `@deprecated` text, in Drupal's form:
 always reported. That covers a contrib module's own deprecations, as in
 `removed from webform:7.0.0`, and the deprecations of Symfony and PHP.
 
-Mago's issue names the deprecated symbol but not its `@deprecated` text, which Mago does not keep.
+Mago's issue names the deprecated symbol but not its `@deprecated` text, which isn't kept by Mago.
 The analyzer looks up the declaration of the symbol and reads the docblock above it from the file. A
-declaration that it cannot read keeps its issue, such as a PHP function from Mago's built-in stubs.
+declaration that can't be read keeps its issue, such as a PHP function from Mago's built-in stubs.
 
 The target applies to these codes:
 
@@ -91,29 +91,30 @@ The target applies to these codes:
   hook's documentation in its `*.api.php` file;
 - [`drupal/deprecated-service`](services.md#drupaldeprecated-service), from the `deprecated:`
   message of the service;
-- [`drupal/deprecated-original`](entities.md#drupaldeprecated-original), which Drupal 12 removes;
+- [`drupal/deprecated-original`](entities.md#drupaldeprecated-original), which is removed in
+  Drupal 12;
 - [`drupal/deprecated-class`](#drupaldeprecated-class) and
-  [`drupal/deprecated-method`](#drupaldeprecated-method), from the `@deprecated` text that they
-  read with the symbol.
+  [`drupal/deprecated-method`](#drupaldeprecated-method), from the `@deprecated` text read with the
+  symbol.
 
 A filter can only keep or drop an issue, so Mago's message still names only the symbol. The
 replacement is in the `@deprecated` text at the declaration.
 
-## Deprecations Mago does not report
+## Deprecations not reported by Mago
 
 Mago reports a deprecated function, method, constant, class constant, property and trait, and a
 deprecated class where it is instantiated or extended. A method is deprecated for Mago only where
 its own docblock says so, so a call to an implementation that says `{@inheritdoc}` goes unreported.
-The analyzer reports more of what phpstan-deprecation-rules checks, for the symbols that Drupal
-marks `@deprecated`, as [`drupal/deprecated-class`](#drupaldeprecated-class) and
+The analyzer reports more of what is checked by phpstan-deprecation-rules, for the symbols marked
+`@deprecated` in Drupal, as [`drupal/deprecated-class`](#drupaldeprecated-class) and
 [`drupal/deprecated-method`](#drupaldeprecated-method).
 
 The symbols come from the PHP files under `core/lib`, `core/tests` and the `src` directory of every
 module, profile and theme, read before the analysis starts. The `@deprecated` text read with each
-one is the help of the issue. Vendor code is not read, so a deprecated Symfony or Drush interface
-is not reported.
+one is the help of the issue. Vendor code isn't read, so a deprecated Symfony or Drush interface
+isn't reported.
 
-A `@phpstan-ignore` comment does not drop these reports, since the `phpstan-ignores` plugin runs
+A `@phpstan-ignore` comment doesn't drop these reports, since the `phpstan-ignores` plugin runs
 before them.
 
 ---
@@ -132,8 +133,8 @@ that extends a deprecated interface. The check reports the other uses.
 - a class or an enum that implements a deprecated interface;
 - a deprecated class-like in a native parameter, return or property type, or in a `catch`;
 - a constant of a deprecated class-like, such as `DateTimeRangeConstantsInterface::BOTH`;
-- a static call on a deprecated class-like to a method that is not deprecated itself. Mago reports
-  a call to a deprecated method.
+- a static call on a deprecated class-like to a method that isn't deprecated itself. Mago reports a
+  call to a deprecated method.
 
 **Not reported:**
 
@@ -206,7 +207,7 @@ that extends a deprecated interface. The check reports the other uses.
     - phpstan-deprecation-rules also reports a call to an instance method of a deprecated
       class-like, as in `$old->run()`, and a static property of one. Neither Mago nor the check
       reports them. On core, almost every such call is on `$this` in a class that extends a
-      deprecated class, which Mago reports once, at the `extends`.
+      deprecated class, which is reported once by Mago, at the `extends`.
     - phpstan-deprecation-rules reads the deprecations of every package. The check reads only
       Drupal's files.
 
@@ -230,10 +231,10 @@ goes unreported. PHPStan counts the implementation as deprecated, and so does th
 **Not reported:**
 
 - a method whose docblock says `@not-deprecated`, as in PHPStan;
-- a method declared by a parent class that does not implement the interface itself;
+- a method declared by a parent class that doesn't implement the interface itself;
 - an override of a deprecated class method. Mago checks every method call against every target, so
   only interface methods are targets, and Drupal deprecates through interfaces;
-- a method that Mago flags as deprecated itself, which is Mago's `deprecated-method`;
+- a method flagged by Mago as deprecated itself, which is Mago's `deprecated-method`;
 - a call in a [deprecation scope](#deprecation-scopes), and one that the
   [deprecation target](#deprecation-target) leaves for later.
 
@@ -323,7 +324,7 @@ goes unreported. PHPStan counts the implementation as deprecated, and so does th
 - **Source:** Drupal's database API
 
 Drupal commits a transaction when its object goes out of scope. Drupal 11.5 deprecates that, in
-favor of `Transaction::commitOrRelease()`, which Drupal 11.3 added.
+favor of `Transaction::commitOrRelease()`, which was added in Drupal 11.3.
 
 **Reports:**
 
@@ -338,8 +339,8 @@ favor of `Transaction::commitOrRelease()`, which Drupal 11.3 added.
 - a variable that is returned, passed to a call, stored elsewhere or captured by a closure, since
   other code may commit it;
 - a transaction stored on a property;
-- any transaction while the codebase has no `Transaction::commitOrRelease()`, as before Drupal
-  11.3;
+- any transaction while `Transaction::commitOrRelease()` doesn't exist in the codebase, as before
+  Drupal 11.3;
 - test code, which exercises the destructor on purpose, and hook documentation in `*.api.php`
   files.
 
@@ -372,4 +373,4 @@ favor of `Transaction::commitOrRelease()`, which Drupal 11.3 added.
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not check transactions.
+    phpstan-drupal doesn't check transactions.

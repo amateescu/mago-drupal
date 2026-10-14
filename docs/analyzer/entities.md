@@ -14,15 +14,15 @@ workspace sees core's entity types.
 Contrib still ships the legacy `@ContentEntityType`, `@ConfigEntityType` and `@EntityType` docblock
 annotations, so the analyzer also reads them, from the `src/Entity/*.php` files of the modules under
 the Drupal root. See [The plugin index](plugins.md#the-plugin-index) for how a file that an editor
-has not saved counts. A class that also has the attribute has its annotation ignored, the way
+hasn't saved counts. A class that also has the attribute has its annotation ignored, the way
 Drupal's discovery does.
 
 Two classes that declare one entity type id cancel each other out, as plugins do. The id is known,
-so it is not reported, but it names no definition.
+so it isn't reported, but it names no definition.
 
 **Not indexed:**
 
-- a class whose parent chain Mago could not resolve;
+- a class whose parent chain Mago couldn't resolve;
 - an annotation in vendor code outside the Drupal root.
 
 ## Handlers and storage
@@ -47,14 +47,14 @@ $storage->getEntityTypeId();                    // 'node'
 $repository->loadEntityByUuid('taxonomy_term', $uuid); // Drupal\taxonomy\Entity\Term|null
 ```
 
-- `getHandler()` for an entity type that the index cannot resolve returns what core declares on the
-  getter of that handler type: `EntityStorageInterface` for `storage`, and the access control, view
-  builder and list builder interfaces for `access`, `view_builder` and `list_builder`, since
+- `getHandler()` for an entity type that the index can't resolve returns what is declared by core on
+  the getter of that handler type: `EntityStorageInterface` for `storage`, and the access control,
+  view builder and list builder interfaces for `access`, `view_builder` and `list_builder`, since
   `getStorage($id)` is `getHandler($id, 'storage')`. Other handler types keep `object`.
 - An id that is one of several literals, such as `'node'|'user'`, gives the union of their handlers
   or definitions. Once one of them is unknown, the getter keeps its declared type.
 - `getDefinition()` throws instead of returning null unless its second argument is `FALSE`, so the
-  null goes away, even for an entity type id that the index cannot resolve. Only a computed second
+  null goes away, even for an entity type id that the index can't resolve. Only a computed second
   argument keeps the declared type.
 
 A handler type has the entity type id as a type parameter, as in `NodeStorage<'node'>`. A later
@@ -71,7 +71,7 @@ The default handlers follow core's entity type classes:
 - a config entity type gets `ConfigEntityStorage`;
 - every kind gets `EntityAccessControlHandler`;
 - list builders and forms have no default;
-- a bare `#[EntityType]` gets no storage default, and its definition is not narrowed to a definition
+- a bare `#[EntityType]` gets no storage default, and its definition isn't narrowed to a definition
   interface.
 
 The storage methods:
@@ -81,7 +81,7 @@ The storage methods:
 - `loadMultiple()` and `loadByProperties()` key their result by entity id. That is `string` for a
   config entity, whose id is a machine name, as phpstan-drupal types it, and `int|string` for a
   content entity. A config entity with a numeric id such as `'1'` ends up under an integer key at
-  runtime, which this does not cover;
+  runtime, which this doesn't cover;
 - the `EntityRepositoryInterface` lookups are typed by their entity type id argument, and
   `getTranslationFromContext($entity)` returns the class that it was handed.
 
@@ -106,9 +106,9 @@ $entity_type->getKey('id');                     // string
 ## Access checks
 
 `EntityAccessControlHandlerInterface::access()`, `createAccess()` and `fieldAccess()` return an
-`AccessResultInterface` when `$return_as_object` is a literal `TRUE`, and a `bool` otherwise. Drupal
-11.4 says the same with a conditional return type, which Mago reads, so this matters only with
-older core.
+`AccessResultInterface` when `$return_as_object` is a literal `TRUE`, and a `bool` otherwise.
+Drupal 11.4 says the same with a conditional return type, which is read by Mago, so this matters
+only with older core.
 
 ```php
 $handler->access($entity, 'view');              // bool
@@ -128,7 +128,7 @@ analyzer keys them by `string`:
 The keys are entity type ids and field names. A field name matches `/^[_a-z]+[_a-z0-9]*$/`, and no
 entity type id is numeric, so PHP never turns one into an integer key, and `array_keys()` or a
 `foreach` key hands the name on to a method that takes a string. phpstan-drupal's stubs type the
-entity's field methods the same way. The values keep the type that core documents.
+entity's field methods the same way. The values keep the type documented by core.
 
 `getTranslationLanguages()` and the language manager's `getLanguages()` are keyed by language code,
 as `string`, where core documents `LanguageInterface[]`. A language code matches
@@ -141,9 +141,9 @@ an integer key, and `array_keys($entity->getTranslationLanguages())` hands a lan
 Core 11.3 up to 12.0 keeps the `$cacheability` parameter of the list builder's `getOperations()` and
 `getDefaultOperations()` commented out, and reads it through `func_get_args()`. Its own list
 builders pass it on with `parent::getOperations($entity, $cacheability)`. The analyzer declares the
-parameter for those calls, so they are not reported as `too-many-arguments`. A named
-`cacheability:` argument fails at runtime on those versions, so that call keeps the declared
-signature. A list builder that leaves the parameter out is reported as
+parameter for those calls, so they aren't reported as `too-many-arguments`. A named `cacheability:`
+argument fails at runtime on those versions, so that call keeps the declared signature. A list
+builder that leaves the parameter out is reported as
 [`drupal/list-builder-cacheability`](#drupallist-builder-cacheability).
 
 ## Entity queries
@@ -158,7 +158,7 @@ and `count()` update the tags through the fluent chain, and `execute()` reads th
 - `array<string, string>` for a config query;
 - `list<array<string, mixed>>` for an aggregate query.
 
-A query whose entity type is not known, from `\Drupal::entityQuery($id)` or from `getQuery()` on a
+A query whose entity type isn't known, from `\Drupal::entityQuery($id)` or from `getQuery()` on a
 bare `EntityStorageInterface`, is tagged with an unknown entity type, so the chain is still
 tracked. A query that runs without `accessCheck()` is reported as
 [`drupal/entity-query-access-check`](#drupalentity-query-access-check).
@@ -186,7 +186,7 @@ all win over the field type.
 
 ### Field names
 
-`ContentEntityBase::__get()` reads a name that is not a field from the entity's plain values, which
+`ContentEntityBase::__get()` reads a name that isn't a field from the entity's plain values, which
 code uses for ad hoc properties such as `$comment->in_preview` or the `$account->pass_raw` that
 tests set, and `__isset()` checks those values. So a name is typed as a field only when some code or
 config under the Drupal root defines a field with it, and any other name is `mixed`.
@@ -207,11 +207,11 @@ The analyzer reads the field names from every PHP file of the extensions and of 
 
 The file names of the `field.storage.*` and `field.field.*` config in the extensions add theirs.
 A name that starts with `field_`, the Field UI's prefix, is a field too, since a site's active
-config is not read.
+config isn't read.
 
-The names are not split by entity type, so a field of one entity type is typed as a field on every
+The names aren't split by entity type, so a field of one entity type is typed as a field on every
 entity. That keeps the field type possibly undefined: `isset()`, `empty()` and `??` on such a
-property are not reported as redundant. With no field definition found at all, as in a workspace
+property aren't reported as redundant. With no field definition found at all, as in a workspace
 without a Drupal root, every lowercase name counts as a field.
 
 These fields are typed as `mixed`:
@@ -232,7 +232,7 @@ property in favor of `getOriginal()` and `setOriginal()`, and its use is reporte
 `referencedEntities()` is accepted on any field item list, as phpstan-drupal does, and returns
 what `EntityReferenceFieldItemListInterface` declares. Only a reference field's list has the method,
 but `$node->field_tags` and `$node->get('field_tags')` give the plain `FieldItemListInterface`. On a
-list of another field type the call throws, which the types cannot tell apart.
+list of another field type the call throws, which the types can't tell apart.
 
 ### Entity interfaces
 
@@ -254,7 +254,7 @@ These keep the types that the entity type attribute gives:
 
 - `hook_entity_type_build()` and `hook_entity_type_alter()` implementations that swap handlers or
   entity classes;
-- a handler class that Mago has not scanned, which keeps the declared interface type.
+- a handler class not scanned by Mago, which keeps the declared interface type.
 
 ---
 
@@ -280,7 +280,7 @@ The getters are `getStorage()`, `getAccessControlHandler()`, `getViewBuilder()`,
 - `getDefinition($id, FALSE)`, which asks for null instead of an exception;
 - a lookup after a `hasDefinition()` call with the same literal id, earlier in the same function.
   Code does this around a lookup of an optional module's entity type, or before it returns early;
-- any id while the `user` entity type is not in the index. Without it, core is outside the analyzed
+- any id while the `user` entity type isn't in the index. Without it, core is outside the analyzed
   code;
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
 
@@ -306,7 +306,7 @@ The getters are `getStorage()`, `getAccessControlHandler()`, `getViewBuilder()`,
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not report an unknown entity type id.
+    phpstan-drupal doesn't report an unknown entity type id.
 
 ---
 
@@ -326,8 +326,8 @@ alone.
   a known config entity type;
 - the same on a query of an unknown entity type.
 
-`accessCheck(FALSE)` is a decision, and is not reported. `$query->accessCheck(TRUE);` as a statement
-of its own counts for the variable, so the fluent chain is not needed. A chain that ends in it, such
+`accessCheck(FALSE)` is a decision, and isn't reported. `$query->accessCheck(TRUE);` as a statement
+of its own counts for the variable, so the fluent chain isn't needed. A chain that ends in it, such
 as `$query->condition($group)->accessCheck(TRUE);`, counts for the result of the chain and not for
 `$query`, so a later `$query->execute()` is reported. Call `accessCheck()` on the variable itself
 there.
@@ -377,7 +377,7 @@ Drupal 11.2 deprecates the magic `original` property of an entity in favor of `g
 - an entity class that declares `$original` itself;
 - code in a [deprecation scope](deprecations.md#deprecation-scopes), as for Mago's own deprecation
   codes;
-- any use while core has no `EntityInterface::getOriginal()`, which Drupal 11.2 added;
+- any use while `EntityInterface::getOriginal()` doesn't exist in core, it was added in Drupal 11.2;
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
 
 ??? example "Example"
@@ -400,7 +400,7 @@ Drupal 11.2 deprecates the magic `original` property of an entity in favor of `g
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not report the `original` property.
+    phpstan-drupal doesn't report the `original` property.
 
 ---
 
@@ -411,7 +411,7 @@ Drupal 11.2 deprecates the magic `original` property of an entity in favor of `g
 - **Ports:** phpstan-drupal's `ConfigEntityConfigExportRule`
 
 phpstan-drupal reports a config entity type without a `config_export` key. Without the key, the
-entity's properties are exported by reflection, which Drupal deprecated.
+entity's properties are exported by reflection, which was deprecated in Drupal.
 
 **Reports:**
 
@@ -461,7 +461,7 @@ entity's properties are exported by reflection, which Drupal deprecated.
 - **Off with `--core`**
 
 phpstan-drupal reports a list builder's operation method that leaves out the `CacheableMetadata`
-parameter that Drupal 11.3 added. Core 11.3 up to 12.0 keeps the parameter commented out in the
+parameter added in Drupal 11.3. Core 11.3 up to 12.0 keeps the parameter commented out in the
 interface and reads it through `func_get_args()`.
 
 **Reports:**
@@ -474,7 +474,7 @@ interface and reads it through `func_get_args()`.
 
 - core's own `EntityListBuilder`, which reads the parameter through `func_get_args()`;
 - a method that the class inherits;
-- anything when the core version cannot be read from `core/lib/Drupal.php`.
+- anything when the core version can't be read from `core/lib/Drupal.php`.
 
 ??? example "Example"
 
@@ -513,5 +513,5 @@ interface and reads it through `func_get_args()`.
 
     - phpstan-drupal reports `getDefaultOperations()` only on a subclass of `EntityListBuilder`. The
       check reports it on any class that implements `EntityListBuilderInterface`.
-    - phpstan-drupal reads the core version from the `Drupal` class that it loads. The check reads
-      it from `core/lib/Drupal.php` under the Drupal root.
+    - phpstan-drupal reads the core version from the loaded `Drupal` class. The check reads it from
+      `core/lib/Drupal.php` under the Drupal root.

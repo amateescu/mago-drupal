@@ -13,7 +13,7 @@ it, so those assertions narrow the value on their own. `assertNotEmpty()` and `a
 no such tag, and Drupal's tests use those two a lot. A loaded entity then stays nullable for the
 rest of the test, and every call on it is reported.
 
-The `phpunit` plugin narrows the value for these two: after `assertNotEmpty()` it is not empty, and
+The `phpunit` plugin narrows the value for these two: after `assertNotEmpty()` it isn't empty, and
 after `assertEmpty()` it is empty.
 
 **Not narrowed:**
@@ -32,16 +32,16 @@ $node->label();            // narrowed, no possible-method-access-on-null
 Drupal's older tests document a mock as `@var X|MockObject`, from before PHP had intersection types.
 Mago checks each half of a union on its own, so `expects()` is missing on `X`, and the call comes
 back as `mixed`, which loses the type of the rest of the chain. phpstan-phpunit reads the union as
-`X&MockObject`. Mago has no hook for that, and a provider type on the property would count as a
-magic property, so the `phpunit` plugin types the two methods on `X` instead.
+`X&MockObject`. A hook for that doesn't exist in Mago, and a provider type on the property would
+count as a magic property, so the `phpunit` plugin types the two methods on `X` instead.
 
 **Typed**, as `InvocationMocker`:
 
-- `expects()` with one argument, which Mago checks against `InvocationOrder`;
+- `expects()` with one argument, which is checked by Mago against `InvocationOrder`;
 - `method()` with a string literal that names a method of the type.
 
-The plugin answers only when the type does not declare the method, and it sees that one type, not
-the union.
+The plugin answers only when the type doesn't declare the method, and it sees that one type, not the
+union.
 
 **Not typed:**
 
@@ -71,14 +71,14 @@ $this->worker->setStringTranslation($this->getStringTranslationStub());  // no i
 The other direction stays reported. Calling `invokeAll()` on the union still reports it missing on
 `MockObject`, once per call and with the type of the call intact, since the plugin never sees `X`
 from that side. A typed chain also lets Mago check calls that stay unchecked on `mixed`, such as
-`with()` after `method()` on a stub, which PHPUnit's `InvocationStubber` does not have.
+`with()` after `method()` on a stub, which PHPUnit's `InvocationStubber` doesn't have.
 
 ## Prophecy calls
 
 `$prophecy->getFoo()` on an `ObjectProphecy<Foo>` goes through `__call()`, which returns a
 `MethodProphecy`. Mago reports every such call as undocumented, since the class has no `@method` tag
 for it. The `phpunit` plugin types the call as a `MethodProphecy` when the prophesized class
-declares the method, or when the class is not known. A method that the class lacks stays reported,
+declares the method, or when the class isn't known. A method that the class lacks stays reported,
 since Prophecy throws for it.
 
 ```php
@@ -93,8 +93,8 @@ half. The bare `ObjectProphecy` names no class, so its half gets a `MethodProphe
 method, although a prophecy is never a `Foo`.
 [`phpunit/prophecy-union`](#phpunitprophecy-union) reports the docblock.
 
-`willImplement()` and `willExtend()` declare `@phpstan-this-out static<T&U>`, which Mago does not
-apply ([mago#2395](https://github.com/carthage-software/mago/issues/2395)). The plugin adds the type
+`willImplement()` and `willExtend()` declare `@phpstan-this-out static<T&U>`, which isn't applied by
+Mago ([mago#2395](https://github.com/carthage-software/mago/issues/2395)). The plugin adds the type
 that they name to the prophecy: through the return type for a chain, and by narrowing the variable
 for a call on one. A prophecy told to implement an interface inside an `if` is a union afterwards,
 and a later call adds its type to each member.
@@ -132,7 +132,7 @@ assertion tests nothing.
 The check covers `assertInstanceOf()`, `assertNotNull()`, `assertNull()`, `assertTrue()`,
 `assertFalse()`, `assertNotTrue()`, `assertNotFalse()`, and `assertIsArray()`, `assertIsBool()`,
 `assertIsFloat()`, `assertIsInt()`, `assertIsNumeric()`, `assertIsObject()`, `assertIsScalar()`
-and `assertIsString()`. A type from a docblock counts, and so does one that the plugins supply, such
+and `assertIsString()`. A type from a docblock counts, and so does one supplied by the plugins, such
 as the class of a service from a services file.
 
 **Not reported:**
@@ -141,21 +141,20 @@ Mago types some values more narrowly than the code behaves, and these are left a
 
 - `$this->name`, unless the native type of the property passes the assertion too. Mago keeps the
   narrowed type of a property across calls that may change it, such as a callback that sets
-  `$this->fired`. A property typed only by `@var` never counts: PHP does not check the tag, and the
+  `$this->fired`. A property typed only by `@var` never counts: PHP doesn't check the tag, and the
   property is NULL until something is assigned. A magic property, which has no declaration, never
   counts either;
-- another object's property, `$other->name`, since the check does not know the class of that
-  object;
+- another object's property, `$other->name`, since the check doesn't know the class of that object;
 - a variable that an inline `@var` tag names in the same method. The tag is the test's own claim,
   often over a `load()` that can return NULL, and the assertion is what checks it at runtime;
 - a variable that a `static` or `global` statement in the file declares. Its value can come from an
-  earlier call or change elsewhere, which Mago does not follow;
+  earlier call or change elsewhere, which isn't followed by Mago;
 - `$items[0]`, since Mago's `ArrayAccess` stub types `offsetGet()` without null, while an empty
   field item list returns null;
 - `isset()`, which tests `__isset()` or `ArrayAccess` rather than a type;
 - any of these behind a `!`;
 - an assertion that can never pass. When the value is a variable, Mago reports it as
-  `impossible-type-comparison`, and otherwise it is not reported.
+  `impossible-type-comparison`, and otherwise it isn't reported.
 
 ??? example "Example"
 
@@ -227,9 +226,9 @@ out. PHPStan reports the same calls as undefined methods.
 
 **Reports:**
 
-- an `expects()` or `method()` call on a value whose type names no PHPUnit class and does not
-  declare the method. The check takes an `expects()` call with one argument, and a `method()` call
-  that names a method of the type.
+- an `expects()` or `method()` call on a value whose type names no PHPUnit class and doesn't declare
+  the method. The check takes an `expects()` call with one argument, and a `method()` call that
+  names a method of the type.
 
 **Not reported:**
 
@@ -400,7 +399,7 @@ the test installs no theme, Drupal throws while it sets up the test.
 
 The check finds the test's `$profile` the same way, on the class, a base class or a trait. A profile
 is themeless when it ships no `system.theme` config in `config/sync` or `config/install`, which is
-what Drupal checks when the test runs. Profiles are read from core, from the site's `profiles`
+checked by Drupal when the test runs. Profiles are read from core, from the site's `profiles`
 directory, and from the `tests/profiles` directories of core's modules and of extensions. A profile
 not found there counts as themeless when it is one of core's themeless test profiles, such as
 `testing`.
@@ -413,7 +412,7 @@ not found there counts as themeless when it is one of core's themeless test prof
 - update path tests, which install from a database dump;
 - a test on a `NULL` or `FALSE` profile, which installs from existing configuration and takes its
   theme;
-- a profile that is not a string literal, such as one read from a constant.
+- a profile that isn't a string literal, such as one read from a constant.
 
 ??? example "Example"
 
@@ -455,7 +454,7 @@ not found there counts as themeless when it is one of core's themeless test prof
       test on any other profile alone. The check reads the config of each profile from disk.
     - phpstan-drupal skips the two installer test bases that install from existing configuration by
       class name. The check skips a test on a `NULL` profile, which is what those bases set, so it
-      also skips other tests on a `NULL` profile, which phpstan-drupal reports.
+      also skips other tests on a `NULL` profile, which are reported by phpstan-drupal.
     - phpstan-drupal reports a class that sets the theme in `setUp()` or that overrides
       `installDefaultThemeFromClassProperty()`. The check leaves both alone.
 
@@ -467,7 +466,7 @@ not found there counts as themeless when it is one of core's themeless test prof
 - **Source:** Drupal core's PHPStan rules
 - **Ports:** core's `ComponentTestDoesNotExtendCoreTest` rule
 
-Core's component tests run without Drupal, so they cannot extend a test base that boots Drupal or
+Core's component tests run without Drupal, so they can't extend a test base that boots Drupal or
 needs its classes. Core's own PHPStan rules report a component test that does.
 
 **Reports:**

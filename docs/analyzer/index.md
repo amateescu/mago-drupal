@@ -1,6 +1,6 @@
 # Analyzer
 
-PHP alone does not tell Mago what a Drupal service, entity storage, config object or plugin is. The
+PHP alone doesn't tell Mago what a Drupal service, entity storage, config object or plugin is. The
 worker adds three plugins to `mago analyze` that give the analyzer those types, and add checks for
 mistakes that are specific to Drupal and to PHPUnit.
 
@@ -18,9 +18,9 @@ them.
 ## The topic pages
 
 Each topic page starts with the types for its topic, then has an entry for each check. An entry
-gives the check's level, where the check comes from, the phpstan-drupal rule that it ports, what it
-reports and what it leaves alone, and a collapsed "Compared with phpstan-drupal" note. Every code
-starts with `drupal/` or `phpunit/`. The [table of checks](#checks) below lists them all.
+gives the check's level, where the check comes from, the phpstan-drupal rule ported by the check,
+what it reports and what it leaves alone, and a collapsed "Compared with phpstan-drupal" note. Every
+code starts with `drupal/` or `phpunit/`. The [table of checks](#checks) below lists them all.
 
 Two pages have types only:
 
@@ -33,8 +33,9 @@ services, entity types, plugins and config also skip hook documentation in `*.ap
 entry lists what its check skips.
 
 To turn a check off, use Mago's own `[analyzer] ignore`, see
-[Turning rules off](../setup.md#turning-rules-off). How the worker finds the Drupal root and caches
-what it reads is under [Setup](../setup.md#finding-the-drupal-root).
+[Turning rules off](../setup/worker-arguments.md#turning-rules-off). How the worker finds the Drupal
+root is under [Worker arguments](../setup/worker-arguments.md#finding-the-drupal-root), and how it
+caches what it reads under [Install](../setup/install.md#index-cache).
 
 ## phpstan-drupal rules
 
@@ -45,7 +46,7 @@ Five ports of phpstan-drupal rules are linter rules, not analyzer checks, since 
 [`drupal/todo-current-issue`](../rules/phpstan-drupal.md#drupaltodo-current-issue) and
 [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix). The
 [phpstan-drupal](../phpstan/phpstan-drupal.md) page maps every rule and extension of phpstan-drupal,
-including the parts that are not ported.
+including the parts that aren't ported.
 
 ## Checks
 
@@ -70,7 +71,7 @@ arguments.
 
 Checks for classes that call `\Drupal` where they can take a service through dependency injection,
 for entity storages that a class takes or keeps instead of asking the entity type manager, and for
-the properties that `DependencySerializationTrait` cannot restore.
+the properties that `DependencySerializationTrait` can't restore.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
@@ -98,19 +99,18 @@ definitions and list builders that leave out what core asks for.
 ## Config
 
 The analyzer types config objects, and the values read from them by their config schema. The checks
-report config names that no schema describes, and keys that a fully validatable schema does not
-list.
+report config names that no schema describes, and keys that a fully validatable schema doesn't list.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/config-unknown-key`](config.md#drupalconfig-unknown-key) | error | A `get('key')` call on a config object with a known name, for a key that the fully validatable schema of that config does not list. |
+| [`drupal/config-unknown-key`](config.md#drupalconfig-unknown-key) | error | A `get('key')` call on a config object with a known name, for a key that the fully validatable schema of that config doesn't list. |
 | [`drupal/config-unknown-name`](config.md#drupalconfig-unknown-name) | warning | A literal config name that no schema describes. |
 
 ## Plugins
 
-The analyzer types the plugins that core's plugin managers create and the definitions that plugins
-read. The checks report unknown plugin ids, plugin managers that never call `alterInfo()` or
-`setCacheBackend()`, and plugin annotations with the `context` key that Drupal 9 removed.
+The analyzer types the plugins created by core's plugin managers and the definitions read by
+plugins. The checks report unknown plugin ids, plugin managers that never call `alterInfo()` or
+`setCacheBackend()`, and plugin annotations with the `context` key removed in Drupal 9.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
@@ -122,18 +122,18 @@ read. The checks report unknown plugin ids, plugin managers that never call `alt
 ## Render arrays and forms
 
 The analyzer accepts a response from a form's `buildForm()`, and checks the arguments that
-`getForm()` passes on to it. The checks report callbacks in render and form arrays that core cannot
-call, trust or serialize, and cacheable dependencies that cannot have cacheability.
+`getForm()` passes on to it. The checks report callbacks in render and form arrays that can't be
+called, trusted or serialized by core, and cacheable dependencies that can't have cacheability.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/unknown-callback`](render-and-forms.md#drupalunknown-callback) | error, or warning on `#value_callback` | A callback that names a method its class does not have. |
+| [`drupal/unknown-callback`](render-and-forms.md#drupalunknown-callback) | error, or warning on `#value_callback` | A callback that names a method its class doesn't have. |
 | [`drupal/non-static-callback`](render-and-forms.md#drupalnon-static-callback) | error, or warning on `#value_callback` | An array written as a static call that names an instance method. |
 | [`drupal/non-public-callback`](render-and-forms.md#drupalnon-public-callback) | error, or warning on `#value_callback` | A callback that names a protected or private method, a `'::method'` of a form included. |
-| [`drupal/untrusted-callback`](render-and-forms.md#drupaluntrusted-callback) | error | A callback under a render, date or component key that names a class method that core does not trust. |
+| [`drupal/untrusted-callback`](render-and-forms.md#drupaluntrusted-callback) | error | A callback under a render, date or component key that names a class method not trusted by core. |
 | [`drupal/form-closure-callback`](render-and-forms.md#drupalform-closure-callback) | error | A closure, an arrow function or a first-class callable under a render or date key, written in a class that implements `FormInterface`. |
-| [`drupal/trusted-callback-override`](render-and-forms.md#drupaltrusted-callback-override) | warning | A method that overrides one with `#[TrustedCallback]`, declared in a parent class or in a trait that a parent uses, when the override does not repeat the attribute. |
-| [`drupal/cacheable-dependency`](render-and-forms.md#drupalcacheable-dependency) | warning | An `addCacheableDependency()` call whose dependency is a scalar, an array, null, or a final class that does not implement `CacheableDependencyInterface`. |
+| [`drupal/trusted-callback-override`](render-and-forms.md#drupaltrusted-callback-override) | warning | A method that overrides one with `#[TrustedCallback]`, declared in a parent class or in a trait that a parent uses, when the override doesn't repeat the attribute. |
+| [`drupal/cacheable-dependency`](render-and-forms.md#drupalcacheable-dependency) | warning | An `addCacheableDependency()` call whose dependency is a scalar, an array, null, or a final class that doesn't implement `CacheableDependencyInterface`. |
 
 ## Hooks and modules
 
@@ -143,15 +143,15 @@ classes that extend the internal classes of another module.
 | Check | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/deprecated-hook`](hooks.md#drupaldeprecated-hook) | warning | An implementation of a hook whose `hook_*()` documentation function has a `@deprecated` tag. |
-| [`drupal/hook-form-alter-signature`](hooks.md#drupalhook-form-alter-signature) | error | A form alter implementation whose first parameter is not taken by reference. |
-| [`drupal/hook-entity-operation-cacheability`](hooks.md#drupalhook-entity-operation-cacheability) | error | An implementation of `hook_entity_operation()` whose second parameter is not typed as `CacheableMetadata`. |
-| [`drupal/load-include`](hooks.md#drupalload-include) | error, or warning when the module is unknown | A `loadInclude()` call that names a file that does not exist in the module's directory. |
+| [`drupal/hook-form-alter-signature`](hooks.md#drupalhook-form-alter-signature) | error | A form alter implementation whose first parameter isn't taken by reference. |
+| [`drupal/hook-entity-operation-cacheability`](hooks.md#drupalhook-entity-operation-cacheability) | error | An implementation of `hook_entity_operation()` whose second parameter isn't typed as `CacheableMetadata`. |
+| [`drupal/load-include`](hooks.md#drupalload-include) | error, or warning when the module is unknown | A `loadInclude()` call that names a file that doesn't exist in the module's directory. |
 | [`drupal/internal-class-extension`](hooks.md#drupalinternal-class-extension) | warning | A class that extends an `@internal` class owned by another module. |
 
 ## Deprecations
 
-Where the analyzer leaves Drupal's deprecations alone, how to report only what the next Drupal
-major removes, and the checks for the deprecations that Mago does not report.
+Where the analyzer leaves Drupal's deprecations alone, how to report only what is removed in the
+next Drupal major, and the checks for the deprecations not reported by Mago.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
@@ -162,7 +162,7 @@ major removes, and the checks for the deprecations that Mago does not report.
 ## Traits
 
 Mago analyzes a trait on its own, without the classes that use it. The analyzer types the calls
-from a trait to the methods of those classes, and the fluent methods that core keeps in traits. The
+from a trait to the methods of those classes, and the fluent methods kept in traits by core. The
 check reports a `self::` or `static::` call from a static method of a trait to an instance method.
 
 | Check | Level | What it reports |
@@ -179,7 +179,7 @@ The `drupal` plugin has the checks for Drupal's test classes.
 | Check | Level | What it reports |
 | --- | --- | --- |
 | [`phpunit/redundant-assertion`](tests.md#phpunitredundant-assertion) | warning | An assertion that the type of its value already guarantees, such as `assertTrue(TRUE)`, or `assertInstanceOf()` on a value already typed as that class. |
-| [`phpunit/mock-call-on-plain-type`](tests.md#phpunitmock-call-on-plain-type) | warning | An `expects()` or `method()` call on a value whose type names no PHPUnit class and does not declare the method. |
+| [`phpunit/mock-call-on-plain-type`](tests.md#phpunitmock-call-on-plain-type) | warning | An `expects()` or `method()` call on a value whose type names no PHPUnit class and doesn't declare the method. |
 | [`phpunit/prophecy-union`](tests.md#phpunitprophecy-union) | warning | A docblock type that unions `ProphecyInterface` or `ObjectProphecy` with another class. |
 | [`drupal/test-modules-visibility`](tests.md#drupaltest-modules-visibility) | error | A public `$modules` property, static or not, typed or not, declared in a class that descends from PHPUnit's `TestCase`. |
 | [`drupal/browser-test-default-theme`](tests.md#drupalbrowser-test-default-theme) | error | A browser test on a themeless profile that sets no `$defaultTheme`. |

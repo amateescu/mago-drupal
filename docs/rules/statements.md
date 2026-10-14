@@ -17,8 +17,8 @@ ends each case.
 
 **Reports:**
 
-- a `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and is
-  not followed by exactly one blank line. A comment on the statement's line does not count, and one
+- a `break`, `continue`, `return`, `throw`, `exit`, `die` or `goto` that ends a switch case and
+  isn't followed by exactly one blank line. A comment on the statement's line doesn't count, and one
   on a later line does.
 
 **Not reported:**
@@ -117,8 +117,8 @@ A case that runs on into the next one needs a comment there, so a reader can tel
     - A braceless `if (...) return; else return;` ends a case. Coder reports it.
     - A case whose body is a `{ }` block with no ending statement is reported. Coder stops with an
       internal exception for the whole file.
-    - A `break` inside a nested `switch` does not end the outer case, as in Coder.
-    - Coder accepts a directive such as `// phpcs:ignore` as the comment. The rule does not.
+    - A `break` inside a nested `switch` doesn't end the outer case, as in Coder.
+    - Coder accepts a directive such as `// phpcs:ignore` as the comment. The rule doesn't.
 
 ---
 
@@ -142,9 +142,8 @@ a colon.
 
     - Core's config runs only `WrongOpenercase`. The rule reports `default;` too, also under
       `--core`.
-    - Mago's parser does not accept a label that ends with a close tag, as in `case 1 ?>`, which PHP
-      accepts. Coder reports those. The rule cannot, because Mago reports a parse error for the
-      file.
+    - Mago's parser doesn't accept a label that ends with a close tag, as in `case 1 ?>`, which PHP
+      accepts. Coder reports those. The rule can't, because Mago reports a parse error for the file.
     - The fix removes the blank space in front of the colon. phpcbf leaves `case 1 :` for another
       sniff to move.
 
@@ -159,7 +158,7 @@ a colon.
     - `Generic.Formatting.SpaceAfterCast.CommentFound`
     - `Generic.WhiteSpace.LanguageConstructSpacing.IncorrectYieldFromWithComment`
 
-Coder does not allow a comment inside a cast expression or between `yield` and `from`.
+Coder doesn't allow a comment inside a cast expression or between `yield` and `from`.
 
 **Reports:**
 
@@ -204,7 +203,7 @@ Coder asks every switch to have at least one `case` label.
 **Reports:**
 
 - a switch with no `case` label. A switch that holds only `default` counts, and so does an empty
-  one. A `case` label of a nested switch does not count for the outer switch.
+  one. A `case` label of a nested switch doesn't count for the outer switch.
 
 ??? example "Example"
 
@@ -223,7 +222,7 @@ Coder asks every switch to have at least one `case` label.
 
     - The rule reads the labels in the switch's own body. Coder walks tokens, so it needs special
       cases for nested switches.
-    - A file that does not parse gives no report. Coder reports a statement placed directly in a
+    - A file that doesn't parse gives no report. Coder reports a statement placed directly in a
       switch body, which is invalid PHP.
 
 ---
@@ -260,11 +259,11 @@ Coder asks every switch to have at least one `case` label.
     - `X === null ? B : X`
     - `X !== null ? X : B`
 
-Operands match by syntax tree, so quotes, spacing and parentheses do not matter, and the report is
+Operands match by syntax tree, so quotes, spacing and parentheses don't matter, and the report is
 the same before and after `mago format`.
 
-The fix writes `X ?? B` when X is a plain variable, property, index or constant read and B does
-not need parentheses after `??`. These are reported without a fix:
+The fix writes `X ?? B` when X is a plain variable, property, index or constant read and B doesn't
+need parentheses after `??`. These are reported without a fix:
 
 - an X that is a call, a variable variable such as `$$a`, or a property with its name in braces,
   such as `$a->{$b}`;
@@ -293,10 +292,10 @@ not need parentheses after `??`. These are reported without a fix:
     - It also reports a parenthesized condition or operand, operands that differ only in quotes or
       spacing, and an `isset` whose key holds a call with a comma, such as `isset($a[max(1, 2)])`.
       The sniff skips those on any comma.
-    - It does not report `!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or
+    - It doesn't report `!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or
       `$b + $a === null ? '' : $a`. The compared operand is `!$a`, `(string) $a` or `$b + $a`, and a
       fix would change the result.
-    - It does not report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an
+    - It doesn't report `$a === null ? '' : $a ?? 'z'`, whose else part is `$a ?? 'z'`, or an
       `(array)` or `(object)` cast before `isset`, which always gives `true`.
     - It also reports `X === null ? B : X` where B is a ternary without parentheses, such as
       `$a === null ? $b ?: 1 : $a`, and reports B as well when B matches. The sniff reports neither.
@@ -313,7 +312,7 @@ not need parentheses after `??`. These are reported without a fix:
 - **Ports:** `Drupal.Functions.MultiLineFunctionDeclaration.EmptyLine`
 
 Coder asks for no blank lines in a parameter list that spans lines. The standard's format for such
-a list puts one parameter on each line, and does not mention blank lines.
+a list puts one parameter on each line, and doesn't mention blank lines.
 
 **Reports:**
 
@@ -379,9 +378,10 @@ between the names.
       semicolon, so it reports a property hook that reads `$this` or takes a `$value` parameter, and
       a property that is followed by a hook with no semicolon in it. The rule reports none of those,
       because a hooked property has one name.
-    - Coder skips a property in an enum. The rule does not look at the enclosing type, so it also
-      reports a multi-name statement in an enum, which PHP rejects and Mago reports as well.
-    - It also reports a multi-name statement whose default is not a constant expression. The sniff
+    - Coder skips a property in an enum. The rule doesn't look at the enclosing type, so it also
+      reports a multi-name statement in an enum, which is rejected by PHP and reported by Mago as
+      well.
+    - It also reports a multi-name statement whose default isn't a constant expression. The sniff
       reports the same, and Mago reports that default on its own.
 
 ---
@@ -406,7 +406,7 @@ between the names.
 ??? note "Compared with Coder"
 
     - A `var` property is reported once. Coder 9 also reports the missing visibility.
-    - phpcbf has no fix for a property declared without a visibility.
+    - A fix for a property declared without a visibility doesn't exist in phpcbf.
 
 ---
 
@@ -454,7 +454,7 @@ A function ends the same way without a `return;` as its last statement.
       changes the loop. Coder reports it.
     - It reports a `return;` that ends a `{ }` block at the end of a body. Coder stops with an
       internal exception there and loses the rest of the file's reports.
-    - Coder has no fix for the statement.
+    - A fix for the statement doesn't exist in Coder.
 
 ---
 
@@ -464,7 +464,7 @@ A function ends the same way without a `return;` as its last statement.
 - **Fix:** safe, or potentially unsafe when it drops a comment.
 - **Standard:** [Operators](https://project.pages.drupalcode.org/coding_standards/php/coding/#operators)
 - **Ports:** core's `SlevomatCodingStandard.ControlStructures.RequireShortTernaryOperator`, which
-  Coder's rulesets leave out.
+  is left out of Coder's rulesets.
 
 > The short ternary operator `?:` must be used where the first operand of a ternary expression
 > matches the condition.
@@ -476,15 +476,16 @@ A function ends the same way without a `return;` as its last statement.
     - `!X ? B : X`
 
 Both become `X ?: B`. Operands match by syntax tree, as in
-[`drupal/null-coalesce`](#drupalnull-coalesce), so quotes, spacing, comments and parentheses do not
+[`drupal/null-coalesce`](#drupalnull-coalesce), so quotes, spacing, comments and parentheses don't
 matter.
 
 The fix runs when X is a plain variable, property, index or constant read, since `X ?: B` reads X
 once where the ternary reads it twice. In the second shape B moves to the end, so it also needs to
 bind tighter than `??`, as in `drupal/null-coalesce`. Other matches are reported without a fix.
 
-Mago's own `no-shorthand-ternary` asks for the opposite.
-[Setup](../setup.md#turn-off-what-drupals-standard-does-not-ask-for) turns it off.
+Mago's own `no-shorthand-ternary` asks for the opposite. The
+[configuration](../setup/configuration.md#turn-off-what-drupals-standard-doesnt-ask-for) turns it
+off.
 
 ???+ example "Example"
 
@@ -525,7 +526,7 @@ Coder asks for the short `[...]` form for destructuring, as for arrays.
 
 **Not reported:**
 
-- a name that only looks like the keyword, which is not a destructuring: `->list`, `::list`, a
+- a name that only looks like the keyword, which isn't a destructuring: `->list`, `::list`, a
   method, constant, property or enum case called `list`, a named argument, and text in a string or
   a comment.
 

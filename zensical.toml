@@ -10,7 +10,10 @@ extra_css = ["stylesheets/drupal.css"]
 nav = [
   { "Start" = [
     "index.md",
-    { "Setup" = "setup.md" },
+    { "Install" = "setup/install.md" },
+    { "Worker arguments" = "setup/worker-arguments.md" },
+    { "Configuration" = "setup/configuration.md" },
+    { "Fixes" = "setup/fixes.md" },
   ] },
   { "Linter" = [
     "rules/index.md",
@@ -59,6 +62,8 @@ nav = [
 ]
 
 [project.theme]
+# The Drupal drop, as on the coding standards site.
+favicon = "assets/favicon.png"
 features = [
   "content.code.copy",
   "navigation.footer",

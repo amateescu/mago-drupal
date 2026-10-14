@@ -1,8 +1,8 @@
 # Plugins
 
-The analyzer types the plugins that core's plugin managers create and the definitions that plugins
-read. The checks report unknown plugin ids, plugin managers that never call `alterInfo()` or
-`setCacheBackend()`, and plugin annotations with the `context` key that Drupal 9 removed.
+The analyzer types the plugins created by core's plugin managers and the definitions read by
+plugins. The checks report unknown plugin ids, plugin managers that never call `alterInfo()` or
+`setCacheBackend()`, and plugin annotations with the `context` key removed in Drupal 9.
 
 ## Plugin instances
 
@@ -23,14 +23,14 @@ $blockManager->createInstance('no_such_block');          // Broken, and reported
   sets a `class` per derivative.
 - On a fallback manager (blocks, entity reference selection and filters), an unknown plain id is
   typed as the fallback plugin, since that is what runs. A derivative id whose base nothing declares
-  keeps the declared type, since the base may come from YAML or a deriver that the index does not
+  keeps the declared type, since the base may come from YAML or a deriver that the index doesn't
   read.
 
 ## The plugin index
 
 The plugin classes are read from Mago's class metadata: every instantiable class that descends
 from `PluginInspectionInterface`, or from the mail, archiver, config action and language
-negotiation method interfaces, which do not extend it, and that has one of those attributes or a
+negotiation method interfaces, which don't extend it, and that has one of those attributes or a
 subclass of one. Vendor code counts, and field items reach the index through `TypedData`.
 
 The id is the attribute's literal `id`, or the string that a class constant it names holds, as in
@@ -43,22 +43,21 @@ annotation maps to the attribute of the same short name, and `@SearchPlugin` and
 mapped by hand. The legacy `@ContentEntityType` and `@ConfigEntityType` annotations are read the
 same way, see [The entity type index](entities.md#the-entity-type-index).
 
-- An analyzed file that has an annotation on disk is read from the text that Mago analyzes, so an
-  edit in an editor buffer that has not been saved counts.
+- An analyzed file that has an annotation on disk is read from the text analyzed by Mago, so an edit
+  in an editor buffer that hasn't been saved counts.
 - An annotation added to a file that had none when the workers started is read once the file is
   saved.
-- An annotated file outside the Drupal root is not read.
+- An annotated file outside the Drupal root isn't read.
 
-An annotation does not count on an abstract class, in a `@code` sample, or on a class that also
-has the attribute. Two annotated classes that claim one id cancel each other out, as attributed
-ones do.
+An annotation doesn't count on an abstract class, in a `@code` sample, or on a class that also has
+the attribute. Two annotated classes that claim one id cancel each other out, as attributed ones do.
 
 ## Not modelled
 
 These keep the declared types:
 
 - the changes that a `hook_*_info_alter()` makes to definitions;
-- the managers whose attribute the analyzer does not know;
+- the managers whose attribute isn't known to the analyzer;
 - plugins discovered from YAML, such as menu links.
 
 ## Plugin definitions
@@ -107,7 +106,7 @@ type with definition objects works with them through their methods. A plugin man
 - **Source:** Drupal's plugin managers
 
 A plugin manager throws a `PluginNotFoundException` for an id that no plugin declares. A fallback
-manager, such as the block manager, returns its fallback plugin instead, which does not do what the
+manager, such as the block manager, returns its fallback plugin instead, which doesn't do what the
 code expects either.
 
 **Reports:**
@@ -121,9 +120,9 @@ effects, media sources and REST resources.
 **Not reported:**
 
 - a `base:derivative` id, which comes from a deriver;
-- an id while the core plugin of its type is not in the index. Without it, core is outside the
+- an id while the core plugin of its type isn't in the index. Without it, core is outside the
   analyzed code;
-- a layout id, since core's layouts are mostly YAML, which the index does not hold;
+- a layout id, since core's layouts are mostly YAML, which the index doesn't hold;
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
   Tests mock managers.
 
@@ -163,7 +162,7 @@ effects, media sources and REST resources.
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not report an unknown plugin id.
+    phpstan-drupal doesn't report an unknown plugin id.
 
 ---
 
@@ -174,16 +173,16 @@ effects, media sources and REST resources.
 - **Ports:** phpstan-drupal's `PluginManagerInspectionRule`, the half for `alterInfo()`
 
 phpstan-drupal reports a plugin manager that never calls `alterInfo()`. Without the call, other
-modules cannot alter the manager's plugin definitions.
+modules can't alter the manager's plugin definitions.
 
 **Reports:**
 
 - a `DefaultPluginManager` subclass in the analyzed code whose own constructor never calls
   `alterInfo()`.
 
-The calls are read from the tokens of the constructor, so a call in a comment does not count. A
+The calls are read from the tokens of the constructor, so a call in a comment doesn't count. A
 `parent::__construct()` call is followed into the parent's constructor, read from disk, so a manager
-that leaves the call to its parent is not reported.
+that leaves the call to its parent isn't reported.
 
 **Not reported:**
 
@@ -192,8 +191,8 @@ that leaves the call to its parent is not reported.
 - a class without a constructor of its own;
 - an abstract class;
 - test code (any file under a `tests` directory);
-- a class whose constructor, or a parent constructor that it calls, cannot be read from disk. See
-  [Finding the Drupal root](../setup.md#finding-the-drupal-root).
+- a class whose constructor, or a parent constructor that it calls, can't be read from disk. See
+  [Finding the Drupal root](../setup/worker-arguments.md#finding-the-drupal-root).
 
 ??? example "Example"
 
@@ -236,13 +235,13 @@ that leaves the call to its parent is not reported.
 
     - phpstan-drupal checks every class that implements `PluginManagerInterface` and extends
       another class, abstract classes included. The check takes `DefaultPluginManager` subclasses
-      that are not abstract.
+      that aren't abstract.
     - phpstan-drupal looks for the call in the constructor alone. The check also follows
       `parent::__construct()` and reads the `calls:` of the manager's services.
     - phpstan-drupal skips a class whose name contains "test". The check skips the files under a
       `tests` directory.
     - phpstan-drupal also reports a manager with YAML discovery that calls `parent::__construct()`.
-      The check does not port that half: it reports core's own `LayoutPluginManager` and
+      The check doesn't port that half: it reports core's own `LayoutPluginManager` and
       `CKEditor5PluginManager`.
 
 ---
@@ -273,7 +272,7 @@ a call. It is Mago's own `too-few-arguments`, since core requires the key.
 - a class without a constructor of its own;
 - an abstract class;
 - test code (any file under a `tests` directory);
-- a class whose constructor, or a parent constructor that it calls, cannot be read from disk.
+- a class whose constructor, or a parent constructor that it calls, can't be read from disk.
 
 ??? example "Example"
 
@@ -315,7 +314,7 @@ a call. It is Mago's own `too-few-arguments`, since core requires the key.
 ??? note "Compared with phpstan-drupal"
 
     - phpstan-drupal checks every class that implements `PluginManagerInterface`, abstract classes
-      included. The check takes `DefaultPluginManager` subclasses that are not abstract.
+      included. The check takes `DefaultPluginManager` subclasses that aren't abstract.
     - phpstan-drupal looks for the call among the top-level statements of the constructor, so a call
       inside an `if` is missed there. The check finds the call anywhere in the constructor, follows
       `parent::__construct()`, and reads the `calls:` of the manager's services.
@@ -341,7 +340,7 @@ The annotation is read as [the plugin index](#the-plugin-index) reads it.
 
 **Not reported:**
 
-- an annotation that does not count for the index, such as one on an abstract class or on a class
+- an annotation that doesn't count for the index, such as one on an abstract class or on a class
   that also has the attribute.
 
 ??? example "Example"

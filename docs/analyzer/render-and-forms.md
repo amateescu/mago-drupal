@@ -1,8 +1,8 @@
 # Render arrays and forms
 
 The analyzer accepts a response from a form's `buildForm()`, and checks the arguments that
-`getForm()` passes on to it. The checks report callbacks in render and form arrays that core cannot
-call, trust or serialize, and cacheable dependencies that cannot have cacheability.
+`getForm()` passes on to it. The checks report callbacks in render and form arrays that can't be
+called, trusted or serialized by core, and cacheable dependencies that can't have cacheability.
 
 ## Form responses
 
@@ -28,10 +28,10 @@ narrows the native type, and that report is dropped as well.
 
 **Still reported:**
 
-- a return under a native type that does not allow the response, such as `: array`. PHP throws a
+- a return under a native type that doesn't allow the response, such as `: array`. PHP throws a
   `TypeError` on that return before Drupal sees the response;
 - any other returned value;
-- a `buildForm()` on a class that is not a form.
+- a `buildForm()` on a class that isn't a form.
 
 The method and the returned types are read from the wording of Mago's report. If Mago words the
 report differently, the report shows again rather than staying hidden.
@@ -82,18 +82,18 @@ Core runs the callbacks in a render or form array in four ways, and each one fai
 
 - The renderer passes `#pre_render`, `#post_render`, `#lazy_builder` and `#access_callback` through
   the callable resolver and `doTrustedCallback()`. That call throws an `UntrustedCallbackException`
-  for a method that it does not trust. The date elements (`#date_date_callbacks`,
+  for a method that it doesn't trust. The date elements (`#date_date_callbacks`,
   `#date_time_callbacks`) and the component element (`#propsAlter`, `#slotsAlter`) call
   `doTrustedCallback()` on a plain PHP callable.
 - The Form API passes `#validate`, `#submit`, `#element_validate`, `#process`, `#after_build`,
   `#entity_builders` and the `callback` of `#ajax` through `FormState::prepareCallback()`, which
   turns `'::method'` into a method of the form object, and then through the callable resolver,
-  which throws for anything that it cannot call.
+  which throws for anything that it can't call.
 - `#value_callback` runs only when `is_callable()` accepts it. Otherwise the element's default value
   callback runs, and nothing says so.
 - The machine name element passes the `exists` of `#machine_name` to `call_user_func()`, and the
   managed file element calls each of `#file_value_callbacks` as it is. Neither resolves or trusts
-  anything, and both throw for anything that PHP cannot call.
+  anything, and both throw for anything that PHP can't call.
 
 The callback checks below report an error where core throws, and a warning on `#value_callback`,
 where core skips the callback without a word. They read the callbacks written under those keys:
@@ -132,7 +132,7 @@ quiet.
 - a `service:method` string, since the container may hand back a decorator or a lazy proxy;
 - closures, first-class callables, variables and anything computed. A closure in a form is
   [`drupal/form-closure-callback`](#drupalform-closure-callback);
-- a class that Mago has not scanned, or one whose hierarchy it could not resolve;
+- a class not scanned by Mago, or one whose hierarchy couldn't be resolved;
 - the `form_submit` of a batch set. `_batch_next_set()` checks it with a plain `is_callable()`
   before it resolves it, so a `'::method'` or a `'Class::method'` that names an instance method is
   skipped there without a word;
@@ -150,12 +150,12 @@ plain function name under the render, date and component keys that is written in
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `RenderCallbackRule` (partly)
 
-A callback that names a method or a function that does not exist throws when core runs it, or is
+A callback that names a method or a function that doesn't exist throws when core runs it, or is
 skipped without a word on `#value_callback`.
 
 **Reports:**
 
-- a callback that names a method its class does not have. A method from a parent or a trait counts,
+- a callback that names a method its class doesn't have. A method from a parent or a trait counts,
   and a class with `__call()` or `__callStatic()` has every method;
 - a `'::method'` on a form key, written in a class that implements `FormInterface`, when that class
   has no such method. The form object is the class that the callback is written in;
@@ -170,11 +170,11 @@ skipped without a word on `#value_callback`.
 **Not reported:**
 
 - a `'::method'` on a form key in a trait, a hook implementation, a form alter or any other class
-  that does not implement `FormInterface`. The form object is some other class there;
+  that doesn't implement `FormInterface`. The form object is some other class there;
 - a plain function name on the render, date and component keys. `doTrustedCallback()` rejects every
   one of them, and [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
   reports those written in an array literal, such as `'#pre_render' => ['my_function']`. One
-  appended or assigned to such a key is not reported;
+  appended or assigned to such a key isn't reported;
 - a function named after another module, since that module may not be in the run. That includes a
   module whose longer name also starts the function's name, such as `foo_bar_submit()` written in
   `foo` while a `foo_bar` module exists;
@@ -208,7 +208,7 @@ skipped without a word on `#value_callback`.
 
     - phpstan-drupal checks only the six render keys `#pre_render`, `#post_render`,
       `#access_callback`, `#lazy_builder`, `#date_date_callbacks` and `#date_time_callbacks`. It
-      does not check the form keys, `#value_callback`, `exists`, `#file_value_callbacks` or the
+      doesn't check the form keys, `#value_callback`, `exists`, `#file_value_callbacks` or the
       component keys.
     - phpstan-drupal reads a callback only from an array literal, not from an assignment, an append,
       `array_unshift()`, `array_push()` or `array_merge()`.
@@ -277,10 +277,10 @@ skipped on `#value_callback`.
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal's render callback rule reports such an array, since PHPStan does not find a
-    static call to an instance method callable. It reads only the six render keys `#pre_render`,
+    phpstan-drupal's render callback rule reports such an array, since PHPStan doesn't find a static
+    call to an instance method callable. It reads only the six render keys `#pre_render`,
     `#post_render`, `#access_callback`, `#lazy_builder`, `#date_date_callbacks` and
-    `#date_time_callbacks`, and only array literals. It does not check the form keys, the component
+    `#date_time_callbacks`, and only array literals. It doesn't check the form keys, the component
     keys, `exists`, `#file_value_callbacks` or `#value_callback`.
 
 ---
@@ -368,9 +368,9 @@ is skipped on `#value_callback`.
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not report it. Its render callback rule reports a callback that PHPStan does
-    not find callable, and PHPStan finds a protected or private method callable, from inside the
-    class and from outside it.
+    phpstan-drupal doesn't report it. Its render callback rule reports a callback not found callable
+    by PHPStan, and PHPStan finds a protected or private method callable, from inside the class and
+    from outside it.
 
 ---
 
@@ -380,29 +380,29 @@ is skipped on `#value_callback`.
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `RenderCallbackRule`, the part that needs the class
 
-phpstan-drupal reports a [render callback](https://www.drupal.org/node/2966725) that core does not
-trust. Core's `doTrustedCallback()` throws an `UntrustedCallbackException` for it. Core trusts a
-method when:
+phpstan-drupal reports a [render callback](https://www.drupal.org/node/2966725) not trusted by core.
+Core's `doTrustedCallback()` throws an `UntrustedCallbackException` for it. Core trusts a method
+when:
 
 - the class implements the extra interface that the caller passes: `RenderCallbackInterface` for
   the renderer's keys, and none for the date and component keys;
 - the class implements `TrustedCallbackInterface`, and its `trustedCallbacks()` lists the method;
 - the method has the `#[TrustedCallback]` attribute. Core reads the attribute by reflection off the
-  method that the class has, so an override that does not repeat it is not trusted, see
+  method that the class has, so an override that doesn't repeat it isn't trusted, see
   [`drupal/trusted-callback-override`](#drupaltrusted-callback-override).
 
 The check reads `trustedCallbacks()` from its body. It understands `return` with a list of string
 literals, `parent::trustedCallbacks()` or an `array_merge()` of those, and a variable set to one of
 them, grown with `$callbacks[] = 'name'` and returned. Any other body counts as trusting every
-method, since its result cannot be known without running it. Core compares the names in the list
+method, since its result can't be known without running it. Core compares the names in the list
 case-sensitively, and so does the check.
 
 **Reports:**
 
-- a callback under a render, date or component key that names a class method that core does not
-  trust. The render keys are `#pre_render`, `#post_render`, `#lazy_builder` and `#access_callback`,
-  the date keys `#date_date_callbacks` and `#date_time_callbacks`, and the component keys
-  `#propsAlter` and `#slotsAlter`.
+- a callback under a render, date or component key that names a class method not trusted by core.
+  The render keys are `#pre_render`, `#post_render`, `#lazy_builder` and `#access_callback`, the
+  date keys `#date_date_callbacks` and `#date_time_callbacks`, and the component keys `#propsAlter`
+  and `#slotsAlter`.
 
 **Not reported:**
 
@@ -456,7 +456,7 @@ case-sensitively, and so does the check.
       whatever its `trustedCallbacks()` lists. The check reads the list.
     - phpstan-drupal trusts a class that implements `RenderCallbackInterface` on the date keys too,
       where core trusts no extra interface.
-    - phpstan-drupal does not check the component keys `#propsAlter` and `#slotsAlter`.
+    - phpstan-drupal doesn't check the component keys `#propsAlter` and `#slotsAlter`.
     - phpstan-drupal reads a callback only from an array literal, not from an assignment, an append,
       `array_unshift()`, `array_push()` or `array_merge()`.
     - phpstan-drupal resolves a `service:method` string through the service map and checks the
@@ -472,7 +472,7 @@ case-sensitively, and so does the check.
 - **Ports:** phpstan-drupal's `RenderCallbackRule`, the closure check
 
 phpstan-drupal reports a closure under a render callback key in a form. Drupal serializes a form
-that it caches between requests, as for an AJAX rebuild, and PHP cannot serialize a closure.
+cached between requests, as for an AJAX rebuild, and PHP can't serialize a closure.
 
 **Reports:**
 
@@ -567,21 +567,21 @@ that it caches between requests, as for an AJAX rebuild, and PHP cannot serializ
 - **Level:** warning
 - **Source:** Drupal's [`#[TrustedCallback]`](https://www.drupal.org/node/3349470) attribute
 
-PHP does not inherit attributes, and core reads `#[TrustedCallback]` by reflection off the method
+PHP doesn't inherit attributes, and core reads `#[TrustedCallback]` by reflection off the method
 that the class has. So a method that overrides a trusted callback without repeating the attribute
-is not trusted as a render callback.
+isn't trusted as a render callback.
 
 **Reports:**
 
 - a method that overrides one with `#[TrustedCallback]`, declared in a parent class or in a
-  trait that a parent uses, when the override does not repeat the attribute. The report is a
-  warning, since the method may never be a callback on the subclass.
+  trait that a parent uses, when the override doesn't repeat the attribute. The report is a warning,
+  since the method may never be a callback on the subclass.
 
 **Not reported:**
 
 - a class that implements `RenderCallbackInterface`, which trusts all its methods as render
   callbacks;
-- a class whose `trustedCallbacks()` lists the method, or cannot be read.
+- a class whose `trustedCallbacks()` lists the method, or can't be read.
 
 The classes and traits that declare a method with the attribute are read from the PHP files under
 the Drupal root before the analysis starts, as the `@internal` classes are. The descendants of those
@@ -633,7 +633,7 @@ classes are checked, and for a trait, the descendants of the classes that use it
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not check overrides of a trusted callback.
+    phpstan-drupal doesn't check overrides of a trusted callback.
 
 ---
 
@@ -643,23 +643,23 @@ classes are checked, and for a trait, the descendants of the classes that use it
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `CacheableDependencyRule`
 
-phpstan-drupal reports a cacheable dependency that cannot have cacheability. Core treats a
-dependency that does not implement `CacheableDependencyInterface` as uncacheable, so the object that
-it is added to drops to max-age 0.
+phpstan-drupal reports a cacheable dependency that can't have cacheability. Core treats a dependency
+that doesn't implement `CacheableDependencyInterface` as uncacheable, so the object that it is added
+to drops to max-age 0.
 
 **Reports:**
 
 - an `addCacheableDependency()` call whose dependency is a scalar, an array, null, or a final class
-  that does not implement `CacheableDependencyInterface`. The calls checked are those on a
+  that doesn't implement `CacheableDependencyInterface`. The calls checked are those on a
   `RefinableCacheableDependencyInterface`, a `CacheableResponseInterface` or a `ContextInterface`,
   which take the dependency first, and on a `RendererInterface`, which takes it second, as
   `$dependency`.
 
 **Not reported:**
 
-- a dependency typed as `mixed`, a bare `object`, an interface, a class that Mago has not scanned,
-  or a class that can be extended. The value passed may be a subclass that implements the interface,
-  as core's `CacheableHttpException` does.
+- a dependency typed as `mixed`, a bare `object`, an interface, a class not scanned by Mago, or a
+  class that can be extended. The value passed may be a subclass that implements the interface, as
+  core's `CacheableHttpException` does.
 
 ??? example "Example"
 

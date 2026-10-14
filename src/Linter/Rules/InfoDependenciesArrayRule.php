@@ -26,7 +26,7 @@ final class InfoDependenciesArrayRule implements Rule
         return new RuleDefinition(
             code: 'drupal/info-dependencies-array',
             name: 'Info file dependencies list',
-            description: 'Reports a dependencies key of an .info.yml file that is not a list.',
+            description: "Reports a dependencies key of an .info.yml file that isn't a list.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],

@@ -1,8 +1,7 @@
 # Config
 
 The analyzer types config objects, and the values read from them by their config schema. The checks
-report config names that no schema describes, and keys that a fully validatable schema does not
-list.
+report config names that no schema describes, and keys that a fully validatable schema doesn't list.
 
 ## Config objects
 
@@ -49,8 +48,8 @@ The schema types map to PHP types:
 - `array<int|string, T>`, for a sequence;
 - an array shape, for a mapping. The shape lists every key of the mapping. A key is required unless
   it says `requiredKey: false` or is marked `deprecated:`, and `nullable: true` adds `null` to its
-  type. Drupal rejects the keys that a fully validatable mapping does not list, so the shape holds
-  no others. A mapping that lists no keys is `array<string, mixed>`.
+  type. Drupal rejects the keys that a fully validatable mapping doesn't list, so the shape holds no
+  others. A mapping that lists no keys is `array<string, mixed>`.
 
 A key passed to `get()` can always be absent, so `null` stays in its type. `get()` with no key gives
 the shape of the whole object.
@@ -68,7 +67,7 @@ $storage->read('core.extension');
 ```
 
 A storage for another collection, such as a language override, holds only part of the object. The
-shape does not show that.
+shape doesn't show that.
 
 ---
 
@@ -78,22 +77,22 @@ shape does not show that.
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `ConfigGetUnknownKeyRule`
 
-phpstan-drupal reports a config key that the schema does not list. A fully validatable schema lists
-every key, so a key that it does not list is a mistake.
+phpstan-drupal reports a config key that the schema doesn't list. A fully validatable schema lists
+every key, so a key that it doesn't list is a mistake.
 
 **Reports:**
 
 - a `get('key')` call on a config object with a known name, for a key that the fully validatable
-  schema of that config does not list. A nested key, such as `threshold.requirements_warning`, is
+  schema of that config doesn't list. A nested key, such as `threshold.requirements_warning`, is
   checked part by part.
 
 **Not reported:**
 
-- a config whose schema is not fully validatable;
-- a config object whose name is not a literal;
-- a key that is not one literal string;
-- a key that the schema cannot rule out: one below a `type:` with a placeholder, below a type that
-  the schema does not spell out, or the part of a key that indexes a sequence;
+- a config whose schema isn't fully validatable;
+- a config object whose name isn't a literal;
+- a key that isn't one literal string;
+- a key that the schema can't rule out: one below a `type:` with a placeholder, below a type that
+  the schema doesn't spell out, or the part of a key that indexes a sequence;
 - update code (`.install` and `.post_update.php` files), which reads the keys that an older version
   of the module wrote.
 
@@ -126,8 +125,8 @@ every key, so a key that it does not list is a mistake.
 
     - phpstan-drupal reads the config name only when `get()` is called on the result of the loader
       call itself, as in `\Drupal::config('name')->get('key')`. A config object kept in a variable
-      is not checked there. The check follows the tagged object.
-    - phpstan-drupal does not check the `config()` method of a controller or of a plain form.
+      isn't checked there. The check follows the tagged object.
+    - phpstan-drupal doesn't check the `config()` method of a controller or of a plain form.
     - phpstan-drupal also checks a key that is one of several literals, and it checks update code.
 
 ---
@@ -137,7 +136,7 @@ every key, so a key that it does not list is a mistake.
 - **Level:** warning
 - **Source:** Drupal's config schema
 
-Drupal hands back an empty config object for a name that it does not have, with no warning. Config
+Drupal hands back an empty config object for a name that doesn't exist, with no warning. Config
 without a schema also fails Drupal's strict schema checks in tests.
 
 **Reports:**
@@ -149,9 +148,9 @@ without a schema also fails Drupal's strict schema checks in tests.
 
 **Not reported:**
 
-- a name whose first part is not `core` and names no module in the codebase. A module that reads
-  the config of an optional module cannot expect its schema;
-- any name while core's own schema is not in the index;
+- a name whose first part isn't `core` and names no module in the codebase. A module that reads the
+  config of an optional module can't expect its schema;
+- any name while core's own schema isn't in the index;
 - update code (`.install` and `.post_update.php` files);
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
 
@@ -180,4 +179,4 @@ without a schema also fails Drupal's strict schema checks in tests.
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not check config names.
+    phpstan-drupal doesn't check config names.

@@ -35,7 +35,7 @@ final class DefineNameRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/define-name',
             name: 'Define name',
-            description: 'Reports define() constants whose name is not upper case.',
+            description: "Reports define() constants whose name isn't upper case.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],

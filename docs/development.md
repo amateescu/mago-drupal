@@ -14,8 +14,8 @@ just check-all
 runs `test-corpus`, `test-fixes` and `test-examples`.
 
 - `test-corpus` starts a real worker over `tests/corpus/src/` and fails if an `@mago-expect`
-  annotation is not fulfilled. `tests/corpus/expected-rules.txt` pins the registered rule codes.
-  Add your code there when you add a rule.
+  annotation isn't fulfilled. `tests/corpus/expected-rules.txt` pins the registered rule codes. Add
+  your code there when you add a rule.
 - `test-fixes` runs every rule's fix over the before and after pairs in `tests/fixes/`.
 - `test-examples` checks the examples in the rule and analyzer docs, see [Rule entries](#rule-entries)
   and [Analyzer entries](#analyzer-entries).
@@ -24,7 +24,7 @@ Set `MAGO=/path/to/mago` to run the checks against a different build.
 
 ## Rule codes
 
-Rule codes are stable. Projects that we do not control write them into baselines and into
+Rule codes are stable. Projects that we don't control write them into baselines and into
 `// @mago-expect lint:<code>` comments. For that reason, the codes get no vendor prefix and no new
 name.
 
@@ -33,7 +33,7 @@ name.
 The docs are Markdown files in `docs/`, built into a site with [Zensical](https://zensical.org/)
 from `zensical.toml`. `just docs` serves the site on http://127.0.0.1:8000 with live reload, and
 `just docs-build` builds it into `site/` and fails on a broken link or anchor. Both install the
-Zensical version that the `Justfile` pins into `.venv`.
+Zensical version pinned by the `Justfile` into `.venv`.
 
 The tables of the [rules index](rules/index.md) and of the [Coming from Coder](coder/index.md) pages
 are generated, between `<!-- docs-gen -->` markers. They come from the registered rules and from
@@ -41,26 +41,26 @@ are generated, between `<!-- docs-gen -->` markers. They come from the registere
 rewrites them. `DocsTest` fails when they are out of date, when a rule has no entry on a rule page,
 and when an entry's level, `--core` line or Ports codes differ from the rule and the map.
 
-When you add a rule, add its entry to the page of its group, mark the Coder codes that it ports
-with `ext:drupal/<code>` in the map, and run `just docs-gen`.
+When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
+rule with `ext:drupal/<code>` in the map, and run `just docs-gen`.
 
 ## Rule entries
 
 A `---` line above each entry's heading separates it from the entry before, and `DocsTest` checks
-it. An entry starts with its facts, which `DocsTest` also checks:
+it. An entry starts with its facts, which are also checked by `DocsTest`:
 
 - the level;
 - what the fix does;
-- a Standard line that links the sections of Drupal's coding standards that the rule checks, or a
+- a Standard line that links the sections of Drupal's coding standards checked by the rule, or a
   Source line that names where the check comes from;
-- the Coder codes that it ports.
+- the Coder codes ported by the rule.
 
 Then come:
 
 - for a rule with a Standard line, the standard's own sentence, quoted, so its "must" or "should"
   stays as written;
 - a **Reports:** list, and a **Not reported:** list when the rule skips cases;
-- an example, when it shows something that the text cannot;
+- an example, when it shows something that the text can't;
 - the differences from Coder, in a collapsed `??? note "Compared with Coder"` block.
 
 How to show an example:
@@ -86,8 +86,8 @@ it under that path. A YAML example needs one, such as `title="example.info.yml"`
 
 An analyzer page under `docs/analyzer/` starts with the types for its topic, then has an entry for
 each check, in the same form as a rule entry. The facts are the level, a Source line that names
-where the check comes from, the phpstan-drupal rules that it ports, and whether `--core` turns it
-off. A check has no fix, so there is no Fix line. A Level line with two levels names the case for
+where the check comes from, the phpstan-drupal rules ported by the check, and whether `--core` turns
+it off. A check has no fix, so there is no Fix line. A Level line with two levels names the case for
 the second, as in "error, or warning for extra arguments". Then come a **Reports:** list, a
 **Not reported:** list, an example, and the differences from phpstan-drupal in a collapsed
 `??? note "Compared with phpstan-drupal"` block. `AnalyzerDocsTest` checks that every check the
@@ -95,7 +95,7 @@ corpus pins has one entry, with its facts, and `just docs-gen` builds the table 
 analyzer index from the entries.
 
 An analyzer example can hold several code blocks, since a check often needs a services file or a
-class next to the code it reports. A block with a `// Fine.` line, or `# Fine.` in YAML, splits into
+class next to the reported code. A block with a `// Fine.` line, or `# Fine.` in YAML, splits into
 the reported and the fine half, and a block without one belongs to both halves. `just test-examples`
 analyzes each half on its own, with the corpus's stand-ins for core: the reported half must get an
 issue from the entry's check, at a level that the Level line names, and the fine half none. A block

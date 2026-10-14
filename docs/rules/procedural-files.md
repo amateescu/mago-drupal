@@ -19,13 +19,13 @@ before the first dot. All of them report only in `.module` and `.install` files,
 
 **Reports:**
 
-- a `const` constant at the top level of the file, or after `namespace Foo;`, whose name does not
+- a `const` constant at the top level of the file, or after `namespace Foo;`, whose name doesn't
   start with the upper-case module name and an underscore. When one statement declares several
   constants, the rule checks the first.
 
 **Not reported:**
 
-- a `const` inside a braced `namespace Foo { }`. That skip does not apply to `define()`.
+- a `const` inside a braced `namespace Foo { }`. That skip doesn't apply to `define()`.
 
 The check is the one of `drupal/constant-prefix`.
 
@@ -58,8 +58,8 @@ The check is the one of `drupal/constant-prefix`.
 
 **Reports:**
 
-- a `define()` constant whose name does not start with the upper-case module name and an
-  underscore. For a name built with `.`, the rule checks the first string literal.
+- a `define()` constant whose name doesn't start with the upper-case module name and an underscore.
+  For a name built with `.`, the rule checks the first string literal.
 
 **Not reported:**
 
@@ -86,7 +86,7 @@ The constants of every module share one global namespace, and the prefix keeps t
     - The rule also reports `\define()`, and a `define()` with a comment before its first argument.
       Coder skips both.
     - In a name built with `.`, a first literal that is the start of the prefix, as in
-      `'MY' . 'MODULE_X'` in `mymodule.module`, is not reported, because the rest of the name can
+      `'MY' . 'MODULE_X'` in `mymodule.module`, isn't reported, because the rest of the name can
       complete the prefix. Coder reports it.
 
 ---
@@ -119,7 +119,7 @@ Coder asks not to keep an empty `hook_install()` or `hook_uninstall()`.
 
 **Reports:**
 
-- a function in a `.module` file whose name does not start with the module name and an underscore,
+- a function in a `.module` file whose name doesn't start with the module name and an underscore,
   with an optional leading underscore.
 
 **Not reported:**
@@ -156,15 +156,15 @@ Coder asks not to keep an empty `hook_install()` or `hook_uninstall()`.
 
 **Reports:**
 
-- a variable in a `global` statement that does not start with an underscore. Only the first
+- a variable in a `global` statement that doesn't start with an underscore. Only the first
   underscore is checked, not the module name after it.
 
 **Not reported:**
 
-- the globals that Drupal core owns, such as `$base_url` and `$user`.
+- the globals owned by Drupal core, such as `$base_url` and `$user`.
 
-Unlike the other rules on this page, the rule checks every file that Mago reads, such as `.inc`
-files and class methods in `.php` files.
+Unlike the other rules on this page, the rule checks every file read by Mago, such as `.inc` files
+and class methods in `.php` files.
 
 ---
 

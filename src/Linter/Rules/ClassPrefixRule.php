@@ -36,7 +36,7 @@ final class ClassPrefixRule implements Rule
         return new RuleDefinition(
             code: 'drupal/class-prefix',
             name: 'Class prefix',
-            description: 'Reports a class or interface in the global namespace that does not start with the module name.',
+            description: "Reports a class or interface in the global namespace that doesn't start with the module name.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             // Program makes the Program pass read the target list. The other

@@ -14,17 +14,17 @@ only the syntax.
     - `Drupal.Functions.DiscouragedFunctions.Discouraged`
     - phpstan-drupal's `DiscouragedFunctionsRule`
 
-Coder and phpstan-drupal report calls to debug helpers and to functions that are not always
+Coder and phpstan-drupal report calls to debug helpers and to functions that aren't always
 available.
 
 **Reports:**
 
 - a call to a dump helper of the devel module, such as `dpm()`, `dsm()`, `ksm()` or `kint()`. The
-  devel helpers are the ones that Coder 9 lists. A first-class callable such as `dpm(...)` counts as
+  devel helpers are the ones listed by Coder 9. A first-class callable such as `dpm(...)` counts as
   a call;
-- a call to `fnmatch()`, which some PHP builds do not have.
+- a call to `fnmatch()`, which some PHP builds don't have.
 
-Coder 9 also lists `eval`, which Mago's own `no-eval` rule reports.
+Coder 9 also lists `eval`, which is reported by Mago's own `no-eval` rule.
 
 ---
 
@@ -35,8 +35,8 @@ Coder 9 also lists `eval`, which Mago's own `no-eval` rule reports.
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `RenderCallbackRule`, the part that needs only the syntax
 
-phpstan-drupal reports a [render callback](https://www.drupal.org/node/2966725) that Drupal does not
-trust. Drupal trusts only closures, `service:method` strings and class methods.
+phpstan-drupal reports a [render callback](https://www.drupal.org/node/2966725) not trusted by
+Drupal. Drupal trusts only closures, `service:method` strings and class methods.
 
 **Reports:**
 
@@ -44,7 +44,7 @@ trust. Drupal trusts only closures, `service:method` strings and class methods.
     - `#pre_render`, `#post_render`, `#lazy_builder` and `#access_callback`;
     - the date callbacks `#date_date_callbacks` and `#date_time_callbacks`;
     - the component callbacks `#propsAlter` and `#slotsAlter`;
-- a value of those keys that is not an array literal at all, such as `'#pre_render' => $callbacks`,
+- a value of those keys that isn't an array literal at all, such as `'#pre_render' => $callbacks`,
   because nothing can be checked there.
 
 **Not reported:**
@@ -123,8 +123,8 @@ request. A merge request should resolve its own to-dos rather than land them.
 
 **Not reported:**
 
-- anything outside a GitLab merge request pipeline. The issue number comes from the variables that
-  GitLab CI sets there: the digits at the start of `CI_MERGE_REQUEST_SOURCE_BRANCH_NAME`, as in
+- anything outside a GitLab merge request pipeline. The issue number comes from the variables set by
+  GitLab CI there: the digits at the start of `CI_MERGE_REQUEST_SOURCE_BRANCH_NAME`, as in
   `3456789-fix-thing`, or at the end of `CI_MERGE_REQUEST_SOURCE_PROJECT_PATH`, as in
   `issue/mymodule-3456789`. Without them, the rule has nothing to compare, so it is on by default,
   where phpstan-drupal's rule has to be added by hand.

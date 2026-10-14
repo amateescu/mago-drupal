@@ -45,7 +45,7 @@ final class FormAlterCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/form-alter-comment',
             name: 'Form alter comment',
-            description: 'Reports a function documented as hook_form_alter() that is not named after the module.',
+            description: "Reports a function documented as hook_form_alter() that isn't named after the module.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Function, NodeKind::Method],

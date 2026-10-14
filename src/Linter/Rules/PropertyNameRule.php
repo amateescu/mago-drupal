@@ -48,7 +48,7 @@ final class PropertyNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/property-name',
             name: 'Property name',
-            description: 'Reports class properties that do not use lowerCamelCase.',
+            description: "Reports class properties that don't use lowerCamelCase.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // Program gives the walk up from each property a parent chain.

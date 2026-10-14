@@ -2,7 +2,7 @@
 
 Rules for the names of classes, constants, functions, methods and properties, and for `use`
 statements. Mago's own naming rules cover the rest, see
-[Setup](../setup.md#configure-mago-for-drupal).
+[Configuration](../setup/configuration.md).
 
 ---
 
@@ -20,7 +20,7 @@ statements. Mago's own naming rules cover the rest, see
 
 - a class, interface, trait or enum name that starts with three upper-case letters and has no
   lower-case letter after them, such as `HTTP` or `URL_2`. Digits, underscores and multi-byte
-  letters do not count as lower case.
+  letters don't count as lower case.
 
 **Not reported:**
 
@@ -45,7 +45,7 @@ statements. Mago's own naming rules cover the rest, see
 
 **Reports:**
 
-- a `define()` constant name that is not upper case. The rule reads the first argument, a string
+- a `define()` constant name that isn't upper case. The rule reads the first argument, a string
   literal or literals joined with `.`, and checks the part after the last backslash. Only ASCII
   letters count. It reports in every scanned file type and at any depth.
 
@@ -79,7 +79,7 @@ Mago's `constant-name` covers `const`, the other half of the sniff.
 
 **Reports:**
 
-- an enum case name that does not start with a capital letter;
+- an enum case name that doesn't start with a capital letter;
 - an enum case name that holds an underscore;
 - an enum case name that starts with three upper-case letters and has no lower-case letter after
   them, the check of `drupal/class-name-acronym`.
@@ -159,7 +159,7 @@ name, or a docblock that writes the short name in the same case.
       the call then reaches the global function.
     - The rule skips the names in a `use` group. Coder reports the member, and its fix changes the
       statement.
-    - A name in the conflict block of a trait `use` is not reported. Coder reports it.
+    - A name in the conflict block of a trait `use` isn't reported. Coder reports it.
     - In a file with no namespace, the fix never puts an import in the clause of a closure. Coder's
       fix does when a closure holds the first `use` of the file.
     - There is no fix when the short name is taken by an interface, a trait, an enum, an import that
@@ -182,7 +182,7 @@ name, or a docblock that writes the short name in the same case.
 
 **Reports:**
 
-- a function whose name is not lower case, such as `mymoduleHelper()` or `mymodule_Helper()`. The
+- a function whose name isn't lower case, such as `mymoduleHelper()` or `mymodule_Helper()`. The
   rule checks every function outside a class, interface, trait or enum, in every file.
 
 **Not reported:**
@@ -192,8 +192,8 @@ name, or a docblock that writes the short name in the same case.
   with names such as `hook_ENTITY_TYPE_insert()`;
 - methods, which are left to Mago's `method-name`.
 
-Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which Coder
-accepts. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
+Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which is accepted
+by Coder. The [configuration](../setup/configuration.md) turns it off.
 
 ---
 
@@ -202,7 +202,7 @@ accepts. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
 - **Level:** error
 - **Fix:** safe. It adds the backslash.
 - **Standard:** ["use"-ing classes](https://project.pages.drupalcode.org/coding_standards/php/namespaces/#use-ing-classes)
-- **Ports:** none. Coder has no such sniff.
+- **Ports:** none. No such sniff exists in Coder.
 - **Off with `--core`**
 
 > Classes and interfaces without a backslash `\` inside their fully-qualified name (for example, the
@@ -218,12 +218,12 @@ accepts. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
 **Not reported:**
 
 - a name that a `use` statement imports;
-- `self`, `static`, `parent` and the built-in types, which are not class names;
+- `self`, `static`, `parent` and the built-in types, which aren't class names;
 - an `.api.php` file. Its examples leave out the imports, so a short name there, such as `Url`,
   stands for a namespaced class.
 
-In a file with no namespace both forms name the same class, so the fix does not change what the
-code does.
+In a file with no namespace both forms name the same class, so the fix doesn't change what the code
+does.
 
 Mago's `no-fully-qualified-global-class-like`, off by default, asks for the opposite.
 
@@ -244,7 +244,7 @@ holds the hook name without the prefix, so a name with it is never invoked.
 
 - a `Drupal\Core\Hook\Attribute\Hook` attribute whose first argument, positional or `hook:`, is a
   hook name that starts with `hook_`. The rule resolves the attribute name, so an alias or a fully
-  qualified name counts, and a bare `Hook` that is not imported from Drupal's class does not. Every
+  qualified name counts, and a bare `Hook` that isn't imported from Drupal's class doesn't. Every
   attribute of a group is checked. A hook name built from literals joined with `.` is checked as a
   whole.
 
@@ -305,7 +305,7 @@ holds the hook name without the prefix, so a name with it is never invoked.
 **Reports:**
 
 - a method name that starts with one underscore to mark it private;
-- a method name that starts with two underscores and is not a PHP magic method or a `SoapClient`
+- a method name that starts with two underscores and isn't a PHP magic method or a `SoapClient`
   method.
 
 **Not reported:**
@@ -338,7 +338,7 @@ that starts with two underscores, so no other rule repeats this check.
 
 **Reports:**
 
-- a class property whose name does not start with a lower-case letter or holds an underscore.
+- a class property whose name doesn't start with a lower-case letter or holds an underscore.
 
 **Not reported:**
 
@@ -349,7 +349,7 @@ that starts with two underscores, so no other rule repeats this check.
   these classes.
 
 The names are compared as written, so `\Drupal\Core\Config\Entity\ConfigEntityBase` counts, while
-an alias of `Plugin` or `\Drupal\Component\Annotation\Plugin` does not. Only the first parent of an
+an alias of `Plugin` or `\Drupal\Component\Annotation\Plugin` doesn't. Only the first parent of an
 interface counts. The rule reads the outermost class around the property, and only when that class
 is at the top level of the file. An anonymous class in a method follows the class around it, and a
 class declared inside an `if` or a function is checked.
@@ -424,7 +424,7 @@ names the class in the same case without a leading backslash, in a type, an anno
     - Coder reports `use const` and grouped imports, and phpcbf breaks the code there: it writes
       `\const` for a constant import and the group prefix for a grouped name.
     - Coder's sniff skips an import with a leading backslash, such as `use \DateTime;`. Coder
-      reports that line only for the backslash, which `drupal/use-leading-backslash` covers.
+      reports that line only for the backslash, which is covered by `drupal/use-leading-backslash`.
 
 ---
 
@@ -440,7 +440,7 @@ names the class in the same case without a leading backslash, in a type, an anno
 **Reports:**
 
 - a concrete class in a PHPUnit test directory whose parent's name ends in `Test`, `TestBase` or
-  `TestCase`, and whose own name does not end in `Test`. PHPUnit runs only the files named
+  `TestCase`, and whose own name doesn't end in `Test`. PHPUnit runs only the files named
   `*Test.php`, and so do `phpunit -c core` and run-tests.sh, so such a test never runs.
 
 **Not reported:**
@@ -488,11 +488,11 @@ module's `tests/src`, and `Tests`, `KernelTests`, `FunctionalTests`, `Functional
 
 - an import whose first name starts with a backslash, as in `use \Drupal\node\Entity\Node;`. The
   rule reads the name after `use`, `use function` or `use const`, in any letter case, or the prefix
-  of a group, and a comment before the name does not hide it.
+  of a group, and a comment before the name doesn't hide it.
 
 **Not reported:**
 
-- a later name of the statement, so `use A, \B;` is not reported. `mago format` writes each name on
+- a later name of the statement, so `use A, \B;` isn't reported. `mago format` writes each name on
   its own `use` statement, and then every name is checked.
 
 A `use` statement always names a class, function or constant from the root, so the backslash adds
@@ -500,5 +500,5 @@ nothing.
 
 ??? note "Compared with Coder"
 
-    - Coder reads `function` and `const` only in lower case, so it does not report
+    - Coder reads `function` and `const` only in lower case, so it doesn't report
       `use FUNCTION \foo;`. The rule reads the keyword in any case, as PHP does.

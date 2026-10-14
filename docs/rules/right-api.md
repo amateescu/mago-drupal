@@ -1,6 +1,6 @@
 # Using the right API
 
-Rules for calls that have a Drupal API in their place, and for the strings that Drupal's tools read
+Rules for calls that have a Drupal API in their place, and for the strings read by Drupal's tools
 from the source.
 
 ---
@@ -34,14 +34,14 @@ such as `-beta1`. The change-record link is a `drupal.org/node`, a `drupal.org/p
   `$this->message`.
 
 The rule checks the text that the message is built from. A `sprintf()` call gives its format
-string. Otherwise an interpolated string keeps its variables, and a part that is not a string, such
+string. Otherwise an interpolated string keeps its variables, and a part that isn't a string, such
 as `__CLASS__` or `static::class`, keeps its source text. So `__CLASS__ . ' is deprecated in ...'`
 and `"$name is deprecated in ..."` have a `%thing%`.
 
 For a notice at the top of a file, the rule reads the next docblock at file level. For a notice in
 a function or method, it reads the docblock of that declaration, above or below its attributes. A
 `@deprecated` tag at the start of a docblock line counts in any letter case. A mention of the tag
-inside the text does not.
+inside the text doesn't.
 
 ???+ example "Example"
 
@@ -98,7 +98,7 @@ inside the text does not.
 - **Ports:** `DrupalPractice.Objects.GlobalFunction.GlobalFunction`
 
 DrupalPractice asks a class to use a service or a trait method in place of a procedural wrapper. A
-test can replace an injected service, and it cannot replace a procedural call.
+test can replace an injected service, and it can't replace a procedural call.
 
 **Reports:**
 
@@ -167,14 +167,14 @@ when the config file is at the root of the workspace.
 - **Ports:** `Drupal.Semantics.FunctionT`: `ConcatString`, `NotLiteralString`
 
 Coder asks for a translatable string that is one plain literal. The string extractor reads the
-source and does not run it. The rule reads the strings of `t()`, `formatPlural()`,
+source and doesn't run it. The rule reads the strings of `t()`, `formatPlural()`,
 `new TranslatableMarkup()` and `new TranslationWrapper()`, and of the `t()` and `formatPlural()`
 methods.
 
 **Reports:**
 
-- a string that is not a literal, such as a variable, a constant, a heredoc or a double-quoted
-  string with a variable in it. A nowdoc counts as a literal and a heredoc does not.
+- a string that isn't a literal, such as a variable, a constant, a heredoc or a double-quoted string
+  with a variable in it. A nowdoc counts as a literal and a heredoc doesn't.
   [`drupal/translatable-string`](#drupaltranslatable-string) reports a string built with `.`;
 - a first-class callable such as `t(...)` or `$this->t(...)`, which hides the strings from the
   extractor;
@@ -200,12 +200,12 @@ methods.
 
 ??? note "Compared with Coder"
 
-    - It also reports a call that Coder does not see: a fully qualified `\t()` or
+    - It also reports a call not seen by Coder: a fully qualified `\t()` or
       `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a function or method call written
       in another letter case such as `T()` or `$this->T()`, and a call inside a string
       interpolation.
     - It checks the strings of `formatPlural()` for a non-literal, and a string joined after the
-      call, and reports `formatPlural(...)`. Coder does not read `formatPlural()`.
+      call, and reports `formatPlural(...)`. Coder doesn't read `formatPlural()`.
     - It reads the whole argument, so an argument that starts with a literal but is another
       expression, such as `'a' ?: 'b'`, `'a' ?? 'b'` or `'a'[0]`, is reported as not a literal.
       Coder reads only the first token and lets these through.
@@ -223,14 +223,14 @@ methods.
 - **Ports:** `Drupal.Semantics.FunctionT`: `BackslashDoubleQuote`, `BackslashSingleQuote`, `Concat`, `EmptyString`, `EmptyT`, `WhiteSpace`
 
 Coder asks for a translatable string that is one plain literal. The string extractor reads the
-source and does not run it. The rule reads the strings of `t()`, `formatPlural()`,
+source and doesn't run it. The rule reads the strings of `t()`, `formatPlural()`,
 `new TranslatableMarkup()` and `new TranslationWrapper()`, and of the `t()` and `formatPlural()`
 methods.
 
 **Reports:**
 
 - a string built with `.`. [`drupal/translatable-literal`](#drupaltranslatable-literal) reports
-  another string that is not a literal;
+  another string that isn't a literal;
 - a string padded with whitespace, and an empty one. For a string built with `.`, the padding of
   the first literal is reported too;
 - a call with no arguments, such as `t()`;
@@ -258,22 +258,22 @@ without `'`.
 
 ??? note "Compared with Coder"
 
-    - Coder has no fix for an escaped quote. `mago format` also swaps the quotes of a double-quoted
-      string that escapes its own quote.
+    - A fix for an escaped quote doesn't exist in Coder. `mago format` also swaps the quotes of a
+      double-quoted string that escapes its own quote.
     - The rule reads the escapes in a string literal, where Coder looks for the two characters `\'`
       or `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so it holds no
-      escaped quote and is not reported.
+      escaped quote and isn't reported.
     - The whitespace check reads the value that PHP builds from the string. An escape such as `\n`
       or `\t` at either end of a double-quoted string counts as whitespace. Coder reads the two
-      characters as written and does not report it.
+      characters as written and doesn't report it.
     - A string built with `.` is reported here whatever its first part is. Coder reports one that
-      does not start with a literal, such as `t($prefix . 'name')`, as `NotLiteralString`.
-    - It also reports a call that Coder does not see: a fully qualified `\t()` or
+      doesn't start with a literal, such as `t($prefix . 'name')`, as `NotLiteralString`.
+    - It also reports a call not seen by Coder: a fully qualified `\t()` or
       `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a function or method call written
       in another letter case such as `T()` or `$this->T()`, and a call inside a string
       interpolation.
-    - It checks the strings of `formatPlural()` for padding and an empty string. Coder does not
-      read `formatPlural()`.
+    - It checks the strings of `formatPlural()` for padding and an empty string. Coder doesn't read
+      `formatPlural()`.
 
 ---
 
@@ -284,7 +284,7 @@ without `'`.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.General.ExceptionT.ExceptionT`
 
-DrupalPractice asks for an exception message that does not go through `t()`. Developers read
+DrupalPractice asks for an exception message that doesn't go through `t()`. Developers read
 exception text in logs, and a translation hides the original text.
 
 **Reports:**
@@ -307,7 +307,7 @@ exception text in logs, and a translation hides the original text.
 
 ??? note "Compared with Coder"
 
-    - The rule also reports `\t()` and `T()`, which Coder does not.
+    - The rule also reports `\t()` and `T()`, which aren't reported by Coder.
     - Coder reports a `t()` that a `use function` import points at another function.
 
 ---
@@ -328,7 +328,7 @@ handler turns an unsilenced notice into a test failure in every test that runs t
 
 ??? note "Compared with Coder"
 
-    - The rule also reports calls that Coder's token matching misses: `\trigger_error()`, a call
-      with a named level argument, a function name with capitals such as `TRIGGER_ERROR()`, and a
-      call inside an interpolated string or heredoc.
+    - The rule also reports calls missed by Coder's token matching: `\trigger_error()`, a call with
+      a named level argument, a function name with capitals such as `TRIGGER_ERROR()`, and a call
+      inside an interpolated string or heredoc.
     - For `@ trigger_error()`, the fix closes the gap after the `@`. phpcbf adds a second `@`.

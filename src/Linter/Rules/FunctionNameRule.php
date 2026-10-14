@@ -32,7 +32,7 @@ final class FunctionNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/function-name',
             name: 'Function name',
-            description: 'Reports functions whose name is not lower case.',
+            description: "Reports functions whose name isn't lower case.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // The Program pass reads the functions from the target list. Only

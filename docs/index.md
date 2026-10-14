@@ -6,9 +6,9 @@ linter, and teaches the Mago analyzer what Drupal's services, entities, config a
 back. Together with `mago format` and Mago's own rules, it replaces phpcs and Coder for the PHP
 files of a Drupal project.
 
-- **Linter rules** check the parts of the standards that Mago's own rules cannot. They port the
-  checks of Coder's `Drupal` and `DrupalPractice` standards that need to know about Drupal, add a
-  few that only the written standards ask for, and port a few checks of phpstan-drupal. See
+- **Linter rules** check the parts of the standards that can't be checked by Mago's own rules. They
+  port the checks of Coder's `Drupal` and `DrupalPractice` standards that need to know about Drupal,
+  add a few asked for only in the written standards, and port a few checks of phpstan-drupal. See
   [Linter rules](rules/index.md).
 - **Analyzer plugins** give `mago analyze` the types of Drupal's services, entities, config and
   plugins, and port phpstan-drupal's Drupal-specific checks. See [Analyzer](analyzer/index.md).
@@ -47,5 +47,13 @@ vendor/bin/mago lint
 vendor/bin/mago analyze
 ```
 
-[Setup](setup.md) has the rest: the formatter and analyzer excludes that `yml` needs, the
-configuration that matches Drupal's standard, the worker's arguments and the fix levels.
+The next pages have the rest: the [configuration](setup/configuration.md) that matches Drupal's
+standard, with the formatter and analyzer excludes that `yml` needs, the
+[worker's arguments](setup/worker-arguments.md) and the [fix levels](setup/fixes.md).
+
+## Acknowledgements
+
+This extension is based on [Coder](https://www.drupal.org/project/coder) and
+[phpstan-drupal](https://github.com/mglaman/phpstan-drupal). The checks of Coder's `Drupal` and
+`DrupalPractice` standards are ported to Mago's linter, and the types and rules of phpstan-drupal to
+Mago's analyzer.
