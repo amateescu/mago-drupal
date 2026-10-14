@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use function array_key_exists;
+use function array_keys;
 use function basename;
 use function file_get_contents;
 use function in_array;
+use function is_array;
 use function is_file;
 use function preg_match;
 use function preg_match_all;
@@ -95,27 +97,44 @@ final class FieldNames
     ) {}
 
     /**
-     * Reads the names off PHP source and the file names of field config.
+     * The names one PHP file defines a field with.
      *
-     * @param list<string> $sources
-     * @param list<string> $configs
+     * @return list<string>
      */
-    public static function fromFiles(array $sources, array $configs): self
+    public static function source(string $path): array
+    {
+        $contents = is_file($path) ? file_get_contents($path) : false;
+
+        return $contents === false ? [] : array_keys(self::read($contents, []));
+    }
+
+    /**
+     * The name of the field one field config file is for, from its name.
+     *
+     * @return list<string>
+     */
+    public static function config(string $path): array
+    {
+        $matches = [];
+
+        return preg_match(self::CONFIG_FILE, basename($path), $matches) === 1 ? [$matches['name']] : [];
+    }
+
+    /**
+     * The names of several files, from what source() or config() read in
+     * each, in file order.
+     *
+     * @param iterable<mixed> $read
+     */
+    public static function merge(iterable $read): self
     {
         $names = [];
-        foreach ($sources as $source) {
-            $contents = is_file($source) ? file_get_contents($source) : false;
-            if ($contents === false) {
-                continue;
-            }
-
-            $names = self::read($contents, $names);
-        }
-
-        foreach ($configs as $config) {
-            $matches = [];
-            if (preg_match(self::CONFIG_FILE, basename($config), $matches) === 1) {
-                $names[$matches['name']] = true;
+        /** @var mixed $one */
+        foreach ($read as $one) {
+            /** @var list<string> $found */
+            $found = is_array($one) ? $one : [];
+            foreach ($found as $name) {
+                $names[$name] = true;
             }
         }
 

@@ -7,6 +7,9 @@ namespace amateescu\MagoDrupal\Internal;
 use Closure;
 use Throwable;
 
+use function array_fill_keys;
+use function array_key_exists;
+use function array_keys;
 use function basename;
 use function file_get_contents;
 use function glob;
@@ -107,6 +110,14 @@ final class DrupalRoot
      * @var array<string, string>
      */
     private array $fingerprints = [];
+
+    /**
+     * The stamps of the files of the lists scanned so far, by a hash of the
+     * list.
+     *
+     * @var array<string, array<string, string|null>>
+     */
+    private array $stamps = [];
 
     /**
      * @var list<string>|null
@@ -307,7 +318,7 @@ final class DrupalRoot
      * disk through the cache, by file. Kept for the life of the root.
      *
      * @return array<string, array{string, AnnotatedDeclarations}> See
-     *   AnnotatedDeclarations::byFile().
+     *   AnnotatedDeclarations::merge().
      */
     public function annotatedFiles(): array
     {
@@ -324,10 +335,11 @@ final class DrupalRoot
             $files[] = $file;
         }
 
-        return $this->annotated = $this->cached(
+        return $this->annotated = $this->scanned(
             'annotated',
             $files,
-            static fn(): array => AnnotatedDeclarations::byFile($files),
+            AnnotatedDeclarations::file(...),
+            AnnotatedDeclarations::merge(...),
             [AnnotatedDeclarations::class, EntityTypeDefinition::class, EntityTypeKind::class],
         );
     }
@@ -341,11 +353,25 @@ final class DrupalRoot
     public function traitComposers(string $trait): TraitComposers
     {
         $files = $this->sourceFiles();
+        $kind = 'composers-' . strtolower($trait);
+        $cache = $this->cache;
 
         return $this->cached(
-            'composers-' . strtolower($trait),
+            $kind,
             $files,
-            static fn(): TraitComposers => TraitComposers::fromFiles($files, $trait),
+            function () use ($cache, $kind, $files, $trait): TraitComposers {
+                /** @var mixed $earlier */
+                $earlier = $cache?->get('scan-' . $kind, 'root', [TraitComposerScan::class, TraitComposers::class]);
+                $scan = TraitComposerScan::update(
+                    $earlier instanceof TraitComposerScan ? $earlier : null,
+                    $files,
+                    $this->stamps($files),
+                    $trait,
+                );
+                $cache?->set('scan-' . $kind, 'root', $scan);
+
+                return $scan->composers;
+            },
             [TraitComposers::class],
         );
     }
@@ -358,10 +384,11 @@ final class DrupalRoot
     {
         $files = $this->sourceFiles();
 
-        return $this->cached(
+        return $this->scanned(
             'trusted-callbacks',
             $files,
-            static fn(): TrustedCallbackClasses => TrustedCallbackClasses::fromFiles($files),
+            TrustedCallbackClasses::file(...),
+            TrustedCallbackClasses::merge(...),
             [TrustedCallbackClasses::class],
         );
     }
@@ -375,10 +402,11 @@ final class DrupalRoot
     {
         $files = $this->sourceFiles();
 
-        return $this->cached(
+        return $this->scanned(
             'deprecated',
             $files,
-            static fn(): DeprecatedSymbols => DeprecatedSymbolScan::files($files),
+            DeprecatedSymbolScan::file(...),
+            DeprecatedSymbolScan::merge(...),
             [DeprecatedSymbols::class],
         );
     }
@@ -404,12 +432,15 @@ final class DrupalRoot
             $sources[] = $file;
         }
 
-        $configs = $this->files()->fieldConfigs;
+        $configs = array_fill_keys($this->files()->fieldConfigs, value: true);
 
-        return $this->fieldNames = $this->cached(
+        return $this->fieldNames = $this->scanned(
             'field-names',
-            [...$sources, ...$configs],
-            static fn(): FieldNames => FieldNames::fromFiles($sources, $configs),
+            [...$sources, ...array_keys($configs)],
+            static fn(string $path): array => array_key_exists($path, $configs)
+                ? FieldNames::config($path)
+                : FieldNames::source($path),
+            FieldNames::merge(...),
             [FieldNames::class],
         );
     }
@@ -621,6 +652,56 @@ final class DrupalRoot
         $this->cache->set($kind, $fingerprint, $parsed);
 
         return $parsed;
+    }
+
+    /**
+     * Loads an index built from what each file holds through the cache, the
+     * way cached() does. After a file changed, it reads only the changed
+     * files again: what each file held at the last build is kept in a
+     * `scan-<kind>` entry (see FileScan).
+     *
+     * @template T
+     * @param list<string> $paths
+     * @param Closure(string): mixed $read What one file holds, from its path.
+     * @param Closure(array<string, mixed>): T $build The index, from what
+     *   each file holds, by path in the order of `$paths`.
+     * @param list<class-string> $classes Classes the index, or what one file
+     *   holds, may contain.
+     * @return T
+     */
+    public function scanned(string $kind, array $paths, Closure $read, Closure $build, array $classes = []): mixed
+    {
+        $cache = $this->cache;
+
+        return $this->cached(
+            $kind,
+            $paths,
+            function () use ($cache, $kind, $paths, $read, $build, $classes): mixed {
+                /** @var mixed $earlier */
+                $earlier = $cache?->get('scan-' . $kind, 'root', [FileScan::class, ...$classes]);
+                [$scan, $holds] = FileScan::update(
+                    $earlier instanceof FileScan ? $earlier : null,
+                    $this->stamps($paths),
+                    $read,
+                );
+                $cache?->set('scan-' . $kind, 'root', $scan);
+
+                return $build($holds);
+            },
+            $classes,
+        );
+    }
+
+    /**
+     * The stamps of the files (see DiskCache::stamps()), taken once per list
+     * and kept, since several indexes scan the same list.
+     *
+     * @param list<string> $paths
+     * @return array<string, string|null>
+     */
+    private function stamps(array $paths): array
+    {
+        return $this->stamps[sha1(implode("\0", $paths))] ??= DiskCache::stamps($paths);
     }
 
     /**

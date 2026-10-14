@@ -15,7 +15,9 @@ final class DeprecatedSymbolScanTest extends TestCase
 
     public function testAClassNamedArgumentIsNotADeclaration(): void
     {
-        $symbols = DeprecatedSymbolScan::files([dirname(__DIR__) . '/fixtures/deprecated/NamedClassArgument.php']);
+        $symbols = DeprecatedSymbolScan::merge([
+            DeprecatedSymbolScan::file(dirname(__DIR__) . '/fixtures/deprecated/NamedClassArgument.php'),
+        ]);
 
         // A method after the argument and a property hook's braces still
         // belongs to the interface.

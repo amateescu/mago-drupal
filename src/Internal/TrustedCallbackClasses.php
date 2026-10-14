@@ -10,6 +10,7 @@ use function array_key_exists;
 use function array_values;
 use function count;
 use function file_get_contents;
+use function is_array;
 use function is_file;
 use function str_contains;
 use function strtolower;
@@ -50,45 +51,77 @@ final class TrustedCallbackClasses
     ) {}
 
     /**
-     * @param list<string> $files
+     * What one file declares, in the shape merge() takes, or null for a file
+     * without the attribute.
+     *
+     * @return array{array<string, string>, array<string, string>, array<string, non-empty-string>}|null The
+     *   classes, methods and traits, by lowercased name.
      */
-    public static function fromFiles(array $files): self
+    public static function file(string $file): ?array
+    {
+        $source = is_file($file) ? file_get_contents($file) : false;
+        if ($source === false || !str_contains($source, '#[') || !str_contains($source, self::ATTRIBUTE)) {
+            return null;
+        }
+
+        $classes = [];
+        $methods = [];
+        $traits = [];
+
+        $tokens = PhpToken::tokenize($source);
+        $ranges = null;
+        $declaredTraits = null;
+        $count = count($tokens);
+        for ($i = 0; $i < $count; $i++) {
+            $name = $tokens[$i]->is(T_ATTRIBUTE) ? PhpTokens::next($tokens, $i + 1) : null;
+            if ($name === null || ClassNames::short($tokens[$name]->text) !== self::ATTRIBUTE) {
+                continue;
+            }
+
+            $ranges ??= ClassLikeRanges::scan($tokens);
+            $class = $ranges->at($tokens[$i]->pos);
+            $method = self::methodAfter($tokens, $i);
+            if ($class === null || $class === '' || $method === null) {
+                continue;
+            }
+
+            $methods[strtolower($method)] = strtolower($method);
+            $declaredTraits ??= self::traits($tokens);
+            if (array_key_exists(strtolower(ClassNames::short($class)), $declaredTraits)) {
+                $traits[strtolower($class)] = $class;
+                continue;
+            }
+
+            $classes[strtolower($class)] = $class;
+        }
+
+        return [$classes, $methods, $traits];
+    }
+
+    /**
+     * The classes of several files, from what file() found in each, in file
+     * order.
+     *
+     * @param iterable<mixed> $found
+     */
+    public static function merge(iterable $found): self
     {
         $classes = [];
         $methods = [];
         $traits = [];
-        foreach ($files as $file) {
-            $source = is_file($file) ? file_get_contents($file) : false;
-            if ($source === false || !str_contains($source, '#[') || !str_contains($source, self::ATTRIBUTE)) {
+        /** @var mixed $one */
+        foreach ($found as $one) {
+            if (!is_array($one)) {
                 continue;
             }
 
-            $tokens = PhpToken::tokenize($source);
-            $ranges = null;
-            $declaredTraits = null;
-            $count = count($tokens);
-            for ($i = 0; $i < $count; $i++) {
-                $name = $tokens[$i]->is(T_ATTRIBUTE) ? PhpTokens::next($tokens, $i + 1) : null;
-                if ($name === null || ClassNames::short($tokens[$name]->text) !== self::ATTRIBUTE) {
-                    continue;
-                }
-
-                $ranges ??= ClassLikeRanges::scan($tokens);
-                $class = $ranges->at($tokens[$i]->pos);
-                $method = self::methodAfter($tokens, $i);
-                if ($class === null || $class === '' || $method === null) {
-                    continue;
-                }
-
-                $methods[strtolower($method)] = strtolower($method);
-                $declaredTraits ??= self::traits($tokens);
-                if (array_key_exists(strtolower(ClassNames::short($class)), $declaredTraits)) {
-                    $traits[strtolower($class)] = $class;
-                    continue;
-                }
-
-                $classes[strtolower($class)] = $class;
-            }
+            // The keys are lowercased names, never numeric, so a spread
+            // keeps each where it first came.
+            /** @var array{array<string, string>, array<string, string>, array<string, non-empty-string>} $file */
+            $file = $one;
+            $classes = [...$classes, ...$file[0]];
+            $methods = [...$methods, ...$file[1]];
+            $traits = [...$traits, ...$file[2]];
         }
 
         return new self(array_values($classes), array_values($methods), array_values($traits));

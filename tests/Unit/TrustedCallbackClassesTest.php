@@ -7,14 +7,19 @@ namespace amateescu\MagoDrupal\Tests;
 use amateescu\MagoDrupal\Internal\TrustedCallbackClasses;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
+
 final class TrustedCallbackClassesTest extends TestCase
 {
     public function testReadsTheClassesAndMethodsCarryingTheAttribute(): void
     {
-        $found = TrustedCallbackClasses::fromFiles([
-            __DIR__ . '/../fixtures/trusted/Callbacks.php',
-            __DIR__ . '/../fixtures/trusted/missing.php',
-        ]);
+        $found = TrustedCallbackClasses::merge(array_map(
+            TrustedCallbackClasses::file(...),
+            [
+                __DIR__ . '/../fixtures/trusted/Callbacks.php',
+                __DIR__ . '/../fixtures/trusted/missing.php',
+            ],
+        ));
 
         // A class that only implements the interface is not one, and an
         // anonymous class has no name to target. A trait is kept apart.
