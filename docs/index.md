@@ -49,3 +49,10 @@ vendor/bin/mago analyze
 
 [Setup](setup.md) has the rest: the formatter and analyzer excludes that `yml` needs, the
 configuration that matches Drupal's standard, the worker's arguments and the fix levels.
+
+## Acknowledgements
+
+This extension is based on [Coder](https://www.drupal.org/project/coder) and
+[phpstan-drupal](https://github.com/mglaman/phpstan-drupal). The checks of Coder's `Drupal` and
+`DrupalPractice` standards are ported to Mago's linter, and the types and rules of phpstan-drupal to
+Mago's analyzer.
