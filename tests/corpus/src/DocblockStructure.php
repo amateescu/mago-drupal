@@ -398,6 +398,11 @@ class VariableCommentFixture {
    */
   protected string $fineNativeType;
 
+  /**
+   * A self type makes the @var tag optional too, though Coder wants one.
+   */
+  protected static ?self $fineSelfType;
+
   // @mago-expect lint:drupal/variable-comment
   /*
    * Wrong style.

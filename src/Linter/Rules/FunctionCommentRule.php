@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\DocblockGap;
+use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
@@ -40,6 +41,7 @@ use function stripos;
 use function strlen;
 use function strpos;
 use function strrpos;
+use function strspn;
 use function strtolower;
 use function strtoupper;
 use function substr;
@@ -355,21 +357,25 @@ final class FunctionCommentRule implements Rule
         string $description,
     ): void {
         // Coder wants an upper-case letter anywhere in the first line of the
-        // description, so `lower Case.` passes and `_lower.` does not.
-        if (preg_match('/\p{Lu}/u', self::firstLineBelow($tag, $variable) ?? $description) === 0) {
+        // description, so `lower Case.` passes and `_lower.` does not. It
+        // reports that line.
+        $first = self::firstLineBelow($tag, $variable);
+        if (preg_match('/\p{Lu}/u', $first === null ? $description : $first->text) === 0) {
             $context->report(Issue::new(
                 'The param description must start with a capital letter.',
-                $tag->contentSpan(),
+                $first === null ? $tag->contentSpan() : self::textSpan($first),
             ));
         }
 
         // A description with an example after it ends on the example, not on
-        // a sentence. The ported sniff exempts that.
+        // a sentence. The ported sniff exempts that. Coder reports a missing
+        // full stop on the description's last line.
         if (!$this->precedesExample($tags, $tag)) {
+            $last = self::lastTextLine($tag);
             $this->checkProseEnd(
                 $context,
                 $description,
-                $tag->contentSpan(),
+                $last === null ? $tag->contentSpan() : self::textSpan($last),
                 'param description',
                 self::fullStop($tag),
             );
@@ -419,19 +425,42 @@ final class FunctionCommentRule implements Rule
      * null when there is none. The variable is on the tag's own line unless
      * the type spans several lines.
      */
-    private static function firstLineBelow(DocblockTag $tag, string $variable): ?string
+    private static function firstLineBelow(DocblockTag $tag, string $variable): ?DocblockLine
     {
         $below = false;
         foreach ($tag->lines as $line) {
-            $text = trim($line->text);
-            if ($below && $text !== '') {
-                return $text;
+            if ($below && trim($line->text) !== '') {
+                return $line;
             }
 
             $below = $below || str_contains($line->text, $variable);
         }
 
         return null;
+    }
+
+    /**
+     * The tag's last line with text, or null when every line is blank.
+     */
+    private static function lastTextLine(DocblockTag $tag): ?DocblockLine
+    {
+        foreach (array_reverse($tag->lines) as $line) {
+            if (trim($line->text) !== '') {
+                return $line;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The span of a line's text, without the whitespace around it.
+     */
+    private static function textSpan(DocblockLine $line): Span
+    {
+        $start = $line->offset + strspn($line->text, characters: " \t");
+
+        return new Span($start, $line->offset + strlen(rtrim($line->text)));
     }
 
     /**
@@ -653,8 +682,34 @@ final class FunctionCommentRule implements Rule
                 continue;
             }
 
-            $this->checkProse($context, $rest, $tag->contentSpan(), '@throws description');
+            $this->checkProse($context, $rest, self::textBelowSpan($tag), '@throws description');
         }
+    }
+
+    /**
+     * The span from the first text below the tag's own line to the end of
+     * the tag's last text, or the tag's content when nothing is below.
+     * Coder reports a missing capital letter or full stop in a `@throws`
+     * description on the first line below the tag.
+     */
+    private static function textBelowSpan(DocblockTag $tag): Span
+    {
+        $first = null;
+        $last = null;
+        foreach (array_slice($tag->lines, offset: 1) as $line) {
+            if (trim($line->text) === '') {
+                continue;
+            }
+
+            $first ??= $line;
+            $last = $line;
+        }
+
+        if ($first === null || $last === null) {
+            return $tag->contentSpan();
+        }
+
+        return new Span(self::textSpan($first)->start, self::textSpan($last)->end);
     }
 
     /**

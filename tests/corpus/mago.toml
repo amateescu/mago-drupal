@@ -23,6 +23,14 @@ excludes = ["src/UseLeadingBackslash.php", "**/*.yml"]
 
 [analyzer]
 excludes = ["**/*.yml"]
+# The docblock fixtures write `@var $name Type` on purpose, and the analyzer
+# reports those tags as invalid. Unless the extension has analyzer hooks, no
+# pragma reaches the report on a property docblock, so the codes are ignored
+# for that file.
+ignore = [
+  { code = "invalid-docblock", in = "src/DocblockStructure.php" },
+  { code = "invalid-var-tag", in = "src/DocblockStructure.php" },
+]
 
 [extension-hosts.drupal]
 command = ["php", "../../resources/worker.php"]

@@ -497,6 +497,12 @@ Coder, core and this rule still want the description, and accept `@return void`.
     - A `@param` line with only trailing whitespace after the variable is not reported. Coder reads
       that whitespace as a description on the tag's line.
     - A `@param` indented inside an `@code` example is not a tag here. Coder reads it as one.
+    - Coder reads a line that starts with an `@` word as a tag, at any indent. When no tag at the
+      `@param`'s column follows, Coder ends the description at the last such line indented deeper
+      than the description, and checks the full stop on the line above it. It does the same when
+      the description's last line holds only an `@` word. In core's `batch_set()` docblock, the
+      `progress_message` item has such a line, `@total.')".`. This rule reads every line indented
+      under the tag as part of the description.
     - A run of dots after the variable name, as in `$names...`, is reported with no fix, because it
       can be a variadic written out. phpcbf removes the dots. A name followed by a comma, as in
       `$a,...`, is not reported. Coder reports it.
@@ -702,3 +708,8 @@ follows the name. It drops the property's own name, and moves any other name aft
     - The fix removes a repeated name only when it is the property's own name, in a declaration of
       one property, followed by a space or the end of the line. It keeps a description after the
       name. phpcbf also removes another name, and drops the description.
+    - Coder asks for a `@var` tag on a property whose type is made only of `self`, `parent`,
+      `null`, `true` and `false`, such as `?self` or `self|null`, static or not. Coder looks for a
+      type name before the property name, and phpcs reads those words as keywords. It accepts
+      every other typed property without the tag, such as `int`, `?int`, `array` or `?Foo`. The
+      standard lets typed properties leave `@var` out, and this rule follows it.
