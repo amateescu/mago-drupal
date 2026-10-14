@@ -373,11 +373,11 @@ final class Docblocks
      */
     public static function paragraphs(SourceFile $file, Span $span): array
     {
-        static $path = '';
+        static $source = null;
         static $memo = [];
 
-        if ($path !== $file->path) {
-            $path = $file->path;
+        if ($source !== $file) {
+            $source = $file;
             $memo = [];
         }
 
@@ -435,20 +435,21 @@ final class Docblocks
      * The result is memoized per docblock. Several rules in this extension
      * call `lines()`, `tags()` or `paragraphs()` on the same docblock in one
      * file. Without the cache, each of those calls parses the same docblock
-     * again. The cache has one slot per file, and a change of path
-     * clears it. `DrupalFile::fromSource()` caches the same way. A worker
-     * lints the targets of one file in sequence, so the memory holds the
-     * docblocks of one file at a time and does not grow with the worker.
+     * again. The cache holds the docblocks of one `SourceFile`, and the
+     * next one clears it, so a path linted again with new contents gets a
+     * fresh parse. A worker lints the targets of one file in sequence, so
+     * the memory holds the docblocks of one file at a time and does not grow
+     * with the worker.
      *
      * @return array{list<DocblockLine>, list<DocblockTag>}
      */
     private static function parse(SourceFile $file, Span $span): array
     {
-        static $path = '';
+        static $source = null;
         static $memo = [];
 
-        if ($path !== $file->path) {
-            $path = $file->path;
+        if ($source !== $file) {
+            $source = $file;
             $memo = [];
         }
 

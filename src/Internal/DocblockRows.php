@@ -43,11 +43,11 @@ final class DocblockRows
      */
     public static function of(SourceFile $file, Span $span): array
     {
-        static $path = '';
+        static $source = null;
         static $memo = [];
 
-        if ($path !== $file->path) {
-            $path = $file->path;
+        if ($source !== $file) {
+            $source = $file;
             $memo = [];
         }
 

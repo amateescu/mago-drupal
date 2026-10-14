@@ -35,6 +35,17 @@ final class DocblockRowsTest extends TestCase
         self::assertSame(6, $rows[3]->column());
     }
 
+    public function testReadsANewFileWithTheSamePath(): void
+    {
+        $first = "<?php\n/**\n * First.\n */\n";
+        $second = "<?php\n/**\n * Again.\n */\n";
+
+        DocblockRows::of(self::sourceFile($first), self::docblock($first));
+        $rows = DocblockRows::of(self::sourceFile($second), self::docblock($second));
+
+        self::assertSame(['', 'Again.', ''], self::texts($rows));
+    }
+
     public function testReadsTheOpeningLineAndTheClosingLine(): void
     {
         $contents = "<?php\n/** @var int  */\n";
@@ -119,18 +130,11 @@ final class DocblockRowsTest extends TestCase
         return new Span($start, $end);
     }
 
-    /**
-     * Each call gets its own path, since `DocblockRows::of()` keeps its
-     * result per path and span.
-     */
     private static function sourceFile(string $contents): SourceFile
     {
-        static $counter = 0;
-        ++$counter;
-
         return new SourceFile(
             PHPVersion::fromParts(8, 1),
-            "rows-{$counter}.php",
+            'test.php',
             $contents,
             [],
             new NodeStore([], '', 0),

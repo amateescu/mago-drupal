@@ -130,22 +130,21 @@ final class Calls
      * The result is memoized per node. Several call rules subscribe to the
      * same call kinds, so the worker dispatches each of them for the same
      * node. Without the cache, each of them derives the same name again. The
-     * cache has one slot per file, and a change of path clears it.
-     * `DrupalFile::fromSource()` and `Docblocks::lines()` use the same
-     * pattern.
+     * cache holds the names of one `SourceFile`, and the next one clears it.
+     * `Docblocks::lines()` uses the same pattern.
      *
      * @param array<string, true> $wanted
      */
     public static function matchWanted(SourceFile $file, Node $node, array $wanted): ?string
     {
-        static $path = '';
+        static $source = null;
         /** @var array<int, string|null> $names */
         static $names = [];
         /** @var array<int, true> $resolved */
         static $resolved = [];
 
-        if ($path !== $file->path) {
-            $path = $file->path;
+        if ($source !== $file) {
+            $source = $file;
             $names = [];
             $resolved = [];
         }

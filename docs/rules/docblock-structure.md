@@ -352,6 +352,12 @@ the end of the long description.
       the description's last line holds only an `@` word. In core's `batch_set()` docblock, the
       `progress_message` item has such a line, `@total.')".`. This rule reads every line indented
       under the tag as part of the description.
+    - Coder reads a `@throws` description from the lines below the tag only. This rule starts at
+      the text on the tag's line, when there is some. So `@throws \Exception Some text` with
+      `and more below.` on the next line is reported by Coder as `ThrowsNotCapital`, and isn't
+      reported here. A description on the tag's line only gets just `ThrowsComment` from Coder,
+      which [`drupal/doc-tag-layout`](#drupaldoc-tag-layout) ports. This rule also checks its
+      capital letter and full stop.
 
 ---
 

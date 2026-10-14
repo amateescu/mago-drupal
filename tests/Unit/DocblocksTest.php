@@ -33,21 +33,12 @@ final class DocblocksTest extends TestCase
      * `lines()` and `tags()` call only `SourceFile::getText()`. That method
      * reads directly from `$contents`, so this test never touches the
      * node, name and trivia stores behind a real snapshot.
-     *
-     * Each call gets its own path. `Docblocks::lines()` and `tags()` memoize
-     * per path and span. Two fixtures in this file can share a span, for
-     * example `0..strlen($contents)`, but mean different things. With a
-     * shared path, the cached result of one test could leak into the
-     * assertions of another test.
      */
     private static function sourceFile(string $contents): SourceFile
     {
-        static $counter = 0;
-        ++$counter;
-
         return new SourceFile(
             PHPVersion::fromParts(8, 1),
-            "test-{$counter}.php",
+            'test.php',
             $contents,
             [],
             new NodeStore([], '', 0),
@@ -75,9 +66,6 @@ final class DocblocksTest extends TestCase
      */
     private static function sourceFileWithTrivia(string $contents, array $comments): SourceFile
     {
-        static $counter = 0;
-        ++$counter;
-
         $records = '';
         foreach ($comments as [$kind, $needle]) {
             $commentSpan = self::span($contents, $needle);
@@ -96,7 +84,7 @@ final class DocblocksTest extends TestCase
 
         return new SourceFile(
             PHPVersion::fromParts(8, 1),
-            "trivia-{$counter}.php",
+            'test.php',
             $contents,
             [],
             new NodeStore([], '', 0),
@@ -212,6 +200,20 @@ final class DocblocksTest extends TestCase
         self::assertSame(['string', '$foo The description.'], Docblocks::splitType('string $foo The description.'));
         self::assertSame(['bool', ''], Docblocks::splitType('bool'));
         self::assertSame([null, ''], Docblocks::splitType(''));
+    }
+
+    public function testLinesAndParagraphsReadANewFileWithTheSamePath(): void
+    {
+        $first = "/**\n * First.\n */";
+        $second = "/**\n * Again.\n */";
+        $span = new Span(0, strlen($first));
+
+        Docblocks::lines(self::sourceFile($first), $span);
+        Docblocks::paragraphs(self::sourceFile($first), $span);
+        $file = self::sourceFile($second);
+
+        self::assertSame('Again.', Docblocks::lines($file, $span)[1]->text);
+        self::assertSame('Again.', Docblocks::paragraphs($file, $span)[0][0]->text);
     }
 
     public function testParagraphsSplitsSummaryFromLongDescription(): void
