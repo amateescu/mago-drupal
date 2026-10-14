@@ -574,5 +574,6 @@ text, in a docblock and in a `//` comment.
 - a word that only starts with "todo", such as "todos".
 
 Mago's own `tagged-todo` rule asks for a `TODO(@user)` or `TODO(#123)` reference. That format
-contradicts Drupal's, so don't run the two rules on the same codebase.
-[Setup](../setup.md#turn-off-what-drupals-standard-does-not-ask-for) turns `tagged-todo` off.
+contradicts Drupal's, so don't run the two rules on the same codebase. The
+[configuration](../setup/configuration.md#turn-off-what-drupals-standard-doesnt-ask-for) turns
+`tagged-todo` off.

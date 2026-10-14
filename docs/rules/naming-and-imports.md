@@ -2,7 +2,7 @@
 
 Rules for the names of classes, constants, functions, methods and properties, and for `use`
 statements. Mago's own naming rules cover the rest, see
-[Setup](../setup.md#configure-mago-for-drupal).
+[Configuration](../setup/configuration.md).
 
 ---
 
@@ -193,7 +193,7 @@ name, or a docblock that writes the short name in the same case.
 - methods, which are left to Mago's `method-name`.
 
 Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which is accepted
-by Coder. [Setup](../setup.md#configure-mago-for-drupal) turns it off.
+by Coder. The [configuration](../setup/configuration.md) turns it off.
 
 ---
 

@@ -15,13 +15,13 @@ setup with this extension.
 | `level` | Levels don't exist in Mago. It reports every issue found, at the issue's own level: error, warning, help or note. `minimum-fail-level` under `[analyzer]`, or `--minimum-fail-level`, sets the lowest level that fails the run. |
 | Missing types, from level 6 | `check-missing-type-hints = true` under `[analyzer]` reports a missing parameter, return or property type. |
 | `paths` | `paths` under `[source]`. |
-| `excludePaths` | `excludes` under `[analyzer]`, or under `[source]` to keep a path from every Mago tool. phpstan-drupal leaves out `*.api.php` files and test fixtures by default, and so does the configuration in [Setup](../setup.md#configure-mago-for-drupal). |
-| `fileExtensions` | `extensions` under `[source]`. phpstan-drupal adds Drupal's extensions itself, and Mago needs them listed, as in [Install](../setup.md#install). |
+| `excludePaths` | `excludes` under `[analyzer]`, or under `[source]` to keep a path from every Mago tool. phpstan-drupal leaves out `*.api.php` files and test fixtures by default, and so does the [configuration](../setup/configuration.md). |
+| `fileExtensions` | `extensions` under `[source]`. phpstan-drupal adds Drupal's extensions itself, and Mago needs them listed, as in [Install](../setup/install.md). |
 | `bootstrapFiles`, `scanFiles`, `scanDirectories` | `includes` under `[source]`: code read by Mago for its declarations and not reported. Mago runs no code, so a bootstrap file counts only for what it declares. |
 | `phpVersion` | `php-version`. |
-| `ignoreErrors` | `ignore` under `[analyzer]`, by issue code and optionally by path, as [Turning rules off](../setup.md#turning-rules-off) shows. Nothing like a message pattern exists in Mago. |
+| `ignoreErrors` | `ignore` under `[analyzer]`, by issue code and optionally by path, as [Turning rules off](../setup/worker-arguments.md#turning-rules-off) shows. Nothing like a message pattern exists in Mago. |
 | A baseline | A PHPStan baseline can't be reused. `vendor/bin/mago analyze --generate-baseline --baseline=analyzer-baseline.toml` writes a new one, and `baseline = "analyzer-baseline.toml"` under `[analyzer]` reads it. |
-| `drupal.drupal_root` | The worker's `--root` argument, see [Finding the Drupal root](../setup.md#finding-the-drupal-root). |
+| `drupal.drupal_root` | The worker's `--root` argument, see [Finding the Drupal root](../setup/worker-arguments.md#finding-the-drupal-root). |
 | `drupal.entityMapping` | Nothing. The analyzer reads entity types from their attributes and annotations, see [The entity type index](../analyzer/entities.md#the-entity-type-index). |
 | `drupal.rules` | `ignore` under `[analyzer]`, with the code of the check that ports the rule. [phpstan-drupal](phpstan-drupal.md) gives the codes. The worker's `--disable` argument turns off a rule ported by this extension as a linter rule. |
 

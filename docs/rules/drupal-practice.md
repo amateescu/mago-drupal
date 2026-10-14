@@ -1,7 +1,7 @@
 # DrupalPractice checks
 
 These rules port sniffs of Coder's `DrupalPractice` standard not run by core's `phpcs.xml.dist`, so
-the worker's [`--core` argument](../setup.md#checking-drupal-core) turns them off.
+the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off.
 
 Coder's `Project` class reads the nearest `*.info.yml` or `*.info` file, to find the module name of
 a file that isn't named after it and to skip a Drupal 7 module. The rules read the same file, from

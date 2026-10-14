@@ -72,7 +72,7 @@ Rules for the bytes of a file and for its open and close tags.
 ## Info and routing files
 
 Rules for the `.info.yml` file of a module, theme or profile and for `.routing.yml` files. They need
-`yml` in Mago's extensions, as [Setup](../setup.md#install) shows. Mago reads a YAML file as text
+`yml` in Mago's extensions, as [Install](../setup/install.md) shows. Mago reads a YAML file as text
 outside PHP tags, and these rules read the YAML in it.
 
 | Rule | Level | What it reports |
@@ -88,7 +88,7 @@ outside PHP tags, and these rules read the YAML in it.
 
 Rules for the names of classes, constants, functions, methods and properties, and for `use`
 statements. Mago's own naming rules cover the rest, see
-[Setup](../setup.md#configure-mago-for-drupal).
+[Configuration](../setup/configuration.md).
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -184,7 +184,7 @@ They don't check the types in a docblock against the real signature, which is do
 ## DrupalPractice checks
 
 These rules port sniffs of Coder's `DrupalPractice` standard not run by core's `phpcs.xml.dist`, so
-the worker's [`--core` argument](../setup.md#checking-drupal-core) turns them off.
+the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |

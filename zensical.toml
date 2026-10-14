@@ -10,7 +10,10 @@ extra_css = ["stylesheets/drupal.css"]
 nav = [
   { "Start" = [
     "index.md",
-    { "Setup" = "setup.md" },
+    { "Install" = "setup/install.md" },
+    { "Worker arguments" = "setup/worker-arguments.md" },
+    { "Configuration" = "setup/configuration.md" },
+    { "Fixes" = "setup/fixes.md" },
   ] },
   { "Linter" = [
     "rules/index.md",

@@ -15,9 +15,10 @@ Each identifier and extension is followed by what handles it:
 - nothing, when no tool checks it yet. The note says why.
 
 The analyzer checks run by default, including the ones whose phpstan-drupal rule is off by default.
-To turn one off, use `[analyzer] ignore`, as [Turning rules off](../setup.md#turning-rules-off)
-shows. A `@phpstan-ignore` comment with one of phpstan-drupal's identifiers doesn't drop the
-matching Mago issue, see [PHPStan ignores](../analyzer/phpstan-ignores.md).
+To turn one off, use `[analyzer] ignore`, as
+[Turning rules off](../setup/worker-arguments.md#turning-rules-off) shows. A `@phpstan-ignore`
+comment with one of phpstan-drupal's identifiers doesn't drop the matching Mago issue, see
+[PHPStan ignores](../analyzer/phpstan-ignores.md).
 
 ## Rules
 

@@ -1,9 +1,9 @@
 # Coming from Coder
 
 These pages list every sniff run by Coder 9 in its `Drupal` and `DrupalPractice` standards, and what
-takes its place in a Mago setup with this extension and the configuration from [Setup](../setup.md).
-To find a check, search for the sniff or the code from a phpcs report or a `phpcs:ignore` comment.
-phpcs names a check `Standard.Category.Sniff.Code`.
+takes its place in a Mago setup with this extension and its
+[configuration](../setup/configuration.md). To find a check, search for the sniff or the code from a
+phpcs report or a `phpcs:ignore` comment. phpcs names a check `Standard.Category.Sniff.Code`.
 
 - [Drupal standard](drupal.md): Coder's own sniffs.
 - [Sniffs from other standards](other-standards.md): the sniffs taken by the `Drupal` standard from
@@ -35,8 +35,8 @@ Coder's rulesets aren't listed, and neither are codes never reported by Coder.
 | Everything specific to Drupal | This extension |
 
 The checks of `.info.yml` and `.routing.yml` files need `yml` in Mago's extensions, as
-[Setup](../setup.md#install) shows. The `Drupal.InfoFiles` sniffs that aren't ported check only the
-`.info` files of Drupal 7.
+[Install](../setup/install.md) shows. The `Drupal.InfoFiles` sniffs that aren't ported check only
+the `.info` files of Drupal 7.
 
 One check still needs phpcs: `Drupal.Files.TxtFileLineLength`, which checks the line length of
 `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` example in such a file gives
@@ -73,9 +73,9 @@ standard, and doesn't run some sniffs at all:
   of `VariableAnalysis` from the DrupalPractice standard.
 
 The rules that port those checks are on by default for contrib and custom code, and the worker's
-[`--core` argument](../setup.md#checking-drupal-core) turns them off. A project that turns other
-sub-codes off in its phpcs config can turn off the matching rules with
-[`--disable`](../setup.md#turning-rules-off).
+[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off. A project
+that turns other sub-codes off in its phpcs config can turn off the matching rules with
+[`--disable`](../setup/worker-arguments.md#turning-rules-off).
 
 **File types.** Mago reads only the file extensions in its `[source]` block. Coder also checks
 `.test` files, a Drupal 7 format, and `.txt` and `.md` files. When phpcs scans a directory, it skips

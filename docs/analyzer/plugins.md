@@ -192,7 +192,7 @@ that leaves the call to its parent isn't reported.
 - an abstract class;
 - test code (any file under a `tests` directory);
 - a class whose constructor, or a parent constructor that it calls, can't be read from disk. See
-  [Finding the Drupal root](../setup.md#finding-the-drupal-root).
+  [Finding the Drupal root](../setup/worker-arguments.md#finding-the-drupal-root).
 
 ??? example "Example"
 

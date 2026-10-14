@@ -25,8 +25,8 @@ extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "
 command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
-[Setup](docs/setup.md) has the formatter and analyzer excludes that go with `yml`. Then run the
-linter and the analyzer:
+[Configuration](docs/setup/configuration.md) has the formatter and analyzer excludes that go with
+`yml`. Then run the linter and the analyzer:
 
 ```shell
 vendor/bin/mago lint
@@ -35,8 +35,8 @@ vendor/bin/mago analyze
 
 ## Documentation
 
-- [Setup](docs/setup.md): the worker's arguments, the rest of the configuration that matches
-  Drupal's standard, and the fix levels.
+- [Setup](docs/setup/install.md): the install, the worker's arguments, the rest of the
+  configuration that matches Drupal's standard, and the fix levels.
 - [Linter rules](docs/rules/index.md): every rule, with what it reports, what its fix does, the
   section of Drupal's coding standards or the source checked by the rule, and the Coder checks
   ported by the rule.

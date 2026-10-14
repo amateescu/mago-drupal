@@ -1,7 +1,7 @@
 # Info and routing files
 
 Rules for the `.info.yml` file of a module, theme or profile and for `.routing.yml` files. They need
-`yml` in Mago's extensions, as [Setup](../setup.md#install) shows. Mago reads a YAML file as text
+`yml` in Mago's extensions, as [Install](../setup/install.md) shows. Mago reads a YAML file as text
 outside PHP tags, and these rules read the YAML in it.
 
 ---

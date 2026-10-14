@@ -33,8 +33,9 @@ services, entity types, plugins and config also skip hook documentation in `*.ap
 entry lists what its check skips.
 
 To turn a check off, use Mago's own `[analyzer] ignore`, see
-[Turning rules off](../setup.md#turning-rules-off). How the worker finds the Drupal root and caches
-what it reads is under [Setup](../setup.md#finding-the-drupal-root).
+[Turning rules off](../setup/worker-arguments.md#turning-rules-off). How the worker finds the Drupal
+root is under [Worker arguments](../setup/worker-arguments.md#finding-the-drupal-root), and how it
+caches what it reads under [Install](../setup/install.md#index-cache).
 
 ## phpstan-drupal rules
 

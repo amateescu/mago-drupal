@@ -2,8 +2,8 @@
 
 Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`,
 `NamespacedDependency` and part of `VariableAnalysis` from this standard. The worker's
-[`--core` argument](../setup.md#checking-drupal-core) turns off the rules that port the other
-sniffs.
+[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the rules that port
+the other sniffs.
 
 <!-- docs-gen:coder-practice -->
 

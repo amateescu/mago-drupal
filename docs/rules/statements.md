@@ -483,8 +483,9 @@ The fix runs when X is a plain variable, property, index or constant read, since
 once where the ternary reads it twice. In the second shape B moves to the end, so it also needs to
 bind tighter than `??`, as in `drupal/null-coalesce`. Other matches are reported without a fix.
 
-Mago's own `no-shorthand-ternary` asks for the opposite.
-[Setup](../setup.md#turn-off-what-drupals-standard-does-not-ask-for) turns it off.
+Mago's own `no-shorthand-ternary` asks for the opposite. The
+[configuration](../setup/configuration.md#turn-off-what-drupals-standard-doesnt-ask-for) turns it
+off.
 
 ???+ example "Example"
 

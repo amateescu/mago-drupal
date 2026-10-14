@@ -47,8 +47,9 @@ vendor/bin/mago lint
 vendor/bin/mago analyze
 ```
 
-[Setup](setup.md) has the rest: the formatter and analyzer excludes that `yml` needs, the
-configuration that matches Drupal's standard, the worker's arguments and the fix levels.
+The next pages have the rest: the [configuration](setup/configuration.md) that matches Drupal's
+standard, with the formatter and analyzer excludes that `yml` needs, the
+[worker's arguments](setup/worker-arguments.md) and the [fix levels](setup/fixes.md).
 
 ## Acknowledgements
 
