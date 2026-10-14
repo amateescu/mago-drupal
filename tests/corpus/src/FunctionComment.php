@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function function_comment_missing(string $a): string {
   return $a;
 }
@@ -43,7 +43,7 @@ function function_comment_below_attribute_fine(): void {
 function function_comment_below_attribute_wrong_style(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
 /**
  * Missing param type.
  *
@@ -53,7 +53,8 @@ function function_comment_below_attribute_wrong_style(): void {
 function function_comment_missing_param_type($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment(2)
+// @mago-expect lint:drupal/doc-tag-types
+// @mago-expect lint:drupal/doc-tag-descriptions
 /**
  * Missing param type, with the type after the variable and no description.
  *
@@ -62,7 +63,7 @@ function function_comment_missing_param_type($a): void {
 function function_comment_param_type_after_variable($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
 /**
  * Missing param type, which leaves the description unchecked, as in Coder.
  *
@@ -72,7 +73,7 @@ function function_comment_param_type_after_variable($a): void {
 function function_comment_param_type_after_variable_described($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
 /**
  * Missing param type on a reference parameter.
  *
@@ -82,7 +83,7 @@ function function_comment_param_type_after_variable_described($a): void {
 function function_comment_missing_param_type_reference(&$a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
 /**
  * Missing param name.
  *
@@ -92,7 +93,7 @@ function function_comment_missing_param_type_reference(&$a): void {
 function function_comment_missing_param_name($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-descriptions
 /**
  * Missing param comment.
  *
@@ -101,7 +102,7 @@ function function_comment_missing_param_name($a): void {
 function function_comment_missing_param_comment($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Param name dot.
  *
@@ -111,7 +112,7 @@ function function_comment_missing_param_comment($a): void {
 function function_comment_param_name_dot($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Param comment not capital.
  *
@@ -130,7 +131,7 @@ function function_comment_param_comment_not_capital($a): void {
 function function_comment_param_comment_capital_later($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Param comment that starts with an underscore and has no capital letter.
  *
@@ -140,7 +141,7 @@ function function_comment_param_comment_capital_later($a): void {
 function function_comment_param_comment_underscore($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Param comment whose capital letter is only on its second line.
  *
@@ -151,7 +152,7 @@ function function_comment_param_comment_underscore($a): void {
 function function_comment_param_comment_capital_second_line($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Param comment full stop.
  *
@@ -161,8 +162,8 @@ function function_comment_param_comment_capital_second_line($a): void {
 function function_comment_param_comment_full_stop($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
+// @mago-expect lint:drupal/doc-tag-descriptions
 /**
  * Duplicate return.
  *
@@ -173,7 +174,7 @@ function function_comment_duplicate_return(): string {
   return 'x';
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-descriptions
 /**
  * Missing return comment.
  *
@@ -184,7 +185,7 @@ function function_comment_missing_return_comment(): string {
 }
 
 // Coder wants an upper-case letter first, and a `$` is not one.
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * $this, static and void returns are exempt from needing a description.
  */
@@ -218,7 +219,7 @@ class FunctionCommentReturnExemptions {
 
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Return var name.
  *
@@ -228,7 +229,7 @@ function function_comment_return_var_name(): string {
   return 'x';
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Throws not capital.
  *
@@ -249,7 +250,7 @@ function function_comment_throws_multibyte_start(): void {
   throw new \Exception('x');
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Throws no full stop.
  *
@@ -269,7 +270,7 @@ function function_comment_throws_type_only(): void {
   throw new \Exception('x');
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-see-tag
 /**
  * Empty sees.
  *
@@ -278,7 +279,7 @@ function function_comment_throws_type_only(): void {
 function function_comment_empty_sees(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-see-tag
 /**
  * See reference on the next line.
  *
@@ -288,7 +289,7 @@ function function_comment_empty_sees(): void {
 function function_comment_see_next_line(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-see-tag
 /**
  * See additional text.
  *
@@ -297,7 +298,7 @@ function function_comment_see_next_line(): void {
 function function_comment_see_additional_text(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-see-tag
 /**
  * See punctuation.
  *
@@ -313,7 +314,7 @@ class FunctionCommentFixture {
 
   public function __construct() {}
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/doc-tag-descriptions
   /**
    * Missing param coverage.
    *
@@ -344,7 +345,7 @@ class FunctionCommentFixture {
 function param_description_ending_in_an_example(array $settings): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Documents a parameter with prose after the example.
  *
@@ -358,8 +359,8 @@ function param_description_ending_in_an_example(array $settings): void {
 function prose_after_an_example_still_needs_a_full_stop(array $settings): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-groups
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Documents a parameter with the example at the star column.
  *
@@ -386,7 +387,7 @@ function param_description_with_a_star_column_example(array $settings): void {
 function param_description_with_a_line_starting_with_an_at_word(array $batch): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Param type with a space.
  *
@@ -396,7 +397,7 @@ function param_description_with_a_line_starting_with_an_at_word(array $batch): v
 function function_comment_param_type_spaces($a): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Param type with a space, on a variadic parameter.
  *
@@ -421,7 +422,7 @@ function function_comment_param_type_spaces_variadic(...$a): void {
 function function_comment_param_type_brackets($a, $b, $c, $d): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Return type with a space.
  *
@@ -461,7 +462,7 @@ function function_comment_return_type_callable(): callable {
   return static fn (int $a): int => $a;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
 /**
  * Return type missing, with the description below.
  *
@@ -472,7 +473,7 @@ function function_comment_return_type_missing() {
   return 1;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-types
 /**
  * Return type missing, with a type on the line below.
  *
@@ -493,7 +494,7 @@ function function_comment_return_type_zero(): int {
   return 0;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Throws with the description on the tag's line.
  *
@@ -503,7 +504,7 @@ function function_comment_throws_same_line(): void {
   throw new \Exception('x');
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Throws with the description on the tag's line and a blank line below.
  *
@@ -536,7 +537,7 @@ function function_comment_throws_next_line(): void {
   throw new \Exception('x');
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 /**
  * A file docblock above a function documents the file, not the function.
  *
@@ -553,7 +554,7 @@ function function_comment_file_docblock($a): void {
  */
 class FunctionCommentConstructors {
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/doc-tag-descriptions
   /**
    * Constructs the object.
    *
@@ -578,7 +579,7 @@ class FunctionCommentConstructorsBare {
  */
 class FunctionCommentConstructorTypes {
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/doc-tag-layout
   /**
    * Constructs the object.
    *

@@ -20,7 +20,7 @@ class SeeReferences {
   /**
    * Limits the result.
    *
-   * @see \Drupal\corpus\SeeReferences::LIMIT.
+   * @see \Drupal\corpus\SeeReferences::LIMIT
    */
   public function limit(): int {
     return self::LIMIT;

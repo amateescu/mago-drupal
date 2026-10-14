@@ -32,7 +32,8 @@ from the source.
 | --- | --- | --- |
 | [`drupal/deprecation-message`](right-api.md#drupaldeprecation-message) | warning | Checks that E_USER_DEPRECATED messages follow the documented deprecation grammar. |
 | [`drupal/global-function`](right-api.md#drupalglobal-function) | warning | Reports procedural Drupal functions called from inside a class. |
-| [`drupal/translatable-string`](right-api.md#drupaltranslatable-string) | warning | Checks that a translatable string is one literal without concatenation or padding. |
+| [`drupal/translatable-literal`](right-api.md#drupaltranslatable-literal) | warning | Reports a translatable string that is not a literal, a first-class callable such as t(...), and a string joined after the call. |
+| [`drupal/translatable-string`](right-api.md#drupaltranslatable-string) | warning | Reports a translatable string built with ".", an empty or padded one, a call with no string, and an escaped quote. |
 | [`drupal/translated-exception`](right-api.md#drupaltranslated-exception) | warning | Reports an exception message passed through t(). |
 | [`drupal/unsilenced-deprecation`](right-api.md#drupalunsilenced-deprecation) | error | Reports a trigger_error() deprecation notice that does not start with "@". |
 
@@ -154,14 +155,26 @@ its tags. They do not check the types in a docblock against the real signature, 
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Checks that a class, interface, trait or enum has a docblock. |
+| [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Checks the comment style above a class, interface, trait or enum, the blank line below its docblock, and a summary that repeats the name. |
 | [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Checks the wording of a @deprecated docblock tag and the @see tag that must follow it. |
-| [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | warning | Checks a docblock's short description, long description and tag order. |
-| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks that a PHP file that is not a class file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment. |
-| [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Checks that a function or method has a well-formed docblock. |
+| [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Checks a docblock's opener, closer, blank lines and spaces, and @inheritdoc without braces. |
+| [`drupal/doc-see-tag`](docblock-structure.md#drupaldoc-see-tag) | error | Reports a @see tag with no reference, or with text or punctuation after the reference. |
+| [`drupal/doc-sentence`](docblock-structure.md#drupaldoc-sentence) | error | Checks the first letter and the end of a docblock summary and of its @param and @throws descriptions, the first letter of the long description, and a summary on one line. |
+| [`drupal/doc-tag-descriptions`](docblock-structure.md#drupaldoc-tag-descriptions) | error | Reports a @param or @return with no description, and a method parameter with no @param when others have one. |
+| [`drupal/doc-tag-groups`](docblock-structure.md#drupaldoc-tag-groups) | error | Checks that the tags of one kind are in one group, @param first, and the blank lines around the groups. |
+| [`drupal/doc-tag-layout`](docblock-structure.md#drupaldoc-tag-layout) | error | Checks where the description of a @param, @return or @throws goes, its indent, and the spacing of the tag. |
+| [`drupal/doc-tag-types`](docblock-structure.md#drupaldoc-tag-types) | error | Reports a @param with no type or variable name, a @return with no type, and a second @return. |
+| [`drupal/doc-type-name`](docblock-structure.md#drupaldoc-type-name) | error | Reports a @param, @return or @var type spelled another way than the standard asks, such as integer for int. |
+| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file does not start with a comment. |
+| [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Checks the comment style above a function or method, and that no blank line follows its docblock. |
 | [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Checks the "Implements hook_x()." docblock convention on a hook implementation. |
 | [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |
-| [`drupal/variable-comment`](docblock-structure.md#drupalvariable-comment) | error | Checks that a class property has a @var docblock. |
+| [`drupal/missing-class-comment`](docblock-structure.md#drupalmissing-class-comment) | error | Reports a class, interface, trait or enum with no docblock. |
+| [`drupal/missing-file-comment`](docblock-structure.md#drupalmissing-file-comment) | error | Reports a PHP file that is not a class file and has no comment at its start. |
+| [`drupal/missing-function-comment`](docblock-structure.md#drupalmissing-function-comment) | error | Reports a function or method with no docblock, a constructor excepted. |
+| [`drupal/missing-property-comment`](docblock-structure.md#drupalmissing-property-comment) | error | Reports a class property with no docblock. |
+| [`drupal/missing-summary`](docblock-structure.md#drupalmissing-summary) | error | Reports a docblock with tags and no short description. |
+| [`drupal/variable-comment`](docblock-structure.md#drupalvariable-comment) | error | Checks the comment style above a class property and the @var tag of its docblock. |
 
 ## DrupalPractice checks
 

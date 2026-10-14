@@ -11,7 +11,7 @@ namespace Drupal\corpus;
 
 use function t;
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function select_labels(): array {
   // The last item is reported too.
   // @mago-expect lint:drupal/untranslated-options(2)
@@ -24,7 +24,7 @@ function select_labels(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function other_option_types(): array {
   // @mago-expect lint:drupal/untranslated-options(3)
   return [
@@ -34,7 +34,7 @@ function other_option_types(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function type_after_options(): array {
   // @mago-expect lint:drupal/untranslated-options
   return [
@@ -43,7 +43,7 @@ function type_after_options(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function legacy_array_syntax(): array {
   // @mago-expect lint:drupal/untranslated-options
   return array(
@@ -52,7 +52,7 @@ function legacy_array_syntax(): array {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function option_groups(): array {
   // @mago-expect lint:drupal/untranslated-options(2)
   return [
@@ -64,7 +64,7 @@ function option_groups(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function translated_labels(): array {
   return [
     '#type' => 'select',
@@ -75,7 +75,7 @@ function translated_labels(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function values_that_are_not_labels(string $name, array $labels): array {
   return [
     '#type' => 'select',
@@ -92,7 +92,7 @@ function values_that_are_not_labels(string $name, array $labels): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function value_of_four_characters(): array {
   // @mago-expect lint:drupal/untranslated-options
   return [
@@ -101,7 +101,7 @@ function value_of_four_characters(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function other_element_types(): array {
   return [
     'text' => ['#type' => 'textfield', '#options' => ['alpha' => 'Alpha label']],
@@ -109,7 +109,7 @@ function other_element_types(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function type_of_the_sibling_is_not_used(): array {
   // The select below is the only element with the right type.
   // @mago-expect lint:drupal/untranslated-options
@@ -119,7 +119,7 @@ function type_of_the_sibling_is_not_used(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function type_of_the_parent_is_not_used(): array {
   return [
     '#type' => 'select',
@@ -127,7 +127,7 @@ function type_of_the_parent_is_not_used(): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function options_that_are_not_a_literal(array $options): array {
   return [
     '#type' => 'select',
@@ -136,7 +136,7 @@ function options_that_are_not_a_literal(array $options): array {
   ];
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function assigned_options(): array {
   $element = ['#type' => 'select'];
   $element['#options'] = ['alpha' => 'Alpha label'];

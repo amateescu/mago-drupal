@@ -40,6 +40,18 @@ final class Nodes
         NodeKind::AnonymousClass,
     ];
 
+    /**
+     * The keyword of each named class-like declaration, keyed by the
+     * `NodeKind` case name. PHP 8.1 rejects `->value` on an enum case inside
+     * a class constant.
+     */
+    public const CLASS_KEYWORDS = [
+        'Class_' => 'class',
+        'Interface' => 'interface',
+        'Trait' => 'trait',
+        'Enum' => 'enum',
+    ];
+
     private function __construct() {}
 
     /**

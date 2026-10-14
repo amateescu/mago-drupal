@@ -1,6 +1,6 @@
 <?php
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * @file
  * Summary of the file.

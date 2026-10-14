@@ -3,8 +3,8 @@
 /**
  * Writes the parameter types after the variables.
  *
- * @param integer $a
- * @param string &$b
+ * @param $a integer
+ * @param &$b string
  *   The b.
  * @param $c Done.
  *   The c.

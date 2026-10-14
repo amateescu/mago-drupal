@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Tests;
 
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingFileCommentRule;
 use Closure;
 use Mago\Sdk\CancellationTokenInterface;
 use Mago\Sdk\Internal\Syntax\NodeStore;
@@ -25,10 +26,11 @@ use function strlen;
 use function strpos;
 
 /**
- * Every check of this rule starts at the first trivia in the file, so a
- * `@mago-expect` comment that suppresses an issue becomes that trivia and
- * changes the result. The corpus can only make sure that a correct file
- * gets no report. This test covers the negative cases.
+ * Every check of `drupal/file-comment` and `drupal/missing-file-comment`
+ * starts at the first trivia in the file, so a `@mago-expect` comment that
+ * suppresses an issue becomes that trivia and changes the result. The corpus
+ * can only make sure that a correct file gets no report. This test runs both
+ * rules and covers the negative cases.
  *
  * @mago-expect lint:too-many-methods
  */
@@ -103,6 +105,7 @@ final class FileCommentRuleTest extends TestCase
 
         $context = new LintContext($file, $node, $token);
         (new FileCommentRule())->lint($context);
+        (new MissingFileCommentRule())->lint($context);
 
         return $context->issues;
     }

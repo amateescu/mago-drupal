@@ -181,8 +181,8 @@ final class DocblocksTest extends TestCase
 
         $tags = Docblocks::tags($file, new Span(0, strlen($contents)));
 
-        // Coder's tokenizer does the same, so `drupal/doc-comment` can see
-        // an example that splits two @param groups.
+        // Coder's tokenizer does the same, so `drupal/doc-tag-groups` can
+        // see an example that splits two @param groups.
         self::assertSame(
             ['param', 'code', 'endcode', 'return'],
             array_map(static fn(DocblockTag $tag): string => $tag->name, $tags),

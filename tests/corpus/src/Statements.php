@@ -4,35 +4,35 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_plain(): int {
   // @mago-expect lint:drupal/short-list
   list($a, $b) = [1, 2];
   return $a + $b;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_keyed(): string {
   // @mago-expect lint:drupal/short-list
   list('id' => $id, 'name' => $name) = ['id' => 1, 'name' => 'a'];
   return $id . $name;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_skipped(): int {
   // @mago-expect lint:drupal/short-list
   list($a, , $c) = [1, 2, 3];
   return $a + $c;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_nested(): int {
   // @mago-expect lint:drupal/short-list(2)
   list($a, list($b, $c)) = [1, [2, 3]];
   return $a + $b + $c;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_in_foreach(): int {
   $sum = 0;
   // @mago-expect lint:drupal/short-list
@@ -46,7 +46,7 @@ function list_in_foreach(): int {
   return $sum;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_in_condition(int $x): int {
   // @mago-expect lint:drupal/short-list
   if ((list($a, $b) = [$x, 2]) !== [0, 0]) {
@@ -55,7 +55,7 @@ function list_in_condition(int $x): int {
   return 0;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_keyword_forms(): int {
   // @mago-format-ignore-start
   // @mago-expect lint:drupal/short-list
@@ -68,7 +68,7 @@ function list_keyword_forms(): int {
   return $a + $b + $c;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function list_near_misses(): int {
   [$a, $b] = [1, 2];
   $holder = new ListNames();
@@ -104,7 +104,7 @@ class ListNames {
 
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function property_names(): int {
   $holder = new PropertyHolder();
   return $holder->first + $holder->second;
@@ -211,7 +211,7 @@ class PropertyHolder {
 
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function anonymous_class_properties(): object {
   return new class() {
 
@@ -226,7 +226,7 @@ function anonymous_class_properties(): object {
   };
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_semicolons(int $x): int {
   switch ($x) {
     // @mago-expect lint:drupal/case-semicolon
@@ -243,7 +243,7 @@ function switch_semicolons(int $x): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_default_semicolon(int $x): int {
   switch ($x) {
     case 1:
@@ -255,7 +255,7 @@ function switch_default_semicolon(int $x): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_label_shapes(int $x): int {
   // @mago-format-ignore-start
   switch ($x) {
@@ -283,7 +283,7 @@ function switch_label_shapes(int $x): int {
   // @mago-format-ignore-end
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_alternative_syntax(int $x): int {
   switch ($x):
     // @mago-expect lint:drupal/case-semicolon
@@ -294,7 +294,7 @@ function switch_alternative_syntax(int $x): int {
   endswitch;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_ternary_label(int $x): int {
   switch ($x) {
     // @mago-expect lint:drupal/case-semicolon
@@ -309,7 +309,7 @@ function switch_ternary_label(int $x): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_nested_semicolon(int $x, int $y): int {
   switch ($x) {
     case 1:
@@ -327,7 +327,7 @@ function switch_nested_semicolon(int $x, int $y): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_colons(int $x, string $enum): int {
   switch ($x) {
     case 1:
@@ -341,7 +341,7 @@ function switch_colons(int $x, string $enum): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_default_only(int $x): int {
   // @mago-expect lint:drupal/empty-switch
   switch ($x) {
@@ -350,7 +350,7 @@ function switch_default_only(int $x): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_empty_body(int $x): int {
   // @mago-expect lint:drupal/empty-switch
   switch ($x) {
@@ -358,7 +358,7 @@ function switch_empty_body(int $x): int {
   return $x;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_empty_alternative(int $x): int {
   // @mago-expect lint:drupal/empty-switch
   switch ($x):
@@ -366,7 +366,7 @@ function switch_empty_alternative(int $x): int {
   return $x;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_default_only_alternative(int $x): int {
   // @mago-expect lint:drupal/empty-switch
   switch ($x):
@@ -375,7 +375,7 @@ function switch_default_only_alternative(int $x): int {
   endswitch;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_uppercase_keywords(int $x): int {
   // @mago-format-ignore-start
   // @mago-expect lint:drupal/empty-switch
@@ -386,7 +386,7 @@ function switch_uppercase_keywords(int $x): int {
   // @mago-format-ignore-end
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_inner_empty(int $x, int $y): int {
   switch ($x) {
     case 1:
@@ -401,7 +401,7 @@ function switch_inner_empty(int $x, int $y): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_only_inner_cases(int $x, int $y): int {
   // @mago-expect lint:drupal/empty-switch
   switch ($x) {
@@ -416,7 +416,7 @@ function switch_only_inner_cases(int $x, int $y): int {
   }
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_with_case(int $x): int {
   switch ($x) {
     case 1:
@@ -425,7 +425,7 @@ function switch_with_case(int $x): int {
   return 0;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_uppercase_case(int $x): int {
   // @mago-format-ignore-start
   switch ($x) {
@@ -438,7 +438,7 @@ function switch_uppercase_case(int $x): int {
   // @mago-format-ignore-end
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function switch_named_arguments(int $x): int {
   // @mago-expect lint:drupal/empty-switch
   switch ($x) {

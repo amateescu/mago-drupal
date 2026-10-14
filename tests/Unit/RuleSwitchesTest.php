@@ -11,6 +11,7 @@ use amateescu\MagoDrupal\Linter\Rules\InlineCommentBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
 use Closure;
 use InvalidArgumentException;
 use Mago\Sdk\CancellationTokenInterface;
@@ -37,7 +38,7 @@ use function strpos;
  * The three checks that core's `phpcs.xml.dist` turns off are rules of their
  * own, so `--core` and `--disable` can turn them off by default. Core runs
  * the missing short description check in some test directories only, so
- * `--core` scopes that check inside `drupal/doc-comment`.
+ * `--core` scopes `drupal/missing-summary` to them.
  */
 final class RuleSwitchesTest extends TestCase
 {
@@ -129,9 +130,9 @@ final class RuleSwitchesTest extends TestCase
             PHP;
         $missing = ['The docblock has no short description.'];
 
-        $core = new DocCommentRule(core: true);
+        $core = new MissingSummaryRule(core: true);
 
-        self::assertSame($missing, self::messages(new DocCommentRule(), $contents, 'core/lib/Drupal/Core'));
+        self::assertSame($missing, self::messages(new MissingSummaryRule(), $contents, 'core/lib/Drupal/Core'));
         self::assertSame([], self::messages($core, $contents, 'core/lib/Drupal/Core'));
         self::assertSame($missing, self::messages($core, $contents, 'core/tests/Drupal/KernelTests/Core'));
         self::assertSame($missing, self::messages($core, $contents, 'core/modules/node/tests/src/Unit'));

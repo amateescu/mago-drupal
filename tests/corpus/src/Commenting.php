@@ -44,7 +44,7 @@ function gender_neutral_block_lines_bad(): void {
 function gender_neutral_tag_name_fine(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function post_statement_bad(): void {
   // @mago-expect lint:drupal/post-statement-comment
   $result = 1; // A trailing comment.
@@ -52,7 +52,7 @@ function post_statement_bad(): void {
   echo $result;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function post_statement_fine(): void {
   // A comment on its own line.
   $result = 1;
@@ -167,7 +167,7 @@ class CommentingLegacyTest {
   public function expectedExceptionMidLineFine(): void {
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function expectedExceptionFine(): void {
   }
 
@@ -223,7 +223,7 @@ function comment_line_length_url(): void {
 function comment_line_length_docblock(string $value): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Shows the lines the length check leaves alone.
  *

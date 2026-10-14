@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Internal;
 use Mago\Sdk\Span;
 
 use function array_map;
+use function array_slice;
 use function count;
 use function implode;
 use function strlen;
@@ -56,6 +57,20 @@ final class DocblockTag
         $last = $this->lines[count($this->lines) - 1];
 
         return new Span($this->lines[0]->offset, $last->offset + strlen($last->text));
+    }
+
+    /**
+     * Returns the text on the lines below the tag's own line, each line
+     * trimmed, joined with nothing between them.
+     */
+    public function textBelow(): string
+    {
+        $text = '';
+        foreach (array_slice($this->lines, offset: 1) as $line) {
+            $text .= trim($line->text);
+        }
+
+        return $text;
     }
 
     /**

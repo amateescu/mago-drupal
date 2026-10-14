@@ -19,7 +19,7 @@ use function trim;
 
 /**
  * The whitespace checks of Drupal.Commenting.FunctionComment, for
- * `drupal/function-comment`: the indent of the `@param`, `@return` and
+ * `drupal/doc-tag-layout`: the indent of the `@param`, `@return` and
  * `@throws` descriptions, the space after a `@param` type, and a `@param`
  * description written on the tag's line.
  *

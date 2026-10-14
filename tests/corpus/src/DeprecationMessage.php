@@ -99,7 +99,7 @@ function tagged_below_an_attribute(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function relaxed_and_correct(): void {
   @trigger_error(
     'foo() is deprecated in drupal:10.1.0 and will be removed before drupal:11.0.0. See https://www.drupal.org/node/1234567',
@@ -107,7 +107,7 @@ function relaxed_and_correct(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function missing_the_change_record(): void {
   // @mago-expect lint:drupal/deprecation-message
   @trigger_error(
@@ -116,7 +116,7 @@ function missing_the_change_record(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function unversioned(): void {
   // Both versions are reported, and one pragma absorbs one issue.
   // @mago-expect lint:drupal/deprecation-message
@@ -127,7 +127,7 @@ function unversioned(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function link_with_trailing_period(): void {
   // @mago-expect lint:drupal/deprecation-message
   @trigger_error(
@@ -136,7 +136,7 @@ function link_with_trailing_period(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function fully_qualified_level(): void {
   // @mago-expect lint:drupal/deprecation-message
   @trigger_error(
@@ -145,7 +145,7 @@ function fully_qualified_level(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function combined_level(): void {
   // Coder reads only the first name of the level.
   // @mago-expect lint:drupal/deprecation-message
@@ -155,7 +155,7 @@ function combined_level(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function starts_with_a_variable(string $name): void {
   // Coder skips a message that starts with a variable, so the second one
   // passes without its change record.
@@ -170,7 +170,7 @@ function starts_with_a_variable(string $name): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function starts_with_an_interpolated_variable(string $name): void {
   // The variable stays in the text as the thing that is deprecated.
   @trigger_error(
@@ -184,7 +184,7 @@ function starts_with_an_interpolated_variable(string $name): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function starts_with_a_magic_constant(): void {
   // The constant's name stays in the text as the thing that is deprecated.
   @trigger_error(
@@ -260,12 +260,12 @@ final class DeprecationMessageStarts {
 
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function not_a_deprecation(): void {
   trigger_error('something went wrong', E_USER_WARNING);
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function unsilenced(): void {
   // @mago-expect lint:drupal/unsilenced-deprecation
   trigger_error(
@@ -274,7 +274,7 @@ function unsilenced(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function unsilenced_with_a_named_level(): void {
   // PHP binds this by parameter name, so it raises a deprecation just the
   // same. The sniff this ports reads the position and misses it.
@@ -285,7 +285,7 @@ function unsilenced_with_a_named_level(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function unsilenced_with_a_combined_level(): void {
   // Coder reads only the first name of the level.
   // @mago-expect lint:drupal/unsilenced-deprecation
@@ -295,7 +295,7 @@ function unsilenced_with_a_combined_level(): void {
   );
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function silencer_not_touching_the_call(): void {
   // @mago-format-ignore-start
   // @mago-expect lint:drupal/unsilenced-deprecation

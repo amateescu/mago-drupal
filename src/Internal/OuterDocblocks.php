@@ -45,6 +45,13 @@ final class OuterDocblocks
      */
     private const GROUP_MARKERS = ['@defgroup', '@addtogroup', '@coversdefaultclass', '@}'];
 
+    private static ?SourceFile $file = null;
+
+    /**
+     * @var array{list<Span>, list<Span>}
+     */
+    private static array $partition = [[], []];
+
     private function __construct() {}
 
     /**
@@ -76,10 +83,25 @@ final class OuterDocblocks
     }
 
     /**
-     * @return array{list<Span>, list<Span>} The docblocks outside the
-     *     bodies, then the ones inside.
+     * The docblocks outside the bodies, then the ones inside. Several rules
+     * read them, so the result is kept for the last file.
+     *
+     * @return array{list<Span>, list<Span>}
      */
     private static function partition(SourceFile $file): array
+    {
+        if (self::$file !== $file) {
+            self::$file = $file;
+            self::$partition = self::split($file);
+        }
+
+        return self::$partition;
+    }
+
+    /**
+     * @return array{list<Span>, list<Span>}
+     */
+    private static function split(SourceFile $file): array
     {
         // The target list is in source order. The bodies are thus kept as
         // two parallel arrays: each start, and the furthest end seen up to

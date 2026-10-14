@@ -113,7 +113,7 @@ function doc_end_body_docblock_is_not_checked(): void {
   echo $value;
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-tag-groups
 /**
  * Groups the parameters twice.
  *
@@ -127,7 +127,7 @@ function doc_param_group_split_by_a_blank_line(string $first, string $second): s
   return $first . $second;
 }
 
-// @mago-expect lint:drupal/doc-comment(2)
+// @mago-expect lint:drupal/doc-tag-groups(2)
 /**
  * Groups the parameters three times.
  *
@@ -144,7 +144,7 @@ function doc_param_group_three_groups(string $first, string $second, string $thi
   return $first . $second . $third;
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-tag-groups
 /**
  * Follows an example with the parameters.
  *
@@ -158,7 +158,7 @@ function doc_param_group_after_example_with_no_blank_line(string $value): string
   return $value;
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-tag-groups
 /**
  * Follows a note with the parameters.
  *

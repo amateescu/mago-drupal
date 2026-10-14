@@ -12,12 +12,6 @@ class CrlfSpacing
     public $oneLine;
 
     /**
-     * Has no blank line before the tags.
-     * @var int
-     */
-    public $noBlankBeforeTags;
-
-    /**
      * Joins its sections.
      *
      * @param int $a

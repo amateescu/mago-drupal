@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CommentDocblock;
+use amateescu\MagoDrupal\Internal\DeclarationComment;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\DocType;
-use amateescu\MagoDrupal\Internal\TypeNames;
+use amateescu\MagoDrupal\Internal\PropertyTags;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -18,7 +18,6 @@ use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\TriviaKind;
 
 use function array_values;
 use function count;
@@ -28,17 +27,18 @@ use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
 use function str_ends_with;
-use function stripos;
 use function strlen;
 use function strspn;
 use function substr;
 use function trim;
 
 /**
- * Checks that a class property has a `@var` docblock.
+ * Checks the comment style above a class property and the `@var` tag of its
+ * docblock.
  *
- * Ports Drupal.Commenting.VariableComment. `TypeNames` checks the `@var`
- * type.
+ * Ports Drupal.Commenting.VariableComment. `drupal/missing-property-comment`
+ * reports a property with no docblock, `drupal/doc-type-name` the `@var`
+ * type name, and `drupal/doc-see-tag` an empty `@see` tag.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -50,7 +50,7 @@ final class VariableCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/variable-comment',
             name: 'Variable comment',
-            description: 'Checks that a class property has a @var docblock.',
+            description: 'Checks the comment style above a class property and the @var tag of its docblock.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Property],
@@ -59,36 +59,19 @@ final class VariableCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // The attributes belong to the plain or hooked property inside the
-        // declaration.
-        $property = $context->file->getChildren($context->node)[0] ?? $context->node;
-        $anchor = Docblocks::commentAnchor($context->file, $property);
-        $closest = Docblocks::closest($context->file, $anchor);
-
-        // Coder wants a docblock on a typed property too. The type only makes
-        // its @var tag optional.
-        if ($closest === null) {
-            $context->report(Issue::new('The property has no docblock.', $context->node->span));
-
-            return;
-        }
-
-        if ($closest->kind !== TriviaKind::DocBlockComment) {
+        $comment = DeclarationComment::of($context);
+        if ($comment->hasWrongStyle()) {
             $issue = Issue::new('The property docblock must start with "/**".', $context->node->span);
-            $fix = CommentDocblock::edit($context->file, $closest, $property, $anchor);
+            $fix = $comment->styleEdit($context->file);
             $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }
 
-        // A property that inherits its parent's docblock has nothing of its
-        // own to check here. Coder's sniff makes the same exemption.
-        if (stripos($context->file->getText($closest->span), needle: '{@inheritdoc}') !== false) {
-            return;
+        $tags = PropertyTags::of($context);
+        if ($tags !== null) {
+            $this->checkTags($context, $tags);
         }
-
-        $tags = Docblocks::tags($context->file, $closest->span);
-        $this->checkTags($context, $tags);
     }
 
     /**
@@ -98,14 +81,11 @@ final class VariableCommentRule implements Rule
     {
         $varTags = [];
         foreach ($tags as $index => $tag) {
-            if ($tag->name === 'var') {
-                $varTags[] = [$index, $tag];
+            if ($tag->name !== 'var') {
+                continue;
             }
 
-            // Coder wants the reference on the tag's own line.
-            if ($tag->name === 'see' && trim($tag->lines[0]->text) === '') {
-                $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
-            }
+            $varTags[] = [$index, $tag];
         }
 
         if ($varTags === []) {
@@ -132,17 +112,11 @@ final class VariableCommentRule implements Rule
             return;
         }
 
-        // `$this` is a type, and Coder accepts it.
-        $name = [];
-        if (preg_match(DocType::VARIABLE, $content, $name) === 1 && $name[0] !== '$this') {
-            self::reportNameFirst($context, $firstVar, $name[0]);
+        $name = PropertyTags::leadingName($content);
+        if ($name !== null) {
+            self::reportNameFirst($context, $firstVar, $name);
 
             return;
-        }
-
-        [$type] = Docblocks::splitType($content);
-        if ($type !== null) {
-            TypeNames::checkVar($context, $firstVar, $type);
         }
 
         // Coder looks for the repeated name on the tag's own line only.

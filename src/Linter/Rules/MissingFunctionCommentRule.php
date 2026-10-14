@@ -1,0 +1,113 @@
+<?php
+
+declare(strict_types=1);
+
+namespace amateescu\MagoDrupal\Linter\Rules;
+
+use amateescu\MagoDrupal\Internal\DeclarationComment;
+use amateescu\MagoDrupal\Internal\Nodes;
+use Mago\Sdk\Linter\LintContext;
+use Mago\Sdk\Linter\Rule;
+use Mago\Sdk\Linter\RuleDefinition;
+use Mago\Sdk\Reporting\Issue;
+use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\NodeKind;
+
+use function stripos;
+use function strtolower;
+
+/**
+ * Checks that a function or method has a docblock.
+ *
+ * Ports `Missing` of Drupal.Commenting.FunctionComment. A docblock tagged
+ * `@file` above a function belongs to the file, so the function counts as
+ * undocumented. `drupal/function-comment` reports a comment in the wrong
+ * style.
+ */
+final class MissingFunctionCommentRule implements Rule
+{
+    private string $mentionPath = '';
+
+    /**
+     * @var list<int>
+     */
+    private array $constructorMentions = [];
+
+    public function getDefinition(): RuleDefinition
+    {
+        return new RuleDefinition(
+            code: 'drupal/missing-function-comment',
+            name: 'Missing function comment',
+            description: 'Reports a function or method with no docblock, a constructor excepted.',
+            defaultLevel: Level::Error,
+            defaultEnabled: true,
+            targets: [NodeKind::Function, NodeKind::Method],
+        );
+    }
+
+    public function lint(LintContext $context): void
+    {
+        $comment = DeclarationComment::of($context);
+        if ($comment->comment === null) {
+            // A constructor with nothing above it needs no docblock. One with
+            // a comment above it is checked like any other method.
+            if ($this->isConstructor($context)) {
+                return;
+            }
+
+            $context->report(Issue::new('The function has no docblock.', $context->node->span));
+
+            return;
+        }
+
+        if ($comment->hasFileTag($context->file)) {
+            $context->report(Issue::new('The function has no docblock.', $context->node->span));
+        }
+    }
+
+    /**
+     * Whether the node is a method named `__construct`. PHP ignores case in
+     * method names, so `__CONSTRUCT` counts too.
+     */
+    private function isConstructor(LintContext $context): bool
+    {
+        if ($context->node->kind !== NodeKind::Method) {
+            return false;
+        }
+
+        // A method whose text does not have the name cannot be the
+        // constructor. The rule finds the file's mentions once. Checking a
+        // method against them excludes almost every method without reading
+        // its nodes. The name lookup below must read the nodes.
+        if ($this->mentionPath !== $context->file->path) {
+            $this->mentionPath = $context->file->path;
+            $this->constructorMentions = self::mentionOffsets($context->file->contents);
+        }
+
+        $span = $context->node->span;
+        foreach ($this->constructorMentions as $offset) {
+            if ($offset >= $span->start && $offset < $span->end) {
+                return strtolower(Nodes::declaredName($context->file, $context->node) ?? '') === '__construct';
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The byte offsets of every `__construct` in the file, in any case.
+     *
+     * @return list<int>
+     */
+    private static function mentionOffsets(string $contents): array
+    {
+        $offsets = [];
+        $offset = stripos($contents, needle: '__construct');
+        while ($offset !== false) {
+            $offsets[] = $offset;
+            $offset = stripos($contents, needle: '__construct', offset: $offset + 1);
+        }
+
+        return $offsets;
+    }
+}
