@@ -372,6 +372,20 @@ function prose_after_an_example_still_needs_a_full_stop(array $settings): void {
 function param_description_with_a_star_column_example(array $settings): void {
 }
 
+/**
+ * Documents a list item that ends on a line starting with an @ word.
+ *
+ * Coder reads that line as a tag and checks the full stop on the line above.
+ *
+ * @param array $batch
+ *   The batch, with these elements:
+ *   - progress_message: Defaults to "t('Completed @current of
+ *     @total.')".
+ *   - error_message: Message displayed on error.
+ */
+function param_description_with_a_line_starting_with_an_at_word(array $batch): void {
+}
+
 // @mago-expect lint:drupal/function-comment
 /**
  * Param type with a space.
