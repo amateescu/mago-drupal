@@ -1,6 +1,6 @@
 # Core types and stubs
 
-How the analyzer types the core methods that Drupal documents differently from how they behave,
+How the analyzer types the core methods documented by Drupal differently from how they behave,
 through type providers and through stub files.
 
 ## Core return values
@@ -64,9 +64,9 @@ $url->toString($flag);                   // Drupal\Core\GeneratedUrl|string
   `$instance = parent::create($container)` in a form or controller is `static`, and so is
   `Foo::create($container)` when no `create()` on the way documents a type.
 
-`getLoadedRevisionId()` stays the `int` that core documents, though it is NULL on a new or
-duplicated entity. With the null in, Mago reports every `==` and `!=` comparison with it, and the
-flag that stops null reports elsewhere does not reach comparisons.
+`getLoadedRevisionId()` stays the `int` documented by core, though it is NULL on a new or duplicated
+entity. With the null in, Mago reports every `==` and `!=` comparison with it, and the flag that
+stops null reports elsewhere doesn't reach comparisons.
 
 ## Inspector assertions
 
@@ -96,8 +96,8 @@ $permissions->getPermissions()[$name]['title']; // TranslatableMarkup|string
 
 - **Revision translation flag.** Core documents `isRevisionTranslationAffected()` as returning a
   bool, but `ContentEntityBase` returns the raw field value: `'1'` or `'0'` from MySQL, an int from
-  SQLite, or NULL when the flag is not set. A `(bool)` cast on it is needed, so it is not reported
-  as `redundant-cast`.
+  SQLite, or NULL when the flag isn't set. A `(bool)` cast on it is needed, so it isn't reported as
+  `redundant-cast`.
 - **Translation placeholders.** The placeholder arguments of `t()`, `$this->t()`,
   `formatPlural()`, `TranslationInterface::translate()` and the `FormattableMarkup`,
   `TranslatableMarkup` and `PluralTranslatableMarkup` constructors are typed as
@@ -130,7 +130,7 @@ A stub can follow the installed core release:
 - `@stub-deprecated-in 11.2` on a member drops its `@deprecated` tag on a core older than 11.2;
 - `@stub-removed-in 12.0` drops the member on 12.0 and later.
 
-So a stub does not claim a deprecation or a method that the installed core does not have. The
+So a stub doesn't claim a deprecation or a method that doesn't exist in the installed core. The
 release is read from the root's `Drupal::VERSION`. With no core on disk, the stub is used as
 written.
 
@@ -139,24 +139,24 @@ written.
 Not translated from phpstan-drupal's stub directory:
 
 - the generics of the `TypedData` and `FieldItemList` hierarchies, about 60 files, most of them
-  empty class bodies that only fix the order in which PHPStan reads the inheritance;
-- the `@property` docblocks of the field item classes. Each pins a parent class that core moves
+  empty class bodies that only fix the order in which the inheritance is read by PHPStan;
+- the `@property` docblocks of the field item classes. Each pins a parent class moved by core
   between releases, as `EntityReferenceItem` already extends `EntityReferenceItemBase` in 11.4, and
   they add warnings on concretely typed items;
-- the conditional returns of `AccessResult::allowedIf()` and `forbiddenIf()`. A condition that is
-  not a literal gives the union, and `AccessResultAllowed` does not implement
+- the conditional returns of `AccessResult::allowedIf()` and `forbiddenIf()`. A condition that isn't
+  a literal gives the union, and `AccessResultAllowed` doesn't implement
   `AccessResultReasonInterface`, so `allowedIf($x)->setReason()` becomes an error in the contrib
   code that calls it that way;
 - `$modules` on `KernelTestBase` and `BrowserTestBase`. Restating those class headers drops the
   PHPUnit ancestry that the test checks and every assertion depend on;
-- whatever the plugin's own providers already do: entity storage, entity queries, container
+- whatever is already done by the plugin's own providers: entity storage, entity queries, container
   lookups, config, plugin managers and `getDefinition()`.
 
 Not ported from phpstan-drupal's type extensions:
 
-- narrowing one method's result by another call on the same object: `id()` is not null once
-  `isNew()` is false, and `getKey()` or `getLinkTemplate()` is not false once `hasKey()` or
-  `hasLinkTemplate()` is true for the same key. Mago's assertions narrow a variable or a parameter,
-  not what another method returns. `getKey()` is a string for the keys that every entity type has,
-  see [Entity type keys](entities.md#entity-type-keys);
+- narrowing one method's result by another call on the same object: `id()` isn't null once `isNew()`
+  is false, and `getKey()` or `getLinkTemplate()` isn't false once `hasKey()` or `hasLinkTemplate()`
+  is true for the same key. Mago's assertions narrow a variable or a parameter, not what another
+  method returns. `getKey()` is a string for the keys that every entity type has, see
+  [Entity type keys](entities.md#entity-type-keys);
 - the `entity-type-id` docblock type.

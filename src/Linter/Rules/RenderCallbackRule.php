@@ -87,7 +87,7 @@ final class RenderCallbackRule implements Rule
         return new RuleDefinition(
             code: 'drupal/render-callback',
             name: 'Render callback shape',
-            description: 'Reports a render array callback that is not a closure, a service:method string or a class method.',
+            description: "Reports a render array callback that isn't a closure, a service:method string or a class method.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // `KeyValueArrayElement` is a target so that Rust collects every

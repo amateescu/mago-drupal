@@ -41,7 +41,7 @@ final class FileCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/file-comment',
             name: 'File comment',
-            description: 'Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file does not start with a comment.',
+            description: "Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file doesn't start with a comment.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],

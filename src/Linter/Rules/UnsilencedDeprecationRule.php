@@ -39,7 +39,7 @@ final class UnsilencedDeprecationRule implements Rule
         return new RuleDefinition(
             code: 'drupal/unsilenced-deprecation',
             name: 'Unsilenced deprecation',
-            description: 'Reports a trigger_error() deprecation notice that does not start with "@".',
+            description: 'Reports a trigger_error() deprecation notice that doesn\'t start with "@".',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::FunctionCall],

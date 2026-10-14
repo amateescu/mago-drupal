@@ -14,8 +14,8 @@ The hook checks read an implementation in two forms:
   `.inc`, `.theme`, `.profile` or `.engine` file. The module is the first part of the file name,
   as in `example.module` or `example.views.inc`.
 
-A procedural function is not checked when it has a `#[LegacyHook]` or `#[LegacyRequirementsHook]`
-attribute, which keeps a procedural implementation next to an OOP one for older core. It is not
+A procedural function isn't checked when it has a `#[LegacyHook]` or `#[LegacyRequirementsHook]`
+attribute, which keeps a procedural implementation next to an OOP one for older core. It isn't
 checked either when it is the function marked `#[ProceduralHookScanStop]` or comes after it, since
 Drupal stops collecting procedural hooks there.
 
@@ -104,7 +104,8 @@ several tie, the implementation is reported only if all of them are deprecated.
       since Drupal 10 removed their documentation. The check reports neither.
     - phpstan-drupal also checks a function with `#[LegacyHook]` or `#[LegacyRequirementsHook]`, and
       the functions from `#[ProceduralHookScanStop]` on.
-    - phpstan-drupal reports every deprecation. It has nothing like `--deprecations=12`.
+    - phpstan-drupal reports every deprecation. Nothing like `--deprecations=12` exists in
+      phpstan-drupal.
 
 ---
 
@@ -114,14 +115,14 @@ several tie, the implementation is reported only if all of them are deprecated.
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `HookFormAlterRule`
 
-phpstan-drupal reports a form alter hook whose parameters do not fit the call. The module handler
+phpstan-drupal reports a form alter hook whose parameters don't fit the call. The module handler
 calls every form alter hook as `(array &$form, FormStateInterface $form_state, string $form_id)`.
 A form alter implementation is an implementation of `hook_form_alter()` or
 `hook_form_FORM_ID_alter()`, see [Hook implementations](#hook-implementations).
 
 **Reports:**
 
-- a form alter implementation whose first parameter is not taken by reference;
+- a form alter implementation whose first parameter isn't taken by reference;
 - one whose first parameter is typed as something other than an array;
 - one whose second parameter is typed as something other than `FormStateInterface`. A type whose
   name ends in `FormStateInterface` or `FormState` counts;
@@ -179,15 +180,15 @@ A form alter implementation is an implementation of `hook_form_alter()` or
     - phpstan-drupal's `ProceduralHookEntityOperationCacheabilityRule`
 
 Drupal 11.3 added a `CacheableMetadata` parameter to `hook_entity_operation()` and
-`hook_entity_operation_alter()`. phpstan-drupal reports an implementation that does not take it.
-The report suggests `?\Drupal\Core\Cache\CacheableMetadata $cacheability = NULL`, which keeps the
+`hook_entity_operation_alter()`. phpstan-drupal reports an implementation that doesn't take it. The
+report suggests `?\Drupal\Core\Cache\CacheableMetadata $cacheability = NULL`, which keeps the
 implementation working on core before 11.3, which passes no such argument.
 
 **Reports:**
 
-- an implementation of `hook_entity_operation()` whose second parameter is not typed as
+- an implementation of `hook_entity_operation()` whose second parameter isn't typed as
   `CacheableMetadata`;
-- an implementation of `hook_entity_operation_alter()` whose third parameter is not typed as
+- an implementation of `hook_entity_operation_alter()` whose third parameter isn't typed as
   `CacheableMetadata`.
 
 A type whose name ends in `CacheableMetadata` or `CacheableDependencyInterface` counts, since that
@@ -197,8 +198,8 @@ interface takes the object too. A missing or untyped parameter is reported. See
 **Not reported:**
 
 - any implementation while the documentation function, `hook_entity_operation()` or
-  `hook_entity_operation_alter()` in core's `*.api.php` file, does not declare the parameter, as
-  on core before 11.3.
+  `hook_entity_operation_alter()` in core's `*.api.php` file, doesn't declare the parameter, as on
+  core before 11.3.
 
 ??? example "Example"
 
@@ -258,14 +259,14 @@ interface takes the object too. A missing or untyped parameter is reported. See
 - **Ports:** phpstan-drupal's `LoadIncludes`
 
 `ModuleHandlerInterface::loadInclude($module, $type, $name)` loads
-`<module directory>/<name>.<type>`, and `$name` defaults to the module. For a file that does not
-exist, or a module that is not installed, it returns FALSE and loads nothing. phpstan-drupal reports
-a call that names a file that does not exist.
+`<module directory>/<name>.<type>`, and `$name` defaults to the module. For a file that doesn't
+exist, or a module that isn't installed, it returns FALSE and loads nothing. phpstan-drupal reports
+a call that names a file that doesn't exist.
 
 **Reports:**
 
-- a `loadInclude()` call that names a file that does not exist in the module's directory;
-- a call that names a module that is not under the Drupal root, as a warning.
+- a `loadInclude()` call that names a file that doesn't exist in the module's directory;
+- a call that names a module that isn't under the Drupal root, as a warning.
 
 The module, the type and the name must be literal strings, by position or by name, as in
 `loadInclude(type: 'inc', module: 'example')`. An empty name stands for the module, as it does for
@@ -273,7 +274,7 @@ the module handler.
 
 **Not reported:**
 
-- a call whose module, type or name is computed, which cannot be checked;
+- a call whose module, type or name is computed, which can't be checked;
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
 
 ??? example "Example"
@@ -311,7 +312,8 @@ the module handler.
 
 ??? note "Compared with phpstan-drupal"
 
-    - phpstan-drupal reports a module it cannot find as an error. The check reports it as a warning.
+    - phpstan-drupal reports a module that can't be found as an error. The check reports it as a
+      warning.
     - phpstan-drupal reads the arguments by position only.
     - phpstan-drupal looks for `.<type>` when the name is an empty string. The module handler and
       the check use the module's name.

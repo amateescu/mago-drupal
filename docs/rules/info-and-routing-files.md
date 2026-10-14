@@ -14,7 +14,7 @@ outside PHP tags, and these rules read the YAML in it.
 - **Ports:** `Drupal.InfoFiles.AutoAddedKeys`: `Project`, `Timestamp`, `Version`
 
 Coder asks for no `project`, `datestamp` or `version` key in an `.info.yml` file. The drupal.org
-packaging script adds them to the info files of a release, so the files in the repository must not
+packaging script adds them to the info files of a release, so the files in the repository mustn't
 have them.
 
 **Reports:**
@@ -84,7 +84,7 @@ Coder asks for the `dependencies` of an `.info.yml` file as a list.
 
 **Reports:**
 
-- a `dependencies` key in an `.info.yml` file that does not hold a list, such as
+- a `dependencies` key in an `.info.yml` file that doesn't hold a list, such as
   `dependencies: drupal:node`.
 
 ??? example "Example"
@@ -120,7 +120,7 @@ DrupalPractice asks the `.info.yml` file of an extension for a description.
 
 **Not reported:**
 
-- the files that `drupal/info-core-version-requirement` skips.
+- the files skipped by `drupal/info-core-version-requirement`.
 
 ??? note "Compared with Coder"
 

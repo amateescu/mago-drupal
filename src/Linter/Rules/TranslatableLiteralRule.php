@@ -65,7 +65,7 @@ final class TranslatableLiteralRule implements Rule
         return new RuleDefinition(
             code: 'drupal/translatable-literal',
             name: 'Translatable literal',
-            description: 'Reports a translatable string that is not a literal, a first-class callable such as t(...), and a string joined after the call.',
+            description: "Reports a translatable string that isn't a literal, a first-class callable such as t(...), and a string joined after the call.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [...Calls::CALL_KINDS, NodeKind::Instantiation, ...self::CALLABLE_KINDS],

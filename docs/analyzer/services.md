@@ -60,8 +60,8 @@ services files defines, the analyzer types the result by the kind of value writt
 one name values of different kinds, the type is their union. This covers every container that the
 lookups cover, and `\Drupal::getContainer()`.
 
-The value itself is not used. `settings.php`, a site's own services file and service providers
-change values, and `app.root` and `site.path` are empty strings that the kernel replaces.
+The value itself isn't used. `settings.php`, a site's own services file and service providers change
+values, and `app.root` and `site.path` are empty strings that the kernel replaces.
 
 **Not typed:**
 
@@ -93,9 +93,9 @@ and the copies in test fixtures. The analyzer resolves these the way the contain
 It also adds the synthetic `kernel`, `class_loader` and `service_container` services. The
 `parameters:` sections of the same files give the parameter kinds.
 
-A site's own `services.yml` under `sites/` is not read. `settings.php` picks the files that the
-container loads, through `container_yamls`, and the analyzer does not run it. Such a file only
-overrides the values of parameters whose kinds core and the modules already fix.
+A site's own `services.yml` under `sites/` isn't read. `settings.php` picks the files that the
+container loads, through `container_yamls`, and the analyzer doesn't run it. Such a file only
+overrides the values of parameters whose kinds are already fixed by core and the modules.
 
 **Service providers.** The `*ServiceProvider.php` classes in the analyzed `[source] paths`, through
 Mago's codebase scan. The provider files under the root's `core/lib` and the `src` directories of
@@ -111,10 +111,10 @@ A literal id with a computed class is kept as a service of unknown type, so the 
 defined. A provider's registration overrides the one from YAML, which is the order the container
 applies them in.
 
-Only the providers that Drupal registers are read: core's `CoreServiceProvider`, and a module's
+Only the providers registered by Drupal are read: core's `CoreServiceProvider`, and a module's
 `src/<Module>ServiceProvider.php`. The installer's providers run only during an install, and a test
-module's provider only in tests. A test module's services file adds its own services, and does not
-replace one that core or another module defines.
+module's provider only in tests. A test module's services file adds its own services, and doesn't
+replace one defined by core or another module.
 
 ### Visibility
 
@@ -128,7 +128,7 @@ Symfony 5.2. Such a service is private unless `setPublic(TRUE)` is called on it:
 
 A literal `setPublic(FALSE)` makes any of them private, a `register()` chain included. A
 `new ChildDefinition('parent')` takes the class and the visibility of its parent, unless it sets its
-own. A definition that the scan cannot follow, such as one that another method builds or finishes,
+own. A definition that the scan can't follow, such as one that another method builds or finishes,
 counts as public, and so does a variable reused for several definitions once any of them is made
 public. Visibility is read from the providers in the analyzed paths. The ids read from disk count as
 public.
@@ -157,7 +157,7 @@ share: the decorated class when the decorator extends it, otherwise the most spe
 interfaces that they both have, such as `CronInterface`. That is an intersection when there are
 several, and the declared type when they share none.
 
-A decorator whose class is not in the codebase, such as one from a module that the run does not
+A decorator whose class isn't in the codebase, such as one from a module that the run doesn't
 analyze, leaves the id its own class. Otherwise one contrib module that decorates a core service
 would turn every core caller of that id into a bare `object`.
 
@@ -167,7 +167,7 @@ These keep the declared type:
 
 - a service whose class exists only at runtime: a `factory:` without `class:`, or a `%parameter%`
   class;
-- a service whose class Mago has not scanned;
+- a service whose class hasn't been scanned by Mago;
 - anything that a `ServiceModifierInterface::alter()` changes.
 
 ---
@@ -227,8 +227,8 @@ has the message of the definition, which names the replacement.
 
     - phpstan-drupal checks `get()` only where the method it finds is declared by Symfony's
       `ContainerInterface`. A call on a value typed as a class that declares `get()` itself, such as
-      Drupal's `ContainerBuilder`, is not checked there. The check covers every container.
-    - phpstan-drupal does not check the class resolver.
+      Drupal's `ContainerBuilder`, isn't checked there. The check covers every container.
+    - phpstan-drupal doesn't check the class resolver.
     - phpstan-drupal checks a string literal id. The check also takes a `Foo::class` id.
     - phpstan-drupal also reports in test code and in `*.api.php` files.
 
@@ -239,7 +239,7 @@ has the message of the definition, which names the replacement.
 - **Level:** warning
 - **Source:** Drupal's service container
 
-The container throws a `ServiceNotFoundException` for an id that it does not have. A compiled
+The container throws a `ServiceNotFoundException` for an id that it doesn't have. A compiled
 container leaves out the ids that no services file or provider defines, and the private services.
 
 **Reports:**
@@ -264,7 +264,7 @@ container leaves out the ids that no services file or provider defines, and the 
   `persistent_login.token_manager`. It belongs to a module that the site may not have, so a typo in
   the first segment goes unreported too. With `--core`, these ids are checked, since core looks up
   only its own services;
-- any id while core's services are not in the index;
+- any id while core's services aren't in the index;
 - test code and hook documentation in `*.api.php` files.
 
 ??? example "Example"
@@ -295,7 +295,7 @@ container leaves out the ids that no services file or provider defines, and the 
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not report an unknown or a private service id.
+    phpstan-drupal doesn't report an unknown or a private service id.
 
 ---
 
@@ -305,7 +305,7 @@ container leaves out the ids that no services file or provider defines, and the 
 - **Source:** Drupal's service container
 
 When the container builds a service with fewer arguments than the constructor of its class
-requires, PHP throws an `ArgumentCountError`. PHP drops the arguments that a constructor does not
+requires, PHP throws an `ArgumentCountError`. PHP drops the arguments that a constructor doesn't
 take.
 
 **Reports:**
@@ -328,14 +328,14 @@ service id and its services file. The count follows the container:
 **Not reported:**
 
 - a service whose class is outside the analyzed code. The report is on the class, so a module's
-  services file that names a core or contrib class outside the run is not checked;
+  services file that names a core or contrib class outside the run isn't checked;
 - extra arguments to a constructor that reads them through `func_get_args()`;
 - autowired services: on the definition, on its parent, or through the `_defaults` of the file for a
   definition without a parent;
 - named arguments, factories, synthetic services and abstract services;
 - services that a provider registers, and ids that a `*ServiceProvider.php` or `*Pass.php` file
   under the root registers, fetches or removes with a literal id;
-- a class with a constructor that is not public, or with an ancestor that Mago has not scanned;
+- a class with a constructor that isn't public, or with an ancestor not scanned by Mago;
 - test code.
 
 ???+ example "Example"
@@ -369,4 +369,4 @@ service id and its services file. The count follows the container:
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal does not check the arguments of a service definition.
+    phpstan-drupal doesn't check the arguments of a service definition.

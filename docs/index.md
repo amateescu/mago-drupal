@@ -6,9 +6,9 @@ linter, and teaches the Mago analyzer what Drupal's services, entities, config a
 back. Together with `mago format` and Mago's own rules, it replaces phpcs and Coder for the PHP
 files of a Drupal project.
 
-- **Linter rules** check the parts of the standards that Mago's own rules cannot. They port the
-  checks of Coder's `Drupal` and `DrupalPractice` standards that need to know about Drupal, add a
-  few that only the written standards ask for, and port a few checks of phpstan-drupal. See
+- **Linter rules** check the parts of the standards that can't be checked by Mago's own rules. They
+  port the checks of Coder's `Drupal` and `DrupalPractice` standards that need to know about Drupal,
+  add a few asked for only in the written standards, and port a few checks of phpstan-drupal. See
   [Linter rules](rules/index.md).
 - **Analyzer plugins** give `mago analyze` the types of Drupal's services, entities, config and
   plugins, and port phpstan-drupal's Drupal-specific checks. See [Analyzer](analyzer/index.md).

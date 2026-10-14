@@ -2,7 +2,7 @@
 
 Checks for classes that call `\Drupal` where they can take a service through dependency injection,
 for entity storages that a class takes or keeps instead of asking the entity type manager, and for
-the properties that `DependencySerializationTrait` cannot restore.
+the properties that `DependencySerializationTrait` can't restore.
 
 ---
 
@@ -31,11 +31,11 @@ for a form, a controller or a plugin.
 - a static method, which has no injected services to use;
 - a constructor with a parameter that accepts null. Drupal's deprecation policy adds a new service
   to a constructor as a nullable parameter, and the constructor falls back to `\Drupal::service()`
-  for callers that do not pass it yet;
+  for callers that don't pass it yet;
 - a call in a [deprecation scope](deprecations.md#deprecation-scopes), such as deprecated code and
   the callables passed to `DeprecationHelper::backwardsCompatibleCall()`. A deprecated method keeps
-  its lookup until it is removed, and a callable for newer core can use a service that older core
-  does not have;
+  its lookup until it is removed, and a callable for newer core can use a service that doesn't exist
+  in older core;
 - a call inside an anonymous class;
 - any other class, such as a plain service;
 - test code (any file under a `tests` directory).
@@ -81,7 +81,7 @@ for a form, a controller or a plugin.
 
     - phpstan-drupal checks every class except tests, entities, typed data, stream wrappers,
       Nightwatch test setup classes, enums and traits. It also reports the services and other
-      classes that the check leaves alone.
+      classes left alone by the check.
     - phpstan-drupal also reports the fallback in a constructor with a nullable parameter, a call in
       deprecated code or in a callable passed to `DeprecationHelper::backwardsCompatibleCall()`, and
       a call in an anonymous class.
@@ -116,7 +116,7 @@ uses it.
   reported;
 - as many storage parameters as the parent's constructor takes, under any name, since the class
   has to pass them on;
-- a type whose name does not end in `Storage` or `StorageInterface`, even when it extends
+- a type whose name doesn't end in `Storage` or `StorageInterface`, even when it extends
   `EntityStorageInterface`.
 
 ??? example "Example"
@@ -173,7 +173,7 @@ as [`drupal/entity-storage-injection`](#drupalentity-storage-injection).
 
 **Not reported:**
 
-- a promoted constructor parameter, which `drupal/entity-storage-injection` reports;
+- a promoted constructor parameter, which is reported by `drupal/entity-storage-injection`;
 - an entity handler's own `$storage` or `$storage_controller` property. In a trait, `$storage` is
   left alone when every class that uses the trait is an entity handler.
 
@@ -230,8 +230,8 @@ as [`drupal/entity-storage-injection`](#drupalentity-storage-injection).
 
 phpstan-drupal reports a logger channel that a constructor takes from the logger factory and keeps
 on the object, in a class that uses `DependencySerializationTrait`. The trait serializes a service
-by its id. A channel from the factory has no id, so the trait cannot restore the property. Inject
-the channel service itself, such as `logger.channel.example`.
+by its id. A channel from the factory has no id, so the trait can't restore the property. Inject the
+channel service itself, such as `logger.channel.example`.
 
 **Reports:**
 
@@ -298,11 +298,11 @@ the channel service itself, such as `logger.channel.example`.
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `DependencySerializationTraitPropertyRule`
 
-phpstan-drupal reports a property that `DependencySerializationTrait` cannot restore. The trait's
+phpstan-drupal reports a property that `DependencySerializationTrait` can't restore. The trait's
 `__sleep()` lists the properties that `get_object_vars()` sees in the class that composes the trait,
 and its `__wakeup()` writes them back by name. Neither method reaches a private property of another
-class, and before PHP 8.4 `__wakeup()` cannot write a readonly property declared below the
-composing class.
+class, and before PHP 8.4 `__wakeup()` can't write a readonly property declared below the composing
+class.
 
 A class composes the trait when its body uses the trait, or a trait that uses it, since a trait
 method runs in the scope of the class that uses it. The check looks at every class that uses the
@@ -314,13 +314,13 @@ trait, itself, through another trait or through a parent class.
   included. When a subclass is serialized, `__sleep()` would have to name that property in its
   mangled form;
 - before PHP 8.4, a readonly property whose type can hold an object, declared below the composing
-  class. A type of scalars and arrays cannot. PHP 8.4 lets the parent's scope write it. As in
+  class. A type of scalars and arrays can't. PHP 8.4 lets the parent's scope write it. As in
   phpstan-drupal, any readonly property of such a type counts, although `__wakeup()` writes only
   the properties that held a service or an entity storage, so a readonly value object such as
   core's `Component::$metadata` is reported too;
 - a private property that a trait in the `Drupal\` namespace, named in the class body, brings into
   the class. It is reported at the class, since the trait's file serves other classes;
-- in a class that composes the trait itself, below parents that do not, each private property of
+- in a class that composes the trait itself, below parents that don't, each private property of
   those parents, and before PHP 8.4 each of their readonly properties of such a type. These are
   reported at the class, once per property, naming the parent. The trait's `__sleep()` never lists
   them.
@@ -328,13 +328,13 @@ trait, itself, through another trait or through a parent class.
 Promoted constructor parameters count. The classes that compose the trait are read from the PHP
 files under the Drupal root. Without core on disk, core's three bases stand in: `FormBase`,
 `PluginBase` and `EntityHandlerBase`. So core's forms, plugins and entity handlers count, and
-controllers, plugin forms and views plugins, which do not use the trait, do not.
+controllers, plugin forms and views plugins, which don't use the trait, don't.
 
 **Not reported:**
 
-- a static property, which `get_object_vars()` does not list;
+- a static property, which `get_object_vars()` doesn't list;
 - a property of a parent or a trait outside the `Drupal\` namespace, such as Symfony's session
-  handler base, PHPUnit's `TestCase` or Prophecy's trait, since the module cannot change them. A
+  handler base, PHPUnit's `TestCase` or Prophecy's trait, since the module can't change them. A
   property that a trait in the `Drupal\` namespace brings into a parent counts as the parent's, and
   one that it brings into the class itself as the class's own;
 - the parents' properties in a class with a `__sleep()` of its own, or with a `__serialize()`,
@@ -378,6 +378,6 @@ controllers, plugin forms and views plugins, which do not use the trait, do not.
 
 ??? note "Compared with phpstan-drupal"
 
-    - phpstan-drupal does not report the private and readonly properties of the parents of a class
+    - phpstan-drupal doesn't report the private and readonly properties of the parents of a class
       that composes the trait.
     - phpstan-drupal also reports a private static property.

@@ -36,7 +36,7 @@
             {"code": "ImplementsLine", "status": "format"},
             {"code": "InterfaceSameLine", "status": "format"},
             {"code": "InterfaceWrongIndent", "status": "format"},
-            {"code": "MissingBrace", "status": "report", "where": ["lint:parse"], "note": "A class without braces does not parse. Mago reports a `parse` error, and the formatter skips the file."},
+            {"code": "MissingBrace", "status": "report", "where": ["lint:parse"], "note": "A class without braces doesn't parse. Mago reports a `parse` error, and the formatter skips the file."},
             {"code": "NewlineBeforeKeyword", "status": "format"},
             {"code": "NoSpaceBeforeName", "status": "format"},
             {"code": "OpenBraceNewLine", "status": "format"},
@@ -110,7 +110,7 @@
             {"code": "InheritDocWithoutBraces", "status": "fix"},
             {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
             {"code": "LongNotCapital", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
-            {"code": "MissingShort", "status": "partial", "where": ["ext:drupal/missing-summary"], "note": "A file docblock that holds only `@file` is not reported. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
+            {"code": "MissingShort", "status": "partial", "where": ["ext:drupal/missing-summary"], "note": "A file docblock that holds only `@file` isn't reported. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
             {"code": "ParamGroup", "status": "report", "where": ["ext:drupal/doc-tag-groups"]},
             {"code": "ParamNotFirst", "status": "report", "where": ["ext:drupal/doc-tag-groups"]},
             {"code": "ShortFullStop", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
@@ -195,7 +195,7 @@
             {"code": "ParamMissingDefinition", "status": "report", "where": ["ext:drupal/doc-tag-descriptions"]},
             {"code": "ParamNameDot", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
-            {"code": "ParamNameNoMatch", "status": "partial", "where": ["analyze:invalid-param-tag"], "note": "The analyzer reports a `@param` tag that names no parameter. It does not report a duplicate tag or tags in a different order than the parameters, which Coder reports."},
+            {"code": "ParamNameNoMatch", "status": "partial", "where": ["analyze:invalid-param-tag"], "note": "The analyzer reports a `@param` tag that names no parameter. It doesn't report a duplicate tag or tags in a different order than the parameters, which Coder reports."},
             {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnCommentIndentation", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
@@ -305,7 +305,7 @@
         "sniff": "Drupal.Files.EndFileNewline",
         "standard": "Drupal",
         "where": ["format"],
-        "note": "PHP files only. Coder also checks the last line of `.txt`, `.md` and `.yml` files, which Mago does not read.",
+        "note": "PHP files only. Coder also checks the last line of `.txt`, `.md` and `.yml` files, which Mago doesn't read.",
         "codes": [
             {"code": "NoneFound", "status": "format"},
             {"code": "TooMany", "status": "format"}
@@ -419,7 +419,7 @@
         "sniff": "Drupal.InfoFiles.ClassFiles",
         "standard": "Drupal",
         "where": ["phpcs"],
-        "note": "Checks the `files[]` lines of a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files.",
+        "note": "Checks the `files[]` lines of a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It doesn't read `.info.yml` files.",
         "codes": [
             {"code": "DeclaredFileNotFound", "status": "phpcs"},
             {"code": "UnnecessaryFileDeclaration", "status": "phpcs"}
@@ -437,7 +437,7 @@
         "sniff": "Drupal.InfoFiles.DuplicateEntry",
         "standard": "Drupal",
         "where": ["phpcs"],
-        "note": "Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files.",
+        "note": "Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It doesn't read `.info.yml` files.",
         "codes": [
             {"code": "DuplicateEntry", "status": "phpcs"}
         ]
@@ -446,7 +446,7 @@
         "sniff": "Drupal.InfoFiles.Required",
         "standard": "Drupal",
         "where": ["phpcs"],
-        "note": "Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It does not read `.info.yml` files.",
+        "note": "Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions include `info`. It doesn't read `.info.yml` files.",
         "codes": [
             {"code": "Core", "status": "phpcs"},
             {"code": "D7PHPVersion", "status": "phpcs"},
@@ -478,7 +478,7 @@
         "sniff": "Drupal.NamingConventions.ValidFunctionName",
         "standard": "Drupal",
         "where": ["ext:drupal/function-name"],
-        "note": "Core does not run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the configuration in Setup does not turn it on. When on, it accepts a run of capitals, as in `getURL()`, which Coder reports.",
+        "note": "Core doesn't run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the configuration in Setup doesn't turn it on. When on, it accepts a run of capitals, as in `getURL()`, which Coder reports.",
         "codes": [
             {"code": "InvalidName", "status": "report"},
             {"code": "InvalidPrefix", "status": "report", "where": ["ext:drupal/function-prefix"]},
@@ -501,7 +501,7 @@
         "where": ["ext:drupal/property-name"],
         "codes": [
             {"code": "LowerCamelName", "status": "report"},
-            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup does not turn it on. It reports a name that is neither camel case nor snake case, such as `$Foo`, and also `$foo_Bar`, which Coder accepts. It skips `foreach`, `catch`, `static` and `global` variables."}
+            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup doesn't turn it on. It reports a name that is neither camel case nor snake case, such as `$Foo`, and also `$foo_Bar`, which Coder accepts. It skips `foreach`, `catch`, `static` and `global` variables."}
         ]
     },
     {
@@ -695,7 +695,7 @@
         "where": ["format"],
         "codes": [
             {"code": "BreakIndent", "status": "format"},
-            {"code": "Indent", "status": "partial", "note": "A closing brace after inline HTML, on a `<?php }` line, keeps the indent of the HTML. The formatter does not change it, and Coder reports it."},
+            {"code": "Indent", "status": "partial", "note": "A closing brace after inline HTML, on a `<?php }` line, keeps the indent of the HTML. The formatter doesn't change it, and Coder reports it."},
             {"code": "Line", "status": "format"}
         ]
     },
@@ -802,7 +802,7 @@
         "sniff": "Generic.NamingConventions.InterfaceNameSuffix",
         "standard": "Drupal",
         "where": ["lint:interface-name"],
-        "note": "With `interface-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that is not in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
+        "note": "With `interface-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
         "codes": [
             {"code": "Missing", "status": "report"}
         ]
@@ -811,7 +811,7 @@
         "sniff": "Generic.NamingConventions.TraitNameSuffix",
         "standard": "Drupal",
         "where": ["lint:trait-name"],
-        "note": "With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that is not in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
+        "note": "With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
         "codes": [
             {"code": "Missing", "status": "report"}
         ]
@@ -829,7 +829,7 @@
         "sniff": "Generic.PHP.DeprecatedFunctions",
         "standard": "Drupal",
         "where": ["analyze:deprecated-function"],
-        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` has no deprecation, so the analyzer does not report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
+        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` has no deprecation, so the analyzer doesn't report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
         "codes": [
             {"code": "Deprecated", "status": "report"}
         ]
@@ -840,8 +840,8 @@
         "where": ["lint:no-short-opening-tag"],
         "codes": [
             {"code": "EchoFound", "status": "fix", "where": ["ext:drupal/short-echo-tag"]},
-            {"code": "Found", "status": "fix", "note": "Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix writes no space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which does not parse."},
-            {"code": "PossibleFound", "status": "fix", "note": "Mago always reads `<?` as an opening tag, so a `<?` in HTML text that is not PHP code gives parse errors."}
+            {"code": "Found", "status": "fix", "note": "Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix writes no space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which doesn't parse."},
+            {"code": "PossibleFound", "status": "fix", "note": "Mago always reads `<?` as an opening tag, so a `<?` in HTML text that isn't PHP code gives parse errors."}
         ]
     },
     {
@@ -876,7 +876,7 @@
         "where": ["format"],
         "codes": [
             {"code": "NonIndentTabsUsed", "status": "partial", "note": "The formatter keeps comment text as written, so a tab inside a comment stays."},
-            {"code": "TabsUsed", "status": "partial", "note": "The formatter does not change the indent of HTML outside the PHP tags."}
+            {"code": "TabsUsed", "status": "partial", "note": "The formatter doesn't change the indent of HTML outside the PHP tags."}
         ]
     },
     {
@@ -1156,8 +1156,8 @@
             {"code": "SpaceBeforeColonDefault", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `default: {`. Mago reports the braces as a redundant block."},
             {"code": "SpacingAfterBreak", "status": "partial", "where": ["ext:drupal/case-break-blank-line"]},
             {"code": "SpacingAfterDefault", "status": "format"},
-            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago cannot parse it and reports a parse error."},
-            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago cannot parse it and reports a parse error."}
+            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago can't parse it and reports a parse error."},
+            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago can't parse it and reports a parse error."}
         ]
     },
     {
@@ -1319,7 +1319,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "CheckPlainLiteral", "status": "gap"}
         ]
@@ -1337,7 +1337,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "DbQuery", "status": "gap"}
         ]
@@ -1347,7 +1347,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "DbSelectBrace", "status": "gap"}
         ]
@@ -1367,7 +1367,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "ErrorMessage", "status": "gap"}
         ]
@@ -1385,7 +1385,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "LCheckPlain", "status": "gap"}
         ]
@@ -1395,7 +1395,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "ErrorMessage", "status": "gap"}
         ]
@@ -1405,7 +1405,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "CheckPlain", "status": "gap"}
         ]
@@ -1415,7 +1415,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "ThemeFunctionDirect", "status": "gap"}
         ]
@@ -1425,7 +1425,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "VariableSet", "status": "gap"}
         ]
@@ -1453,7 +1453,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "AddFunctionFound", "status": "gap"},
             {"code": "AddFunctionFoundPageBuild", "status": "gap"}
@@ -1537,7 +1537,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant does not exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "VariableName", "status": "gap", "note": "A Drupal 7 `variable_get()` name without the module prefix. Not ported."}
         ]

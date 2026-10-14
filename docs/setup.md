@@ -43,7 +43,7 @@ string after the path of `worker.php`.
 ### Checking Drupal core
 
 Add `"--core"` to the command when you check Drupal core itself. It turns off the rules whose checks
-core's `phpcs.xml.dist` turns off or does not run:
+are turned off or not run by core's `phpcs.xml.dist`:
 
 - `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
   `method-name-underscore` and `short-list`;
@@ -52,10 +52,10 @@ core's `phpcs.xml.dist` turns off or does not run:
   `class-prefix`, `curl-ssl-verify`, `form-alter-comment`, `global-constant`,
   `request-superglobal`, `strict-config-schema` and `untranslated-options`, which all port
   DrupalPractice sniffs;
-- the rules for info and routing files that core does not run: `info-core-version-requirement`,
+- the rules for info and routing files not run by core: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`.
 
-It also turns off the two analyzer checks that do not apply to core,
+It also turns off the two analyzer checks that don't apply to core,
 [`drupal/internal-class-extension`](analyzer/hooks.md#drupalinternal-class-extension) and
 [`drupal/list-builder-cacheability`](analyzer/entities.md#drupallist-builder-cacheability), and
 makes [`drupal/unknown-service`](analyzer/services.md#drupalunknown-service) check every service id,
@@ -70,9 +70,9 @@ first one that holds it:
 1. the `web-root` of the Composer scaffold;
 2. the project directory;
 3. `web/`, `docroot/`, `html/` and `public/`, in that order;
-4. `vendor/drupal`, where Composer installs core as a plain package in a module's own repository.
-   In that layout the worker also reads the project directory and the other packages under
-   `vendor/drupal`.
+4. `vendor/drupal`, where core is installed by Composer as a plain package in a module's own
+   repository. In that layout the worker also reads the project directory and the other packages
+   under `vendor/drupal`.
 
 Add `"--root=PATH"` when the root is somewhere else.
 
@@ -92,7 +92,7 @@ earlier. See [Deprecation target](analyzer/deprecations.md#deprecation-target).
 
 ### Turning rules off
 
-Mago does not take this extension's rule codes under `[linter.rules]`. To turn rules off, add
+Mago doesn't take this extension's rule codes under `[linter.rules]`. To turn rules off, add
 `"--disable=<code>,<code>"` to the command:
 
 ```toml
@@ -183,8 +183,8 @@ excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
 ## Turn off what Drupal's standard does not ask for
 
 Mago has many more rules than Drupal's standard. A module that passes phpcs starts out with issues
-that the standard does not ask for, from rules such as `assert-description` or `no-else-clause`.
-Turning those rules off loses no check that phpcs did:
+not asked for by the standard, from rules such as `assert-description` or `no-else-clause`. Turning
+those rules off loses no check done by phpcs:
 
 ```toml
 [linter.rules]
@@ -240,8 +240,8 @@ Many rules have a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` ap
 ones, and `mago fix` applies them until nothing changes. `--dry-run` shows the diff first. Two
 flags add riskier fixes:
 
-- `--potentially-unsafe` adds the fixes that turn a comment into a docblock, which the analyzers
-  then read. It also adds the fixes that drop or move comment or docblock text, and the
+- `--potentially-unsafe` adds the fixes that turn a comment into a docblock, which is then read by
+  the analyzers. It also adds the fixes that drop or move comment or docblock text, and the
   `deprecated-tag` rewrite of an old deprecation wording.
 - `--unsafe` adds the `weak-hash` rewrite, which changes stored digests.
 

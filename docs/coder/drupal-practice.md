@@ -38,9 +38,9 @@ sniffs.
 ## Checks for the Drupal 7 API
 
 These checks look for Drupal 7 functions, hooks and arrays, such as `check_plain()`, `hook_menu()`
-or `$form_state['input']`, and Coder runs some of them only on a Drupal 7 module. They are not
-ported. On Drupal 8 and later most of those functions do not exist, and `mago analyze` reports a
-call to one as an unknown function. Nothing in Mago reports the `hook_menu()` checks,
+or `$form_state['input']`, and Coder runs some of them only on a Drupal 7 module. They aren't
+ported. On Drupal 8 and later most of those functions don't exist, and `mago analyze` reports a call
+to one as an unknown function. Nothing in Mago reports the `hook_menu()` checks,
 `$form_state['input']` or an `'und'` key. The Drupal 7 checks of the `Drupal` standard are on the
 [Drupal standard](drupal.md) page, since core's config still runs them.
 

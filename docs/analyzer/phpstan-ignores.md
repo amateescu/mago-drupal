@@ -33,9 +33,9 @@ The plugin skips blank lines and other comments, so a `@mago-expect` can sit bet
 
 ## Which issues a comment drops
 
-An identifier drops only the Mago codes that the plugin lists for it, so
+An identifier drops only the Mago codes listed for it by the plugin, so
 `@phpstan-ignore return.type` still lets a missing method on the same line through. The two line
-forms drop every listed code, and an identifier that the plugin does not list drops nothing.
+forms drop every listed code, and an identifier not listed by the plugin drops nothing.
 
 The list covers PHPStan's identifiers for argument, return and property types, argument counts,
 undefined symbols, deprecations, always-true and always-false conditions, unreachable code, missing
@@ -44,7 +44,7 @@ types and offset access, and the deprecation identifiers of phpstan-deprecation-
 
 **Not dropped:**
 
-- phpstan-drupal's identifiers, which are not in the list;
+- phpstan-drupal's identifiers, which aren't in the list;
 - the `drupal/` and `phpunit/` checks. They report after Mago runs the plugin, so a comment never
   drops one of them.
 
@@ -63,4 +63,4 @@ $this->assertSame('x', $result);   // none here either
 ## Pragmas
 
 Mago matches `@mago-expect` pragmas before the plugin runs. So a pragma next to a `@phpstan-ignore`
-for the same issue still counts as used: it can be removed, but Mago does not point it out.
+for the same issue still counts as used: it can be removed, but Mago doesn't point it out.

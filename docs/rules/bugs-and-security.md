@@ -1,6 +1,6 @@
 # Bugs and security
 
-Rules for code that runs input it should not trust, or reads the wrong value.
+Rules for code that runs input it shouldn't trust, or reads the wrong value.
 
 ---
 
@@ -17,11 +17,11 @@ payload decides which objects PHP builds, and their destructors run.
 
 **Reports:**
 
-- an `unserialize()` call that does not limit `allowed_classes`.
+- an `unserialize()` call that doesn't limit `allowed_classes`.
 
 **Not reported:**
 
-- a payload that the same function built with `serialize()`, which cannot hold a foreign class:
+- a payload that the same function built with `serialize()`, which can't hold a foreign class:
   `unserialize(serialize($x))`, and a local variable whose every assignment is a `serialize()`
   call. That is the shape of a serialization test;
 - a call that spreads an array into its arguments, as in `unserialize(...$args)`, because the

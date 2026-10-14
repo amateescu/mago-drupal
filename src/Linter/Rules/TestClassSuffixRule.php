@@ -44,7 +44,7 @@ final class TestClassSuffixRule implements Rule
         return new RuleDefinition(
             code: 'drupal/test-class-suffix',
             name: 'Test class suffix',
-            description: 'Reports a test class whose name does not end in Test, which PHPUnit never runs.',
+            description: "Reports a test class whose name doesn't end in Test, which PHPUnit never runs.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Class_],

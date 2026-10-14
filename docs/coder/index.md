@@ -1,28 +1,28 @@
 # Coming from Coder
 
-These pages list every sniff that Coder 9 runs in its `Drupal` and `DrupalPractice` standards, and
-what takes its place in a Mago setup with this extension and the configuration from
-[Setup](../setup.md). To find a check, search for the sniff or the code from a phpcs report or a
-`phpcs:ignore` comment. phpcs names a check `Standard.Category.Sniff.Code`.
+These pages list every sniff run by Coder 9 in its `Drupal` and `DrupalPractice` standards, and what
+takes its place in a Mago setup with this extension and the configuration from [Setup](../setup.md).
+To find a check, search for the sniff or the code from a phpcs report or a `phpcs:ignore` comment.
+phpcs names a check `Standard.Category.Sniff.Code`.
 
 - [Drupal standard](drupal.md): Coder's own sniffs.
-- [Sniffs from other standards](other-standards.md): the sniffs that the `Drupal` standard takes
-  from PHP_CodeSniffer, the Slevomat Coding Standard and VariableAnalysis.
+- [Sniffs from other standards](other-standards.md): the sniffs taken by the `Drupal` standard from
+  PHP_CodeSniffer, the Slevomat Coding Standard and VariableAnalysis.
 - [DrupalPractice standard](drupal-practice.md).
 
 The **Handled by** column names one or more of:
 
 - a rule of this extension, such as `drupal/doc-comment`. Its entry under
-  [Linter rules](../rules/index.md) lists the codes it ports, what its fix does, and where it
-  differs from Coder;
+  [Linter rules](../rules/index.md) lists the codes ported by the rule, what its fix does, and
+  where it differs from Coder;
 - a rule built into Mago, such as Mago `no-empty-comment`;
 - `mago format`, the formatter with the `drupal` preset;
 - `mago analyze`, the analyzer;
-- phpcs, for a check of a YAML, `.info` or text file, which Mago does not read;
+- phpcs, for a check of a YAML, `.info` or text file, which isn't read by Mago;
 - nothing, when no tool checks it yet. The notes say why.
 
-When a sniff's codes go to different places, the row lists the codes for each. Codes that Coder's
-rulesets exclude are not listed, and neither are codes that Coder never reports.
+When a sniff's codes go to different places, the row lists the codes for each. Codes excluded by
+Coder's rulesets aren't listed, and neither are codes never reported by Coder.
 
 ## What replaces phpcs
 
@@ -35,7 +35,7 @@ rulesets exclude are not listed, and neither are codes that Coder never reports.
 | Everything specific to Drupal | This extension |
 
 The checks of `.info.yml` and `.routing.yml` files need `yml` in Mago's extensions, as
-[Setup](../setup.md#install) shows. The `Drupal.InfoFiles` sniffs that are not ported check only the
+[Setup](../setup.md#install) shows. The `Drupal.InfoFiles` sniffs that aren't ported check only the
 `.info` files of Drupal 7.
 
 One check still needs phpcs: `Drupal.Files.TxtFileLineLength`, which checks the line length of
@@ -56,17 +56,17 @@ vendor/bin/phpcs --standard=Drupal --sniffs=Drupal.Files.TxtFileLineLength --ext
 ## Differences that apply to every rule
 
 **Suppression comments.** A phpcs suppression comment (`phpcs:ignore`, `phpcs:disable`,
-`phpcs:ignoreFile`, `@codingStandardsIgnoreFile`) does not suppress a Mago issue. A codebase that
+`phpcs:ignoreFile`, `@codingStandardsIgnoreFile`) doesn't suppress a Mago issue. A codebase that
 uses those comments must convert them to `// @mago-expect lint:<code>` or to a Mago exclude. Core's
 generated `ProxyClass` files are the most frequent case.
 
-**Core's configuration.** Core's `phpcs.xml.dist` turns off some checks that the Drupal standard
-enables, and does not run some sniffs at all:
+**Core's configuration.** Core's `phpcs.xml.dist` turns off some checks enabled by the Drupal
+standard, and doesn't run some sniffs at all:
 
 - it turns off `InvalidEndChar` and `SpacingAfter` of `Drupal.Commenting.InlineComment`,
   `LongFullStop` of `Drupal.Commenting.DocComment` and `PSR2.Methods.MethodDeclaration.Underscore`;
 - it enables only `WrongOpenercase` of `PSR2.ControlStructures.SwitchDeclaration`;
-- it does not run `Drupal.NamingConventions.ValidFunctionName`,
+- it doesn't run `Drupal.NamingConventions.ValidFunctionName`,
   `Drupal.Semantics.ConstantName.ConstConstantStart`, `Drupal.Attributes.ValidHookName` or
   `SlevomatCodingStandard.PHP.ShortList`;
 - it runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`, `NamespacedDependency` and part
@@ -87,7 +87,7 @@ The rules port `Drupal.Commenting.*`, whitespace included, with a fix wherever p
 `mago format` covers some of the whitespace instead:
 
 - It produces the result of `DocCommentStar` (a star on a docblock line that has none) and the
-  star column of `DocCommentAlignment`, so those are not ported. It does not touch the text after a
+  star column of `DocCommentAlignment`, so those aren't ported. It doesn't touch the text after a
   star, so `drupal/doc-comment` ports the space after the star.
 - It turns several blank lines into one, so `drupal/file-comment` reports only a file docblock with
   no blank line below it, and leaves `SpacingAfterComment` for more than one to the formatter.
@@ -99,8 +99,8 @@ The rules port `Drupal.Commenting.*`, whitespace included, with a fix wherever p
   of `SpacingAfter`.
 
 The checks read a docblock the way Coder does. A tag is any line that starts with `@`, at any
-indent, and only the tags at the column of the first one form the groups that the blank-line
-checks look at.
+indent, and only the tags at the column of the first one form the groups looked at by the blank-line
+checks.
 
 ## Docblock types and the analyzer
 
@@ -109,5 +109,5 @@ and return type. Most of those checks are redundant with `mago analyze`. The ana
 `@param`, `@return`, `@var` and `@throws` as authoritative types when there is no native hint, the
 same way phpstan and psalm do. It already reports an `@return void` on a function that returns a
 value, a function with no `return` at all, an `@param` that names an unknown parameter, and a type
-name that does not resolve as a class, such as `Boolean`. It reads `integer` and `boolean` as `int`
+name that doesn't resolve as a class, such as `Boolean`. It reads `integer` and `boolean` as `int`
 and `bool` without a report, so the rules check Coder's type names themselves.

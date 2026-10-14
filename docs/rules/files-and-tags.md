@@ -52,8 +52,8 @@ Coder asks for no empty pair of PHP tags.
 
     - The sniff has a second code, for a stray `;`. It stays with Mago's `no-noop`, which reports
       the same spot.
-    - The rule also reports a pair at the end of a file, where `no-closing-tag` reports the `?>`
-      too.
+    - The rule also reports a pair at the end of a file, where the `?>` is reported by
+      `no-closing-tag` too.
 
 ---
 
@@ -68,9 +68,9 @@ Coder asks for files in UTF-8.
 
 **Reports:**
 
-- a file that is not valid UTF-8. The report sits on the first open tag or run of inline text, not
-  on the bad byte, and the message names no bytes. The text that PHP drops after a `?>` does not
-  count as inline text.
+- a file that isn't valid UTF-8. The report sits on the first open tag or run of inline text, not on
+  the bad byte, and the message names no bytes. The text that PHP drops after a `?>` doesn't count
+  as inline text.
 
 **Not reported:**
 
@@ -99,7 +99,7 @@ Coder asks for no whitespace before the first `<?php` of a file.
 
 **Not reported:**
 
-- text that is not whitespace, such as a byte order mark, a zero-width space or a `#!` line;
+- text that isn't whitespace, such as a byte order mark, a zero-width space or a `#!` line;
 - whitespace before a later open tag of the file.
 
 ??? note "Compared with Coder"
@@ -129,7 +129,7 @@ Coder asks for `<?php echo` in place of the `<?=` short echo tag.
 
 ??? note "Compared with Coder"
 
-    - Mago's `no-short-opening-tag` covers the `<?` tag, so the other two codes of the sniff are not
+    - Mago's `no-short-opening-tag` covers the `<?` tag, so the other two codes of the sniff aren't
       ported.
     - Coder's fix leaves a tab or a line break after `echo`. This fix turns spaces and tabs after
       the tag into one space.

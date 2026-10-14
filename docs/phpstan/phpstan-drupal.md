@@ -1,8 +1,8 @@
 # phpstan-drupal
 
-This page lists every rule and extension that phpstan-drupal 2.2.2 registers, and what takes its
-place in a Mago setup with this extension. To find a check, search for the identifier that PHPStan
-prints with an error, or that a baseline or an `@phpstan-ignore` comment names.
+This page lists every rule and extension registered by phpstan-drupal 2.2.2, and what takes its
+place in a Mago setup with this extension. To find a check, search for the identifier printed by
+PHPStan with an error, or named in a baseline or an `@phpstan-ignore` comment.
 
 Each identifier and extension is followed by what handles it:
 
@@ -16,7 +16,7 @@ Each identifier and extension is followed by what handles it:
 
 The analyzer checks run by default, including the ones whose phpstan-drupal rule is off by default.
 To turn one off, use `[analyzer] ignore`, as [Turning rules off](../setup.md#turning-rules-off)
-shows. A `@phpstan-ignore` comment with one of phpstan-drupal's identifiers does not drop the
+shows. A `@phpstan-ignore` comment with one of phpstan-drupal's identifiers doesn't drop the
 matching Mago issue, see [PHPStan ignores](../analyzer/phpstan-ignores.md).
 
 ## Rules
@@ -149,7 +149,7 @@ Off by default in phpstan-drupal.
 - `renderCallback.containsClosure`: [`drupal/form-closure-callback`](../analyzer/render-and-forms.md#drupalform-closure-callback)
 - `renderCallback.expectsArrayOfCallbacks`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
 - `renderCallback.expectsCallableArrayWithArguments`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
-- `renderCallback.invalidKeyValue`: nothing. A callback whose type is not known to be callable, such as a number or a string variable.
+- `renderCallback.invalidKeyValue`: nothing. A callback whose type isn't known to be callable, such as a number or a string variable.
 - `renderCallback.nonCallableCallback`: [`drupal/unknown-callback`](../analyzer/render-and-forms.md#drupalunknown-callback)
 - `renderCallback.nonTrustedCallback`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
 
@@ -197,14 +197,14 @@ plugin does the same work, and the linked section says how.
 - `EntityAccessControlHandlerReturnTypeExtension`: [Entities: Access checks](../analyzer/entities.md#access-checks)
 - `EntityFieldMethodsViaMagicReflectionExtension`: [Entities: Magic entity fields](../analyzer/entities.md#magic-entity-fields)
 - `EntityFieldsViaMagicReflectionExtension`: [Entities: Magic entity fields](../analyzer/entities.md#magic-entity-fields)
-- `EntityIdNarrowedByNew`: nothing. `id()` is not null once `isNew()` is false, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
+- `EntityIdNarrowedByNew`: nothing. `id()` isn't null once `isNew()` is false, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
 - `EntityQueryAccessCheckDynamicReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `EntityQueryDynamicReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `EntityRepositoryReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type.
-- `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. It is not narrowed by a `hasKey()` call for the same key.
-- `EntityTypeLinkTemplateByExistence`: nothing. `getLinkTemplate()` is not false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
+- `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. It isn't narrowed by a `hasKey()` call for the same key.
+- `EntityTypeLinkTemplateByExistence`: nothing. `getLinkTemplate()` isn't false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
 - `EntityTypeManagerGetStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `GetQueryReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `GroupLegacyScope`: [Deprecations: Deprecation scopes](../analyzer/deprecations.md#deprecation-scopes)

@@ -1,10 +1,10 @@
 # DrupalPractice checks
 
-These rules port sniffs of Coder's `DrupalPractice` standard that core's `phpcs.xml.dist` does not
-run, so the worker's [`--core` argument](../setup.md#checking-drupal-core) turns them off.
+These rules port sniffs of Coder's `DrupalPractice` standard not run by core's `phpcs.xml.dist`, so
+the worker's [`--core` argument](../setup.md#checking-drupal-core) turns them off.
 
 Coder's `Project` class reads the nearest `*.info.yml` or `*.info` file, to find the module name of
-a file that is not named after it and to skip a Drupal 7 module. The rules read the same file, from
+a file that isn't named after it and to skip a Drupal 7 module. The rules read the same file, from
 the worker's directory, which is the directory of the Mago config file:
 
 - `drupal/class-prefix` and `drupal/form-alter-comment` read the module name from it;
@@ -26,7 +26,7 @@ DrupalPractice asks a class or interface outside a namespace to start with the m
 
 **Reports:**
 
-- a class or interface outside a namespace whose name does not start with the module name, with or
+- a class or interface outside a namespace whose name doesn't start with the module name, with or
   without the underscores of the name.
 
 A `.module`, `.install`, `.profile` or `.theme` file takes the module name from its file name. Any
@@ -82,7 +82,7 @@ DrupalPractice asks not to turn off curl's check of the server's SSL certificate
 
     - The rule ignores the case of the function name and of `FALSE`, and accepts a leading
       backslash, a value in parentheses and a zero in any integer base.
-    - It reads the whole value, so `FALSE ?: TRUE` does not count. A method call does not count,
+    - It reads the whole value, so `FALSE ?: TRUE` doesn't count. A method call doesn't count,
       `$object?->curl_setopt()` included.
     - It skips a call with too few arguments. Coder stops checking the file there.
 
@@ -107,7 +107,7 @@ DrupalPractice asks that only the module's own `hook_form_alter()` be documented
 
 **Not reported:**
 
-- a docblock that is not right above the `function` keyword, with a modifier, attribute or comment
+- a docblock that isn't right above the `function` keyword, with a modifier, attribute or comment
   between them.
 
 ??? example "Example"
@@ -132,7 +132,7 @@ DrupalPractice asks that only the module's own `hook_form_alter()` be documented
 
     - It compares the function name without regard to case, because PHP does.
     - It finds the hook line only at the start of a docblock line, so
-      `@see Implements hook_form_alter().` is not a hook line.
+      `@see Implements hook_form_alter().` isn't a hook line.
 
 ---
 
@@ -154,13 +154,13 @@ DrupalPractice asks for constants on a class or interface, not in the global nam
 - a `define()` call at the top level of a `.module` file.
 
 A statement in a class, a function, a closure, an arrow function, a block of `if`, `switch`, `try`,
-a loop or `declare`, or a braced namespace is not at the top level.
+a loop or `declare`, or a braced namespace isn't at the top level.
 
 **Not reported:**
 
 - a statement with a docblock with a `@deprecated` tag right above it. The tag must be at the start
   of a docblock line, and its name is case-sensitive. A one-line docblock with only the tag counts,
-  and a tag in the middle of a sentence does not;
+  and a tag in the middle of a sentence doesn't;
 - a Drupal 7 module.
 
 Drupal's standard allows a global constant whose name starts with the module name, and asks for
@@ -184,7 +184,7 @@ Drupal's standard allows a global constant whose name starts with the module nam
 
     - The rule treats the body of an `if`, `elseif` or `else` written without braces, and an arrow
       function, as nested. Coder sees no enclosing scope there.
-    - It also reports `\define()` and `DEFINE()`, which Coder misses. It does not report
+    - It also reports `\define()` and `DEFINE()`, which are missed by Coder. It doesn't report
       `$object?->define()` or `define(...)`.
     - It keeps the exemption of a `@deprecated` docblock that is above an attribute list.
 
@@ -225,7 +225,7 @@ The message names the matching property of the request, and gives the source tex
 
 ??? note "Compared with Coder"
 
-    - The rule reports a use inside a double-quoted string or a heredoc, which Coder misses.
+    - The rule reports a use inside a double-quoted string or a heredoc, which is missed by Coder.
     - It treats `$_GET /* note */ ['a']` as an access with a key.
 
 ---
@@ -243,8 +243,7 @@ DrupalPractice asks test classes to keep the strict check of the config schema o
 **Reports:**
 
 - a `$strictConfigSchema` property of a test class, as in `protected $strictConfigSchema = FALSE;`,
-  where the first of `TRUE`, `FALSE` and `NULL` in the default is not `TRUE`, or where there is
-  none.
+  where the first of `TRUE`, `FALSE` and `NULL` in the default isn't `TRUE`, or where there is none.
 
 A test class has `Test` or `Tests` as a word of its name. For a property of an anonymous class, the
 rule uses the nearest named class or trait.
@@ -274,7 +273,7 @@ DrupalPractice asks for `#options` labels that run through `t()`.
 **Reports:**
 
 - a plain string label in the `#options` of an element with `#type` `checkboxes`, `radios`,
-  `select` or `tableselect`. A label counts when it is not a number and has more than three
+  `select` or `tableselect`. A label counts when it isn't a number and has more than three
   characters. Labels in nested option groups count.
 
 **Not reported:**
@@ -302,7 +301,7 @@ DrupalPractice asks for `#options` labels that run through `t()`.
     - The rule takes the `#type` from the array that holds the `#options`, in either order and in
       either quote style. Coder takes the first `'#type'` of the statement.
     - It reports the last label of an array, a label with a comment before its comma, and a label in
-      an `array()` group, which Coder skips, and it does not need a comma after the label. It
-      accepts `Array(`.
+      an `array()` group, which are skipped by Coder, and it doesn't need a comma after the label.
+      It accepts `Array(`.
     - Coder reads a `$form['x']['#options'] = [...]` assignment when a `'#type'` is in the same
       statement.

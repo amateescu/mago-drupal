@@ -28,7 +28,7 @@ final class FileEncodingRule implements Rule
         return new RuleDefinition(
             code: 'drupal/file-encoding',
             name: 'File encoding',
-            description: 'Reports a file whose bytes are not valid UTF-8.',
+            description: "Reports a file whose bytes aren't valid UTF-8.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

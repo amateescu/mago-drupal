@@ -41,7 +41,7 @@ final class ConstPrefixRule implements Rule
         return new RuleDefinition(
             code: 'drupal/const-prefix',
             name: 'Const prefix',
-            description: 'Reports const constants that do not start with the module name.',
+            description: "Reports const constants that don't start with the module name.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],
