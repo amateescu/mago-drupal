@@ -59,6 +59,8 @@ nav = [
 ]
 
 [project.theme]
+# The Drupal drop, as on the coding standards site.
+favicon = "assets/favicon.png"
 features = [
   "content.code.copy",
   "navigation.footer",
