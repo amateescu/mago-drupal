@@ -63,45 +63,45 @@ class Naming {
    */
   static $recursionCounter = 0;
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function matches(string $input): bool {
     return preg_match('/^[a-z]+$/', $input) === 1;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function fail(): never {
     throw new Exception('boom');
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function failHarder(): never {
     throw new RuntimeException('boom');
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   // @mago-expect lint:drupal/method-visibility
   function withoutVisibility(): bool {
     return TRUE;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   // @mago-expect lint:drupal/method-name-underscore
   protected function _helper(): bool {
     return TRUE;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function __toString(): string {
     return 'magic';
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function fullyQualified(): string {
     // @mago-expect lint:drupal/fully-qualified-name
     return \Drupal\corpus\Nested\Thing::class;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function globalClassInline(): Exception {
     // A class with no namespace of its own stays written out.
     return new \Exception('boom');
@@ -133,7 +133,7 @@ class Naming {
     return $label;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function namespacedFunctionCall(): bool {
     // A callee keeps its namespace, since PHP falls back to the global
     // function and an import would be pointless.
@@ -142,7 +142,7 @@ class Naming {
 
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function naming_helper(): bool {
   return TRUE;
 }

@@ -29,7 +29,7 @@ class TypeNames
     /**
      * The count, with its name after the type.
      *
-     * @var int
+     * @var int $count
      */
     public $count = 0;
 

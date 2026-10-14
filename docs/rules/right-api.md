@@ -160,13 +160,12 @@ when the config file is at the root of the workspace.
 
 ---
 
-## drupal/translatable-string
+## drupal/translatable-literal
 
 - **Level:** warning
-- **Fix:** safe. It writes a string that escapes its own quote with the other quote, when the value
-  stays the same.
+- **Fix:** none
 - **Source:** Coder's `Drupal` standard
-- **Ports:** `Drupal.Semantics.FunctionT`: `BackslashDoubleQuote`, `BackslashSingleQuote`, `Concat`, `ConcatString`, `EmptyString`, `EmptyT`, `NotLiteralString`, `WhiteSpace`
+- **Ports:** `Drupal.Semantics.FunctionT`: `ConcatString`, `NotLiteralString`
 
 Coder asks for a translatable string that is one plain literal. The string extractor reads the
 source and does not run it. The rule reads the strings of `t()`, `formatPlural()`,
@@ -175,20 +174,73 @@ methods.
 
 **Reports:**
 
-- a string built by concatenation or interpolation. A nowdoc counts as a literal and a heredoc
-  does not;
+- a string that is not a literal, such as a variable, a constant, a heredoc or a double-quoted
+  string with a variable in it. A nowdoc counts as a literal and a heredoc does not.
+  [`drupal/translatable-string`](#drupaltranslatable-string) reports a string built with `.`;
+- a first-class callable such as `t(...)` or `$this->t(...)`, which hides the strings from the
+  extractor;
+- a quoted string joined with `.` right after the call, as in `t('Name') . ':'`, when the message
+  is a literal.
+
+**Not reported:**
+
+- a string joined after the call that is empty, or one of `(`, `)`, `[`, `]`, `-`, `<`, `>`, `«`,
+  `»` and `\n` once its quotes, HTML tags and spaces are gone;
+- a call with only unpacked or named arguments, such as `t(...$x)` or `t(string: 'x')`, which has
+  no positional first argument to read.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    $label = t('Name') . ': ' . $name;
+
+    // Fine.
+    $label = t('Name: @name', ['@name' => $name]);
+    ```
+
+??? note "Compared with Coder"
+
+    - It also reports a call that Coder does not see: a fully qualified `\t()` or
+      `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a function or method call written
+      in another letter case such as `T()` or `$this->T()`, and a call inside a string
+      interpolation.
+    - It checks the strings of `formatPlural()` for a non-literal, and a string joined after the
+      call, and reports `formatPlural(...)`. Coder does not read `formatPlural()`.
+    - It reads the whole argument, so an argument that starts with a literal but is another
+      expression, such as `'a' ?: 'b'`, `'a' ?? 'b'` or `'a'[0]`, is reported as not a literal.
+      Coder reads only the first token and lets these through.
+    - It skips `t(...$x)` and `t(string: 'x')`, which have no positional first argument to read.
+      Coder reports them as not a literal.
+
+---
+
+## drupal/translatable-string
+
+- **Level:** warning
+- **Fix:** safe. It writes a string that escapes its own quote with the other quote, when the value
+  stays the same.
+- **Source:** Coder's `Drupal` standard
+- **Ports:** `Drupal.Semantics.FunctionT`: `BackslashDoubleQuote`, `BackslashSingleQuote`, `Concat`, `EmptyString`, `EmptyT`, `WhiteSpace`
+
+Coder asks for a translatable string that is one plain literal. The string extractor reads the
+source and does not run it. The rule reads the strings of `t()`, `formatPlural()`,
+`new TranslatableMarkup()` and `new TranslationWrapper()`, and of the `t()` and `formatPlural()`
+methods.
+
+**Reports:**
+
+- a string built with `.`. [`drupal/translatable-literal`](#drupaltranslatable-literal) reports
+  another string that is not a literal;
 - a string padded with whitespace, and an empty one. For a string built with `.`, the padding of
   the first literal is reported too;
-- a quoted string joined with `.` right after the call, as in `t('Name') . ':'`, when the message
-  is a literal;
+- a call with no arguments, such as `t()`;
 - a literal that escapes its own quote with a backslash, as in `t('It\'s here')`, when the first
   argument of `t()` or of a markup class is a literal or starts with one.
 
 **Not reported:**
 
 - the padding of the later literals of a string built with `.`;
-- a string joined after the call that is empty, or one of `(`, `)`, `[`, `]`, `-`, `<`, `>`, `«`,
-  `»` and `\n` once its quotes, HTML tags and spaces are gone;
 - an escaped quote in the strings of `formatPlural()`.
 
 The fix applies only when the other quote keeps the value: no `"` and `$` in a single-quoted
@@ -215,17 +267,14 @@ without `'`.
     - The whitespace check reads the value that PHP builds from the string. An escape such as `\n`
       or `\t` at either end of a double-quoted string counts as whitespace. Coder reads the two
       characters as written and does not report it.
+    - A string built with `.` is reported here whatever its first part is. Coder reports one that
+      does not start with a literal, such as `t($prefix . 'name')`, as `NotLiteralString`.
     - It also reports a call that Coder does not see: a fully qualified `\t()` or
       `new \Drupal\Core\StringTranslation\TranslatableMarkup()`, a function or method call written
       in another letter case such as `T()` or `$this->T()`, and a call inside a string
       interpolation.
-    - It checks the strings of `formatPlural()` for padding, an empty string and a non-literal, and
-      a string joined after the call. Coder does not read `formatPlural()`.
-    - It reads the whole argument, so an argument that starts with a literal but is another
-      expression, such as `'a' ?: 'b'`, `'a' ?? 'b'` or `'a'[0]`, is reported as not a literal.
-      Coder reads only the first token and lets these through.
-    - It skips `t(...$x)`, `t(string: 'x')` and the first-class callable `t(...)`, which have no
-      positional first argument to read. Coder reports them as not a literal.
+    - It checks the strings of `formatPlural()` for padding and an empty string. Coder does not
+      read `formatPlural()`.
 
 ---
 

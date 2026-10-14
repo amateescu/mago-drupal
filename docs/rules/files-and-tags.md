@@ -24,8 +24,8 @@ any code runs.
 
 There is no fix, because removing the mark changes what the file sends.
 
-`drupal/file-comment` skips a byte order mark before the open tag, so a procedural file with a mark
-and a correct docblock gets only this rule's report.
+`drupal/file-comment` and `drupal/missing-file-comment` skip a byte order mark before the open tag,
+so a procedural file with a mark and a correct docblock gets only this rule's report.
 
 ---
 

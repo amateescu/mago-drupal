@@ -101,7 +101,7 @@ function /* name */ forms_comment_after_keyword(array &$form): void {
 
 // The hook line is compared as written.
 // @mago-expect lint:drupal/hook-comment
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * implements hook_form_alter().
  */
@@ -109,7 +109,7 @@ function forms_lowercase_hook(array &$form): void {
 }
 
 // Text after a tag is not a hook line.
-// @mago-expect lint:drupal/function-comment(2)
+// @mago-expect lint:drupal/doc-see-tag(2)
 /**
  * Describes the function.
  *

@@ -6,7 +6,7 @@ namespace Drupal\corpus;
 
 use function strtoupper;
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_with_text(): int {
   // @mago-expect lint:drupal/inline-comment
   /** Counts the rows. */
@@ -14,7 +14,7 @@ function inline_docblock_with_text(): int {
   return $count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_with_text_before_a_tag(): int {
   // @mago-expect lint:drupal/inline-comment
   /**
@@ -26,7 +26,7 @@ function inline_docblock_with_text_before_a_tag(): int {
   return $count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_tag_in_text(): int {
   // @mago-expect lint:drupal/inline-comment
   /** The count. @var int */
@@ -34,7 +34,7 @@ function inline_docblock_tag_in_text(): int {
   return $count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_star_after_opener(): int {
   // @mago-expect lint:drupal/inline-comment
   /** * @var int */
@@ -42,7 +42,7 @@ function inline_docblock_star_after_opener(): int {
   return $count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_in_a_branch(bool $flag): string {
   if ($flag) {
     // @mago-expect lint:drupal/inline-comment
@@ -53,7 +53,7 @@ function inline_docblock_in_a_branch(bool $flag): string {
   return '';
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_before_a_closing_brace(bool $flag): string {
   if ($flag) {
     return 'a';
@@ -65,21 +65,21 @@ function inline_docblock_before_a_closing_brace(bool $flag): string {
   return '';
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_with_a_tag_first(): int {
   /** @var int $count */
   $count = 1;
   return $count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_before_a_static_variable(): int {
   /** Remembers the count. */
   static $count = 0;
   return ++$count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_before_a_closure(): callable {
   $callback = /** Builds the value. */ function (): int {
     return 1;
@@ -88,7 +88,7 @@ function inline_docblock_before_a_closure(): callable {
   return $callback;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_before_a_nested_function(): int {
   /** Builds the value. */
   function inline_docblock_nested(): int {
@@ -98,7 +98,7 @@ function inline_docblock_before_a_nested_function(): int {
   return inline_docblock_nested();
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_with_three_stars(): int {
   // @mago-format-ignore-start
   /*** Not a docblock. */
@@ -107,7 +107,7 @@ function inline_docblock_with_three_stars(): int {
   return $count;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_docblock_before_a_class(): int {
   // A comment between the docblock and the class is skipped.
   /** Holds the value. */
@@ -124,7 +124,7 @@ function inline_docblock_before_a_class(): int {
 // @mago-expect lint:drupal/global-constant
 const INLINE_DOCBLOCK_LIMIT = 5;
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 class InlineDocblockHolder {
 
   use InlineDocblockTrait;
@@ -135,10 +135,10 @@ class InlineDocblockHolder {
 
 }
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 trait InlineDocblockTrait {}
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 enum InlineDocblockSuit {
 
   /**
@@ -148,7 +148,7 @@ enum InlineDocblockSuit {
 
 }
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 final class InlineDocblockReadonly {
 
   // @mago-expect lint:drupal/property-visibility

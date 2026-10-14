@@ -9,14 +9,14 @@ namespace Drupal\corpus;
 function doc_comment_empty_left_to_mago(): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * lowercase start.
  */
 function doc_comment_bad_capital(): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * No terminal punctuation
  */
@@ -30,7 +30,7 @@ function doc_comment_fine(): void {
 }
 
 // Coder wants an upper-case letter first, and a `#` is not one.
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * #123: Starts with an issue number.
  */
@@ -43,7 +43,7 @@ function doc_comment_hash_start(): void {
 function doc_comment_multibyte_start(): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Spans two
  * physical lines.
@@ -87,7 +87,7 @@ function doc_comment_fine_covers_first(): void {
 }
 
 // Coder reads only the first tag, and `@group` there needs a summary.
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/missing-summary
 /**
  * @group corpus
  * @covers ::something
@@ -95,7 +95,7 @@ function doc_comment_fine_covers_first(): void {
 function doc_comment_covers_not_first(): void {
 }
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 class ClassCommentMissing {}
 
 // @mago-expect lint:drupal/class-comment
@@ -134,7 +134,7 @@ function my_module_form_page_form_alter(array &$form): void {
 }
 
 // @mago-expect lint:drupal/hook-comment
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Implements hook_node_insert
  */
@@ -242,7 +242,7 @@ function deprecated_tag_missing_see(): void {
 }
 
 // @mago-expect lint:drupal/deprecated-tag
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-see-tag
 /**
  * Does something that got replaced.
  *
@@ -253,7 +253,7 @@ function deprecated_tag_missing_see(): void {
 function deprecated_tag_trailing_period(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_variable_comment_bad(): void {
   // @mago-expect lint:drupal/inline-variable-comment
   // @var \Exception $bar
@@ -264,7 +264,7 @@ function inline_variable_comment_bad(): void {
   echo $bar->getMessage();
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_variable_comment_before_include_once(): void {
   // Coder skips a comment before an include_once or require_once statement.
   // @var int $once
@@ -273,7 +273,7 @@ function inline_variable_comment_before_include_once(): void {
   require_once __DIR__ . '/inline_variable.inc';
 }
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 class InlineVariableCommentExempted {
 
   // @mago-expect lint:drupal/variable-comment
@@ -294,7 +294,7 @@ class InlineVariableCommentExempted {
    */
   protected $order;
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function read(): \Exception {
     return $this->exempted;
   }
@@ -302,21 +302,21 @@ class InlineVariableCommentExempted {
 }
 
 // Coder does not check the word order in the docblock of a declaration.
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/missing-summary
 /**
  * @var $bar \Exception Wrong word order.
  */
 function inline_variable_comment_bad_order(): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/missing-summary
 /**
  * @var \Exception Fine order.
  */
 function inline_variable_comment_fine_order(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_comment_examples(): void {
   // @mago-format-ignore-start
   // @mago-expect lint:drupal/inline-comment
@@ -342,7 +342,7 @@ function inline_comment_examples(): void {
   echo $a . $b . $c . $d . $e;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_comment_punctuation_last_word(): void {
   // @mago-expect lint:drupal/inline-comment-punctuation
   // Value (foo)x
@@ -358,7 +358,7 @@ function inline_comment_punctuation_last_word(): void {
   echo $a . $b . $c;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_comment_after_brace(bool $flag): bool {
   // A comment after a closing brace is skipped, as Coder skips it.
   if ($flag) {
@@ -367,7 +367,7 @@ function inline_comment_after_brace(bool $flag): bool {
   return $flag;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_comment_run_after_brace(int ...$values): array {
   // The lines below the end-of-block comment are a comment of their own.
   // @mago-expect lint:drupal/inline-comment
@@ -384,13 +384,13 @@ function inline_comment_run_after_brace(int ...$values): array {
   );
 }
 
-// @mago-expect lint:drupal/class-comment
+// @mago-expect lint:drupal/missing-class-comment
 class VariableCommentFixture {
 
-  // @mago-expect lint:drupal/variable-comment
+  // @mago-expect lint:drupal/missing-property-comment
   protected $missing;
 
-  // @mago-expect lint:drupal/variable-comment
+  // @mago-expect lint:drupal/missing-property-comment
   protected string $missingNativeType;
 
   /**
@@ -441,14 +441,14 @@ class VariableCommentFixture {
   protected $missingVar;
 
   // @mago-expect lint:drupal/variable-comment
-  // @mago-expect lint:drupal/doc-comment
+  // @mago-expect lint:drupal/missing-summary
   /**
    * @var string
    * @var int
    */
   protected $duplicateVar;
 
-  // @mago-expect lint:drupal/variable-comment
+  // @mago-expect lint:drupal/doc-see-tag
   /**
    * Coder wants the @see reference on the tag's own line.
    *
@@ -460,7 +460,7 @@ class VariableCommentFixture {
   protected $seeBelow;
 
   // @mago-expect lint:drupal/variable-comment
-  // @mago-expect lint:drupal/doc-comment
+  // @mago-expect lint:drupal/missing-summary
   /**
    * @var string $inlineRepeat Should not repeat the name.
    */
@@ -507,7 +507,7 @@ function my_module_directive_between_docblock_and_function($node): void {
   preg_match('/(.*)/e', 'unused');
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_comment_wraps_across_two_lines(): void {
   // A comment that wraps across two physical lines is one sentence,
   // so neither line is judged as if it were the whole comment on its own.
@@ -516,7 +516,7 @@ function inline_comment_wraps_across_two_lines(): void {
   echo $result;
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function doc_comment_ignores_a_local_var_annotation(array $data): void {
   /** @var \Exception $error */
   $error = $data['error'];
@@ -574,8 +574,8 @@ function doc_comment_long_description_reads_a_link_line(): void {
 function doc_comment_long_description_ending_with_a_link_line(): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/doc-tag-groups
+// @mago-expect lint:drupal/doc-tag-layout
 /**
  * Documents two parameters split apart by an example.
  *
@@ -607,7 +607,7 @@ function corpus_split_param_groups(string $first, string $second): string {
 function doc_comment_inside_a_documentation_group(): void {
 }
 
-// @mago-expect lint:drupal/function-comment
+// @mago-expect lint:drupal/missing-function-comment
 function inline_comment_directive_shapes(): void {
   // cspell:ignore corpusword otherword
   $a = 1;
@@ -640,7 +640,7 @@ function inline_comment_directive_shapes(): void {
 function deprecated_tag_with_an_example(): void {
 }
 
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-tag-groups
 /**
  * Does something that got replaced, with another tag before the link.
  *

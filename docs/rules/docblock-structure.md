@@ -11,6 +11,12 @@ The rules read a docblock the way Coder does. A tag is any line that starts with
 indent, and only the tags at the column of the first one form the groups that the blank-line checks
 look at.
 
+A declaration with no docblock gets the report of its `missing-*` rule, and one with a comment in
+the wrong style the report of `drupal/class-comment`, `drupal/file-comment`,
+`drupal/function-comment` or `drupal/variable-comment`. The rules that check the tags, their
+wording and their layout skip such a declaration, as in Coder. They also skip the tags of a
+docblock tagged `@file` above a function, which counts as no docblock for the function.
+
 ## Comment-style fixes
 
 `drupal/class-comment`, `drupal/file-comment`, `drupal/function-comment` and
@@ -31,22 +37,26 @@ them, because PHP reads only the lower of two docblocks.
 - **Level:** error
 - **Fix:** safe for the blank line. Potentially unsafe for the
   [comment style](#comment-style-fixes).
-- **Standard:** [Classes and namespaces](https://project.pages.drupalcode.org/coding_standards/php/documentation/#classes-and-namespaces)
-- **Ports:** `Drupal.Commenting.ClassComment`: `Missing`, `Short`, `SpacingAfter`, `WrongStyle`
+- **Standard:** [General considerations for API module parsing](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-considerations-for-api-module-parsing),
+  [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation)
+- **Ports:** `Drupal.Commenting.ClassComment`: `Short`, `SpacingAfter`, `WrongStyle`
 
-> All classes and all of their methods (including private methods but excluding constructors) must
-> be documented.
+> To document a function, class, etc., the docblock must appear directly before the item being
+> documented, with no blank line in between (see example above).
+>
+> All summaries (the first line of a docblock) must be under 80 characters, start with a capital
+> letter, and end with a period (.). They must provide a brief description of what a function does,
+> what a class does, what a file contains, etc.
 
-**Reports:**
+**Reports**, on a class, interface, trait or enum:
 
-- a class, interface, trait or enum with no docblock;
 - a comment in the wrong style where the docblock belongs;
 - a summary that only repeats the name. The name is matched in any case, so `bar.` above
   `class Bar` is reported;
 - a blank line between the docblock and the declaration, which the fix removes.
 
-A docblock tagged `@file` does not count as the class docblock. `drupal/file-comment` checks it. A
-docblock above or below the attributes counts.
+A docblock above or below the attributes counts. A docblock tagged `@file` is the file's, and
+[`drupal/missing-class-comment`](#drupalmissing-class-comment) reports the class as undocumented.
 
 ??? example "Example"
 
@@ -68,8 +78,6 @@ docblock above or below the attributes counts.
 
 ??? note "Compared with Coder"
 
-    - phpcbf writes an empty docblock for a class that has none, which Coder then reports as
-      `DocComment.Empty`. The rule has no fix there.
     - Coder matches the repeated name with case, so it does not report `bar.` above `class Bar`.
 
 ---
@@ -140,68 +148,34 @@ Other layouts are reported without a fix.
 
 ## drupal/doc-comment
 
-- **Level:** warning
+- **Level:** error
 - **Fix:** safe for most checks. The closer fix and the two-dot fix are potentially unsafe.
 - **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation),
-  [{@inheritdoc}](https://project.pages.drupalcode.org/coding_standards/php/documentation/#inheritdoc-documentation-inheritance),
-  [@see](https://project.pages.drupalcode.org/coding_standards/php/documentation/#see-see-also-references)
+  [{@inheritdoc}](https://project.pages.drupalcode.org/coding_standards/php/documentation/#inheritdoc-documentation-inheritance)
 - **Ports:**
-    - `Drupal.Commenting.DocComment`: `ContentAfterOpen`, `InheritDocWithoutBraces`, `LongNotCapital`, `MissingShort` (partly), `ParamGroup`, `ParamNotFirst`, `ShortFullStop`, `ShortNotCapital`, `ShortSingleLine`, `ShortStartSpace`, `SpacingAfter`, `SpacingAfterTagGroup`, `SpacingBeforeShort`, `SpacingBeforeTags`, `SpacingBetween`, `TagGroupSpacing`, `TagValueIndent`, `TagsNotGrouped`, `WrongEnd`
+    - `Drupal.Commenting.DocComment`: `ContentAfterOpen`, `InheritDocWithoutBraces`, `ShortStartSpace`, `SpacingAfter`, `SpacingBeforeShort`, `SpacingBetween`, `TagValueIndent`, `WrongEnd`
     - `Drupal.Commenting.DocCommentAlignment`: `NoSpaceAfterStar`, `SpaceAfterStar`
     - `SlevomatCodingStandard.Commenting.ForbiddenComments.CommentForbidden`
 
-> All summaries (the first line of a docblock) must be under 80 characters, start with a capital
-> letter, and end with a period (.).
->
 > Put a space between the comment character (the `*` or the `//`) and the first letter of the
 > sentence.
 >
 > Note the {} around the @inheritdoc tag.
->
-> Each `@see` reference is on its own line, with no additional text beyond the item being
-> referenced.
 
-The rule checks the summary, description, tag groups and whitespace of every docblock outside a
-function body. A docblock inside a function body gets the star check and the two-dot check only. The
-summary and the long description of a file docblock are the lines after `@file`, checked like any
-other docblock's.
+The rule checks the whitespace and the edges of every docblock outside a function body. A docblock
+inside a function body gets the star check and the two-dot check only.
 
-**Reports**, in the summary and the description:
-
-- no summary. The rule looks only at the first tag, or at the tag after a leading `@file`. A bare
-  `@inheritdoc` there gets the braces report below instead;
-- a summary that does not start with an upper-case letter. A summary that starts with a digit, `#`,
-  `_` or other punctuation counts, and one that starts with a multi-byte character does not. The fix
-  uppercases a lower-case letter;
-- a summary with no punctuation at the end. The standard asks for a period, but as in Coder, `!`,
-  `?` and `)` pass too. The fix adds a period to a one-line summary that ends with a letter or a
-  digit;
-- a summary that spans more than one line;
-- a long description that starts with a lower-case letter. The fix uppercases it.
-
-In the tags:
-
-- `@param` tags that are not in one group, or that are not in the first group;
-- tags of one kind that are not grouped;
-- `@inheritdoc` without braces in a docblock with no summary, as its first tag or the tag after a
-  leading `@file`. The fix writes `{@inheritdoc}`;
-- a `@see` reference with other text after it, or with punctuation at its end, in a docblock that
-  is not a function's or a method's. [`drupal/function-comment`](#drupalfunction-comment) checks
-  those of functions and methods. The standard asks this of every `@see` tag, and Coder reads only
-  those of functions and methods. The fix removes the punctuation after a one-word reference.
-
-In the whitespace, each with a fix:
+**Reports**, each with a fix:
 
 - text on the line of the opening `/**`;
 - blank lines at the start or the end;
 - more than one blank line between the summary and the description;
-- not exactly one blank line before the tags;
-- no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them,
-  and more than one after a section;
 - not exactly one space before the summary or after a tag;
 - the space after the star of a docblock line: no space, and more than one space or a tab before
   `@param`, `@return`, `@throws`, `@ingroup` or `@var`. This check covers a docblock that comes
-  before a declaration keyword or right after the `<?php` tag.
+  before a declaration keyword or right after the `<?php` tag;
+- `@inheritdoc` without braces in a docblock with no summary, as its first tag or the tag after a
+  leading `@file`. The fix writes `{@inheritdoc}`.
 
 The rest, each with a potentially unsafe fix, because it drops characters of the comment:
 
@@ -210,15 +184,9 @@ The rest, each with a potentially unsafe fix, because it drops characters of the
 
 **Not reported:**
 
-- no summary when the first tag, or the tag after a leading `@file`, is `@covers`;
 - in a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`, everything but the checks on its first and last lines, the star
   check and the two-dot check;
-- a file docblock that holds only `@file`;
-- `{@inheritdoc}` in place of a summary, and a summary that is the file's name;
-- with `--core`, no summary outside the `KernelTests`, `Unit` and `FunctionalJavascript`
-  directories, where core's `phpcs.xml.dist` runs that check;
-- with `--core`, the `@see` check, as core's phpcs does;
 - an empty docblock. Mago's `no-empty-comment` reports it at note level, and its safe fix deletes
   the docblock.
 
@@ -230,9 +198,261 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
     The fix turns the reported code into the fine code.
 
     ```php
-    // Reported: the summary, and the blank lines around the @param section.
+    // Reported: the text on the opening line, and the blank line at the end.
+    /** Returns the label.
+     *
+     */
+    function example_label(): string {
+      return '';
+    }
+
+    // Fine.
+    /**
+     * Returns the label.
+     */
+    function example_label(): string {
+      return '';
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Text on the line of the opening `/**` is reported once. Coder also reports it as
+      `SpacingBeforeShort`.
+    - The space after the star is checked in the docblocks that Coder's `DocCommentAlignment` picks:
+      the ones whose next token is `class`, `interface`, `function`, `public`, `private`,
+      `protected`, `static`, `abstract` or `var`, and the one right after the `<?php` tag. A
+      `final class`, an enum, a trait, a constant or a docblock followed by an attribute is not
+      checked.
+    - The space before the summary is checked in every docblock outside a function body, as
+      `ShortStartSpace`, and that includes two spaces or a tab.
+    - phpcbf has no fix for a closer. Its two-dot fix also takes the space after the opening `/**`
+      or the star, and deletes a docblock that has nothing else in it. The rule turns the two dots
+      and the spaces before them into one full stop, and leaves the docblock.
+    - Coder reports an empty docblock as `DocComment.Empty`, at error level.
+    - The pattern in core's phpcs config that forbids `@inheritDoc` anywhere in a docblock line is
+      not ported.
+
+---
+
+## drupal/doc-see-tag
+
+- **Level:** error
+- **Fix:** safe. It removes the punctuation after a one-word reference.
+- **Standard:** [@see](https://project.pages.drupalcode.org/coding_standards/php/documentation/#see-see-also-references)
+- **Ports:**
+    - `Drupal.Commenting.FunctionComment`: `EmptySees`, `SeeAdditionalText`, `SeePunctuation`
+    - `Drupal.Commenting.VariableComment.EmptySees`
+
+> Each `@see` reference is on its own line, with no additional text beyond the item being
+> referenced.
+
+**Reports:**
+
+- a `@see` tag with no reference on its line, in the docblock of a function, a method or a
+  property;
+- a `@see` reference with other text after it, or with punctuation at its end, in any docblock
+  outside a function body. The standard asks this of every `@see` tag, and Coder reads only those
+  of functions and methods.
+
+The reference is read from the tag's own line. The lines below it are a description, which may end
+in a period. The fix is left out for a `@see` after `@deprecated`, whose change-record url is
+fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
+
+**Not reported:**
+
+- the references in a docblock whose first tag, or the tag after a leading `@file`, is
+  `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`, unless it is a function's or a
+  method's;
+- a `@see` tag with no reference in a property docblock with `{@inheritdoc}`;
+- with `--core`, the references in a docblock that is not a function's or a method's, as in
+  core's phpcs.
+
+---
+
+## drupal/doc-sentence
+
+- **Level:** error
+- **Fix:** safe. It uppercases a lower-case first letter of the summary and the long description,
+  and adds a full stop to the summary and to a `@param` description.
+- **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation),
+  [@throws](https://project.pages.drupalcode.org/coding_standards/php/documentation/#throws-thrown-exceptions)
+- **Ports:**
+    - `Drupal.Commenting.DocComment`: `LongNotCapital`, `ShortFullStop`, `ShortNotCapital`, `ShortSingleLine`
+    - `Drupal.Commenting.FunctionComment`: `ParamCommentFullStop`, `ParamCommentNotCapital`, `ThrowsNoFullStop`, `ThrowsNotCapital`
+
+> All summaries (the first line of a docblock) must be under 80 characters, start with a capital
+> letter, and end with a period (.).
+>
+> If you include an explanation, like other documentation use complete sentences that stand alone,
+> without assuming that "Throws [exception name]" is part of the sentence automatically, since
+> Throws will be a heading when it's displayed on api.drupal.org.
+
+The rule checks the summary and the long description of every docblock outside a function body,
+and the `@param` and `@throws` descriptions of a function or method. The summary and the long
+description of a file docblock are the lines after `@file`, checked like any other docblock's.
+
+**Reports**, in the summary and the long description:
+
+- a summary that does not start with an upper-case letter. A summary that starts with a digit, `#`,
+  `_` or other punctuation counts, and one that starts with a multi-byte character does not. The fix
+  uppercases a lower-case letter;
+- a summary with no punctuation at the end. The standard asks for a period, but as in Coder, `!`,
+  `?` and `)` pass too. The fix adds a period to a one-line summary that ends with a letter or a
+  digit;
+- a summary that spans more than one line;
+- a long description that starts with a lower-case letter. The fix uppercases it.
+
+In the tags:
+
+- a `@param` description whose first line has no upper-case letter anywhere. That line is the first
+  one below the tag, or the text on the tag's line when nothing is below it. So `lower Case.`
+  passes and `_lower.` is reported;
+- a `@param` description with no full stop, unless it ends in an `@code` example. The fix adds the
+  full stop unless the description ends in a url, a tag, or `:`, `,` or `;`;
+- a `@throws` description that starts with a lower-case ASCII letter, or has no full stop.
+
+[`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) checks
+the end of the long description.
+
+**Not reported:**
+
+- `{@inheritdoc}` in place of a summary, and a summary that is the file's name;
+- a `@param` with no type, which gets no capital letter or full stop check;
+- a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
+  `@}` or `@coversDefaultClass`.
+
+??? example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
     /**
      * returns the label
+     */
+    function example_label(): string {
+      return '';
+    }
+
+    // Fine.
+    /**
+     * Returns the label.
+     */
+    function example_label(): string {
+      return '';
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder reads a line that starts with an `@` word as a tag, at any indent. When no tag at the
+      `@param`'s column follows, Coder ends the description at the last such line indented deeper
+      than the description, and checks the full stop on the line above it. It does the same when
+      the description's last line holds only an `@` word. In core's `batch_set()` docblock, the
+      `progress_message` item has such a line, `@total.')".`. This rule reads every line indented
+      under the tag as part of the description.
+
+---
+
+## drupal/doc-tag-descriptions
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions)
+- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`
+
+> Each parameter of a function must be documented with a `@param` tag (see exceptions below).
+
+**Reports**, in the docblock of a function or method:
+
+- a `@param` with no description. On a tag with no type, a single word after the variable is the
+  type and not a description, so the description is the lines below;
+- a `@return` with a type and no description;
+- a method with `@param` tags for some parameters and none for a real parameter.
+
+**Not reported:**
+
+- no description on `@return void`, `@return static` or `@return $this`;
+- a `@return` with a variable name after its type, which is reported by
+  [`drupal/doc-tag-layout`](#drupaldoc-tag-layout).
+
+The standard lets a `@param` or `@return` description be left out when the type says it all, such
+as a single class type that cannot be null, and asks for no `@return` when nothing is returned.
+Coder, core and this rule still want the description, and accept `@return void`.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    /**
+     * Builds the label.
+     *
+     * @param int $id
+     *   The ID.
+     *
+     * @return string
+     */
+    function example_label(int $id): string {
+      return (string) $id;
+    }
+
+    // Fine.
+    /**
+     * Builds the label.
+     *
+     * @param int $id
+     *   The ID.
+     *
+     * @return string
+     *   The label.
+     */
+    function example_label(int $id): string {
+      return (string) $id;
+    }
+    ```
+
+---
+
+## drupal/doc-tag-groups
+
+- **Level:** error
+- **Fix:** safe for the blank lines.
+- **Standard:** [Order of documentation sections](https://project.pages.drupalcode.org/coding_standards/php/documentation/#order-of-documentation-sections)
+- **Ports:** `Drupal.Commenting.DocComment`: `ParamGroup`, `ParamNotFirst`, `SpacingAfterTagGroup`, `SpacingBeforeTags`, `TagGroupSpacing`, `TagsNotGrouped`
+
+> Separate different-type sections by a blank line (for instance, all the `@param` documentation
+> goes together, with a blank line before the first parameter and a blank line after the last
+> parameter before the `@return` section starts).
+
+The rule checks the docblocks outside a function body. As in Coder, it checks the `@param` group
+and the blank lines only in a docblock that starts with a summary, or with `@file` and one.
+
+**Reports:**
+
+- `@param` tags that are not in one group, or that are not in the first group;
+- tags of one kind that are not grouped. Only `@param`, `@return` and `@throws` count here;
+- not exactly one blank line before the tags. The fix adds or removes the blank lines;
+- no blank line between the `@param`, `@return` and `@throws` sections and the tags next to them,
+  and more than one after a section. The fix adds or removes the blank lines.
+
+**Not reported:**
+
+- no blank line before the tags when the first one is `@code`, `@link` or `@endlink`, or a
+  `phpcs:` line comes right before it;
+- a `@param` group that is not first in a docblock that starts with `@code`, `@todo`, `@link`,
+  `@endlink` or `@codingStandardsIgnoreStart`;
+- a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
+  `@}` or `@coversDefaultClass`.
+
+???+ example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported: the blank lines around the @param section.
+    /**
+     * Returns the label.
      * @param string $id
      *   The ID.
      * @return string
@@ -259,28 +479,179 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 ??? note "Compared with Coder"
 
-    - A file docblock that holds only `@file` gets no report. Coder reports it as `MissingShort`.
-    - A `phpcs:` line above the summary is skipped, and the line below it is the summary. Coder
-      reports `MissingShort` there.
-    - Text on the line of the opening `/**` is reported once. Coder also reports it as
-      `SpacingBeforeShort`.
-    - The space after the star is checked in the docblocks that Coder's `DocCommentAlignment` picks:
-      the ones whose next token is `class`, `interface`, `function`, `public`, `private`,
-      `protected`, `static`, `abstract` or `var`, and the one right after the `<?php` tag. A
-      `final class`, an enum, a trait, a constant or a docblock followed by an attribute is not
-      checked.
-    - The space before the summary is checked in every docblock outside a function body, as
-      `ShortStartSpace`, and that includes two spaces or a tab. The `@param` groups of a file
-      docblock are checked too.
     - The `@param` groups follow Coder: a `@param` right below an `@code`, `@todo` or `@link` tag,
       with no blank line, is reported, and so is a `@param` inside an `@code` example that sits at
-      the column of the first tag.
-    - phpcbf has no fix for a closer. Its two-dot fix also takes the space after the opening `/**`
-      or the star, and deletes a docblock that has nothing else in it. The rule turns the two dots
-      and the spaces before them into one full stop, and leaves the docblock.
-    - Coder reports an empty docblock as `DocComment.Empty`, at error level.
-    - The pattern in core's phpcs config that forbids `@inheritDoc` anywhere in a docblock line is
-      not ported.
+      the column of the first tag. The `@param` groups of a file docblock are checked too.
+
+---
+
+## drupal/doc-tag-layout
+
+- **Level:** error
+- **Fix:** safe. A type with spaces has none.
+- **Standard:** [@param](https://project.pages.drupalcode.org/coding_standards/php/documentation/#param-function-parameters),
+  [@return](https://project.pages.drupalcode.org/coding_standards/php/documentation/#return-function-return-values),
+  [@throws](https://project.pages.drupalcode.org/coding_standards/php/documentation/#throws-thrown-exceptions)
+- **Ports:** `Drupal.Commenting.FunctionComment`: `ParamCommentIndentation`, `ParamCommentNewLine`, `ParamNameDot`, `ParamTypeSpaces`, `ReturnCommentIndentation`, `ReturnTypeSpaces`, `ReturnVarName`, `SpacingAfterParamType`, `ThrowsComment`, `ThrowsCommentIndentation`
+
+> The `@param` tag is followed by an optional data type indicator, then the variable name of the
+> parameter, and then a newline.
+>
+> The documentation is indented two spaces (see example).
+>
+> The name of an exception class should appear on the same line as the `@throws` tag. Put
+> explanations in starting on the next line, but only if they tell you something useful that is not
+> conveyed by the name of the class.
+
+**Reports**, in the docblock of a function or method, with a fix where the list says so:
+
+- `@param`:
+    - a description on the tag's line, which the fix moves below, and one not indented three spaces
+      from the star, which the fix indents;
+    - a period after the variable name, and not exactly one space between the type and the
+      variable, both fixed;
+    - a type with a space;
+- `@return`: a description not indented three spaces from the star, which the fix indents. A
+  variable name after the type, which the fix removes when a description follows below. A type
+  with a space;
+- `@throws`: a description on the tag's line, which the fix moves to the line below, three spaces
+  from the star. A description not indented three spaces, which the fix indents.
+
+A `@return` variable name is read from the tag's own line.
+
+???+ example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported: the @param description on the tag's line.
+    /**
+     * Builds the label.
+     *
+     * @param int $id The ID.
+     *
+     * @return string
+     *   The label.
+     */
+    function example_label(int $id): string {
+      return (string) $id;
+    }
+
+    // Fine.
+    /**
+     * Builds the label.
+     *
+     * @param int $id
+     *   The ID.
+     *
+     * @return string
+     *   The label.
+     */
+    function example_label(int $id): string {
+      return (string) $id;
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - A `@param` type is the text before the variable, and a `@return` type is the text on the
+      tag's line, as in Coder. Both skip a type with a bracket. A `@return` type with a space is
+      reported only when a description follows below, and only when the docblock has one
+      `@return`. A non-breaking space is not whitespace to Coder or to this rule.
+    - A `@return` variable name is a type and one variable on the line, as in Coder, so
+      `callable(int $a): int` is not one.
+    - For `@throws` text on the tag's line with nothing below, Coder counts the words on the line.
+      It reports a type such as `\Foo2Bar` or `\A|\B` that has no text, and stops at the first
+      `@throws` with no text below it. This rule reports only text after the type, and checks
+      every `@throws`. Coder has no fix for that text or for the `@throws` indent. The fix here is
+      not offered for a tag that shares its line with the closing `*/`.
+    - A `@param` line with only trailing whitespace after the variable is not reported. Coder reads
+      that whitespace as a description on the tag's line.
+    - A run of dots after the variable name, as in `$names...`, is reported with no fix, because it
+      can be a variadic written out. phpcbf removes the dots. A name followed by a comma, as in
+      `$a,...`, is not reported. Coder reports it.
+
+---
+
+## drupal/doc-tag-types
+
+- **Level:** error
+- **Fix:** safe. It moves a type written after the variable in front of it.
+- **Standard:** [@param](https://project.pages.drupalcode.org/coding_standards/php/documentation/#param-function-parameters),
+  [@return](https://project.pages.drupalcode.org/coding_standards/php/documentation/#return-function-return-values)
+- **Ports:** `Drupal.Commenting.FunctionComment`: `DuplicateReturn`, `MissingParamName`, `MissingParamType`, `MissingReturnType`
+
+> The `@param` tag is followed by an optional data type indicator, then the variable name of the
+> parameter, and then a newline.
+>
+> Data types are required to be included as of Drupal 8.x.
+
+**Reports**, in the docblock of a function or method:
+
+- a `@param` with no variable name, and one with no type. A `&` or `...` in front of the variable
+  belongs to the variable, so `@param &$a` has no type. On a tag with no type, a single word after
+  the variable is the type. The fix moves that word in front of the variable when it is made of
+  type characters, as in `@param $a int`;
+- a `@return` with no type on its line;
+- more than one `@return`.
+
+??? note "Compared with Coder"
+
+    - phpcbf moves any single word after the variable of a tag with no type, so `@param $a Done.`
+      becomes `@param Done. $a`. The fix here moves only a word made of type characters. It moves
+      the word as written, so `@param $a integer` becomes `@param integer $a`, and a second
+      `--fix` run writes `int`, the name asked for by
+      [`drupal/doc-type-name`](#drupaldoc-type-name).
+    - A bare `@return` that is the last tag is left to Mago's `valid-docblock`. A `@return 0` has a
+      type here. Coder reports it, because PHP's `empty("0")` is true.
+    - A `@param` indented inside an `@code` example is not a tag here, or for the other rules that
+      read the tags. Coder reads it as one.
+
+---
+
+## drupal/doc-type-name
+
+- **Level:** error
+- **Fix:** safe. It writes the expected name, when the type starts the tag's line.
+- **Standard:** [Data types in documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#data-types-in-documentation)
+- **Ports:**
+    - `Drupal.Commenting.FunctionComment`: `IncorrectParamVarName`, `InvalidReturn`
+    - `Drupal.Commenting.VariableComment.IncorrectVarType` (partly)
+
+> Spell the following types accordingly
+>
+> * array (NOT "Array").
+> * bool (NOT "boolean" or "Boolean"). If only TRUE or only FALSE is a possible value, rather than
+>   either one being possible, use true or false instead of bool.
+> * true (NOT "TRUE", see bool)
+> * false (NOT "FALSE", see bool)
+> * int (NOT "integer")
+> * null (NOT "NULL")
+> * object (NOT "stdClass")
+
+**Reports:**
+
+- a `@param` or `@return` type name of a function or method, and a `@var` type name of a property,
+  spelled another way than the standard and Coder ask, such as `integer` for `int`, `Boolean` for
+  `bool` or `NULL` for `null`. Each member of a `|` union is checked.
+
+**Not reported:**
+
+- `stdClass`, which is not checked by Coder either;
+- a `@param` type with a space in it, and a type inside a generic, such as `array<integer>`;
+- a `@var` tag with no type or one that starts with a variable name, which are reported by
+  [`drupal/variable-comment`](#drupalvariable-comment), and a property docblock with
+  `{@inheritdoc}`.
+
+??? note "Compared with Coder"
+
+    - Coder runs the whole `@var` line, description included, through its type check, and reports
+      a line with a character outside its type alphabet, such as `.`, `;`, `!` or `=`. So a
+      description that contains `e.g.` or ends in a full stop is reported, and so is the type
+      `string.`. That check is not ported.
+    - The rule reads the `@var` type apart from the description. It reports
+      `@var integer Some description`, where Coder takes the whole text as the type and does not
+      report it.
 
 ---
 
@@ -292,24 +663,16 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
   [comment style](#comment-style-fixes).
 - **Standard:** [@file](https://project.pages.drupalcode.org/coding_standards/php/documentation/#file-documenting-files)
 - **Ports:**
-    - `Drupal.Commenting.FileComment`: `FileTag`, `Missing`, `NamespaceNoFileDoc`, `SpacingAfterComment`, `WrongStyle` (partly)
+    - `Drupal.Commenting.FileComment`: `FileTag`, `NamespaceNoFileDoc`, `SpacingAfterComment`, `WrongStyle` (partly)
     - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare` (partly)
 
-> The @file doc block MUST be present for PHP files, with the following exceptions:
->
-> * Files that comply with the PSR-4 standard SHOULD NOT have a @file documentation block.
-> * The core \Drupal class's Drupal.php file (which does not have a namespace).
+> Files that comply with the PSR-4 standard SHOULD NOT have a @file documentation block.
 >
 > The docblock must be followed by a blank line, and must not contain `@defgroup` or `@mainpage`
 > tags.
 
-**Reports:**
+**Reports**, on the comment at the start of a file:
 
-- a file that does not start with a docblock that has the `@file` tag. This check reads every file
-  with a PHP open tag, `.php` files included. The docblock must follow the first open tag. Text
-  before that tag, such as a `#!/usr/bin/env php` line or a byte order mark, which
-  `drupal/byte-order-mark` reports, does not count. A directive such as `// phpcs:ignoreFile`
-  above the docblock is skipped;
 - a docblock with no `@file` tag. A tag that is not exactly `@file`, such as `@FILE` or `@File`,
   counts as no tag. The fix adds `@file` below the opener when a blank line parts the docblock from
   the code;
@@ -323,13 +686,13 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
   deletes a docblock at the start, with the whitespace after it. The text of the docblock is lost,
   so the fix is potentially unsafe. A plain comment gets no fix.
 
+The comment is the first one after the first open tag, past any directive. A file that does not
+start with one is reported by [`drupal/missing-file-comment`](#drupalmissing-file-comment).
+
 **Not reported:**
 
 - a class file, which the checks above skip, except the last one. Which files count as class files
-  follows Coder: a file that holds a class, interface, trait or enum and a `namespace` statement,
-  and a file that holds exactly one class, interface, trait or enum, no function or method outside
-  it, and no `@file` tag in any docblock. A closure or an arrow function does not count as a
-  function. A method of an anonymous class outside the class does;
+  is in the entry of `drupal/missing-file-comment`;
 - a docblock at the start of a namespaced file with two or more classes, interfaces, traits or
   enums.
 
@@ -360,10 +723,7 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
     - A directive at the start of the file, such as `// phpcs:disable` or `// @mago-expect`, is
       skipped, and the comment below it is checked. Coder finds no file comment after a `phpcs:`
-      directive, so it reports a missing one in a file that is not a class file and nothing in a
-      namespaced class file. It takes a `@codingStandardsIgnore`, `@mago-`, `@phpstan-` or
-      `@psalm-` comment for the file comment.
-    - phpcbf writes an empty stub for a missing docblock. The rule has no fix there.
+      directive, so it reports nothing in a namespaced class file.
     - The report of a missing `@file` sits on the second line of the docblock, where Coder puts it,
       or on the opener when the docblock has no star line. Coder puts it on the first line of the
       file in that case.
@@ -375,137 +735,32 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 ## drupal/function-comment
 
 - **Level:** error
-- **Fix:** safe for the whitespace, the type names, a `@param` type written after the variable, and
-  the punctuation. Potentially unsafe for the [comment style](#comment-style-fixes).
-- **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions),
-  [Data types](https://project.pages.drupalcode.org/coding_standards/php/documentation/#data-types-in-documentation),
-  [@param](https://project.pages.drupalcode.org/coding_standards/php/documentation/#param-function-parameters),
-  [@return](https://project.pages.drupalcode.org/coding_standards/php/documentation/#return-function-return-values),
-  [@throws](https://project.pages.drupalcode.org/coding_standards/php/documentation/#throws-thrown-exceptions),
-  [@see](https://project.pages.drupalcode.org/coding_standards/php/documentation/#see-see-also-references)
-- **Ports:** `Drupal.Commenting.FunctionComment`: `DuplicateReturn`, `EmptySees`, `IncorrectParamVarName`, `InvalidReturn`, `Missing`, `MissingParamComment`, `MissingParamName`, `MissingParamType`, `MissingReturnComment`, `MissingReturnType`, `ParamCommentFullStop`, `ParamCommentIndentation`, `ParamCommentNewLine`, `ParamCommentNotCapital`, `ParamMissingDefinition`, `ParamNameDot`, `ParamTypeSpaces`, `ReturnCommentIndentation`, `ReturnTypeSpaces`, `ReturnVarName`, `SeeAdditionalText`, `SeePunctuation`, `SpacingAfter`, `SpacingAfterParamType`, `ThrowsComment`, `ThrowsCommentIndentation`, `ThrowsNoFullStop`, `ThrowsNotCapital`, `WrongStyle`
+- **Fix:** safe for the blank line. Potentially unsafe for the
+  [comment style](#comment-style-fixes).
+- **Standard:** [General considerations for API module parsing](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-considerations-for-api-module-parsing)
+- **Ports:** `Drupal.Commenting.FunctionComment`: `SpacingAfter`, `WrongStyle`
 
-> Each parameter of a function must be documented with a `@param` tag (see exceptions below).
+> In-code comment lines starting with `//` and comment blocks starting with `/*` are not recognized
+> as a docblock.
 >
-> If a function has a return value, it must be documented with a `return` tag (see exceptions
-> below).
->
-> The documentation is indented two spaces (see example). Data types are required to be included as
-> of Drupal 8.x.
+> To document a function, class, etc., the docblock must appear directly before the item being
+> documented, with no blank line in between (see example above).
 
-**Reports:**
+**Reports**, on a function or method:
 
-- a function or method with no docblock, or with a comment in the wrong style. A docblock tagged
-  `@file` above a function counts as no docblock for the function, and its tags are not checked. A
-  docblock above or below the attributes counts.
-
-In the tags, with a fix where the list says so:
-
-- `@param`:
-    - no type, no variable name and no description. A `&` or `...` in front of the variable
-      belongs to the variable, so `@param &$a` has no type. On a tag with no type, a single word
-      after the variable is the type and not a description. The fix moves that word in front of the
-      variable when it is made of type characters, as in `@param $a int`;
-    - a description whose first line has no upper-case letter anywhere. That line is the first one
-      below the tag, or the text on the tag's line when nothing is below it. So `lower Case.`
-      passes and `_lower.` is reported. A tag with no type gets no capital letter or full stop
-      check;
-    - a description with no full stop, unless it ends in an `@code` example. The fix adds the full
-      stop unless the description ends in a url, a tag, or `:`, `,` or `;`;
-    - a description on the tag's line, which the fix moves below, and one not indented three spaces
-      from the star, which the fix indents;
-    - a period after the variable name, and not exactly one space between the type and the
-      variable, both fixed;
-    - a type with a space;
-- a method with `@param` tags for some parameters and none for a real parameter;
-- `@return`: more than one, no type on its line, and a type with a space. No description. A
-  description not indented three spaces from the star, and a variable name after a type that has a
-  description below, both fixed;
-- `@throws`: a description on the tag's line, which the fix moves to the line below, three spaces
-  from the star. A description not indented three spaces, which the fix indents. A description
-  that starts with a lower-case ASCII letter, or has no full stop;
-- `@see`: no reference, and text after the reference. Punctuation after a one-word reference,
-  which the fix removes;
-- a `@param` or `@return` type name spelled another way than the standard and Coder ask, such as
-  `integer` for `int` or `NULL` for `null`. The fix writes the expected name;
+- a comment in the wrong style where the docblock belongs. A docblock above or below the
+  attributes counts;
 - a blank line between the docblock and the function, which the fix removes.
+
+[`drupal/doc-tag-descriptions`](#drupaldoc-tag-descriptions),
+[`drupal/doc-tag-layout`](#drupaldoc-tag-layout), [`drupal/doc-tag-types`](#drupaldoc-tag-types),
+[`drupal/doc-type-name`](#drupaldoc-type-name), [`drupal/doc-see-tag`](#drupaldoc-see-tag) and
+[`drupal/doc-sentence`](#drupaldoc-sentence) check the tags of the docblock, and
+[`drupal/missing-function-comment`](#drupalmissing-function-comment) a function with no docblock.
 
 **Not reported:**
 
-- a constructor with nothing above it. A constructor with a docblock is checked;
-- no description on `@return void`, `@return static` or `@return $this`.
-
-A `@return` variable name and a `@see` reference are read from the tag's own line.
-
-The standard lets a `@param` or `@return` description be left out when the type says it all, such
-as a single class type that cannot be null, and asks for no `@return` when nothing is returned.
-Coder, core and this rule still want the description, and accept `@return void`.
-
-???+ example "Example"
-
-    ```php
-    // Reported: the type name, the @param description's line, and the bare @return.
-    /**
-     * Builds the label.
-     *
-     * @param integer $id The ID.
-     *
-     * @return string
-     */
-    function example_label(int $id): string {
-      return (string) $id;
-    }
-
-    // Fine.
-    /**
-     * Builds the label.
-     *
-     * @param int $id
-     *   The ID.
-     *
-     * @return string
-     *   The label.
-     */
-    function example_label(int $id): string {
-      return (string) $id;
-    }
-    ```
-
-??? note "Compared with Coder"
-
-    - The constructor name is matched in any case, because PHP ignores case in method names. Coder
-      matches `__construct` exactly and reports `__CONSTRUCT` as missing a docblock. A function
-      named `__construct` outside a class is not a constructor and is reported. Coder exempts it.
-    - phpcbf writes an empty docblock for a function that has none, which Coder then reports as
-      `DocComment.Empty`. The rule has no fix there.
-    - A `@param` type is the text before the variable, and a `@return` type is the text on the
-      tag's line, as in Coder. Both skip a type with a bracket. A `@return` type with a space is
-      reported only when a description follows below, and only when the docblock has one
-      `@return`. A non-breaking space is not whitespace to Coder or to this rule.
-    - phpcbf moves any single word after the variable of a tag with no type, so `@param $a Done.`
-      becomes `@param Done. $a`. The fix here moves only a word made of type characters. It moves
-      the word as written, so `@param $a integer` becomes `@param integer $a`, and a second
-      `--fix` run writes `int`.
-    - A bare `@return` that is the last tag is left to Mago's `valid-docblock`. A `@return 0` has a
-      type here. Coder reports it, because PHP's `empty("0")` is true. A `@return` variable name is
-      a type and one variable on the line, as in Coder, so `callable(int $a): int` is not one.
-    - For `@throws` text on the tag's line with nothing below, Coder counts the words on the line.
-      It reports a type such as `\Foo2Bar` or `\A|\B` that has no text, and stops at the first
-      `@throws` with no text below it. This rule reports only text after the type, and checks
-      every `@throws`. Coder has no fix for that text or for the `@throws` indent. The fix here is
-      not offered for a tag that shares its line with the closing `*/`.
-    - A `@param` line with only trailing whitespace after the variable is not reported. Coder reads
-      that whitespace as a description on the tag's line.
-    - A `@param` indented inside an `@code` example is not a tag here. Coder reads it as one.
-    - Coder reads a line that starts with an `@` word as a tag, at any indent. When no tag at the
-      `@param`'s column follows, Coder ends the description at the last such line indented deeper
-      than the description, and checks the full stop on the line above it. It does the same when
-      the description's last line holds only an `@` word. In core's `batch_set()` docblock, the
-      `progress_message` item has such a line, `@total.')".`. This rule reads every line indented
-      under the tag as part of the description.
-    - A run of dots after the variable name, as in `$names...`, is reported with no fix, because it
-      can be a variadic written out. phpcbf removes the dots. A name followed by a comma, as in
-      `$a,...`, is not reported. Coder reports it.
+- a blank line below a docblock tagged `@file`, which belongs to the file.
 
 ---
 
@@ -620,56 +875,213 @@ inside a run of `//` lines.
 
 ---
 
-## drupal/variable-comment
+## drupal/missing-class-comment
 
 - **Level:** error
-- **Fix:** safe for the type names and the repeated name. Potentially unsafe for a variable name
-  before the type, because the analyzers start to trust the type, and for the
-  [comment style](#comment-style-fixes).
-- **Standard:** [@var](https://project.pages.drupalcode.org/coding_standards/php/documentation/#var-class-property-data-types),
-  [Data types](https://project.pages.drupalcode.org/coding_standards/php/documentation/#data-types-in-documentation)
-- **Ports:** `Drupal.Commenting.VariableComment`: `DuplicateVar`, `EmptySees`, `EmptyVar`, `IncorrectVarType` (partly), `InlineVariableName`, `Missing`, `MissingVar`, `VarOrder`, `WrongStyle`
+- **Fix:** none
+- **Standard:** [Classes and namespaces](https://project.pages.drupalcode.org/coding_standards/php/documentation/#classes-and-namespaces)
+- **Ports:** `Drupal.Commenting.ClassComment.Missing`
 
-> The `@var` tag is used to document the data type of a class property.
->
-> Typed class properties may omit the `@var` declaration. It is recommended to use typed properties
-> whenever possible. The comment may be omitted if the name of the variable matches the type, or the
-> type with "Interface" appended.
+> All classes and all of their methods (including private methods but excluding constructors) must
+> be documented.
 
 **Reports:**
 
-- a class property with no docblock, or with a comment in the wrong style. A docblock above or
-  below the attributes counts, and a comment between the attributes and the property is the
-  property's comment;
-- no `@var` tag on a property with no native type, more than one, and one that is not the first
-  tag;
-- a `@var` tag with no type, and a `@see` tag with nothing after it on its line;
-- a `@var` type name spelled another way than the standard and Coder ask, such as `integer` for
-  `int`, `Boolean` for `bool` or `NULL` for `null`;
-- a `@var` tag that starts with a variable name, as in `@var $count int`;
-- the property name repeated after the `@var` type on the tag's line, also after a type with
-  spaces such as `array<string, int>`.
+- a class, interface, trait or enum with no docblock. A docblock tagged `@file` does not count as
+  the class docblock. [`drupal/file-comment`](#drupalfile-comment) checks it. A docblock above or
+  below the attributes counts.
+
+[`drupal/class-comment`](#drupalclass-comment) reports a comment in the wrong style.
+
+??? note "Compared with Coder"
+
+    - phpcbf writes an empty docblock for a class that has none, which Coder then reports as
+      `DocComment.Empty`. The rule has no fix there.
+
+---
+
+## drupal/missing-file-comment
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [@file](https://project.pages.drupalcode.org/coding_standards/php/documentation/#file-documenting-files)
+- **Ports:** `Drupal.Commenting.FileComment.Missing`
+
+> The @file doc block MUST be present for PHP files, with the following exceptions:
+>
+> * Files that comply with the PSR-4 standard SHOULD NOT have a @file documentation block.
+> * The core \Drupal class's Drupal.php file (which does not have a namespace).
+
+**Reports:**
+
+- a file that does not start with a comment. This check reads every file with a PHP open tag,
+  `.php` files included. The comment must follow the first open tag. Text before that tag, such as
+  a `#!/usr/bin/env php` line or a byte order mark, which `drupal/byte-order-mark` reports, does
+  not count. A directive such as `// phpcs:ignoreFile` is skipped.
+
+[`drupal/file-comment`](#drupalfile-comment) checks the comment that is there: its style and its
+`@file` tag.
+
+**Not reported:**
+
+- a class file. Which files count as class files follows Coder: a file that holds a class,
+  interface, trait or enum and a `namespace` statement, and a file that holds exactly one class,
+  interface, trait or enum, no function or method outside it, and no `@file` tag in any docblock.
+  A closure or an arrow function does not count as a function. A method of an anonymous class
+  outside the class does.
+
+??? note "Compared with Coder"
+
+    - A directive at the start of the file, such as `// phpcs:disable` or `// @mago-expect`, is
+      skipped, and the comment below it counts. Coder finds no file comment after a `phpcs:`
+      directive, so it reports a missing one in a file that is not a class file. It takes a
+      `@codingStandardsIgnore`, `@mago-`, `@phpstan-` or `@psalm-` comment for the file comment.
+    - phpcbf writes an empty stub for a missing docblock. The rule has no fix there.
+
+---
+
+## drupal/missing-function-comment
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Classes and namespaces](https://project.pages.drupalcode.org/coding_standards/php/documentation/#classes-and-namespaces)
+- **Ports:** `Drupal.Commenting.FunctionComment.Missing`
+
+> All classes and all of their methods (including private methods but excluding constructors) must
+> be documented.
+
+**Reports:**
+
+- a function or method with no docblock. A docblock tagged `@file` above a function counts as no
+  docblock for the function. A docblock above or below the attributes counts.
+
+[`drupal/function-comment`](#drupalfunction-comment) reports a comment in the wrong style.
+
+**Not reported:**
+
+- a constructor with nothing above it. A constructor with a docblock is checked by the other rules.
+
+??? note "Compared with Coder"
+
+    - The constructor name is matched in any case, because PHP ignores case in method names. Coder
+      matches `__construct` exactly and reports `__CONSTRUCT` as missing a docblock. A function
+      named `__construct` outside a class is not a constructor and is reported. Coder exempts it.
+    - phpcbf writes an empty docblock for a function that has none, which Coder then reports as
+      `DocComment.Empty`. The rule has no fix there.
+
+---
+
+## drupal/missing-property-comment
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation),
+  [@var](https://project.pages.drupalcode.org/coding_standards/php/documentation/#var-class-property-data-types)
+- **Ports:** `Drupal.Commenting.VariableComment.Missing`
+
+> Every function, constant, class, interface, class member (function, property, constant), and
+> file must be documented, even private class members.
+>
+> The comment may be omitted if the name of the variable matches the type, or the type with
+> "Interface" appended.
+
+**Reports:**
+
+- a class property with no docblock. A docblock above or below the attributes counts, and a
+  comment between the attributes and the property is the property's comment.
+
+[`drupal/variable-comment`](#drupalvariable-comment) reports a comment in the wrong style.
 
 The standard lets a property with a native type skip the comment when its name matches the type,
 as in `protected EntityTypeManagerInterface $entityTypeManager`, but Coder, core and this rule
 still want it.
 
-The fixes remove a property name repeated after the `@var` type, and write the expected type name.
-In a `@var` tag that starts with a variable name, a fix writes the type first when a whole type
-follows the name. It drops the property's own name, and moves any other name after the type.
+---
+
+## drupal/missing-summary
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation)
+- **Ports:** `Drupal.Commenting.DocComment.MissingShort` (partly)
+
+> All summaries (the first line of a docblock) must be under 80 characters, start with a capital
+> letter, and end with a period (.). They must provide a brief description of what a function does,
+> what a class does, what a file contains, etc.
+
+**Reports:**
+
+- a docblock outside a function body that has tags and no summary. The rule looks only at the
+  first tag, or at the tag after a leading `@file`. The summary of a file docblock is the text after
+  its `@file` tag.
+
+**Not reported:**
+
+- no summary when the first tag, or the tag after a leading `@file`, is `@covers`;
+- a bare `@inheritdoc` there, which is reported by [`drupal/doc-comment`](#drupaldoc-comment) as
+  missing its braces;
+- a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
+  `@}` or `@coversDefaultClass`;
+- a file docblock that holds only `@file`;
+- with `--core`, no summary outside the `KernelTests`, `Unit` and `FunctionalJavascript`
+  directories, where core's `phpcs.xml.dist` runs that check.
+
+??? note "Compared with Coder"
+
+    - A file docblock that holds only `@file` gets no report. Coder reports it as `MissingShort`.
+    - A `phpcs:` line above the summary is skipped, and the line below it is the summary. Coder
+      reports `MissingShort` there.
+
+---
+
+## drupal/variable-comment
+
+- **Level:** error
+- **Fix:** safe for the repeated name. Potentially unsafe for a variable name before the type,
+  because the analyzers start to trust the type, and for the [comment style](#comment-style-fixes).
+- **Standard:** [@var](https://project.pages.drupalcode.org/coding_standards/php/documentation/#var-class-property-data-types)
+- **Ports:** `Drupal.Commenting.VariableComment`: `DuplicateVar`, `EmptyVar`, `InlineVariableName`, `MissingVar`, `VarOrder`, `WrongStyle`
+
+> The `@var` tag is used to document the data type of a class property.
+>
+> Typed class properties may omit the `@var` declaration. It is recommended to use typed properties
+> whenever possible.
+
+**Reports**, on a class property:
+
+- a comment in the wrong style where the docblock belongs. A docblock above or below the
+  attributes counts, and a comment between the attributes and the property is the property's
+  comment;
+- no `@var` tag on a property with no native type, more than one, and one that is not the first
+  tag;
+- a `@var` tag with no type;
+- a `@var` tag that starts with a variable name, as in `@var $count int`;
+- the property name repeated after the `@var` type on the tag's line, also after a type with
+  spaces such as `array<string, int>`.
+
+The fix removes a property name repeated after the `@var` type. In a `@var` tag that starts with a
+variable name, a fix writes the type first when a whole type follows the name. It drops the
+property's own name, and moves any other name after the type.
+
+[`drupal/missing-property-comment`](#drupalmissing-property-comment) reports a property with no
+docblock, and [`drupal/doc-type-name`](#drupaldoc-type-name) the `@var` type name.
+
+**Not reported:**
+
+- a docblock with `{@inheritdoc}`.
 
 ??? example "Example"
 
     The fix turns the reported code into the fine code.
 
     ```php
-    // Reported: the type name and the repeated property name.
+    // Reported: the repeated property name.
     class Example {
 
       /**
        * The number of items.
        *
-       * @var integer $count
+       * @var int $count
        */
       protected $count = 0;
 
@@ -690,13 +1102,6 @@ follows the name. It drops the property's own name, and moves any other name aft
 
 ??? note "Compared with Coder"
 
-    - Coder runs the whole `@var` line, description included, through its type check, and reports
-      a line with a character outside its type alphabet, such as `.`, `;`, `!` or `=`. So a
-      description that contains `e.g.` or ends in a full stop is reported, and so is the type
-      `string.`. That check is not ported.
-    - The rule reads the type apart from the description. It reports
-      `@var integer Some description`, where Coder takes the whole text as the type and does not
-      report it.
     - Coder reports a `@var` tag that starts with a variable name as `IncorrectVarType`, and phpcbf
       writes `count int` for `$count int`, which is broken. The rule writes the type first.
     - Coder reports a name after a type with spaces, as in `@var array<string, int> $name`, as

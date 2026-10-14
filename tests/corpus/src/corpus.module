@@ -194,7 +194,7 @@ function corpus_one_line_repeat(): void {
 
 // The second line joins the first without a space, as in Coder.
 // @mago-expect lint:drupal/hook-comment
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-sentence
 /**
  * Implements corpus_wrapped_repeat()
  * .
@@ -203,7 +203,7 @@ function corpus_wrapped_repeat(): void {
 }
 
 // A tag right under the first line is part of the description.
-// @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/doc-tag-groups
 /**
  * Implements corpus_tag_below().
  * @param array $form

@@ -26,6 +26,13 @@ use amateescu\MagoDrupal\Linter\Rules\DeprecationMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\DiscouragedFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentArraySyntaxRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\DocSeeTagRule;
+use amateescu\MagoDrupal\Linter\Rules\DocSentenceRule;
+use amateescu\MagoDrupal\Linter\Rules\DocTagDescriptionsRule;
+use amateescu\MagoDrupal\Linter\Rules\DocTagGroupsRule;
+use amateescu\MagoDrupal\Linter\Rules\DocTagLayoutRule;
+use amateescu\MagoDrupal\Linter\Rules\DocTagTypesRule;
+use amateescu\MagoDrupal\Linter\Rules\DocTypeNameRule;
 use amateescu\MagoDrupal\Linter\Rules\DocTypeNamespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\ElseIfRule;
 use amateescu\MagoDrupal\Linter\Rules\EmptyInstallHookRule;
@@ -63,6 +70,11 @@ use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingClassCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingFileCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingFunctionCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingPropertyCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
 use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
@@ -83,6 +95,7 @@ use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
 use amateescu\MagoDrupal\Linter\Rules\TestClassSuffixRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\TranslatableLiteralRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatableStringRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslatedExceptionRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookMenuRule;
@@ -246,7 +259,14 @@ final class DrupalExtension
             new DeprecationMessageRule(),
             new DiscouragedFunctionRule(),
             new DocCommentArraySyntaxRule(),
-            new DocCommentRule(core: $core),
+            new DocCommentRule(),
+            new DocSeeTagRule(core: $core),
+            new DocSentenceRule(),
+            new DocTagDescriptionsRule(),
+            new DocTagGroupsRule(),
+            new DocTagLayoutRule(),
+            new DocTagTypesRule(),
+            new DocTypeNameRule(),
             new DocTypeNamespaceRule(),
             new ElseIfRule(),
             new EmptyPhpTagsRule(),
@@ -284,6 +304,11 @@ final class DrupalExtension
             new LongDescriptionPunctuationRule(),
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
+            new MissingClassCommentRule(),
+            new MissingFileCommentRule(),
+            new MissingFunctionCommentRule(),
+            new MissingPropertyCommentRule(),
+            new MissingSummaryRule(core: $core),
             new NullCoalesceRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
@@ -304,6 +329,7 @@ final class DrupalExtension
             new SymfonyYamlParseRule(),
             new TestClassSuffixRule(),
             new TodoCommentRule(),
+            new TranslatableLiteralRule(),
             new TranslatableStringRule(),
             new TranslatedExceptionRule(),
             new TranslationInHookMenuRule(),

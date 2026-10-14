@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CommentDocblock;
+use amateescu\MagoDrupal\Internal\DeclarationComment;
 use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
@@ -15,7 +15,6 @@ use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\TriviaKind;
 
 use function count;
 use function explode;
@@ -23,32 +22,22 @@ use function str_contains;
 use function strtolower;
 
 /**
- * Checks that a class, interface, trait or enum has a docblock.
+ * Checks the comment style above a class, interface, trait or enum, the
+ * line between its docblock and the declaration, and its summary.
  *
- * Ports Drupal.Commenting.ClassComment. A file that holds one class often
- * writes its docblock as the file comment instead. That is why a docblock
- * tagged `@file` does not count as the class docblock. The
- * `drupal/file-comment` rule already covers the file comment.
+ * Ports `WrongStyle`, `SpacingAfter` and `Short` of
+ * Drupal.Commenting.ClassComment. `drupal/missing-class-comment` reports a
+ * declaration with no docblock, or with a docblock tagged `@file`, which
+ * belongs to the file. This rule checks neither of those.
  */
 final class ClassCommentRule implements Rule
 {
-    /**
-     * Keyed by the `NodeKind` case name. PHP 8.1 rejects `->value` on an
-     * enum case inside a class constant.
-     */
-    private const KEYWORDS = [
-        'Class_' => 'class',
-        'Interface' => 'interface',
-        'Trait' => 'trait',
-        'Enum' => 'enum',
-    ];
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
             code: 'drupal/class-comment',
             name: 'Class comment',
-            description: 'Checks that a class, interface, trait or enum has a docblock.',
+            description: 'Checks the comment style above a class, interface, trait or enum, the blank line below its docblock, and a summary that repeats the name.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum],
@@ -57,37 +46,23 @@ final class ClassCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $keyword = self::KEYWORDS[$context->node->kind->name];
-        $anchor = Docblocks::commentAnchor($context->file, $context->node);
-        $closest = Docblocks::closest($context->file, $anchor);
-
-        if ($closest === null) {
-            $context->report(Issue::new("The {$keyword} has no docblock.", $context->node->span));
-
-            return;
-        }
-
-        if ($closest->kind !== TriviaKind::DocBlockComment) {
+        $keyword = Nodes::CLASS_KEYWORDS[$context->node->kind->name];
+        $comment = DeclarationComment::of($context);
+        if ($comment->hasWrongStyle()) {
             $issue = Issue::new("The {$keyword} docblock must start with \"/**\".", $context->node->span);
-            $fix = CommentDocblock::edit($context->file, $closest, $context->node, $anchor);
+            $fix = $comment->styleEdit($context->file);
             $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
         }
 
-        $tags = Docblocks::tags($context->file, $closest->span);
-        foreach ($tags as $tag) {
-            if ($tag->name !== 'file') {
-                continue;
-            }
-
-            $context->report(Issue::new("The {$keyword} has no docblock.", $context->node->span));
-
+        $docblock = $comment->docblock();
+        if ($docblock === null || $comment->hasFileTag($context->file)) {
             return;
         }
 
-        DocblockGap::checkBelow($context, $closest->span, $keyword);
-        $summary = Docblocks::leadingLines($context->file, $closest->span);
+        DocblockGap::checkBelow($context, $docblock, $keyword);
+        $summary = Docblocks::leadingLines($context->file, $docblock);
         $this->checkShort($context, $summary, $keyword);
     }
 

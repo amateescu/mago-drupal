@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\CommentDocblock;
 use amateescu\MagoDrupal\Internal\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\FileDocblock;
 use amateescu\MagoDrupal\Internal\FileTags;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use Mago\Sdk\Linter\LintContext;
@@ -17,41 +18,30 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
-use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
-use function count;
 use function preg_match;
 use function strspn;
-use function substr;
 
 /**
- * Checks that a PHP file starts with a docblock tagged `@file`, and that a
- * file with a namespace and one class, interface, trait or enum does not
- * start with a comment.
+ * Checks the docblock at the start of a PHP file: its style, its `@file`
+ * tag and the blank line below it, and that a file with a namespace and one
+ * class, interface, trait or enum does not start with a comment.
  *
  * Ports Drupal.Commenting.FileComment, with the sniff's skip of the `@file`
- * checks for a file that holds a class.
- *
- * @mago-expect lint:cyclomatic-complexity
- * @mago-expect lint:kan-defect
+ * checks for a file that holds a class. `drupal/missing-file-comment`
+ * reports a file that does not start with a comment.
  */
 final class FileCommentRule implements Rule
 {
-    /**
-     * The declarations that Coder counts as a class.
-     */
-    private const CLASS_LIKES = [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum];
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
             code: 'drupal/file-comment',
             name: 'File comment',
-            description: 'Checks that a PHP file that is not a class file starts with a docblock tagged @file, and that a namespaced class file does not start with a comment.',
+            description: 'Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file does not start with a comment.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -63,22 +53,18 @@ final class FileCommentRule implements Rule
         // A namespaced class file has its own check, which comes before the
         // `@file` checks. The tree scan runs only for a file that starts
         // with a comment.
-        $first = $this->firstComment($context);
-        if ($first !== null && self::isNamespacedClassFile($context->file)) {
+        $first = FileDocblock::firstComment($context->file);
+        if ($first === null) {
+            return;
+        }
+
+        if (FileDocblock::isNamespacedClassFile($context->file)) {
             $this->reportNamespacedFileComment($context, $first);
 
             return;
         }
 
-        // Coder checks every file with a PHP open tag, a `.php` file too.
-        // A YAML file, which Mago parses as text outside PHP, has none.
-        if (preg_match('/<\?(?:php\b|\s)/i', $context->file->contents) !== 1) {
-            return;
-        }
-
-        if ($first === null) {
-            $this->report($context, Issue::new('The file does not start with a docblock.', new Span(0, 0)));
-
+        if (!FileDocblock::hasOpenTag($context->file)) {
             return;
         }
 
@@ -181,101 +167,8 @@ final class FileCommentRule implements Rule
     {
         // The skip is checked only for a file that has an issue, because it
         // scans the whole tree.
-        if (!self::isClassFile($context->file)) {
+        if (!FileDocblock::isClassFile($context->file)) {
             $context->report($issue);
         }
-    }
-
-    /**
-     * Whether Coder skips the file comment of the file. It skips a file that
-     * has a class, interface, trait or enum and a namespace. It also skips a
-     * file that has exactly one of them, no function or method outside it,
-     * and no `@file` tag in any docblock.
-     */
-    private static function isClassFile(SourceFile $file): bool
-    {
-        $declarations = self::classLikes($file);
-        if ($declarations === []) {
-            return false;
-        }
-
-        if ($file->getNodes(NodeKind::Namespace) !== []) {
-            return true;
-        }
-
-        if (count($declarations) > 1) {
-            return false;
-        }
-
-        // Coder counts a function, or a method of an anonymous class, outside
-        // the class. A closure or an arrow function does not count.
-        $class = $declarations[0]->span;
-        foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
-            if (!$class->contains($function->span)) {
-                return false;
-            }
-        }
-
-        foreach ($file->getTrivia() as $trivia) {
-            if ($trivia->kind === TriviaKind::DocBlockComment && Docblocks::fileTag($file, $trivia->span)[0] !== null) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Whether the file has a namespace and exactly one class, interface,
-     * trait or enum, which Coder wants without a file comment.
-     */
-    private static function isNamespacedClassFile(SourceFile $file): bool
-    {
-        return $file->getNodes(NodeKind::Namespace) !== [] && count(self::classLikes($file)) === 1;
-    }
-
-    /**
-     * The class, interface, trait and enum declarations of the file.
-     *
-     * @return list<Node>
-     */
-    private static function classLikes(SourceFile $file): array
-    {
-        $declarations = [];
-        foreach (self::CLASS_LIKES as $kind) {
-            $declarations = [...$declarations, ...$file->getNodes($kind)];
-        }
-
-        return $declarations;
-    }
-
-    /**
-     * The file's first comment when only whitespace comes between it and the
-     * first opening tag, past any directive such as `// phpcs:ignoreFile`. A
-     * directive is a tool instruction, not the file comment. Coder does not
-     * look past one.
-     *
-     * Coder reads from the first opening tag, so text before it, such as a
-     * `#!/usr/bin/env php` line or a byte order mark, does not count. A
-     * comment after a second opening tag does not count either.
-     */
-    private function firstComment(LintContext $context): ?Trivia
-    {
-        $start = 0;
-        $prefix = '';
-        foreach ($context->file->getTrivia() as $trivia) {
-            $prefix .= substr($context->file->contents, $start, $trivia->span->start - $start);
-            if (preg_match('/^(?:(?!<\?php).)*<\?php\s*$/si', $prefix) !== 1) {
-                return null;
-            }
-
-            if (!Docblocks::isDirective($context->file, $trivia)) {
-                return $trivia;
-            }
-
-            $start = $trivia->span->end;
-        }
-
-        return null;
     }
 }

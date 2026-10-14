@@ -11,7 +11,7 @@ use function t;
  */
 class Practice {
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function translatedException(): never {
     // Both rules fire here.
     // The message is translated, and t() is the procedural form of
@@ -21,19 +21,19 @@ class Practice {
     throw new \RuntimeException(t('This should not be translated.'));
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function plainException(): never {
     throw new \RuntimeException('This is fine.');
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function translatedAnonymousException(): never {
     // The rule reads the constructor arguments of an anonymous class too.
     // @mago-expect lint:drupal/translated-exception
     throw new class($this->t('This should not be translated.')) extends \RuntimeException {};
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function plainAnonymousException(): never {
     throw new class('This is fine.') extends \RuntimeException {};
   }
@@ -45,14 +45,14 @@ class Practice {
     return $string;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function translationMethodIsNotProcedural(): string {
     // $this->t() reports the same callee name as t().
     // It is the fix this rule recommends, so it must never be flagged.
     return $this->t('Already correct.');
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function unserializing(string $payload): void {
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($payload);
@@ -92,7 +92,7 @@ class Practice {
     unserialize($mixed);
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function upperCaseBranching(int $value): int {
     if ($value === 1) {
       return 1;
@@ -106,7 +106,7 @@ class Practice {
     return 0;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function branching(int $value): int {
     if ($value === 1) {
       return 1;
@@ -128,7 +128,7 @@ class Practice {
     return 0;
   }
 
-  // @mago-expect lint:drupal/function-comment
+  // @mago-expect lint:drupal/missing-function-comment
   public function globalInAClassMethod(): void {
     // drupal/global-variable checks a class method too.
     // @mago-expect lint:drupal/global-variable

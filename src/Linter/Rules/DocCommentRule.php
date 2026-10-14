@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\DocblockRows;
 use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocblockSummary;
 use amateescu\MagoDrupal\Internal\DocCommentSpacing;
 use amateescu\MagoDrupal\Internal\DocDoubleDot;
 use amateescu\MagoDrupal\Internal\DocStarSpacing;
 use amateescu\MagoDrupal\Internal\OuterDocblocks;
-use amateescu\MagoDrupal\Internal\SeeTags;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -21,60 +19,22 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
-use Mago\Sdk\Syntax\SourceFile;
-
-use function array_key_exists;
-use function basename;
-use function count;
-use function in_array;
-use function mb_substr;
-use function ord;
-use function preg_match;
-use function rtrim;
-use function strlen;
-use function strspn;
-use function strtolower;
-use function strtoupper;
 
 /**
- * Checks a docblock's short description, long description and tag order.
+ * Checks the whitespace and the edges of a docblock, and `{@inheritdoc}`
+ * written without braces.
  *
- * Ports Drupal.Commenting.DocComment. `DocCommentSpacing` holds the checks
- * on blank lines, on the closer, and on the spaces before a description and
- * after a tag. `DocStarSpacing` ports the space after the star of
+ * Ports the whitespace codes of Drupal.Commenting.DocComment.
+ * `DocCommentSpacing` holds the checks on blank lines, on the opener and
+ * the closer, and on the spaces before a description and after a tag.
+ * `DocStarSpacing` ports the space after the star of
  * Drupal.Commenting.DocCommentAlignment, and `DocDoubleDot` ports the
  * two-dot pattern of SlevomatCodingStandard.Commenting.ForbiddenComments.
- * Both of those run on every docblock, inside function bodies too. The end
- * of the long description is `drupal/long-description-punctuation`'s, since
- * core's `phpcs.xml.dist` turns that check off. A `phpcs:` line inside the
- * docblock is not part of a description. Coder reads it the same way below
- * the summary, but above it Coder finds no summary. The description of a
- * file docblock is the text after its `@file` tag.
- *
- * @mago-expect lint:cyclomatic-complexity
- * @mago-expect lint:kan-defect
- * @mago-expect lint:too-many-methods
+ * Both of those run on every docblock, inside function bodies too. The
+ * summary, the tags and their groups have rules of their own.
  */
 final class DocCommentRule implements Rule
 {
-    /**
-     * Tags that this rule checks for order. Each must also be in one group.
-     */
-    private const ORDERED_TAGS = ['param', 'return', 'throws'];
-
-    /**
-     * The directories where core's `phpcs.xml.dist` runs `MissingShort`.
-     */
-    private const CORE_SUMMARY_DIRECTORIES = '#/(?:KernelTests|Unit|FunctionalJavascript)/#';
-
-    /**
-     * @param bool $core Reports a docblock with no short description only in
-     *   the test directories where core's `phpcs.xml.dist` checks it.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         // Function and Method are targets for `OuterDocblocks::of()`. Their
@@ -82,8 +42,8 @@ final class DocCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-comment',
             name: 'Doc comment',
-            description: "Checks a docblock's short description, long description and tag order.",
-            defaultLevel: Level::Warning,
+            description: "Checks a docblock's opener, closer, blank lines and spaces, and @inheritdoc without braces.",
+            defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Function, NodeKind::Method],
         );
@@ -95,14 +55,8 @@ final class DocCommentRule implements Rule
             return;
         }
 
-        // `drupal/function-comment` checks the `@see` tags of a function's
-        // docblock. Core's phpcs checks no others.
-        $functionDocblocks = $this->core ? null : $this->functionDocblocks($context->file);
         foreach (OuterDocblocks::of($context->file) as $span) {
             $this->checkDocblock($context, $span);
-            if ($functionDocblocks !== null && !array_key_exists($span->start, $functionDocblocks)) {
-                $this->checkSeeReferences($context, $span);
-            }
         }
 
         // Coder checks the stars and the end of a description line in every
@@ -118,7 +72,7 @@ final class DocCommentRule implements Rule
         DocCommentSpacing::checkEnds($context, $span);
         DocDoubleDot::check($context, $span);
         $isGroup = OuterDocblocks::isGroup($context->file, $span);
-        $summaryRow = $isGroup ? null : DocCommentSpacing::summaryRow(DocblockRows::of($context->file, $span));
+        $summaryRow = $isGroup ? null : DocblockSummary::summaryRow(DocblockRows::of($context->file, $span));
         DocStarSpacing::check($context, $span, $summaryRow);
         if ($isGroup) {
             return;
@@ -127,266 +81,28 @@ final class DocCommentRule implements Rule
         DocCommentSpacing::checkBody($context, $span);
 
         $tags = Docblocks::tags($context->file, $span);
-        [$summary, $description] = Docblocks::paragraphs($context->file, $span);
-
-        // Mago's no-empty-comment reports an empty docblock, and its safe fix
-        // deletes it.
-        if ($summary === [] && $tags === []) {
+        if ($tags === [] || Docblocks::paragraphs($context->file, $span)[0] !== []) {
             return;
         }
 
-        if ($summary === []) {
-            $this->checkNoSummary($context, $span, $tags);
-        }
-
-        if ($summary !== []) {
-            $this->checkShortCapital($context, $summary);
-            $this->checkSummaryEnd($context, $summary);
-            if (count($summary) > 1) {
-                $context->report(Issue::new(
-                    'A short description must fit on one line. Move the rest to a long description.',
-                    $this->lastLineSpan($summary),
-                ));
-            }
-        }
-
-        // Coder reports only a lower-case letter at the start of the long
-        // description.
-        if ($description !== [] && self::lowerCaseStart($description[0]) !== null) {
-            self::reportCapital($context, $description[0], 'long description');
-        }
-
-        $this->checkTagOrder($context, $tags);
-    }
-
-    /**
-     * Checks the `@see` references of a docblock that is not a function's.
-     * Coder reports an empty `@see` in a property docblock, which
-     * `drupal/variable-comment` ports, and nowhere else outside functions.
-     */
-    private function checkSeeReferences(LintContext $context, Span $span): void
-    {
-        if (!OuterDocblocks::isGroup($context->file, $span)) {
-            SeeTags::checkReferences($context, Docblocks::tags($context->file, $span));
-        }
-    }
-
-    /**
-     * The start offsets of the docblocks of functions and methods.
-     *
-     * @return array<int, true>
-     */
-    private function functionDocblocks(SourceFile $file): array
-    {
-        $starts = [];
-        foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
-            $docblock = Docblocks::attachedTo($file, Docblocks::commentAnchor($file, $function));
-            if ($docblock !== null) {
-                $starts[$docblock->start] = true;
-            }
-        }
-
-        return $starts;
-    }
-
-    /**
-     * Checks a docblock with no short description from its first tag, or
-     * from the tag after a leading `@file`, as Coder does.
-     *
-     * `@covers` there needs no summary, as PHPUnit test methods often have
-     * none. A bare `@inheritdoc` there gets the braces report alone. Coder
-     * reads no other tag, so `@covers` followed by `@group` is fine, and an
-     * `@inheritdoc` further down is not reported. `OuterDocblocks::isGroup()`
-     * skips the group markers and `@coversDefaultClass`.
-     *
-     * @param list<DocblockTag> $tags
-     */
-    private function checkNoSummary(LintContext $context, Span $span, array $tags): void
-    {
-        $tag = $tags[0];
-        if ($context->file->getText($tag->nameSpan) === '@file') {
-            // A docblock with `@file` alone is fine. Coder reports it, but
-            // core has many of those and runs `MissingShort` only in tests.
-            if (count($tags) === 1) {
-                return;
-            }
-
-            $tag = $tags[1];
-        }
-
-        if ($tag->name === 'inheritdoc') {
-            // A stray closing brace, as in `@inheritdoc}`, goes into the
-            // replacement too, so the result does not end in two of them.
-            $replaced = $tag->nameSpan;
-            if (($context->file->contents[$replaced->end] ?? '') === '}') {
-                $replaced = new Span($replaced->start, $replaced->end + 1);
-            }
-
-            $context->report(Issue::new(
-                'Write @inheritdoc as {@inheritdoc}, with curly braces, to make it an inline tag.',
-                $tag->nameSpan,
-            )->withEdit(TextEdit::replace($replaced, '{@inheritdoc}')));
-
+        // With no summary, Coder reads the first tag, or the one after a
+        // leading `@file`. A bare `@inheritdoc` there gets this report, and
+        // no report of the missing summary.
+        $tag = DocblockSummary::leadTag($context->file, $tags);
+        if ($tag === null || $tag->name !== 'inheritdoc') {
             return;
         }
 
-        if ($context->file->getText($tag->nameSpan) === '@covers') {
-            return;
+        // A stray closing brace, as in `@inheritdoc}`, goes into the
+        // replacement too, so the result does not end in two of them.
+        $replaced = $tag->nameSpan;
+        if (($context->file->contents[$replaced->end] ?? '') === '}') {
+            $replaced = new Span($replaced->start, $replaced->end + 1);
         }
 
-        if ($this->core && preg_match(self::CORE_SUMMARY_DIRECTORIES, $context->file->path) !== 1) {
-            return;
-        }
-
-        $context->report(Issue::new('The docblock has no short description.', $span));
-    }
-
-    /**
-     * Checks that the short description starts with an upper-case letter.
-     *
-     * Coder tests the first byte of the summary. A digit, `#`, `_` or any
-     * other ASCII character that is not an upper-case letter is reported. A
-     * multi-byte first character is not: Coder's Unicode pattern errors on a
-     * lone byte of it, so the check never fires. The `{@inheritdoc}` tag
-     * alone, and a summary that is the file's own name, as Features exports
-     * write, are fine.
-     *
-     * @param list<DocblockLine> $summary
-     */
-    private function checkShortCapital(LintContext $context, array $summary): void
-    {
-        $content = Docblocks::joinedText($summary);
-        if ($content === '') {
-            return;
-        }
-
-        $first = ord($content[0]);
-        if (
-            $first >= 0x41 && $first <= 0x5A
-            || $first >= 0x80
-            || $content === '{@inheritdoc}'
-            || $content === '{@inheritDoc}'
-            || $content === basename($context->file->path)
-        ) {
-            return;
-        }
-
-        self::reportCapital($context, $summary[0], 'short description');
-    }
-
-    /**
-     * Reports a paragraph whose first character is not a capital letter.
-     * Like phpcbf, the fix uppercases a lower-case letter. Any other first
-     * character gets no fix.
-     */
-    private static function reportCapital(LintContext $context, DocblockLine $line, string $label): void
-    {
-        $start = $line->offset + strspn($line->text, characters: " \t");
-        $issue = Issue::new("The {$label} must start with a capital letter.", new Span($start, $start + 1));
-        $lower = self::lowerCaseStart($line);
-        if ($lower !== null) {
-            $issue = $issue->withEdit(TextEdit::replace(new Span($start, $start + 1), strtoupper($lower)));
-        }
-
-        $context->report($issue);
-    }
-
-    /**
-     * Returns the first character of a line's text when it is a lower-case
-     * ASCII letter, the only kind that PHP's ucfirst() changes, or null.
-     */
-    private static function lowerCaseStart(DocblockLine $line): ?string
-    {
-        $matches = [];
-
-        return preg_match('/^[ \t]*([a-z])/', $line->text, $matches) === 1 ? $matches[1] : null;
-    }
-
-    /**
-     * Checks that the short description ends in one of a fixed set of
-     * terminal marks. `drupal/long-description-punctuation` checks the long
-     * description, more loosely.
-     *
-     * @param list<DocblockLine> $summary
-     */
-    private function checkSummaryEnd(LintContext $context, array $summary): void
-    {
-        $last = $summary[count($summary) - 1];
-        // The text is trimmed first. Otherwise a stray trailing space, or a
-        // "\r" that the line splitter keeps under CRLF, makes it look
-        // unexempt.
-        $trimmed = rtrim($last->text);
-        $lastChar = mb_substr($trimmed, -1);
-        // Coder accepts `{@inheritDoc}` too, and a summary that is the
-        // file's own name.
-        if (
-            strtolower($trimmed) === '{@inheritdoc}'
-            || in_array($lastChar, ['.', '!', '?', ')'], strict: true)
-            || Docblocks::joinedText($summary) === basename($context->file->path)
-        ) {
-            return;
-        }
-
-        $lastCharEnd = $last->offset + strlen($trimmed);
-        $issue = Issue::new(
-            'The short description must end with terminal punctuation.',
-            new Span($lastCharEnd - strlen($lastChar), $lastCharEnd),
-        );
-
-        // Like phpcbf, the fix adds a full stop only after a letter or a
-        // digit on a one-line summary. A summary over two lines may be
-        // missing the blank line before the long description.
-        if (count($summary) > 1 || preg_match('/^[a-zA-Z0-9]$/', $lastChar) !== 1) {
-            $context->report($issue);
-
-            return;
-        }
-
-        $context->report($issue->withEdit(TextEdit::insert($lastCharEnd, '.')));
-    }
-
-    /**
-     * The span of the last line of a paragraph, where Coder reports it.
-     *
-     * @param list<DocblockLine> $paragraph
-     */
-    private function lastLineSpan(array $paragraph): Span
-    {
-        $last = $paragraph[count($paragraph) - 1];
-
-        return new Span($last->offset, $last->offset + strlen(rtrim($last->text)));
-    }
-
-    /**
-     * Reports a tag name that appears again after a different ordered tag.
-     * `DocCommentSpacing` reports the `@param` groups.
-     *
-     * Only `@param`, `@return` and `@throws` are ordered tags. No other tag
-     * counts here, and that includes Doxygen markup such as `@code`,
-     * `@endcode`, `@todo` and `@link`. Such a tag does not have to be in a
-     * group, and it does not split one. Coder compares with the last ordered
-     * tag only.
-     *
-     * @param list<DocblockTag> $tags
-     */
-    private function checkTagOrder(LintContext $context, array $tags): void
-    {
-        $seen = [];
-        $lastName = null;
-        foreach ($tags as $tag) {
-            if (!in_array($tag->name, self::ORDERED_TAGS, strict: true)) {
-                continue;
-            }
-
-            if (($seen[$tag->name] ?? false) && $lastName !== $tag->name) {
-                $context->report(Issue::new(
-                    "Keep the @{$tag->name} tags together. Do not put other tags between them.",
-                    $tag->nameSpan,
-                ));
-            }
-
-            $seen[$tag->name] = true;
-            $lastName = $tag->name;
-        }
+        $context->report(Issue::new(
+            'Write @inheritdoc as {@inheritdoc}, with curly braces, to make it an inline tag.',
+            $tag->nameSpan,
+        )->withEdit(TextEdit::replace($replaced, '{@inheritdoc}')));
     }
 }

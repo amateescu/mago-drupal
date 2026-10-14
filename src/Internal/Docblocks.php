@@ -366,9 +366,28 @@ final class Docblocks
      * the `@file` line counts as the first line of the summary. The next tag
      * ends them, as it does in any docblock.
      *
+     * The result is kept per docblock, as in `parse()`, since several rules
+     * read the paragraphs of the same docblock.
+     *
      * @return array{list<DocblockLine>, list<DocblockLine>}
      */
     public static function paragraphs(SourceFile $file, Span $span): array
+    {
+        static $path = '';
+        static $memo = [];
+
+        if ($path !== $file->path) {
+            $path = $file->path;
+            $memo = [];
+        }
+
+        return $memo[$span->start] ??= self::splitParagraphs($file, $span);
+    }
+
+    /**
+     * @return array{list<DocblockLine>, list<DocblockLine>}
+     */
+    private static function splitParagraphs(SourceFile $file, Span $span): array
     {
         $paragraphs = [[]];
         $lines = self::lines($file, $span);

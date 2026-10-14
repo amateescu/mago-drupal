@@ -17,6 +17,13 @@ drupal/deprecation-message
 drupal/discouraged-function
 drupal/doc-comment
 drupal/doc-comment-array-syntax
+drupal/doc-see-tag
+drupal/doc-sentence
+drupal/doc-tag-descriptions
+drupal/doc-tag-groups
+drupal/doc-tag-layout
+drupal/doc-tag-types
+drupal/doc-type-name
 drupal/doc-type-namespace
 drupal/else-if
 drupal/empty-install-hook
@@ -54,6 +61,11 @@ drupal/link-text-translatable
 drupal/long-description-punctuation
 drupal/method-name-underscore
 drupal/method-visibility
+drupal/missing-class-comment
+drupal/missing-file-comment
+drupal/missing-function-comment
+drupal/missing-property-comment
+drupal/missing-summary
 drupal/null-coalesce
 drupal/parameter-blank-line
 drupal/post-statement-comment
@@ -76,6 +88,7 @@ drupal/t-in-hook-menu
 drupal/t-in-hook-schema
 drupal/test-class-suffix
 drupal/todo-comment
+drupal/translatable-literal
 drupal/translatable-string
 drupal/translated-exception
 drupal/unsilenced-deprecation
