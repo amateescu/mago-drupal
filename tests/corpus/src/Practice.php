@@ -71,7 +71,7 @@ class Practice {
     unserialize($payload, ['allowed_classes' => \true]);
     // Parentheses don't change the value.
     // @mago-expect lint:drupal/insecure-unserialize
-    unserialize($payload, ['allowed_classes' => (TRUE)]);
+    unserialize($payload, ['allowed_classes' => TRUE]);
     // PHP reads only the options' own keys, not a nested array's.
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($payload, ['nested' => ['allowed_classes' => FALSE]]);

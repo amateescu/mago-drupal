@@ -629,4 +629,5 @@ class FunctionCommentConstructorStyle {
 // @phpcs:disable Drupal.Commenting.FunctionComment.Missing
 function function_comment_at_phpcs_directive(): void {
 }
+
 // @phpcs:enable

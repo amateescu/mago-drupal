@@ -130,9 +130,11 @@ final class ServiceIndex
             $this->classes = [];
             foreach ($this->services as $definition) {
                 foreach ([$definition->class, $definition->undecoratedClass] as $name) {
-                    if ($name !== null) {
-                        $this->classes[strtolower(ltrim($name, characters: '\\'))] = true;
+                    if ($name === null) {
+                        continue;
                     }
+
+                    $this->classes[strtolower(ltrim($name, characters: '\\'))] = true;
                 }
             }
         }

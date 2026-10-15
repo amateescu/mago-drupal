@@ -308,7 +308,7 @@ Coder asks for no gendered pronouns in comments.
   have no fix.
 - **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation),
   [In-line code comments](https://project.pages.drupalcode.org/coding_standards/php/documentation/#in-line-code-comments)
-- **Ports:** `Drupal.Commenting.InlineComment`: `DocBlock`, `NoSpaceBefore`, `NotCapital`, `SpacingBefore` (partly), `TabBefore`, `WrongStyle`
+- **Ports:** `Drupal.Commenting.InlineComment`: `DocBlock`, `NoSpaceBefore`, `NotCapital`, `SpacingBefore`, `TabBefore`, `WrongStyle`
 
 > Put a space between the comment character (the `*` or the `//`) and the first letter of the
 > sentence.

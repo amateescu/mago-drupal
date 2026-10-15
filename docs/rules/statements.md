@@ -141,7 +141,8 @@ a colon.
     - Core's config runs only `WrongOpenercase`. The rule reports `default;` too, also under
       `--core`.
     - Mago's parser doesn't accept a label that ends with a close tag, as in `case 1 ?>`, which PHP
-      accepts. Coder reports those. The rule can't, because Mago reports a parse error for the file.
+      accepts. Coder reports those, and the rule can't. Mago reports a parse error there and leaves
+      that switch out, but still checks the rest of the file.
     - The fix writes the colon and removes the blank space in front of it in one pass. phpcbf
       needs a second pass for the space, which the sniff's `SpaceBeforeColonCASE` or
       `Squiz.ControlStructures.SwitchDeclaration.SpaceBeforeColonCase` removes. The result is the

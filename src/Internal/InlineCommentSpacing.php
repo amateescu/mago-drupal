@@ -16,6 +16,7 @@ use function preg_match;
 use function preg_split;
 use function rtrim;
 use function str_repeat;
+use function str_starts_with;
 use function strlen;
 use function strpos;
 use function strrpos;
@@ -100,11 +101,8 @@ final class InlineCommentSpacing
             };
             $previousEnd = $trivia->span->end;
             $previousText = $directive ? null : self::lastLine($text);
-            // A `#` line counts for the blank line below it. drupal/inline-comment
-            // reports its style, and Coder fixes both in one run.
-            $hash = $trivia->kind === TriviaKind::HashComment;
-            $isLine = !$directive && ($trivia->kind === TriviaKind::SingleLineComment || $hash && !$spaces);
-            $hasText = trim(substr($text, offset: $hash ? 1 : 2)) !== '';
+            $isLine = !$directive && self::countsAsLine($trivia->kind, $spaces);
+            $hasText = trim(substr($text, offset: str_starts_with($text, '#') ? 1 : 2)) !== '';
 
             $run = $run !== null && $isLine && self::continuesRun($contents, $run[0], $trivia, $text)
                 ? [$trivia, $run[1], $run[2] || $hasText]
@@ -120,6 +118,16 @@ final class InlineCommentSpacing
         }
 
         self::endRun($context, $run, $spaces);
+    }
+
+    /**
+     * Whether a comment of the kind is a line comment for the check. A `#`
+     * line counts for the blank line below it: drupal/inline-comment reports
+     * its style, and Coder fixes both in one run.
+     */
+    private static function countsAsLine(TriviaKind $kind, bool $spaces): bool
+    {
+        return $kind === TriviaKind::SingleLineComment || $kind === TriviaKind::HashComment && !$spaces;
     }
 
     /**

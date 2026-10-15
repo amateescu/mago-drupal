@@ -88,16 +88,16 @@ final class InsecureUnserializeRule implements Rule
         $wanted = Calls::normalizeAll(['unserialize']);
         foreach ($context->file->getTargetNodes() as $node) {
             if (
-                $node->kind === NodeKind::FunctionPartialApplication
-                && Calls::matchWanted($context->file, $node, $wanted) !== null
+                $node->kind !== NodeKind::FunctionPartialApplication
+                || Calls::matchWanted($context->file, $node, $wanted) === null
             ) {
-                $context->report(
-                    Issue::new(
-                        'unserialize(...) passes the call on with no options, so it accepts every class.',
-                        $node->span,
-                    )->withHelp(self::HELP),
-                );
+                continue;
             }
+
+            $context->report(Issue::new(
+                'unserialize(...) passes the call on with no options, so it accepts every class.',
+                $node->span,
+            )->withHelp(self::HELP));
         }
     }
 
@@ -148,7 +148,9 @@ final class InsecureUnserializeRule implements Rule
 
             // `\TRUE` names the same constant as `TRUE`, and `(TRUE)` is the
             // same value.
-            return strtolower(ltrim(trim($file->getText(self::unparenthesize($file, $value))), characters: '\\')) === 'true'
+            $written = trim($file->getText(self::unparenthesize($file, $value)));
+
+            return strtolower(ltrim($written, characters: '\\')) === 'true'
                 ? 'allowed_classes is TRUE. That accepts every class in the payload.'
                 : null;
         }

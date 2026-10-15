@@ -18,8 +18,8 @@ use function in_array;
 use function ltrim;
 use function max;
 use function str_contains;
-use function stripos;
 use function str_ends_with;
+use function stripos;
 use function strrpos;
 use function strtolower;
 use function substr;
@@ -163,7 +163,7 @@ final class FullyQualifiedNameRule implements Rule
         // has nothing to import, and Coder skips it.
         return (
             str_contains($written, '\\')
-            && stripos($written, 'namespace\\') !== 0
+            && stripos($written, needle: 'namespace\\') !== 0
             && !$this->isExempt($file, $name)
         );
     }
