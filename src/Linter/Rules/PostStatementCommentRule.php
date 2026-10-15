@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\BraceComment;
+use amateescu\MagoDrupal\Internal\CodeBodies;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use Mago\Sdk\Linter\LintContext;
@@ -13,6 +15,7 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
@@ -51,6 +54,11 @@ use function trim;
  * or continues inside a string or a comment, a comment that the next line
  * continues, and a comment that only applies to one line.
  *
+ * A comment after the opening brace of a class, interface, trait, enum or
+ * anonymous class is reported too, a block comment included. That is
+ * Drupal.Classes.ClassDeclaration.ContentAfterBrace, and the formatter keeps
+ * the comment on the brace line. The fix moves the comment into the body.
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */
@@ -75,7 +83,7 @@ final class PostStatementCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/post-statement-comment',
             name: 'Post-statement comment',
-            description: 'Reports a `//` comment on the same line as the statement before it.',
+            description: 'Reports a `//` comment on the same line as the statement before it, and a comment after the opening brace of a class.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -86,8 +94,9 @@ final class PostStatementCommentRule implements Rule
     {
         $contents = $context->file->contents;
         $strings = null;
+        $braces = null;
         foreach ($context->file->getTrivia() as $trivia) {
-            if ($trivia->kind !== TriviaKind::SingleLineComment || Docblocks::isDirective($context->file, $trivia)) {
+            if ($trivia->kind === TriviaKind::DocBlockComment || Docblocks::isDirective($context->file, $trivia)) {
                 continue;
             }
 
@@ -100,6 +109,23 @@ final class PostStatementCommentRule implements Rule
 
             $before = rtrim(substr($contents, $lineStart, $trivia->span->start - $lineStart));
             if ($before === '' || str_ends_with($before, '}')) {
+                continue;
+            }
+
+            // The class-like braces are read once per file, and only for a
+            // file with a comment after a `{`.
+            if (str_ends_with($before, '{')) {
+                $braces ??= CodeBodies::classLikeBraces($context->file);
+                $brace = $lineStart + strlen($before) - 1;
+                $class = $braces[$brace] ?? null;
+                if ($class !== null) {
+                    $context->report(self::braceComment($context->file, $trivia, $class, $brace));
+
+                    continue;
+                }
+            }
+
+            if ($trivia->kind !== TriviaKind::SingleLineComment) {
                 continue;
             }
 
@@ -117,6 +143,28 @@ final class PostStatementCommentRule implements Rule
 
             $context->report($issue);
         }
+    }
+
+    /**
+     * The issue for a comment after the opening brace of a class-like, with
+     * the edits that move it into the body. The fix is left out when code
+     * follows the comment on its line, or when the comment applies to one
+     * line only.
+     */
+    private static function braceComment(SourceFile $file, Trivia $comment, Node $class, int $brace): Issue
+    {
+        $issue = Issue::new('Do not put a comment after the opening brace of a class.', $comment->span)->withHelp(
+            'Move the comment to its own line above the first member.',
+        );
+        if (preg_match(self::LINE_BOUND, $file->getText($comment->span)) === 1) {
+            return $issue;
+        }
+
+        foreach (BraceComment::move($file, $comment, $class, $brace) as $edit) {
+            $issue = $issue->withEdit($edit);
+        }
+
+        return $issue;
     }
 
     /**

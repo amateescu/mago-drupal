@@ -27,7 +27,7 @@
             {"code": "BraceOnNewLine", "status": "format"},
             {"code": "CloseBraceAfterBody", "status": "format"},
             {"code": "CloseBraceSameLine", "status": "gap", "where": ["none"], "note": "A comment after the closing brace of a class, such as `} // end class`. The formatter keeps it and nothing reports it. phpcbf has no fix for it either."},
-            {"code": "ContentAfterBrace", "status": "partial", "note": "The formatter keeps a comment that follows the opening brace on the brace line, such as `class Foo { // Comment.`, which Coder reports. `drupal/post-statement-comment` reports the comment."},
+            {"code": "ContentAfterBrace", "status": "fix", "where": ["format", "ext:drupal/post-statement-comment"]},
             {"code": "ExtendsIndentation", "status": "format"},
             {"code": "ExtendsInterfaceSameLine", "status": "format"},
             {"code": "ExtendsLine", "status": "format"},

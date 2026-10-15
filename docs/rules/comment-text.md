@@ -505,29 +505,42 @@ pass applies it.
 ## drupal/post-statement-comment
 
 - **Level:** warning
-- **Fix:** safe. It moves the comment to its own line above.
+- **Fix:** safe. It moves the comment to its own line above the statement, or below the opening
+  brace of a class.
 - **Standard:** [In-line code comments](https://project.pages.drupalcode.org/coding_standards/php/documentation/#in-line-code-comments)
-- **Ports:** `Drupal.Commenting.PostStatementComment.Found`
+- **Ports:**
+    - `Drupal.Classes.ClassDeclaration.ContentAfterBrace`
+    - `Drupal.Commenting.PostStatementComment.Found`
 
 > Comments should be on a separate line immediately before the code line or block they reference.
 
 **Reports:**
 
-- a `//` comment on the same line as the statement before it.
+- a `//` comment on the same line as the statement before it;
+- a `//`, `#` or `/* */` comment after the opening brace of a class, interface, trait, enum or
+  anonymous class, on the brace's line.
 
 **Not reported:**
 
 - a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment,
   because moving a tool pragma can change the lines it covers. An `@phpstan-ignore-line` moved to a
-  line of its own would cover no statement.
+  line of its own would cover no statement;
+- a docblock after the opening brace of a class, which
+  [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) reports.
+
+The fix puts a comment from the line of a class's opening brace directly above the first member,
+with no blank line between them, or on the line below the brace when the body is empty. `mago format`
+then adds the blank line after the brace. A method's docblock or attributes get one blank line
+above them, which Coder's `Squiz.WhiteSpace.FunctionSpacing.Before` counts from the comment.
 
 There is no fix where the move could attach the comment to something else:
 
-- a line that opens a block or closes a construct;
+- a line that opens a block, other than a class body, or closes a construct;
 - a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement;
 - a line inside a string;
 - a comment that the next line continues;
-- a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`.
+- a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`;
+- a comment after a class's opening brace with code after it on the same line.
 
 ??? example "Example"
 
@@ -555,6 +568,15 @@ There is no fix where the move could attach the comment to something else:
     - Coder skips only a `phpcs:` comment, not the other tool pragmas.
     - phpcbf moves every comment it reports, also one below a docblock or another comment. It
       writes the comment at the start of the line and leaves a space after the statement.
+    - Coder doesn't report a block comment after the opening brace of an anonymous class as
+      `ContentAfterBrace`. It reports the space before it as
+      `Drupal.WhiteSpace.OpenBracketSpacing.OpeningWhitespace`, which the move removes too.
+    - phpcbf turns a `//` comment after the opening brace of a class into a second docblock above
+      the class.
+    - For a `//` comment that the fix puts above a method's docblock, DrupalPractice's
+      `CommentEmptyLine.SpacingAfter` reports the blank line between them, and Coder's
+      `FunctionSpacing.Before` reports the layout without it. The fix keeps the blank line, which
+      [`drupal/inline-comment-blank-line`](#drupalinline-comment-blank-line) allows.
 
 ---
 

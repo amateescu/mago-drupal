@@ -98,6 +98,29 @@ final class CodeBodies
     }
 
     /**
+     * The class-like declarations of a file whose snapshot has the whole
+     * syntax tree, keyed by the offset of their opening brace.
+     *
+     * @return array<int, Node>
+     */
+    public static function classLikeBraces(SourceFile $file): array
+    {
+        $braces = [];
+        foreach (self::CLASS_LIKE as $kind) {
+            foreach ($file->getNodes($kind) as $node) {
+                $open = self::openBrace($file, $node, self::searchStart($file, $node));
+                if ($open === null) {
+                    continue;
+                }
+
+                $braces[$open] = $node;
+            }
+        }
+
+        return $braces;
+    }
+
+    /**
      * The spans from the opening brace to the end of each node of the kinds.
      * A class-like body starts after its header and a `match` after its
      * subject.
