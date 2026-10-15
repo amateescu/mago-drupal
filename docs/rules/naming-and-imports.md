@@ -1,7 +1,7 @@
 # Naming and imports
 
-Rules for the names of classes, constants, functions, methods and properties, and for `use`
-statements. Mago's own naming rules cover the rest, see
+Rules for the names of classes, constants, functions, methods, properties and variables, and for
+`use` statements. Mago's own naming rules cover the rest, see
 [Configuration](../setup/configuration.md).
 
 ---
@@ -190,8 +190,7 @@ name, or a docblock that writes the short name in the same case.
 
 - a leading or doubled underscore, so a private helper such as `_mymodule_helper()` passes;
 - a function that starts with `hook_` in an `.api.php` file, since such a file documents hooks
-  with names such as `hook_ENTITY_TYPE_insert()`;
-- methods, which are left to Mago's `method-name`.
+  with names such as `hook_ENTITY_TYPE_insert()`.
 
 Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which is accepted
 by Coder. The [configuration](../setup/configuration.md) turns it off.
@@ -337,6 +336,73 @@ does.
 
 ---
 
+## drupal/method-name
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Classes, methods and properties](https://project.pages.drupalcode.org/coding_standards/php/coding/#classes-methods-and-properties)
+- **Ports:** `Drupal.NamingConventions.ValidFunctionName`: `NotCamelCaps`, `ScopeNotCamelCaps`
+- **Off with `--core`**
+
+> Methods and class properties should use lowerCamel naming.
+>
+> If an acronym is used in a class or method name, make it CamelCase too (SampleXmlClass, not
+> SampleXMLClass).
+
+**Reports:**
+
+- a method name that doesn't start with a lower-case ASCII letter, holds a character other than an
+  ASCII letter or digit, or has two capitals in a row, such as `get_url()`, `GetUrl()`,
+  `getURL()` or `get2FA()`. A digit ends a run of capitals, so `getA2B()` passes. The rule checks
+  the methods of classes, interfaces, traits, enums and anonymous classes.
+
+**Not reported:**
+
+- the leading underscores, which the rule strips before the check. `drupal/method-name-underscore`
+  reports them;
+- a PHP magic method or a `SoapClient` method, the names that `drupal/method-name-underscore`
+  accepts;
+- a method named after its class, or after its class with one leading underscore, the PHP 4
+  constructor and destructor. The names are compared without regard to case.
+
+A rename breaks the callers and the overrides of a method, so the rule has no fix. A name that PHP
+or a parent class sets, such as the `stream_open()` method of a stream wrapper, needs a
+`@mago-expect lint:drupal/method-name` comment.
+
+Mago's own `method-name` accepts a run of capitals, as in `getURL()`, so it can't stand in for this
+rule.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    class Example {
+
+      public function getURL(): string {
+        return '';
+      }
+
+    }
+
+    // Fine.
+    class Example {
+
+      public function getUrl(): string {
+        return '';
+      }
+
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - The rule reports on the name. Coder 9 reports on the `function` keyword, so the lines differ
+      when an attribute or a line break comes between them.
+    - Coder reports the same check under two codes, `ScopeNotCamelCaps` for a method with a
+      visibility keyword and `NotCamelCaps` for one without. The rule gives one message for both.
+
+---
+
 ## drupal/method-name-underscore
 
 - **Level:** warning
@@ -369,6 +435,58 @@ that starts with two underscores, so no other rule repeats this check.
 
     - The rule reports on the name. Coder 9 reports on the `function` keyword, so the lines differ
       when a declaration spans several lines.
+
+---
+
+## drupal/old-style-constructor
+
+- **Level:** error
+- **Fix:** none
+- **Source:** Coder's `Drupal` standard
+- **Ports:** `Generic.NamingConventions.ConstructorName.OldStyle`
+
+PHP 4 ran a method named after its class as the constructor. PHP 8 doesn't, and in a namespaced
+class PHP never did. Such a method is an ordinary method, and its name suggests that it sets up the
+object.
+
+**Reports:**
+
+- a method of a class whose name is the name of the class, compared without regard to case, when
+  the class declares no `__construct()`. Abstract and static methods count.
+
+**Not reported:**
+
+- a class that declares `__construct()`, in any case;
+- a method of an interface, a trait, an enum or an anonymous class.
+
+A `__construct()` in an anonymous class inside a method doesn't count. A constructor that the class
+takes from a trait doesn't count either, since the rule reads only the class's own declarations.
+
+There is no fix. A rename to `__construct()` changes what `new` runs, and any rename breaks the
+callers of the method.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    class ExampleWidget {
+
+      public function exampleWidget(): void {
+      }
+
+    }
+
+    // Fine.
+    class ExampleWidget {
+
+      public function __construct() {
+      }
+
+    }
+    ```
+
+The analyzer reports a call such as `parent::ExampleWidget()` when the parent has no method of that
+name, as `non-existent-method`. That is the other code of the sniff, `OldStyleCall`.
 
 ---
 
@@ -566,3 +684,55 @@ nothing.
 
     - Coder reads `function` and `const` only in lower case, so it doesn't report
       `use FUNCTION \foo;`. The rule reads the keyword in any case, as PHP does.
+
+---
+
+## drupal/variable-name
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Functions and variables](https://project.pages.drupalcode.org/coding_standards/php/coding/#functions-and-variables)
+- **Ports:** `Drupal.NamingConventions.ValidVariableName.LowerStart`
+
+> Variables should be named using lowercase, and words should be separated either with uppercase
+> characters (example: $lowerCamelCase) or with an underscore (example: $snake_case).
+
+**Reports:**
+
+- a variable whose name starts with an ASCII capital, at each place it's written: parameters,
+  promoted constructor parameters included, assignments, reads, `foreach`, `catch`, `static`,
+  `global`, destructuring, a closure's `use` list, a dynamic property name such as
+  `$object->$Name`, and variables outside a function.
+
+**Not reported:**
+
+- `$GLOBALS`;
+- a property declaration, which `drupal/property-name` checks;
+- a static property or method name after `::`, such as `self::$Count`;
+- a variable inside a double-quoted string or a heredoc;
+- a name that starts with a capital outside ASCII, such as `$É`.
+
+A rename of a parameter breaks the callers that pass it by name, and a global or static variable is
+shared with other code, so the rule has no fix.
+
+Mago's own `variable-name` checks only assignments and parameters, and it also reports a name such
+as `$foo_Bar`, which Coder accepts.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    function example_total(array $Items): int {
+      return count($Items);
+    }
+
+    // Fine.
+    function example_total(array $items): int {
+      return count($items);
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder treats a variable inside a property hook as a property, and reports it as
+      `LowerCamelName`, an underscore included. The rule checks it as any other variable.

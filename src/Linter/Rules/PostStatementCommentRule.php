@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\BraceComment;
+use amateescu\MagoDrupal\Internal\ClosingBraces;
 use amateescu\MagoDrupal\Internal\CodeBodies;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\LineEnding;
@@ -21,6 +22,7 @@ use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
+use function array_key_exists;
 use function in_array;
 use function ltrim;
 use function preg_match;
@@ -59,6 +61,11 @@ use function trim;
  * Drupal.Classes.ClassDeclaration.ContentAfterBrace, and the formatter keeps
  * the comment on the brace line. The fix moves the comment into the body.
  *
+ * Any comment after the closing brace of a class, interface, trait or enum
+ * is reported too, a docblock or a directive included. That is the comment
+ * half of Drupal.Classes.ClassDeclaration.CloseBraceSameLine. A directive
+ * there applies to nothing. This check has no fix, as in Coder.
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */
@@ -83,7 +90,7 @@ final class PostStatementCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/post-statement-comment',
             name: 'Post-statement comment',
-            description: 'Reports a `//` comment on the same line as the statement before it, and a comment after the opening brace of a class.',
+            description: 'Reports a `//` comment on the same line as the statement before it, and a comment after the opening or closing brace of a class.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],
@@ -95,7 +102,25 @@ final class PostStatementCommentRule implements Rule
         $contents = $context->file->contents;
         $strings = null;
         $braces = null;
+        $closingBraces = null;
         foreach ($context->file->getTrivia() as $trivia) {
+            // A comment after a closing brace ends a block, which the sniff
+            // allows. After the closing brace of a class it's reported, a
+            // docblock and a directive too. The closing braces are read once
+            // per file, and only for a file with a comment after a `}`.
+            $brace = ClosingBraces::before($contents, $trivia->span->start);
+            if ($brace !== null) {
+                $closingBraces ??= ClosingBraces::ofClassLikes($context->file);
+                if (array_key_exists($brace, $closingBraces)) {
+                    $context->report(Issue::new(
+                        'Do not put a comment after the closing brace of a class.',
+                        $trivia->span,
+                    )->withHelp('Move the comment to its own line, or remove it.'));
+                }
+
+                continue;
+            }
+
             if ($trivia->kind === TriviaKind::DocBlockComment || Docblocks::isDirective($context->file, $trivia)) {
                 continue;
             }

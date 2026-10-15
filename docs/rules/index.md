@@ -87,8 +87,8 @@ outside PHP tags, and these rules read the YAML in it.
 
 ## Naming and imports
 
-Rules for the names of classes, constants, functions, methods and properties, and for `use`
-statements. Mago's own naming rules cover the rest, see
+Rules for the names of classes, constants, functions, methods, properties and variables, and for
+`use` statements. Mago's own naming rules cover the rest, see
 [Configuration](../setup/configuration.md).
 
 | Rule | Level | What it reports |
@@ -101,11 +101,14 @@ statements. Mago's own naming rules cover the rest, see
 | [`drupal/global-class-backslash`](naming-and-imports.md#drupalglobal-class-backslash) | error | Reports a global class written without a leading backslash in a file with no namespace. |
 | [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports Hook attributes whose name starts with hook_. |
 | [`drupal/literal-constant-case`](naming-and-imports.md#drupalliteral-constant-case) | error | Reports a fully qualified \true, \false or \null that is not written in upper case. |
+| [`drupal/method-name`](naming-and-imports.md#drupalmethod-name) | error | Reports method names that don't use lowerCamelCase. |
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
+| [`drupal/old-style-constructor`](naming-and-imports.md#drupalold-style-constructor) | error | Reports a method named after its class in a class without __construct(). |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that don't use lowerCamelCase. |
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |
 | [`drupal/test-class-suffix`](naming-and-imports.md#drupaltest-class-suffix) | error | Reports a test class whose name doesn't end in Test, which PHPUnit never runs. |
 | [`drupal/use-leading-backslash`](naming-and-imports.md#drupaluse-leading-backslash) | error | Reports a use statement whose first name starts with a backslash. |
+| [`drupal/variable-name`](naming-and-imports.md#drupalvariable-name) | error | Reports variables whose name starts with a capital letter. |
 
 ## Statements and declarations
 
@@ -133,6 +136,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/short-ternary`](statements.md#drupalshort-ternary) | error | Reports a ternary that repeats its condition, which "?:" replaces. |
 | [`drupal/short-list`](statements.md#drupalshort-list) | error | Reports a list(...) destructuring that can be written as [...]. |
 | [`drupal/unused-variable`](statements.md#drupalunused-variable) | warning | Reports a variable that is written and never read in its function, closure or file. |
+| [`drupal/variable-redeclaration`](statements.md#drupalvariable-redeclaration) | warning | Reports a variable that its function declares again, such as a parameter redeclared with static. |
 
 ## Comment text
 
@@ -153,7 +157,7 @@ the line-length check for comments. For the comment whitespace set by `mago form
 | [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) | warning | Checks that no blank line follows a `//` comment on its own line. |
 | [`drupal/inline-comment-punctuation`](comment-text.md#drupalinline-comment-punctuation) | warning | Checks that a `//` comment ends with terminal punctuation. |
 | [`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) | warning | Checks that a docblock's long description doesn't end with a letter. |
-| [`drupal/post-statement-comment`](comment-text.md#drupalpost-statement-comment) | warning | Reports a `//` comment on the same line as the statement before it, and a comment after the opening brace of a class. |
+| [`drupal/post-statement-comment`](comment-text.md#drupalpost-statement-comment) | warning | Reports a `//` comment on the same line as the statement before it, and a comment after the opening or closing brace of a class. |
 | [`drupal/todo-comment`](comment-text.md#drupaltodo-comment) | warning | Reports a to-do comment that doesn't follow the "@todo Fix problem X here." format. |
 
 ## Docblock structure

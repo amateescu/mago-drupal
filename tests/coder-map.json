@@ -26,7 +26,7 @@
         "codes": [
             {"code": "BraceOnNewLine", "status": "format"},
             {"code": "CloseBraceAfterBody", "status": "format"},
-            {"code": "CloseBraceSameLine", "status": "gap", "where": ["none"], "note": "A comment after the closing brace of a class, such as `} // end class`. The formatter keeps it and nothing reports it. phpcbf has no fix for it either."},
+            {"code": "CloseBraceSameLine", "status": "partial", "where": ["ext:drupal/post-statement-comment", "format"], "note": "`drupal/post-statement-comment` reports a comment after the closing brace of a class, such as `} // end class`. The formatter moves code after the brace to a line of its own and removes trailing spaces. Nothing reports a `?>` after the brace."},
             {"code": "ContentAfterBrace", "status": "fix", "where": ["format", "ext:drupal/post-statement-comment"]},
             {"code": "ExtendsIndentation", "status": "format"},
             {"code": "ExtendsInterfaceSameLine", "status": "format"},
@@ -478,13 +478,13 @@
         "sniff": "Drupal.NamingConventions.ValidFunctionName",
         "standard": "Drupal",
         "where": ["ext:drupal/function-name"],
-        "note": "Core doesn't run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the configuration in Setup doesn't turn it on. When on, it accepts a run of capitals, as in `getURL()`, which Coder reports.",
+        "note": "Core doesn't run the sniff.",
         "codes": [
             {"code": "InvalidName", "status": "report"},
             {"code": "InvalidPrefix", "status": "report", "where": ["ext:drupal/function-prefix"]},
             {"code": "MethodDoubleUnderscore", "status": "report", "where": ["ext:drupal/method-name-underscore"]},
-            {"code": "NotCamelCaps", "status": "gap", "where": ["lint:method-name"]},
-            {"code": "ScopeNotCamelCaps", "status": "gap", "where": ["lint:method-name"]}
+            {"code": "NotCamelCaps", "status": "report", "where": ["ext:drupal/method-name"]},
+            {"code": "ScopeNotCamelCaps", "status": "report", "where": ["ext:drupal/method-name"]}
         ]
     },
     {
@@ -501,7 +501,7 @@
         "where": ["ext:drupal/property-name"],
         "codes": [
             {"code": "LowerCamelName", "status": "report"},
-            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup doesn't turn it on. It reports a name that is neither camel case nor snake case, such as `$Foo`, and also `$foo_Bar`, which Coder accepts. It skips `foreach`, `catch`, `static` and `global` variables."}
+            {"code": "LowerStart", "status": "report", "where": ["ext:drupal/variable-name"]}
         ]
     },
     {
@@ -791,11 +791,10 @@
     {
         "sniff": "Generic.NamingConventions.ConstructorName",
         "standard": "Drupal",
-        "where": ["none"],
-        "note": "A PHP 4 constructor named after its class. Not ported. Since PHP 8 such a method is an ordinary method.",
+        "where": ["ext:drupal/old-style-constructor"],
         "codes": [
-            {"code": "OldStyle", "status": "gap"},
-            {"code": "OldStyleCall", "status": "gap", "note": "A call to such a constructor through `parent::`. Not ported."}
+            {"code": "OldStyle", "status": "report"},
+            {"code": "OldStyleCall", "status": "partial", "where": ["analyze:non-existent-method"], "note": "A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent has no method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared. A parent class outside the scanned paths gives no report."}
         ]
     },
     {
@@ -1089,8 +1088,8 @@
         "where": ["format"],
         "codes": [
             {"code": "CommaAfterLast", "status": "format"},
-            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported. Core turns the code off."},
-            {"code": "NoKeySpecified", "status": "gap", "where": ["none"], "note": "An array that mixes keyed and unkeyed entries. Not ported. Core turns the code off."},
+            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array over several lines whose first entry has no key and a later one has. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two. Coder also takes the spread of an array element before a key, as in `[...$x['k'], 'k' => 1]`, for an entry without a key."},
+            {"code": "NoKeySpecified", "status": "gap", "where": ["none"], "note": "An array over several lines with an entry without a key after one with a key. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two."},
             {"code": "NoSpaceAfterComma", "status": "format"},
             {"code": "NoSpaceAfterDoubleArrow", "status": "format"},
             {"code": "NoSpaceBeforeDoubleArrow", "status": "format"},
@@ -1318,7 +1317,6 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "CheckPlainLiteral", "status": "gap"}
         ]
@@ -1336,7 +1334,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "DbQuery", "status": "gap"}
         ]
@@ -1346,7 +1344,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "DbSelectBrace", "status": "gap"}
         ]
@@ -1356,7 +1354,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "Reports a `'#default_value'` set to the result of `check_plain()`, `check_markup()`, `check_url()`, `filter_xss()` or `filter_xss_admin()`. Not ported. Of these, only `check_markup()` exists on Drupal 11, and it is deprecated in 11.4.",
+        "note": "Reports a `'#default_value'` set to the result of `check_plain()`, `check_markup()`, `check_url()`, `filter_xss()` or `filter_xss_admin()`. Of these, only `check_markup()` exists on Drupal 11, and it is deprecated in 11.4.",
         "codes": [
             {"code": "DefaultValue", "status": "gap"}
         ]
@@ -1384,7 +1382,6 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "LCheckPlain", "status": "gap"}
         ]
@@ -1412,9 +1409,8 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
-            {"code": "ThemeFunctionDirect", "status": "gap", "note": "Coder also reports a call to `theme_settings_convert_to_config()`, which still exists on Drupal 11. Nothing in Mago reports that call."}
+            {"code": "ThemeFunctionDirect", "status": "gap", "note": "Coder also reports a call to `theme_settings_convert_to_config()`, which still exists on Drupal 11. That report is wrong: the function isn't a theme function, and the call is the right API. Nothing in Mago reports it."}
         ]
     },
     {
@@ -1422,7 +1418,6 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "VariableSet", "status": "gap"}
         ]
@@ -1432,7 +1427,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "Reports an `'access callback' => TRUE` with no comment above it in `hook_menu()`, a Drupal 7 API. Not ported, and nothing in Mago reports it.",
+        "note": "Reports an `'access callback' => TRUE` with no comment above it in `hook_menu()`, a Drupal 7 API. Nothing in Mago reports it. The routing file form, an open route with `_access: 'TRUE'` and no comment above it, is reported by `drupal/routing-access`.",
         "codes": [
             {"code": "OpenCallback", "status": "gap"}
         ]
@@ -1450,7 +1445,6 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
             {"code": "AddFunctionFound", "status": "gap"},
             {"code": "AddFunctionFoundPageBuild", "status": "gap"}
@@ -1461,7 +1455,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "Coder runs it only on a Drupal 7 module, for `t()` and `st()` in `hook_install()` and `hook_requirements()`. Not ported.",
+        "note": "Coder runs it only on a Drupal 7 module, for `t()` and `st()` in `hook_install()` and `hook_requirements()`.",
         "codes": [
             {"code": "TranslationFound", "status": "gap"}
         ]
@@ -1471,7 +1465,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "Reports the `access administration pages` permission in `hook_menu()`, a Drupal 7 API. Not ported, and nothing in Mago reports it.",
+        "note": "Reports the `access administration pages` permission in `hook_menu()`, a Drupal 7 API. Nothing in Mago reports it. The routing file form, `_permission: 'access administration pages'`, is reported by `drupal/routing-access`.",
         "codes": [
             {"code": "PermissionFound", "status": "gap"}
         ]
@@ -1505,7 +1499,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "Reports `$form_state['input']`, a read of the Drupal 7 form state array. Not ported. When `$form_state` is typed as `FormStateInterface`, `mago analyze` reports any array access on it as `invalid-array-access`. Without the type, nothing in Mago reports the key.",
+        "note": "Reports `$form_state['input']`, a read of the Drupal 7 form state array. When `$form_state` is typed as `FormStateInterface`, `mago analyze` reports any array access on it as `invalid-array-access`. Without the type, nothing in Mago reports the key.",
         "codes": [
             {"code": "Input", "status": "gap"}
         ]
@@ -1515,7 +1509,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "Reports an `'und'` array key, where Drupal 7 field code uses `LANGUAGE_NONE`. Not ported, and nothing in Mago reports the key.",
+        "note": "Reports `['und']` written without spaces, as an index or as an array with one item, where Drupal 7 field code uses `LANGUAGE_NONE`. Nothing in Mago reports the key. On Drupal 8 and later `LANGUAGE_NONE` doesn't exist, and `mago analyze` reports it as `non-existent-constant`.",
         "codes": [
             {"code": "Und", "status": "gap"}
         ]
@@ -1533,9 +1527,8 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
         "codes": [
-            {"code": "VariableName", "status": "gap", "note": "A Drupal 7 `variable_get()` name without the module prefix, as the value of a `'#default_value'` key. Not ported."}
+            {"code": "VariableName", "status": "gap", "note": "A Drupal 7 `variable_get()` name without the module prefix, as the value of a `'#default_value'` key."}
         ]
     },
     {
@@ -1628,13 +1621,13 @@
         "sniff": "VariableAnalysis.CodeAnalysis.VariableAnalysis",
         "standard": "DrupalPractice",
         "where": ["ext:drupal/unused-variable", "analyze"],
-        "note": "Coder's ruleset skips `*.tpl.php` files, and so does `drupal/unused-variable`. `mago analyze` checks them.",
+        "note": "Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them.",
         "codes": [
             {"code": "SelfOutsideClass", "status": "report", "where": ["analyze:self-outside-class-scope"]},
             {"code": "StaticOutsideClass", "status": "report", "where": ["analyze:static-outside-class-scope"]},
-            {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`."},
+            {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. Coder doesn't count an element write such as `$x['k'] = 1` as setting `$x`, so it also reports `unset($x['k'])` after one. `mago analyze` reports such a variable as `undefined-variable` at its first element write. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`."},
             {"code": "UnusedVariable", "status": "report", "where": ["ext:drupal/unused-variable"]},
-            {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported: it needs flow analysis."}
+            {"code": "VariableRedeclaration", "status": "report", "where": ["ext:drupal/variable-redeclaration"]}
         ]
     }
 ]

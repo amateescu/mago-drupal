@@ -86,6 +86,7 @@ class CurlClient {
   /**
    * Stands in for the function.
    */
+  // @mago-expect lint:drupal/method-name
   public function curl_setopt(\CurlHandle $handle, int $option, mixed $value): bool {
     return TRUE;
   }

@@ -102,6 +102,7 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/inline-comment-punctuation',
                 'drupal/insecure-unserialize',
                 'drupal/long-description-punctuation',
+                'drupal/method-name',
                 'drupal/method-name-underscore',
                 'drupal/request-superglobal',
                 'drupal/routing-access',

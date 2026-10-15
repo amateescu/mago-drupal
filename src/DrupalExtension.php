@@ -76,6 +76,7 @@ use amateescu\MagoDrupal\Linter\Rules\InstallHookLocationRule;
 use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
 use amateescu\MagoDrupal\Linter\Rules\LiteralConstantCaseRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
+use amateescu\MagoDrupal\Linter\Rules\MethodNameRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingClassCommentRule;
@@ -85,6 +86,7 @@ use amateescu\MagoDrupal\Linter\Rules\MissingPropertyCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
 use amateescu\MagoDrupal\Linter\Rules\NonCapturingCatchRule;
 use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
+use amateescu\MagoDrupal\Linter\Rules\OldStyleConstructorRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
@@ -117,6 +119,8 @@ use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
 use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\VariableNameRule;
+use amateescu\MagoDrupal\Linter\Rules\VariableRedeclarationRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\WeakHashRule;
 use Composer\InstalledVersions;
@@ -178,6 +182,7 @@ final class DrupalExtension
         'drupal/inline-comment-punctuation',
         'drupal/insecure-unserialize',
         'drupal/long-description-punctuation',
+        'drupal/method-name',
         'drupal/method-name-underscore',
         'drupal/request-superglobal',
         'drupal/routing-access',
@@ -378,6 +383,7 @@ final class DrupalExtension
             new LinkTextTranslatableRule(),
             new LiteralConstantCaseRule(),
             new LongDescriptionPunctuationRule(),
+            new MethodNameRule(),
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
             new MissingClassCommentRule(),
@@ -387,6 +393,7 @@ final class DrupalExtension
             new MissingSummaryRule(core: $core),
             new NonCapturingCatchRule(),
             new NullCoalesceRule(),
+            new OldStyleConstructorRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
             new PregSecurityRule(),
@@ -419,6 +426,8 @@ final class DrupalExtension
             new UnusedVariableRule(core: $core),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
+            new VariableNameRule(),
+            new VariableRedeclarationRule(core: $core),
             new WatchdogMessageRule(),
             new WeakHashRule(),
         ];
