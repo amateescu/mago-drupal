@@ -106,12 +106,13 @@ final class CoderTables
     }
 
     /**
-     * Renders the checks for the Drupal 7 API. A sniff that a rule or an
-     * analyzer check handles names it, and the rest are not ported.
+     * Renders the checks for the Drupal 7 API, with their notes. A sniff that
+     * a rule or an analyzer check handles names it, and the rest are not
+     * ported.
      */
     public function drupal7(): string
     {
-        $rows = "| Sniff | Handled by |\n| --- | --- |\n";
+        $rows = "| Sniff | Handled by | Notes |\n| --- | --- | --- |\n";
         foreach ($this->map->sniffs as $sniff) {
             if (!($sniff['drupal7'] ?? false)) {
                 continue;
@@ -129,7 +130,7 @@ final class CoderTables
                 $partial === [] => $this->handledBy($sniff['where'], statuses: ['report']),
                 default => $this->handledBy($sniff['where'], statuses: ['partial']) . ', partly',
             };
-            $rows .= "| `{$sniff['sniff']}` | {$by} |\n";
+            $rows .= "| `{$sniff['sniff']}` | {$by} | " . self::cell(self::notes($sniff)) . " |\n";
         }
 
         return $rows;
