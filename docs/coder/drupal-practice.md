@@ -7,32 +7,58 @@ analyzer checks that port the other sniffs.
 
 <!-- docs-gen:coder-practice -->
 
-| Sniff | Handled by | Notes |
-| --- | --- | --- |
-| `DrupalPractice.Commenting.AuthorTag` | [`drupal/author-tag`](../rules/comment-text.md#drupalauthor-tag) |  |
-| `DrupalPractice.Commenting.CommentEmptyLine` | [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |  |
-| `DrupalPractice.Commenting.ExpectedException` | [`drupal/expected-exception-tag`](../rules/comment-text.md#drupalexpected-exception-tag) |  |
-| `DrupalPractice.Constants.GlobalConstant` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |  |
-| `DrupalPractice.Constants.GlobalDefine` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |  |
-| `DrupalPractice.FunctionCalls.CurlSslVerifier` | [`drupal/curl-ssl-verify`](../rules/drupal-practice.md#drupalcurl-ssl-verify) |  |
-| `DrupalPractice.FunctionCalls.InsecureUnserialize` | [`drupal/insecure-unserialize`](../rules/bugs-and-security.md#drupalinsecure-unserialize), partly |  |
-| `DrupalPractice.FunctionCalls.TCheckPlain` | [`drupal/escaped-placeholder`](../rules/drupal-practice.md#drupalescaped-placeholder) |  |
-| `DrupalPractice.FunctionDefinitions.FormAlterDoc` | [`drupal/form-alter-comment`](../rules/drupal-practice.md#drupalform-alter-comment) |  |
-| `DrupalPractice.General.ClassName` | [`drupal/class-prefix`](../rules/drupal-practice.md#drupalclass-prefix) |  |
-| `DrupalPractice.General.DescriptionT` | [`drupal/untranslated-description`](../rules/drupal-practice.md#drupaluntranslated-description) |  |
-| `DrupalPractice.General.ExceptionT` | [`drupal/translated-exception`](../rules/right-api.md#drupaltranslated-exception) |  |
-| `DrupalPractice.General.OptionsT` | [`drupal/untranslated-options`](../rules/drupal-practice.md#drupaluntranslated-options) |  |
-| `DrupalPractice.InfoFiles.CoreVersionRequirement` | [`drupal/info-core-version-requirement`](../rules/info-and-routing-files.md#drupalinfo-core-version-requirement) |  |
-| `DrupalPractice.InfoFiles.Description` | [`drupal/info-description`](../rules/info-and-routing-files.md#drupalinfo-description) |  |
-| `DrupalPractice.InfoFiles.NamespacedDependency` | [`drupal/info-namespaced-dependency`](../rules/info-and-routing-files.md#drupalinfo-namespaced-dependency) |  |
-| `DrupalPractice.Objects.GlobalClass` | [`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load), partly | Coder reports a static `load()` or `loadMultiple()` call on one of 46 core entity classes, written with an imported name, in the same classes as its GlobalDrupal sniff. The analyzer check takes every entity class and a name written in full, and checks the classes of `drupal/global-drupal-call`. It skips a first-class callable, a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports. |
-| `DrupalPractice.Objects.GlobalDrupal` | [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call), partly | Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports. |
-| `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |  |
-| `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |  |
-| `DrupalPractice.Objects.UnusedPrivateMethod` | `mago analyze` (`unused-method`) | The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer doesn't report any of them. |
-| `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |  |
-| `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |  |
-| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `SelfOutsideClass`: `mago analyze` (`self-outside-class-scope`)<br>`StaticOutsideClass`: `mago analyze` (`static-outside-class-scope`)<br>`UndefinedUnsetVariable`: Nothing<br>`UnusedVariable`: [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable)<br>`VariableRedeclaration`: [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) | Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them. `UndefinedUnsetVariable`: An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. Coder doesn't count an element write such as `$x['k'] = 1` as setting `$x`, so it also reports `unset($x['k'])` after one. `mago analyze` reports such a variable as `undefined-variable` at its first element write. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`. |
+| Sniff | Handled by<span class="coder-table"></span> |
+| --- | --- |
+| `DrupalPractice.Commenting.AuthorTag` | [`drupal/author-tag`](../rules/comment-text.md#drupalauthor-tag) |
+| `DrupalPractice.Commenting.CommentEmptyLine` | [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
+| `DrupalPractice.Commenting.ExpectedException` | [`drupal/expected-exception-tag`](../rules/comment-text.md#drupalexpected-exception-tag) |
+| `DrupalPractice.Constants.GlobalConstant` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |
+| `DrupalPractice.Constants.GlobalDefine` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |
+| `DrupalPractice.FunctionCalls.CurlSslVerifier` | [`drupal/curl-ssl-verify`](../rules/drupal-practice.md#drupalcurl-ssl-verify) |
+| `DrupalPractice.FunctionCalls.InsecureUnserialize` | [`drupal/insecure-unserialize`](../rules/bugs-and-security.md#drupalinsecure-unserialize), partly |
+| `DrupalPractice.FunctionCalls.TCheckPlain` | [`drupal/escaped-placeholder`](../rules/drupal-practice.md#drupalescaped-placeholder) |
+| `DrupalPractice.FunctionDefinitions.FormAlterDoc` | [`drupal/form-alter-comment`](../rules/drupal-practice.md#drupalform-alter-comment) |
+| `DrupalPractice.General.ClassName` | [`drupal/class-prefix`](../rules/drupal-practice.md#drupalclass-prefix) |
+| `DrupalPractice.General.DescriptionT` | [`drupal/untranslated-description`](../rules/drupal-practice.md#drupaluntranslated-description) |
+| `DrupalPractice.General.ExceptionT` | [`drupal/translated-exception`](../rules/right-api.md#drupaltranslated-exception) |
+| `DrupalPractice.General.OptionsT` | [`drupal/untranslated-options`](../rules/drupal-practice.md#drupaluntranslated-options) |
+| `DrupalPractice.InfoFiles.CoreVersionRequirement` | [`drupal/info-core-version-requirement`](../rules/info-and-routing-files.md#drupalinfo-core-version-requirement) |
+| `DrupalPractice.InfoFiles.Description` | [`drupal/info-description`](../rules/info-and-routing-files.md#drupalinfo-description) |
+| `DrupalPractice.InfoFiles.NamespacedDependency` | [`drupal/info-namespaced-dependency`](../rules/info-and-routing-files.md#drupalinfo-namespaced-dependency) |
+| [`DrupalPractice.Objects.GlobalClass`](#drupalpracticeobjectsglobalclass) | [`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load), partly |
+| [`DrupalPractice.Objects.GlobalDrupal`](#drupalpracticeobjectsglobaldrupal) | [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call), partly |
+| `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |
+| `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |
+| [`DrupalPractice.Objects.UnusedPrivateMethod`](#drupalpracticeobjectsunusedprivatemethod) | `mago analyze` (`unused-method`) |
+| `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |
+| `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |
+| [`VariableAnalysis.CodeAnalysis.VariableAnalysis`](#variableanalysiscodeanalysisvariableanalysis) | `mago analyze` (`self-outside-class-scope`), `mago analyze` (`static-outside-class-scope`), Nothing, [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable), [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
+
+## `DrupalPractice.Objects.GlobalClass`
+
+Coder reports a static `load()` or `loadMultiple()` call on one of 46 core entity classes, written with an imported name, in the same classes as its GlobalDrupal sniff. The analyzer check takes every entity class and a name written in full, and checks the classes of `drupal/global-drupal-call`. It skips a first-class callable, a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.
+
+## `DrupalPractice.Objects.GlobalDrupal`
+
+Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.
+
+## `DrupalPractice.Objects.UnusedPrivateMethod`
+
+The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer doesn't report any of them.
+
+## `VariableAnalysis.CodeAnalysis.VariableAnalysis`
+
+Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them.
+
+| Codes | Handled by<span class="coder-table"></span> |
+| --- | --- |
+| `SelfOutsideClass` | `mago analyze` (`self-outside-class-scope`) |
+| `StaticOutsideClass` | `mago analyze` (`static-outside-class-scope`) |
+| `UndefinedUnsetVariable` | Nothing |
+| `UnusedVariable` | [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable) |
+| `VariableRedeclaration` | [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
+
+- `UndefinedUnsetVariable`: An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. Coder doesn't count an element write such as `$x['k'] = 1` as setting `$x`, so it also reports `unset($x['k'])` after one. `mago analyze` reports such a variable as `undefined-variable` at its first element write. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`.
 
 <!-- /docs-gen -->
 

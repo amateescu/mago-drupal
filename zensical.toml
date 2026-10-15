@@ -9,14 +9,14 @@ extra_css = ["stylesheets/drupal.css"]
 
 nav = [
   { "Start" = [
-    "index.md",
+    { "Overview" = "index.md" },
     { "Install" = "setup/install.md" },
     { "Worker arguments" = "setup/worker-arguments.md" },
     { "Configuration" = "setup/configuration.md" },
     { "Fixes" = "setup/fixes.md" },
   ] },
   { "Linter" = [
-    "rules/index.md",
+    { "All rules" = "rules/index.md" },
     { "Bugs and security" = "rules/bugs-and-security.md" },
     { "Using the right API" = "rules/right-api.md" },
     { "Procedural files" = "rules/procedural-files.md" },
@@ -31,7 +31,7 @@ nav = [
     { "Ported from phpstan-drupal" = "rules/phpstan-drupal.md" },
   ] },
   { "Analyzer" = [
-    "analyzer/index.md",
+    { "All checks" = "analyzer/index.md" },
     { "Services" = "analyzer/services.md" },
     { "Dependency injection" = "analyzer/injection.md" },
     { "Entities" = "analyzer/entities.md" },
@@ -48,13 +48,13 @@ nav = [
   ] },
   { "Migrating" = [
     { "From Coder" = [
-      "coder/index.md",
+      { "Overview" = "coder/index.md" },
       { "Drupal standard" = "coder/drupal.md" },
       { "Sniffs from other standards" = "coder/other-standards.md" },
       { "DrupalPractice standard" = "coder/drupal-practice.md" },
     ] },
     { "From PHPStan" = [
-      "phpstan/index.md",
+      { "Overview" = "phpstan/index.md" },
       { "phpstan-drupal" = "phpstan/phpstan-drupal.md" },
       { "PHPStan identifiers" = "phpstan/identifiers.md" },
     ] },
@@ -69,7 +69,6 @@ logo = "assets/favicon.png"
 features = [
   "content.code.copy",
   "navigation.footer",
-  "navigation.indexes",
   "navigation.sections",
   "navigation.tabs",
   "navigation.top",
