@@ -75,14 +75,22 @@ final class MissingSummaryRule implements Rule
             }
 
             // Coder reads the first tag, or the one after a leading `@file`.
-            // A docblock with `@file` alone is fine. Coder reports it, but
-            // core has many of those and runs `MissingShort` only in tests.
-            // `@covers` needs no summary, as PHPUnit test methods often have
-            // none, and a bare `@inheritdoc` gets the braces report of
-            // `drupal/doc-comment` instead. Coder reads no other tag, so
+            // The text after `@file` is a file docblock's summary, so a
+            // docblock that holds `@file` and nothing else has none, as Coder
+            // reports. `@covers` needs no summary, as PHPUnit test methods
+            // often have none, and a bare `@inheritdoc` gets the braces report
+            // of `drupal/doc-comment` instead. Coder reads no other tag, so
             // `@covers` followed by `@group` is fine.
             $tag = DocblockSummary::leadTag($context->file, $tags);
-            if ($tag === null || $tag->name === 'inheritdoc' || $context->file->getText($tag->nameSpan) === '@covers') {
+            if ($tag === null) {
+                if ($tags[0]->content() === '') {
+                    $context->report(Issue::new('The docblock has no short description.', $span));
+                }
+
+                continue;
+            }
+
+            if ($tag->name === 'inheritdoc' || $context->file->getText($tag->nameSpan) === '@covers') {
                 continue;
             }
 

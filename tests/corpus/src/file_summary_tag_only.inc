@@ -1,5 +1,6 @@
 <?php
 
+// @mago-expect lint:drupal/missing-summary
 /**
  * @file
  */

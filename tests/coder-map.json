@@ -110,7 +110,7 @@
             {"code": "InheritDocWithoutBraces", "status": "fix"},
             {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
             {"code": "LongNotCapital", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
-            {"code": "MissingShort", "status": "partial", "where": ["ext:drupal/missing-summary"], "note": "A file docblock that holds only `@file` isn't reported. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
+            {"code": "MissingShort", "status": "partial", "where": ["ext:drupal/missing-summary"], "note": "A `phpcs:` line above the summary is skipped, and the line below it counts as the summary. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
             {"code": "ParamGroup", "status": "report", "where": ["ext:drupal/doc-tag-groups"]},
             {"code": "ParamNotFirst", "status": "report", "where": ["ext:drupal/doc-tag-groups"]},
             {"code": "ShortFullStop", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
