@@ -16,7 +16,7 @@ nav = [
     { "Fixes" = "setup/fixes.md" },
   ] },
   { "Linter" = [
-    { "Overview" = "rules/index.md" },
+    { "All rules" = "rules/index.md" },
     { "Bugs and security" = "rules/bugs-and-security.md" },
     { "Using the right API" = "rules/right-api.md" },
     { "Procedural files" = "rules/procedural-files.md" },
@@ -31,7 +31,7 @@ nav = [
     { "Ported from phpstan-drupal" = "rules/phpstan-drupal.md" },
   ] },
   { "Analyzer" = [
-    { "Overview" = "analyzer/index.md" },
+    { "All checks" = "analyzer/index.md" },
     { "Services" = "analyzer/services.md" },
     { "Dependency injection" = "analyzer/injection.md" },
     { "Entities" = "analyzer/entities.md" },
