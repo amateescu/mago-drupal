@@ -7,7 +7,7 @@ on [Sniffs from other standards](other-standards.md).
 
 ## Arrays
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.Arrays.Array`](#drupalarraysarray) | `mago format`, partly |
 
@@ -15,7 +15,7 @@ on [Sniffs from other standards](other-standards.md).
 
 The drupal preset writes the trailing comma, the indentation and the line breaks of a long array.
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `ArrayClosingIndentation`, `ArrayIndentation` | `mago format`, partly |
 | `CommaLastItem`, `LongLineDeclaration` | `mago format` |
@@ -25,13 +25,13 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 
 ## Attributes
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Drupal.Attributes.ValidHookName` | [`drupal/hook-attribute-name`](../rules/naming-and-imports.md#drupalhook-attribute-name) |
 
 ## Classes
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.Classes.ClassDeclaration`](#drupalclassesclassdeclaration) | `mago format`, [`drupal/post-statement-comment`](../rules/comment-text.md#drupalpost-statement-comment), Mago `parse`, partly |
 | `Drupal.Classes.FullyQualifiedNamespace` | [`drupal/fully-qualified-name`](../rules/naming-and-imports.md#drupalfully-qualified-name) |
@@ -40,7 +40,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 
 ### `Drupal.Classes.ClassDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `BraceOnNewLine`, `CloseBraceAfterBody`, `ExtendsIndentation`, `ExtendsInterfaceSameLine`, `ExtendsLine`, `FirstExtendsInterfaceSameLine`, `FirstInterfaceSameLine`, `ImplementsLine`, `InterfaceSameLine`, `InterfaceWrongIndent`, `NewlineBeforeKeyword`, `NoSpaceBeforeName`, `OpenBraceNewLine`, `OpenBraceNotAlone`, `OpenBraceWrongLine`, `SpaceAfterKeyword`, `SpaceAfterName`, `SpaceBeforeBrace`, `SpaceBeforeComma`, `SpaceBeforeExtends`, `SpaceBeforeImplements`, `SpaceBeforeKeyword`, `SpaceBeforeName` | `mago format` |
 | `CloseBraceSameLine` | [`drupal/post-statement-comment`](../rules/comment-text.md#drupalpost-statement-comment), `mago format`, partly |
@@ -52,7 +52,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 
 ## Commenting
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.Commenting.ClassComment`](#drupalcommentingclasscomment) | [`drupal/missing-class-comment`](../rules/docblock-structure.md#drupalmissing-class-comment), [`drupal/class-comment`](../rules/docblock-structure.md#drupalclass-comment) |
 | `Drupal.Commenting.Deprecated` | [`drupal/deprecated-tag`](../rules/docblock-structure.md#drupaldeprecated-tag) |
@@ -72,14 +72,14 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 
 ### `Drupal.Commenting.ClassComment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Missing` | [`drupal/missing-class-comment`](../rules/docblock-structure.md#drupalmissing-class-comment) |
 | `Short`, `SpacingAfter`, `WrongStyle` | [`drupal/class-comment`](../rules/docblock-structure.md#drupalclass-comment) |
 
 ### `Drupal.Commenting.DocComment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `ContentAfterOpen`, `InheritDocWithoutBraces`, `ShortStartSpace`, `SpacingAfter`, `SpacingBeforeShort`, `SpacingBetween`, `TagValueIndent`, `WrongEnd` | [`drupal/doc-comment`](../rules/docblock-structure.md#drupaldoc-comment) |
 | `Empty` | Mago `no-empty-comment` |
@@ -93,7 +93,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 
 ### `Drupal.Commenting.DocCommentAlignment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `NoSpaceAfterStar`, `SpaceAfterStar` | [`drupal/doc-comment`](../rules/docblock-structure.md#drupaldoc-comment) |
 | `SpaceBeforeStar` | `mago format` |
@@ -104,7 +104,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 ### `Drupal.Commenting.FileComment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `FileTag`, `NamespaceNoFileDoc` | [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment) |
 | `Missing` | [`drupal/missing-file-comment`](../rules/docblock-structure.md#drupalmissing-file-comment) |
@@ -116,7 +116,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 ### `Drupal.Commenting.FunctionComment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `DuplicateReturn`, `MissingParamName`, `MissingParamType` | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types) |
 | `EmptySees`, `SeeAdditionalText`, `SeePunctuation` | [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag) |
@@ -139,7 +139,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 ### `Drupal.Commenting.InlineComment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `DocBlock`, `NoSpaceBefore`, `NotCapital`, `SpacingBefore`, `TabBefore` | [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment) |
 | `Empty` | Mago `no-empty-comment` |
@@ -152,7 +152,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 ### `Drupal.Commenting.VariableComment`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `DuplicateVar`, `EmptyVar`, `InlineVariableName`, `MissingVar`, `VarOrder`, `WrongStyle` | [`drupal/variable-comment`](../rules/docblock-structure.md#drupalvariable-comment) |
 | `EmptySees` | [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag) |
@@ -161,13 +161,13 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 ## ControlStructures
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.ControlStructures.ControlSignature`](#drupalcontrolstructurescontrolsignature) | `mago format`, partly |
 
 ### `Drupal.ControlStructures.ControlSignature`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `NewlineAfterCloseBrace`, `SpaceAfterCloseBrace`, `SpaceAfterCloseParenthesis`, `SpaceAfterKeyword`, `SpaceBeforeSemicolon` | `mago format` |
 | `NewlineAfterOpenBrace` | `mago format`, partly |
@@ -176,7 +176,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 ## Files
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.Files.EndFileNewline`](#drupalfilesendfilenewline) | `mago format` |
 | `Drupal.Files.FileEncoding` | [`drupal/file-encoding`](../rules/files-and-tags.md#drupalfile-encoding) |
@@ -193,7 +193,7 @@ Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` examp
 
 ## Formatting
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Drupal.Formatting.MultiLineAssignment` | `mago format` |
 | `Drupal.Formatting.MultipleStatementAlignment` | `mago format` |
@@ -202,21 +202,21 @@ Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` examp
 
 ## Functions
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Drupal.Functions.DiscouragedFunctions` | [`drupal/discouraged-function`](../rules/phpstan-drupal.md#drupaldiscouraged-function), Mago `no-eval` |
 | [`Drupal.Functions.MultiLineFunctionDeclaration`](#drupalfunctionsmultilinefunctiondeclaration) | `mago format`, [`drupal/parameter-blank-line`](../rules/statements.md#drupalparameter-blank-line) |
 
 ### `Drupal.Functions.MultiLineFunctionDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `BraceOnNewLine`, `CloseBracketLine`, `CloseBracketNewLine`, `ContentAfterBrace`, `FirstParamSpacing`, `Indent`, `MissingTrailingComma`, `NewlineBeforeOpenBrace`, `OneParamPerLine`, `SpaceAfterFunction`, `SpaceAfterUse`, `SpaceBeforeBrace`, `SpaceBeforeOpenBrace`, `SpaceBeforeOpenParen`, `SpaceBeforeSemicolon`, `SpaceBeforeUse`, `UseCloseBracketLine` | `mago format` |
 | `EmptyLine` | [`drupal/parameter-blank-line`](../rules/statements.md#drupalparameter-blank-line) |
 
 ## InfoFiles
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Drupal.InfoFiles.AutoAddedKeys` | [`drupal/info-auto-added-keys`](../rules/info-and-routing-files.md#drupalinfo-auto-added-keys) |
 | [`Drupal.InfoFiles.ClassFiles`](#drupalinfofilesclassfiles) | phpcs |
@@ -238,7 +238,7 @@ Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions inclu
 
 ## NamingConventions
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.NamingConventions.ValidClassName`](#drupalnamingconventionsvalidclassname) | Mago `class-name`, Mago `interface-name`, Mago `trait-name`, Mago `enum-name`, [`drupal/class-name-acronym`](../rules/naming-and-imports.md#drupalclass-name-acronym) |
 | `Drupal.NamingConventions.ValidEnumCase` | [`drupal/enum-case-name`](../rules/naming-and-imports.md#drupalenum-case-name) |
@@ -248,7 +248,7 @@ Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions inclu
 
 ### `Drupal.NamingConventions.ValidClassName`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `NoUnderscores`, `StartWithCapital` | Mago `class-name`, Mago `interface-name`, Mago `trait-name`, Mago `enum-name` |
 | `NoUpperAcronyms` | [`drupal/class-name-acronym`](../rules/naming-and-imports.md#drupalclass-name-acronym) |
@@ -257,7 +257,7 @@ Checks a Drupal 7 `.info` file, which phpcs reads only when its extensions inclu
 
 Core doesn't run the sniff.
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `InvalidName` | [`drupal/function-name`](../rules/naming-and-imports.md#drupalfunction-name) |
 | `InvalidPrefix` | [`drupal/function-prefix`](../rules/procedural-files.md#drupalfunction-prefix) |
@@ -266,20 +266,20 @@ Core doesn't run the sniff.
 
 ### `Drupal.NamingConventions.ValidVariableName`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `LowerCamelName` | [`drupal/property-name`](../rules/naming-and-imports.md#drupalproperty-name) |
 | `LowerStart` | [`drupal/variable-name`](../rules/naming-and-imports.md#drupalvariable-name) |
 
 ## Scope
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Drupal.Scope.MethodScope` | [`drupal/method-visibility`](../rules/statements.md#drupalmethod-visibility) |
 
 ## Semantics
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.Semantics.ConstantName`](#drupalsemanticsconstantname) | [`drupal/const-prefix`](../rules/procedural-files.md#drupalconst-prefix), [`drupal/constant-prefix`](../rules/procedural-files.md#drupalconstant-prefix) |
 | `Drupal.Semantics.EmptyInstall` | [`drupal/empty-install-hook`](../rules/procedural-files.md#drupalempty-install-hook) |
@@ -297,7 +297,7 @@ Core doesn't run the sniff.
 
 ### `Drupal.Semantics.ConstantName`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `ConstConstantStart` | [`drupal/const-prefix`](../rules/procedural-files.md#drupalconst-prefix) |
 | `ConstantStart` | [`drupal/constant-prefix`](../rules/procedural-files.md#drupalconstant-prefix) |
@@ -308,7 +308,7 @@ Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.
 
 ### `Drupal.Semantics.FunctionT`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `BackslashDoubleQuote` | [`drupal/translatable-string`](../rules/right-api.md#drupaltranslatable-string), `mago format` |
 | `BackslashSingleQuote`, `Concat`, `EmptyString`, `EmptyT`, `WhiteSpace` | [`drupal/translatable-string`](../rules/right-api.md#drupaltranslatable-string) |
@@ -316,7 +316,7 @@ Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.
 
 ## WhiteSpace
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.WhiteSpace.CloseBracketSpacing`](#drupalwhitespaceclosebracketspacing) | `mago format`, partly |
 | `Drupal.WhiteSpace.Comma` | `mago format` |
@@ -338,7 +338,7 @@ The formatter keeps a space between an opening bracket and a comment that follow
 
 ### `Drupal.WhiteSpace.ScopeClosingBrace`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `BreakIndent` | `mago format` |
 | `Indent`, `Line` | `mago format`, partly |
@@ -350,7 +350,7 @@ The formatter keeps a space between an opening bracket and a comment that follow
 
 The formatter writes the indentation.
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Incorrect` | `mago format` |
 | `IncorrectExact` | `mago format`, partly |

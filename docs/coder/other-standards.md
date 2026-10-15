@@ -8,7 +8,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 
 ## Generic
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Generic.Arrays.DisallowLongArraySyntax`](#genericarraysdisallowlongarraysyntax) | Mago `array-style` |
 | [`Generic.CodeAnalysis.EmptyPHPStatement`](#genericcodeanalysisemptyphpstatement) | [`drupal/empty-php-tags`](../rules/files-and-tags.md#drupalempty-php-tags), Mago `no-noop` |
@@ -37,7 +37,7 @@ Mago's rule, on by default, with a safe fix.
 
 ### `Generic.CodeAnalysis.EmptyPHPStatement`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `EmptyPHPOpenCloseTagsDetected` | [`drupal/empty-php-tags`](../rules/files-and-tags.md#drupalempty-php-tags) |
 | `SemicolonWithoutCodeDetected` | Mago `no-noop` |
@@ -52,14 +52,14 @@ Mago's rule reports a body without braces, with no fix. The formatter doesn't ad
 
 ### `Generic.Formatting.SpaceAfterCast`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `CommentFound` | [`drupal/comment-in-expression`](../rules/statements.md#drupalcomment-in-expression) |
 | `NoSpace`, `TooLittleSpace`, `TooMuchSpace` | `mago format` |
 
 ### `Generic.NamingConventions.ConstructorName`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `OldStyle` | [`drupal/old-style-constructor`](../rules/naming-and-imports.md#drupalold-style-constructor) |
 | `OldStyleCall` | `mago analyze` (`non-existent-method`), partly |
@@ -76,7 +76,7 @@ With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores
 
 ### `Generic.NamingConventions.UpperCaseConstantName`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `ClassConstantNotUpperCase` | Mago `constant-name` |
 | `ConstantNotUpperCase` | Mago `constant-name`, [`drupal/define-name`](../rules/naming-and-imports.md#drupaldefine-name) |
@@ -89,7 +89,7 @@ phpcs takes the deprecated functions from the running PHP, and the analyzer from
 
 ### `Generic.PHP.DisallowShortOpenTag`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `EchoFound` | [`drupal/short-echo-tag`](../rules/files-and-tags.md#drupalshort-echo-tag) |
 | `Found`, `PossibleFound` | Mago `no-short-opening-tag` |
@@ -103,7 +103,7 @@ The formatter lowercases keywords. `lowercase-keyword` fixes `AND`, `OR`, `XOR` 
 
 ### `Generic.WhiteSpace.LanguageConstructSpacing`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Incorrect`, `IncorrectYieldFrom` | `mago format` |
 | `IncorrectSingle` | `mago format`, partly |
@@ -113,7 +113,7 @@ The formatter lowercases keywords. `lowercase-keyword` fixes `AND`, `OR`, `XOR` 
 
 ## PEAR
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `PEAR.Files.IncludingFile` | `mago format` |
 | `PEAR.Functions.FunctionCallSignature` | `mago format` |
@@ -125,7 +125,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 ## PSR2
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`PSR2.Classes.PropertyDeclaration`](#psr2classespropertydeclaration) | `mago format`, [`drupal/property-per-statement`](../rules/statements.md#drupalproperty-per-statement), [`drupal/property-visibility`](../rules/statements.md#drupalproperty-visibility), [`drupal/property-name`](../rules/naming-and-imports.md#drupalproperty-name) |
 | `PSR2.ControlStructures.ElseIfDeclaration` | [`drupal/else-if`](../rules/statements.md#drupalelse-if) |
@@ -136,7 +136,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 ### `PSR2.Classes.PropertyDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `AbstractAfterVisibility`, `AvizKeywordOrder`, `FinalAfterVisibility`, `ReadonlyBeforeVisibility`, `SpacingAfterType`, `StaticBeforeVisibility` | `mago format` |
 | `Multiple` | [`drupal/property-per-statement`](../rules/statements.md#drupalproperty-per-statement) |
@@ -145,7 +145,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 ### `PSR2.ControlStructures.SwitchDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `BodyOnNextLineDEFAULT`, `BreakNotNewLine`, `caseNotLower`, `defaultNotLower`, `SpaceBeforeColonCASE`, `SpaceBeforeColonDEFAULT`, `SpacingAfterCase` | `mago format` |
 | `TerminatingComment` | [`drupal/case-fall-through`](../rules/statements.md#drupalcase-fall-through) |
@@ -159,14 +159,14 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 ### `PSR2.Methods.MethodDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `AbstractAfterVisibility`, `FinalAfterVisibility`, `StaticBeforeVisibility` | `mago format` |
 | `Underscore` | [`drupal/method-name-underscore`](../rules/naming-and-imports.md#drupalmethod-name-underscore) |
 
 ### `PSR2.Namespaces.UseDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `MultipleDeclarations`, `SpaceAfterLastUse`, `SpaceAfterUse` | `mago format` |
 | `UseBeforeNamespace` | Mago `semantics` |
@@ -175,7 +175,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 ## Squiz
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Squiz.Arrays.ArrayBracketSpacing` | `mago format` |
 | [`Squiz.Arrays.ArrayDeclaration`](#squizarraysarraydeclaration) | `mago format`, Nothing |
@@ -195,7 +195,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 ### `Squiz.Arrays.ArrayDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `CommaAfterLast`, `NoSpaceAfterComma`, `NoSpaceAfterDoubleArrow`, `NoSpaceBeforeDoubleArrow`, `SpaceAfterComma`, `SpaceAfterDoubleArrow`, `SpaceAfterKeyword`, `SpaceBeforeComma`, `SpaceBeforeDoubleArrow`, `SpaceInEmptyArray` | `mago format` |
 | `KeySpecified`, `NoKeySpecified` | Nothing |
@@ -211,7 +211,7 @@ With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` und
 
 ### `Squiz.ControlStructures.ForLoopDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `NoSpaceAfterFirst`, `NoSpaceAfterSecond`, `SpacingBeforeFirst` | `mago format` |
 | `SpacingAfterFirst`, `SpacingAfterSecond` | `mago format`, partly |
@@ -221,7 +221,7 @@ With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` und
 
 ### `Squiz.ControlStructures.SwitchDeclaration`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `CaseNotLower`, `ContentAfterCase`, `ContentAfterDefault`, `ContentBeforeBreak`, `DefaultNotLower`, `SpacingAfterDefault` | `mago format` |
 | `ContentBeforeCase`, `ContentBeforeDefault` | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line) |
@@ -241,7 +241,7 @@ With `check-name-casing = true`. Reported without a fix. The analyzer skips a fi
 
 ### `Squiz.PHP.NonExecutableCode`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `ReturnNotRequired` | [`drupal/redundant-return`](../rules/statements.md#drupalredundant-return) |
 | `Unreachable` | `mago analyze` (`unevaluated-code`), `mago analyze` (`useless-control-flow`) |
@@ -250,7 +250,7 @@ With `check-name-casing = true`. Reported without a fix. The analyzer skips a fi
 
 ### `Squiz.WhiteSpace.FunctionSpacing`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `After` | `mago format` |
 | `AfterLast`, `BeforeFirst` | `mago format`, partly |
@@ -261,7 +261,7 @@ With `check-name-casing = true`. Reported without a fix. The analyzer skips a fi
 
 ### `Squiz.WhiteSpace.OperatorSpacing`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `NoSpaceAfter`, `NoSpaceBefore` | `mago format`, partly |
 | `NoSpaceAfterAmp`, `NoSpaceBeforeAmp`, `SpacingAfter`, `SpacingAfterAmp`, `SpacingBefore`, `SpacingBeforeAmp` | `mago format` |
@@ -275,14 +275,14 @@ The formatter puts an empty statement after a `}`, as in `};`, on a line of its 
 
 ### `Squiz.WhiteSpace.SuperfluousWhitespace`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `EmptyLines`, `EndFile`, `EndLine` | `mago format` |
 | `StartFile` | [`drupal/file-start-whitespace`](../rules/files-and-tags.md#drupalfile-start-whitespace) |
 
 ## Zend
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Zend.Files.ClosingTag`](#zendfilesclosingtag) | `mago format`, Mago `no-closing-tag` |
 
@@ -292,7 +292,7 @@ The formatter removes a closing tag at the end of the file. When the last statem
 
 ## Slevomat Coding Standard
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `SlevomatCodingStandard.Classes.BackedEnumTypeSpacing` | `mago format` |
 | `SlevomatCodingStandard.Commenting.ForbiddenComments` | [`drupal/doc-comment`](../rules/docblock-structure.md#drupaldoc-comment) |
@@ -311,7 +311,7 @@ Mago also reports each name in a group import and each name after the first in a
 
 ### `SlevomatCodingStandard.TypeHints.DeclareStrictTypes`
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `IncorrectStrictTypesFormat`, `IncorrectWhitespaceAfterDeclare` | `mago format` |
 | `IncorrectWhitespaceBeforeDeclare` | `mago format`, [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment) |

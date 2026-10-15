@@ -43,6 +43,12 @@ final class CoderTables
     ];
 
     /**
+     * An empty marker in a table's header that the stylesheet gives columns of
+     * equal width.
+     */
+    private const EQUAL_COLUMNS = '<span class="coder-table"></span>';
+
+    /**
      * @param array<string, string> $pages The page of each rule, relative to
      *   `docs/`.
      */
@@ -159,7 +165,7 @@ final class CoderTables
      */
     private function table(array $sniffs, string $heading): string
     {
-        $rows = "| Sniff | Handled by |\n| --- | --- |\n";
+        $rows = '| Sniff | Handled by' . self::EQUAL_COLUMNS . " |\n| --- | --- |\n";
         $sections = [];
         foreach ($sniffs as $sniff) {
             $groups = self::groups($sniff);
@@ -210,7 +216,7 @@ final class CoderTables
         }
 
         if (count($groups) > 1) {
-            $rows = "| Codes | Handled by |\n| --- | --- |\n";
+            $rows = '| Codes | Handled by' . self::EQUAL_COLUMNS . " |\n| --- | --- |\n";
             foreach ($groups as $group) {
                 $names = implode(', ', array_map(
                     static fn(array $code): string => "`{$code['code']}`",

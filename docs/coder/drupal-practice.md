@@ -7,7 +7,7 @@ analyzer checks that port the other sniffs.
 
 <!-- docs-gen:coder-practice -->
 
-| Sniff | Handled by |
+| Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `DrupalPractice.Commenting.AuthorTag` | [`drupal/author-tag`](../rules/comment-text.md#drupalauthor-tag) |
 | `DrupalPractice.Commenting.CommentEmptyLine` | [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
@@ -50,7 +50,7 @@ The analyzer also reports an unused private static method, an unused private met
 
 Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them.
 
-| Codes | Handled by |
+| Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `SelfOutsideClass` | `mago analyze` (`self-outside-class-scope`) |
 | `StaticOutsideClass` | `mago analyze` (`static-outside-class-scope`) |

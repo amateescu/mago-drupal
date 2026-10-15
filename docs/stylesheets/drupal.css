@@ -35,3 +35,11 @@
   display: table;
   width: 100%;
 }
+
+/*
+ * The Coder pages give a sniff and what handles it columns of the same width.
+ * An empty `coder-table` span in the header marks these tables.
+ */
+.md-typeset table:not([class]):has(.coder-table) {
+  table-layout: fixed;
+}
