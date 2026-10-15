@@ -43,6 +43,11 @@ namespace Drupal\Component\Assertion {
         {
             return true;
         }
+
+        public static function assertStringable($string)
+        {
+            return true;
+        }
     }
 }
 

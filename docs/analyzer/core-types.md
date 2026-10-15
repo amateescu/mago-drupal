@@ -76,6 +76,7 @@ as phpstan-drupal does. Each type is what the method tests:
 - `assertAllStrings($names)` gives `iterable<mixed, string>`;
 - `assertAllNumeric()` counts numeric strings, since it uses `is_numeric()`;
 - `assertStrictArray()` gives a list;
+- `assertStringable($label)` gives `string|\Stringable`;
 - `assertAllObjects($items, Foo::class)` gives an iterable of `Foo`;
 - `assertAll()` takes any callable, so it only makes a `mixed` value iterable.
 
@@ -83,7 +84,7 @@ An assertion that the type already holds is reported as `redundant-type-comparis
 
 phpstan-drupal narrows `assertAllNumeric()` to an iterable of `int|float`, so it reports the
 assertion on numeric strings as always false. It narrows `assertStrictArray()` to an array with
-non-negative int keys.
+non-negative int keys. It doesn't narrow with `assertStringable()`.
 
 ## Stub files
 

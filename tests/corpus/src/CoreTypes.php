@@ -204,6 +204,24 @@ final class CoreTypes {
   }
 
   /**
+   * A stringable value is a string or an object with __toString().
+   */
+  public function inspectedStringable(mixed $label): string|\Stringable {
+    assert(Inspector::assertStringable($label));
+
+    return $label;
+  }
+
+  /**
+   * Either member of the union narrows, so an integer is ruled out.
+   */
+  public function inspectedStringableKey(int|string $key): string {
+    assert(Inspector::assertStringable($key));
+
+    return $key;
+  }
+
+  /**
    * Any callable can be called with arguments.
    */
   public function inspectedCallables(mixed $callbacks): void {

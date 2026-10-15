@@ -100,9 +100,16 @@ final class InspectorAssertionProvider implements MethodAssertionProvider
             return null;
         }
 
-        return new InvocationAssertions(ifTrueAssertions: [
-            $parameter => [new TypeAssertion(TypeAssertionKind::IsType, $type)],
-        ]);
+        // An `IsType` fact takes one atomic type. The host reads several facts
+        // for one parameter as either-or, as it reads a docblock
+        // `@psalm-assert string|Stringable $x`, so a union becomes one fact
+        // per member.
+        $facts = [];
+        foreach ($type->atomicTypes as $atomic) {
+            $facts[] = new TypeAssertion(TypeAssertionKind::IsType, Type::fromAtomic($atomic));
+        }
+
+        return new InvocationAssertions(ifTrueAssertions: [$parameter => $facts]);
     }
 
     /**
