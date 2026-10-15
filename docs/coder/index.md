@@ -22,9 +22,9 @@ The **Handled by** column names one or more of:
   read;
 - nothing, when no tool checks it yet. The notes say why.
 
-When a sniff's codes go to different places, its row names all of them and links to a section below
-the table, which lists the codes for each. Codes excluded by Coder's rulesets aren't listed, and
-neither are codes never reported by Coder.
+A sniff whose name is a link has a section below the table. The section lists the codes for each
+place when they go to different places, and has the notes on where the setup differs from Coder.
+Codes excluded by Coder's rulesets aren't listed, and neither are codes never reported by Coder.
 
 ## What replaces phpcs
 

@@ -12,6 +12,7 @@ use function count;
 use function explode;
 use function implode;
 use function in_array;
+use function rtrim;
 use function str_replace;
 use function str_starts_with;
 use function strtolower;
@@ -151,66 +152,37 @@ final class CoderTables
 
     /**
      * Renders a table with one row for each sniff. A sniff whose codes go to
-     * different places also gets a section below the table, under a heading
-     * of the given level. The Notes column is left out when no row has a
-     * note.
+     * different places, or that has notes, gets a section below the table,
+     * under a heading of the given level, and its name links to it.
      *
      * @param array<int, Sniff> $sniffs
      */
     private function table(array $sniffs, string $heading): string
     {
-        $cells = [];
+        $rows = "| Sniff | Handled by |\n| --- | --- |\n";
         $sections = [];
         foreach ($sniffs as $sniff) {
             $groups = self::groups($sniff);
-            if (count($groups) === 1) {
-                $cells[] = $this->row($sniff, $groups[0]);
-
-                continue;
+            $name = "`{$sniff['sniff']}`";
+            if (count($groups) > 1 || self::notes($sniff) !== '') {
+                $name =
+                    "[{$name}](#" . strtolower(str_replace(search: '.', replace: '', subject: $sniff['sniff'])) . ')';
+                $sections[] = $this->section($sniff, $groups, $heading);
             }
 
-            $cells[] = $this->splitRow($sniff, $groups);
-            $sections[] = $this->codesSection($sniff, $groups, $heading);
-        }
-
-        $notes = array_filter($cells, static fn(array $row): bool => $row[2] !== '') !== [];
-        $rows = $notes
-            ? "| Sniff | Handled by | Notes |\n| --- | --- | --- |\n"
-            : "| Sniff | Handled by |\n| --- | --- |\n";
-        foreach ($cells as [$name, $by, $note]) {
-            $rows .= "| {$name} | {$by} |" . ($notes ? " {$note} |" : '') . "\n";
+            $rows .= "| {$name} | " . self::cell($this->handledByAll($sniff, $groups)) . " |\n";
         }
 
         return $sections === [] ? $rows : $rows . "\n" . implode("\n", $sections);
     }
 
     /**
-     * The cells of the row of a sniff whose codes all go to the same place.
-     *
-     * @param Sniff $sniff
-     * @param array{handlers: list<string>, codes: list<Code>} $group
-     *
-     * @return array{string, string, string}
-     */
-    private function row(array $sniff, array $group): array
-    {
-        return [
-            "`{$sniff['sniff']}`",
-            self::cell($this->groupHandledBy($sniff, $group)),
-            self::cell(self::notes($sniff)),
-        ];
-    }
-
-    /**
-     * The cells of the row of a sniff whose codes go to different places:
-     * every handler, and a link to the sniff's section.
+     * Names everything that handles the codes of a sniff.
      *
      * @param Sniff $sniff
      * @param list<array{handlers: list<string>, codes: list<Code>}> $groups
-     *
-     * @return array{string, string, string}
      */
-    private function splitRow(array $sniff, array $groups): array
+    private function handledByAll(array $sniff, array $groups): string
     {
         $handlers = [];
         $codes = [];
@@ -219,42 +191,50 @@ final class CoderTables
             $codes = [...$codes, ...$group['codes']];
         }
 
-        $by = $this->groupHandledBy($sniff, ['handlers' => array_values(array_unique($handlers)), 'codes' => $codes]);
-        $anchor = strtolower(str_replace(search: '.', replace: '', subject: $sniff['sniff']));
-        $note = $sniff['note'] ?? '';
-
-        return [
-            "`{$sniff['sniff']}`",
-            self::cell($by),
-            "[By code](#{$anchor})" . ($note === '' ? '' : ' ' . self::cell($note)),
-        ];
+        return $this->groupHandledBy($sniff, ['handlers' => array_values(array_unique($handlers)), 'codes' => $codes]);
     }
 
     /**
-     * Renders the section of a sniff whose codes go to different places: a
-     * row for each group of codes, then the notes of the codes.
+     * Renders the section of a sniff: the sniff's note, a row for each group
+     * of codes when they go to different places, then the notes of the codes.
      *
      * @param Sniff $sniff
      * @param list<array{handlers: list<string>, codes: list<Code>}> $groups
      */
-    private function codesSection(array $sniff, array $groups, string $heading): string
+    private function section(array $sniff, array $groups, string $heading): string
     {
-        $rows = "| Codes | Handled by |\n| --- | --- |\n";
+        $parts = [];
+        $note = $sniff['note'] ?? '';
+        if ($note !== '') {
+            $parts[] = $note;
+        }
+
+        if (count($groups) > 1) {
+            $rows = "| Codes | Handled by |\n| --- | --- |\n";
+            foreach ($groups as $group) {
+                $names = implode(', ', array_map(
+                    static fn(array $code): string => "`{$code['code']}`",
+                    $group['codes'],
+                ));
+                $rows .= "| {$names} | " . self::cell($this->groupHandledBy($sniff, $group)) . ' |' . "\n";
+            }
+
+            $parts[] = rtrim($rows);
+        }
+
         $notes = [];
-        foreach ($groups as $group) {
-            $names = implode(', ', array_map(static fn(array $code): string => "`{$code['code']}`", $group['codes']));
-            $rows .= "| {$names} | " . self::cell($this->groupHandledBy($sniff, $group)) . " |\n";
-            foreach ($group['codes'] as $code) {
-                $note = $code['note'] ?? '';
-                if ($note !== '') {
-                    $notes[] = "- `{$code['code']}`: " . str_replace(search: "\n", replace: ' ', subject: $note);
-                }
+        foreach ($sniff['codes'] as $code) {
+            $codeNote = $code['note'] ?? '';
+            if ($codeNote !== '') {
+                $notes[] = count($sniff['codes']) === 1 ? $codeNote : "- `{$code['code']}`: {$codeNote}";
             }
         }
 
-        $section = "{$heading} `{$sniff['sniff']}`\n\n" . $rows;
+        if ($notes !== []) {
+            $parts[] = implode("\n", $notes);
+        }
 
-        return $notes === [] ? $section : $section . "\n" . implode("\n", $notes) . "\n";
+        return "{$heading} `{$sniff['sniff']}`\n\n" . implode("\n\n", $parts) . "\n";
     }
 
     /**
