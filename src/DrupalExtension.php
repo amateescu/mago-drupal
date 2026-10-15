@@ -70,6 +70,7 @@ use amateescu\MagoDrupal\Linter\Rules\InlineVariableCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\InsecureUnserializeRule;
 use amateescu\MagoDrupal\Linter\Rules\InstallHookLocationRule;
 use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
+use amateescu\MagoDrupal\Linter\Rules\LiteralConstantCaseRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
@@ -361,6 +362,7 @@ final class DrupalExtension
             new InsecureUnserializeRule(),
             new InstallHookLocationRule(),
             new LinkTextTranslatableRule(),
+            new LiteralConstantCaseRule(),
             new LongDescriptionPunctuationRule(),
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),

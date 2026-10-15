@@ -58,6 +58,7 @@ drupal/inline-variable-comment
 drupal/insecure-unserialize
 drupal/install-hook-location
 drupal/link-text-translatable
+drupal/literal-constant-case
 drupal/long-description-punctuation
 drupal/method-name-underscore
 drupal/method-visibility

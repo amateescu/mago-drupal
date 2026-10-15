@@ -289,6 +289,54 @@ holds the hook name without the prefix, so a name with it is never invoked.
 
 ---
 
+## drupal/literal-constant-case
+
+- **Level:** error
+- **Fix:** safe. It writes `TRUE`, `FALSE` or `NULL` without the backslash.
+- **Standard:** [Constants](https://project.pages.drupalcode.org/coding_standards/php/coding/#constants)
+- **Ports:** `Generic.PHP.UpperCaseConstant.Found`
+
+> Constants should always be all-uppercase, with underscores to separate words. (This includes
+> pre-defined PHP constants like TRUE, FALSE, and NULL.)
+
+**Reports:**
+
+- a fully qualified `\true`, `\false` or `\null` that isn't all upper case, such as `\true` or
+  `\Null`, anywhere in the code, default values and constant expressions included.
+
+**Not reported:**
+
+- `\TRUE`, `\FALSE` and `\NULL`, which Coder accepts too;
+- `namespace\true`, which Coder doesn't report either.
+
+`mago format` with the drupal preset writes `true`, `false` and `null` in upper case. It leaves a
+fully qualified one as written, since Mago reads it as a constant and not as a literal. PHP never
+looks these three names up in a namespace, so dropping the backslash doesn't change what the code
+does.
+
+??? example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    function example_flag($flag = \false) {
+      return $flag ?? \null;
+    }
+
+    // Fine.
+    function example_flag($flag = FALSE) {
+      return $flag ?? NULL;
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - phpcbf writes `\TRUE` and keeps the backslash. The fix writes `TRUE`, the form that the rest
+      of Drupal's code uses.
+
+---
+
 ## drupal/method-name-underscore
 
 - **Level:** warning

@@ -99,6 +99,7 @@ statements. Mago's own naming rules cover the rest, see
 | [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports functions whose name isn't lower case. |
 | [`drupal/global-class-backslash`](naming-and-imports.md#drupalglobal-class-backslash) | error | Reports a global class written without a leading backslash in a file with no namespace. |
 | [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports Hook attributes whose name starts with hook_. |
+| [`drupal/literal-constant-case`](naming-and-imports.md#drupalliteral-constant-case) | error | Reports a fully qualified \true, \false or \null that is not written in upper case. |
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that don't use lowerCamelCase. |
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |

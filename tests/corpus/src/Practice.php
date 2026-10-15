@@ -68,6 +68,7 @@ class Practice {
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($payload, ['allowed_classes' => \TRUE]);
     // @mago-expect lint:drupal/insecure-unserialize
+    // @mago-expect lint:drupal/literal-constant-case
     unserialize($payload, ['allowed_classes' => \true]);
     // Parentheses don't change the value.
     // @mago-expect lint:drupal/insecure-unserialize

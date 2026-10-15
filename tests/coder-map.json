@@ -856,10 +856,9 @@
     {
         "sniff": "Generic.PHP.UpperCaseConstant",
         "standard": "Drupal",
-        "where": ["format"],
-        "note": "The drupal preset writes `TRUE`, `FALSE` and `NULL`. A fully qualified `\\true` stays lower case and nothing reports it.",
+        "where": ["format", "ext:drupal/literal-constant-case"],
         "codes": [
-            {"code": "Found", "status": "partial"}
+            {"code": "Found", "status": "fix"}
         ]
     },
     {

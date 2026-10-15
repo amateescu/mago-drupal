@@ -654,6 +654,7 @@ function coalesce_null_check_root_namespace(
   int $i = 0,
 ): mixed {
   // @mago-expect lint:drupal/null-coalesce
+  // @mago-expect lint:drupal/literal-constant-case
   return $a === \null ? '' : $a;
 }
 
