@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * A `foreach` over a content entity gives its field item lists, keyed by
+ * field name, as `ContentEntityBase::getIterator()` builds them. Core
+ * documents no value type for the `\Traversable`, so the loop variables are
+ * `mixed` without this stub.
+ *
+ * A stub replaces the interface header and Mago builds the descendants of a
+ * stubbed interface from the stub alone, so the header and every method are
+ * restated here.
+ */
+
+namespace Drupal\Core\Entity;
+
+/**
+ * @extends \Traversable<string, \Drupal\Core\Field\FieldItemListInterface>
+ */
+interface ContentEntityInterface extends \Traversable, FieldableEntityInterface, TranslatableRevisionableInterface, SynchronizableInterface
+{
+    /**
+     * @return \Drupal\Core\Entity\EntityInterface|null
+     *
+     * @stub-added-in 11.3
+     */
+    public function getBundleEntity(): ?EntityInterface;
+}

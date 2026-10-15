@@ -28,6 +28,8 @@ final class EntityStorageProvider implements MethodReturnTypeProvider
 
     private const REVISIONABLE = 'Drupal\Core\Entity\RevisionableStorageInterface';
 
+    private const REVISIONABLE_ENTITY = 'Drupal\Core\Entity\RevisionableInterface';
+
     /**
      * Lowercase method names, which is how the host reports them.
      */
@@ -66,7 +68,7 @@ final class EntityStorageProvider implements MethodReturnTypeProvider
         $invocation = $context->invocation;
         $type = EntityTypes::fromReceiver(($this->index)($context->codebase), $invocation->receiverType);
         if ($type === null) {
-            return null;
+            return self::revisionOfArgument($context);
         }
 
         $method = strtolower($invocation->name);
@@ -81,7 +83,7 @@ final class EntityStorageProvider implements MethodReturnTypeProvider
         }
 
         if (!EntityTypes::known($context->codebase, $type->class)) {
-            return null;
+            return self::revisionOfArgument($context);
         }
 
         $entity = Type::namedObject($type->class);
@@ -99,5 +101,29 @@ final class EntityStorageProvider implements MethodReturnTypeProvider
         }
 
         return in_array($method, self::PLAIN, strict: true) ? $entity : null;
+    }
+
+    /**
+     * The type of the entity handed to `createRevision()`, for a storage
+     * whose entity class isn't known. The method returns a new revision of
+     * the entity it gets, so the class stays the same. Core documents the
+     * result as `RevisionableInterface`.
+     */
+    private static function revisionOfArgument(ReturnTypeProviderContext $context): ?Type
+    {
+        $invocation = $context->invocation;
+        if (strtolower($invocation->name) !== 'createrevision') {
+            return null;
+        }
+
+        $argument = $invocation->getArgument(0, 'entity')?->type;
+        if (
+            $argument === null
+            || !$context->types->isContainedBy($argument, Type::namedObject(self::REVISIONABLE_ENTITY))
+        ) {
+            return null;
+        }
+
+        return $argument;
     }
 }

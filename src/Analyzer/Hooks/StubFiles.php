@@ -29,10 +29,10 @@ use function sort;
 final class StubFiles implements InitializationHook
 {
     /**
-     * A member whose docblock names the core release that removes it, with
-     * the docblock and the declaration line.
+     * A member whose docblock names the core release that adds or removes
+     * it, with the docblock and the declaration line.
      */
-    private const REMOVED_MEMBER = '~\n[ \t]*/\*\*(?:(?!\*/).)*?@stub-removed-in (\d+)\.(\d+)(?:(?!\*/).)*?\*/[ \t]*\n[^\n]*;\n~s';
+    private const RELEASE_MEMBER = '~\n[ \t]*/\*\*(?:(?!\*/).)*?@stub-(added|removed)-in (\d+)\.(\d+)(?:(?!\*/).)*?\*/[ \t]*\n[^\n]*;\n~s';
 
     /**
      * A docblock naming the core release that deprecates its member.
@@ -72,9 +72,9 @@ final class StubFiles implements InitializationHook
 
     /**
      * The stub as the core version has it: without the members a release up
-     * to the version removes, so a call to one is reported as missing, and
-     * without the `@deprecated` of a member the version does not deprecate
-     * yet.
+     * to the version removes, so a call to one is reported as missing,
+     * without the members a later release adds, and without the
+     * `@deprecated` of a member the version does not deprecate yet.
      */
     public static function forVersion(string $stub, ?string $version): string
     {
@@ -85,10 +85,13 @@ final class StubFiles implements InitializationHook
 
         $release = ((int) $matches[1] * 1000) + (int) $matches[2];
         $stub = (string) preg_replace_callback(
-            self::REMOVED_MEMBER,
-            static fn(array $member): string => $release >= (((int) $member[1] * 1000) + (int) $member[2])
-                ? "\n"
-                : $member[0],
+            self::RELEASE_MEMBER,
+            static function (array $member) use ($release): string {
+                $since = ((int) $member[2] * 1000) + (int) $member[3];
+                $present = $member[1] === 'added' ? $release >= $since : $release < $since;
+
+                return $present ? $member[0] : "\n";
+            },
             $stub,
         );
 

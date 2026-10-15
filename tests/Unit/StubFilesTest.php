@@ -121,4 +121,31 @@ final class StubFilesTest extends TestCase
         // Without a core to read the release from, the stub is used as written.
         self::assertSame($stub, StubFiles::forVersion($stub, null));
     }
+
+    public function testDropsAMemberBeforeTheReleaseThatAddsIt(): void
+    {
+        $stub = <<<'PHP'
+            <?php
+
+            interface Api
+            {
+                /**
+                 * Comes later.
+                 *
+                 * @stub-added-in 11.3
+                 */
+                public function added(): void;
+
+                public function kept(): void;
+            }
+            PHP;
+
+        $before = StubFiles::forVersion($stub, '11.2.9');
+        self::assertStringNotContainsString('function added()', $before);
+        self::assertStringContainsString('function kept()', $before);
+
+        self::assertStringContainsString('function added()', StubFiles::forVersion($stub, '11.3.0'));
+        self::assertStringContainsString('function added()', StubFiles::forVersion($stub, '12.0-dev'));
+        self::assertSame($stub, StubFiles::forVersion($stub, null));
+    }
 }

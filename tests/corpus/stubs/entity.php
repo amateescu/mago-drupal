@@ -29,7 +29,15 @@ namespace Drupal\Core\Entity {
         public function getFieldDefinitions(): array;
     }
 
-    interface ContentEntityInterface extends FieldableEntityInterface {}
+    interface RevisionableInterface extends EntityInterface {}
+
+    interface TranslatableInterface extends EntityInterface {}
+
+    interface TranslatableRevisionableInterface extends TranslatableInterface, RevisionableInterface {}
+
+    interface SynchronizableInterface extends EntityInterface {}
+
+    interface ContentEntityInterface extends \Traversable, FieldableEntityInterface, TranslatableRevisionableInterface, SynchronizableInterface {}
 
     /**
      * A fieldable entity class without the magic methods.
@@ -281,11 +289,54 @@ namespace Drupal\Core\Entity {
         public function __unset(string $name): void {}
     }
 
-    abstract class ContentEntityBase extends EntityBase implements ContentEntityInterface
+    /**
+     * @implements \IteratorAggregate<string, \Drupal\Core\Field\FieldItemListInterface>
+     */
+    abstract class ContentEntityBase extends EntityBase implements \IteratorAggregate, ContentEntityInterface
     {
         public function id(): string|int|null
         {
             return null;
+        }
+
+        public function getIterator(): \ArrayIterator
+        {
+            return new \ArrayIterator([]);
+        }
+
+        public function getBundleEntity(): ?EntityInterface
+        {
+            return null;
+        }
+
+        public function isLatestTranslationAffectedRevision()
+        {
+            return false;
+        }
+
+        public function setRevisionTranslationAffected($affected)
+        {
+            return $this;
+        }
+
+        public function isRevisionTranslationAffected()
+        {
+            return null;
+        }
+
+        public function isRevisionTranslationAffectedEnforced()
+        {
+            return false;
+        }
+
+        public function setRevisionTranslationAffectedEnforced($enforced)
+        {
+            return $this;
+        }
+
+        public function isDefaultTranslationAffectedOnly()
+        {
+            return false;
         }
 
         /**

@@ -92,12 +92,17 @@ analysis starts. They are read for symbols only, and never linted, formatted or 
 
 ```php
 $cache->get('cid');    // object{cid: string, data: mixed, created: int|float|numeric-string, expire: int|numeric-string, tags: list<string>, valid: bool, ...}|false
+foreach ($entity as $name => $items) {}   // string => Drupal\Core\Field\FieldItemListInterface
 $entity->isRevisionTranslationAffected(); // bool|int|string|null
 $validator->validate('module');           // array<string|MarkupInterface>
 $this->t('@name', ['@name' => $label]);   // reported when $label can be NULL
 $permissions->getPermissions()[$name]['title']; // TranslatableMarkup|string
 ```
 
+- **Content entity fields.** A `foreach` over a `ContentEntityInterface` gives its field item lists,
+  keyed by field name, as `ContentEntityBase::getIterator()` builds them. Core names no value type
+  for the `\Traversable` that the interface extends, so the loop variables are `mixed` without the
+  stub.
 - **Revision translation flag.** Core documents `isRevisionTranslationAffected()` as returning a
   bool, but `ContentEntityBase` returns the raw field value: `'1'` or `'0'` from MySQL, an int from
   SQLite, or NULL when the flag isn't set. A `(bool)` cast on it is needed, so it isn't reported as
@@ -132,7 +137,8 @@ changes one or two members, and the rest are there to keep the type intact.
 A stub can follow the installed core release:
 
 - `@stub-deprecated-in 11.2` on a member drops its `@deprecated` tag on a core older than 11.2;
-- `@stub-removed-in 12.0` drops the member on 12.0 and later.
+- `@stub-removed-in 12.0` drops the member on 12.0 and later;
+- `@stub-added-in 11.3` drops the member on a core older than 11.3.
 
 So a stub doesn't claim a deprecation or a method that doesn't exist in the installed core. The
 release is read from the root's `Drupal::VERSION`. With no core on disk, the stub is used as
@@ -155,7 +161,14 @@ Not translated from phpstan-drupal's stub directory:
   test checks and every assertion depend on. Core's `BrowserTestBase` already documents `$modules`
   as `string[]`;
 - whatever is already done by the plugin's own providers: entity storage, entity queries, container
-  lookups, config, plugin managers and `getDefinition()`.
+  lookups, config, plugin managers and `getDefinition()`;
+- about 30 stubs that only restate a class or interface header, so that PHPStan reads the
+  inheritance in the right order. Mago doesn't need them;
+- `twig_escape_filter()`. Twig 3 deprecates the function, and Mago reports a call to it as
+  deprecated, which is right for the Twig that core ships;
+- `@phpstan-impure` on `LockBackendInterface::acquire()`. Mago doesn't remember a method's result
+  from one call to the next, so a second `acquire()` after `wait()` isn't taken to return what the
+  first one did.
 
 Not ported from phpstan-drupal's type extensions:
 
