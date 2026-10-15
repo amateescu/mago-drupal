@@ -13,8 +13,11 @@ Then register the package's worker in `mago.toml`, and add Drupal's file extensi
 extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
 
 [extension-hosts.drupal]
-command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
+
+The two `-d` options keep Xdebug and pcov from slowing the worker down, see
+[Xdebug and pcov](#xdebug-and-pcov).
 
 `yml` lets the rules for [info and routing files](../rules/info-and-routing-files.md) read
 `.info.yml` and `.routing.yml` files. Mago reads a file without a PHP open tag as text outside PHP,
@@ -31,18 +34,16 @@ analyzer plugins need the SDK and the Mago binary to speak the same protocol ver
 installed another way, such as with Homebrew, can speak another version. `mago analyze` then stops
 with `Unsupported analyzer protocol version`. The linter rules work either way.
 
-## Xdebug
+## Xdebug and pcov
 
-When PHP loads Xdebug, the worker starts again once with `XDEBUG_MODE=off`, because Xdebug slows it
-down in any mode. `MAGO_DRUPAL_ALLOW_XDEBUG=1` keeps Xdebug on, for example to step through a rule
-or an analyzer check. The restart needs Linux and the `pcntl` extension. Elsewhere, set the mode in
-the extension host's configuration:
+`-d xdebug.mode=off` turns off Xdebug, and `-d pcov.enabled=0` turns off pcov, the code coverage
+driver that PHPUnit can use. While either one is on, the worker takes up to twice as long, even
+though nothing debugs it or collects coverage. PHP ignores each option when its extension isn't
+installed.
 
-```toml
-[extension-hosts.drupal]
-command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
-environment = { XDEBUG_MODE = "off" }
-```
+An `XDEBUG_MODE` environment variable wins over `xdebug.mode`, so
+`XDEBUG_MODE=debug vendor/bin/mago analyze` turns Xdebug back on, for example to step through a
+rule or an analyzer check.
 
 ## Index cache
 

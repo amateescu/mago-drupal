@@ -83,7 +83,7 @@ const CONFIG = <<<'TOML'
     extensions = ["php", "module", "install", "inc", "theme"]
 
     [extension-hosts.drupal]
-    command = ["php", "%s"]
+    command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "%s"]
 
     TOML;
 

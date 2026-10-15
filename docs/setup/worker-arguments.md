@@ -44,7 +44,7 @@ the config file is kept outside the project, set `working-directory` to the proj
 
 ```toml
 [extension-hosts.drupal]
-command = ["php", "/path/to/mago-drupal/resources/worker.php", "--root=/path/to/drupal"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "/path/to/mago-drupal/resources/worker.php", "--root=/path/to/drupal"]
 working-directory = "/path/to/project"
 ```
 
@@ -60,7 +60,7 @@ Mago doesn't take this extension's rule codes under `[linter.rules]`. To turn ru
 
 ```toml
 [extension-hosts.drupal]
-command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
 ```
 
 A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an

@@ -236,7 +236,7 @@ foreach (glob($root . '/docs/rules/*.md') ?: [] as $page) {
             }
 
             file_put_contents($workspace . '/mago.toml', sprintf(
-                "version = \"1\"\nphp-version = \"8.3\"\n\n[source]\npaths = [\"reported\", \"fine\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\", \"yml\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"%s\"]\n",
+                "version = \"1\"\nphp-version = \"8.3\"\n\n[source]\npaths = [\"reported\", \"fine\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\", \"yml\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"-d\", \"xdebug.mode=off\", \"-d\", \"pcov.enabled=0\", \"%s\"]\n",
                 $worker,
             ));
             $lint = [$mago, '--workspace', $workspace, '--config', $workspace . '/mago.toml', 'lint', '--only', 'drupal/' . $rule];
