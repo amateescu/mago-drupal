@@ -8,6 +8,7 @@ use PhpToken;
 
 use function count;
 use function str_contains;
+use function strlen;
 
 use const T_CURLY_OPEN;
 use const T_DOLLAR_OPEN_CURLY_BRACES;
@@ -21,6 +22,7 @@ use const T_DOLLAR_OPEN_CURLY_BRACES;
  * @internal
  *
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class PhpTokens
 {
@@ -121,6 +123,52 @@ final class PhpTokens
         }
 
         return false;
+    }
+
+    /**
+     * The index of the last token at or before `$from` that is not
+     * whitespace or a comment.
+     *
+     * @param list<PhpToken> $tokens
+     */
+    public static function previous(array $tokens, int $from): ?int
+    {
+        for ($i = $from; $i >= 0; $i--) {
+            if (!$tokens[$i]->isIgnorable()) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The index of the token that holds the byte offset, or null past the
+     * end. The tokens cover the file without gaps, in order.
+     *
+     * @param list<PhpToken> $tokens
+     */
+    public static function at(array $tokens, int $offset): ?int
+    {
+        $low = 0;
+        $high = count($tokens) - 1;
+        while ($low <= $high) {
+            $middle = ($low + $high) >> 1;
+            $token = $tokens[$middle];
+            if ($offset < $token->pos) {
+                $high = $middle - 1;
+                continue;
+            }
+
+            if ($offset >= ($token->pos + strlen($token->text))) {
+                $low = $middle + 1;
+                continue;
+            }
+
+            return $middle;
+        }
+
+        return null;
     }
 
     /**

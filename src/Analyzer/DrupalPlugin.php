@@ -26,6 +26,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\ConfigUnknownNameHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedServiceHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DescendantMetadataHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\ElementCallbackHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\EntityKeyGuardFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityMagicPropertyFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\EntityQueryAccessCheckHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\FormResponseReturnFilter;
@@ -139,6 +140,7 @@ final class DrupalPlugin implements Plugin
 
         $registry->registerIssueFilterHook(new FormResponseReturnFilter());
         $registry->registerIssueFilterHook(new EntityMagicPropertyFilter());
+        $registry->registerIssueFilterHook(new EntityKeyGuardFilter());
         $registry->registerIssueFilterHook(new PluginDefinitionArrayFilter());
         $registry->registerIssueFilterHook(new TraitPropertyFilter($traitRoots));
 
