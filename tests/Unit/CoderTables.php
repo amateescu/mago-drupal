@@ -152,54 +152,65 @@ final class CoderTables
     /**
      * Renders a table with one row for each sniff. A sniff whose codes go to
      * different places also gets a section below the table, under a heading
-     * of the given level.
+     * of the given level. The Notes column is left out when no row has a
+     * note.
      *
      * @param array<int, Sniff> $sniffs
      */
     private function table(array $sniffs, string $heading): string
     {
-        $rows = "| Sniff | Handled by | Notes |\n| --- | --- | --- |\n";
+        $cells = [];
         $sections = [];
         foreach ($sniffs as $sniff) {
             $groups = self::groups($sniff);
             if (count($groups) === 1) {
-                $rows .= $this->row($sniff, $groups[0]);
+                $cells[] = $this->row($sniff, $groups[0]);
 
                 continue;
             }
 
-            $rows .= $this->splitRow($sniff, $groups);
+            $cells[] = $this->splitRow($sniff, $groups);
             $sections[] = $this->codesSection($sniff, $groups, $heading);
+        }
+
+        $notes = array_filter($cells, static fn(array $row): bool => $row[2] !== '') !== [];
+        $rows = $notes
+            ? "| Sniff | Handled by | Notes |\n| --- | --- | --- |\n"
+            : "| Sniff | Handled by |\n| --- | --- |\n";
+        foreach ($cells as [$name, $by, $note]) {
+            $rows .= "| {$name} | {$by} |" . ($notes ? " {$note} |" : '') . "\n";
         }
 
         return $sections === [] ? $rows : $rows . "\n" . implode("\n", $sections);
     }
 
     /**
-     * Renders the row of a sniff whose codes all go to the same place.
+     * The cells of the row of a sniff whose codes all go to the same place.
      *
      * @param Sniff $sniff
      * @param array{handlers: list<string>, codes: list<Code>} $group
+     *
+     * @return array{string, string, string}
      */
-    private function row(array $sniff, array $group): string
+    private function row(array $sniff, array $group): array
     {
-        return (
-            "| `{$sniff['sniff']}` | "
-            . self::cell($this->groupHandledBy($sniff, $group))
-            . ' | '
-            . self::cell(self::notes($sniff))
-            . " |\n"
-        );
+        return [
+            "`{$sniff['sniff']}`",
+            self::cell($this->groupHandledBy($sniff, $group)),
+            self::cell(self::notes($sniff)),
+        ];
     }
 
     /**
-     * Renders the row of a sniff whose codes go to different places: every
-     * handler, and a link to the sniff's section.
+     * The cells of the row of a sniff whose codes go to different places:
+     * every handler, and a link to the sniff's section.
      *
      * @param Sniff $sniff
      * @param list<array{handlers: list<string>, codes: list<Code>}> $groups
+     *
+     * @return array{string, string, string}
      */
-    private function splitRow(array $sniff, array $groups): string
+    private function splitRow(array $sniff, array $groups): array
     {
         $handlers = [];
         $codes = [];
@@ -212,13 +223,11 @@ final class CoderTables
         $anchor = strtolower(str_replace(search: '.', replace: '', subject: $sniff['sniff']));
         $note = $sniff['note'] ?? '';
 
-        return (
-            "| `{$sniff['sniff']}` | "
-            . self::cell($by)
-            . " | [By code](#{$anchor})"
-            . ($note === '' ? '' : ' ' . self::cell($note))
-            . " |\n"
-        );
+        return [
+            "`{$sniff['sniff']}`",
+            self::cell($by),
+            "[By code](#{$anchor})" . ($note === '' ? '' : ' ' . self::cell($note)),
+        ];
     }
 
     /**

@@ -23,9 +23,9 @@ on [Sniffs from other standards](other-standards.md).
 
 ## Attributes
 
-| Sniff | Handled by | Notes |
-| --- | --- | --- |
-| `Drupal.Attributes.ValidHookName` | [`drupal/hook-attribute-name`](../rules/naming-and-imports.md#drupalhook-attribute-name) |  |
+| Sniff | Handled by |
+| --- | --- |
+| `Drupal.Attributes.ValidHookName` | [`drupal/hook-attribute-name`](../rules/naming-and-imports.md#drupalhook-attribute-name) |
 
 ## Classes
 
@@ -179,12 +179,12 @@ on [Sniffs from other standards](other-standards.md).
 
 ## Formatting
 
-| Sniff | Handled by | Notes |
-| --- | --- | --- |
-| `Drupal.Formatting.MultiLineAssignment` | `mago format` |  |
-| `Drupal.Formatting.MultipleStatementAlignment` | `mago format` |  |
-| `Drupal.Formatting.SpaceInlineIf` | `mago format` |  |
-| `Drupal.Formatting.SpaceUnaryOperator` | `mago format` |  |
+| Sniff | Handled by |
+| --- | --- |
+| `Drupal.Formatting.MultiLineAssignment` | `mago format` |
+| `Drupal.Formatting.MultipleStatementAlignment` | `mago format` |
+| `Drupal.Formatting.SpaceInlineIf` | `mago format` |
+| `Drupal.Formatting.SpaceUnaryOperator` | `mago format` |
 
 ## Functions
 
@@ -245,9 +245,9 @@ on [Sniffs from other standards](other-standards.md).
 
 ## Scope
 
-| Sniff | Handled by | Notes |
-| --- | --- | --- |
-| `Drupal.Scope.MethodScope` | [`drupal/method-visibility`](../rules/statements.md#drupalmethod-visibility) |  |
+| Sniff | Handled by |
+| --- | --- |
+| `Drupal.Scope.MethodScope` | [`drupal/method-visibility`](../rules/statements.md#drupalmethod-visibility) |
 
 ## Semantics
 

@@ -20,3 +20,18 @@
   --md-accent-bg-color: #fff;
   --md-accent-bg-color--light: #ffffffb3;
 }
+
+/*
+ * Tables take the full width of the content area, so a column of long text
+ * isn't squeezed next to short ones. The theme sizes a table to its content.
+ * The wrapper scrolls a table that is still wider than the page.
+ */
+.md-typeset__table {
+  display: block;
+  overflow-x: auto;
+}
+
+.md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
+}
