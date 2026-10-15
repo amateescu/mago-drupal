@@ -104,13 +104,23 @@ function hook_ENTITY_TYPE_view_alter(): void {}
 
 /**
  * Alter a single widget element.
+ *
+ * Core documents these four widget hooks, and no longer the ones that
+ * Drupal 10 removed.
+ */
+function hook_field_widget_single_element_form_alter(): void {}
+
+/**
+ * Alter a single widget element of one widget type.
  */
 function hook_field_widget_single_element_WIDGET_TYPE_form_alter(): void {}
 
 /**
- * Alter a widget, which every single element hook name matches too.
- *
- * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
- *   hook_field_widget_single_element_WIDGET_TYPE_form_alter() instead.
+ * Alter a complete widget.
  */
-function hook_field_widget_WIDGET_TYPE_form_alter(): void {}
+function hook_field_widget_complete_form_alter(): void {}
+
+/**
+ * Alter a complete widget of one widget type.
+ */
+function hook_field_widget_complete_WIDGET_TYPE_form_alter(): void {}

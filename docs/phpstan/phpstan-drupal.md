@@ -61,8 +61,8 @@ Off by default in phpstan-drupal.
 ### DeprecatedHookImplementation
 
 - `deprecatedHookImplementation.other`: [`drupal/deprecated-hook`](../analyzer/hooks.md#drupaldeprecated-hook)
-- `deprecatedHookImplementation.useHookFieldWidgetCompleteFormAlter`: nothing. Drupal 10 removed the documentation of `hook_field_widget_multivalue_form_alter()`, and phpstan-drupal reports its implementations from a list of its own.
-- `deprecatedHookImplementation.useHookFieldWidgetMulitValueWidgetTypeFormAlter`: nothing. The same for `hook_field_widget_multivalue_WIDGET_TYPE_form_alter()`.
+- `deprecatedHookImplementation.useHookFieldWidgetCompleteFormAlter`: [`drupal/deprecated-hook`](../analyzer/hooks.md#drupaldeprecated-hook)
+- `deprecatedHookImplementation.useHookFieldWidgetMulitValueWidgetTypeFormAlter`: [`drupal/deprecated-hook`](../analyzer/hooks.md#drupaldeprecated-hook)
 
 phpstan-drupal runs it only when a project adds it to `rules`.
 
