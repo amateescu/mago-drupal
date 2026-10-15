@@ -43,6 +43,24 @@ final class SourceTextTest extends TestCase
         self::assertSame(14, SourceText::skipLineBlank($contents, 1));
     }
 
+    public function testWalksBackOverBlanks(): void
+    {
+        $contents = "x;\n \t\r\n  y";
+
+        self::assertSame(1, SourceText::lastNonBlank($contents, 9));
+        self::assertSame(-1, SourceText::lastNonBlank(" \n", 2));
+    }
+
+    public function testFindsTheStartOfALine(): void
+    {
+        $contents = "ab\n\ncd";
+
+        self::assertSame(0, SourceText::lineStart($contents, 0));
+        self::assertSame(0, SourceText::lineStart($contents, 2));
+        self::assertSame(3, SourceText::lineStart($contents, 3));
+        self::assertSame(4, SourceText::lineStart($contents, 5));
+    }
+
     public function testReadsAnAttributeAsCode(): void
     {
         self::assertNull(SourceText::commentEnd('#[Attribute]', 0));

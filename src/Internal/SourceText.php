@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use function preg_match;
+use function str_contains;
 use function strcspn;
 use function strlen;
 use function strpos;
+use function strrpos;
 use function strspn;
 use function substr;
 
@@ -89,6 +91,36 @@ final class SourceText
         }
 
         return $offset;
+    }
+
+    /**
+     * Returns the offset of the last character before $offset that isn't a
+     * space, a tab or a line break, or -1. The walk back copies nothing.
+     */
+    public static function lastNonBlank(string $contents, int $offset): int
+    {
+        $offset--;
+        while ($offset >= 0 && str_contains(" \t\r\n", $contents[$offset])) {
+            $offset--;
+        }
+
+        return $offset;
+    }
+
+    /**
+     * Returns the offset where the line that holds $offset starts. A line
+     * break belongs to the line it ends. The search with a negative offset
+     * runs back from the character before $offset and copies nothing.
+     */
+    public static function lineStart(string $contents, int $offset): int
+    {
+        if ($offset <= 0) {
+            return 0;
+        }
+
+        $start = strrpos($contents, needle: "\n", offset: $offset - 1 - strlen($contents));
+
+        return $start === false ? 0 : $start + 1;
     }
 
     /**

@@ -68,6 +68,7 @@ Rules for the bytes of a file and for its open and close tags.
 | [`drupal/file-encoding`](files-and-tags.md#drupalfile-encoding) | warning | Reports a file whose bytes aren't valid UTF-8. |
 | [`drupal/file-start-whitespace`](files-and-tags.md#drupalfile-start-whitespace) | error | Reports whitespace before the first PHP open tag of a file. |
 | [`drupal/short-echo-tag`](files-and-tags.md#drupalshort-echo-tag) | error | Reports the <?= echo tag. Drupal writes <?php echo. |
+| [`drupal/tab-character`](files-and-tags.md#drupaltab-character) | error | Reports a tab in a comment or in the HTML outside the PHP tags. |
 
 ## Info and routing files
 
@@ -115,10 +116,12 @@ and for how methods, properties and parameters are declared.
 | --- | --- | --- |
 | [`drupal/case-break-blank-line`](statements.md#drupalcase-break-blank-line) | error | Checks that one blank line follows the statement that ends a switch case. |
 | [`drupal/case-fall-through`](statements.md#drupalcase-fall-through) | error | Reports a non-empty switch case that falls through to the next case with no comment. |
+| [`drupal/case-label-line`](statements.md#drupalcase-label-line) | error | Reports a comment before a case or default label on the label's line. |
 | [`drupal/case-semicolon`](statements.md#drupalcase-semicolon) | error | Reports a case or default label that ends with a semicolon instead of a colon. |
 | [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between `yield` and `from`. |
 | [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |
 | [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that has no case label. |
+| [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Checks that a blank line separates a function declaration from the code or comment before it. |
 | [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports methods declared without an explicit visibility keyword. |
 | [`drupal/non-capturing-catch`](statements.md#drupalnon-capturing-catch) | error | Reports a catch variable that nothing reads, which the clause can leave out from PHP 8.0. |
 | [`drupal/null-coalesce`](statements.md#drupalnull-coalesce) | error | Reports isset() and strict null checks in a ternary that "??" replaces. |
@@ -142,14 +145,14 @@ the line-length check for comments. For the comment whitespace set by `mago form
 | [`drupal/author-tag`](comment-text.md#drupalauthor-tag) | warning | Reports @author tags in docblocks. |
 | [`drupal/comment-line-length`](comment-text.md#drupalcomment-line-length) | warning | Reports comment lines longer than 80 characters. |
 | [`drupal/doc-comment-array-syntax`](comment-text.md#drupaldoc-comment-array-syntax) | warning | Reports `array()` syntax inside a docblock @code example. |
-| [`drupal/doc-type-namespace`](comment-text.md#drupaldoc-type-namespace) | warning | Reports @param, @return, @var and @throws types written as the short name of a class imported only for docblocks. |
+| [`drupal/doc-type-namespace`](comment-text.md#drupaldoc-type-namespace) | warning | Reports a docblock tag, such as @param or @see, that names a class imported only for docblocks by its short name. |
 | [`drupal/expected-exception-tag`](comment-text.md#drupalexpected-exception-tag) | warning | Reports the legacy PHPUnit @expectedException* docblock tags. |
 | [`drupal/gender-neutral-comment`](comment-text.md#drupalgender-neutral-comment) | warning | Reports gendered pronouns in comments. |
 | [`drupal/inline-comment`](comment-text.md#drupalinline-comment) | warning | Checks that a `//` comment has one space after `//`, starts with a capital letter, and doesn't use `#`, and that no docblock sits inside code. |
 | [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) | warning | Checks that no blank line follows a `//` comment on its own line. |
 | [`drupal/inline-comment-punctuation`](comment-text.md#drupalinline-comment-punctuation) | warning | Checks that a `//` comment ends with terminal punctuation. |
 | [`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) | warning | Checks that a docblock's long description doesn't end with a letter. |
-| [`drupal/post-statement-comment`](comment-text.md#drupalpost-statement-comment) | warning | Reports a `//` comment on the same line as the statement before it. |
+| [`drupal/post-statement-comment`](comment-text.md#drupalpost-statement-comment) | warning | Reports a `//` comment on the same line as the statement before it, and a comment after the opening brace of a class. |
 | [`drupal/todo-comment`](comment-text.md#drupaltodo-comment) | warning | Reports a to-do comment that doesn't follow the "@todo Fix problem X here." format. |
 
 ## Docblock structure

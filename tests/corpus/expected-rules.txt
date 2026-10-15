@@ -2,6 +2,7 @@ drupal/author-tag
 drupal/byte-order-mark
 drupal/case-break-blank-line
 drupal/case-fall-through
+drupal/case-label-line
 drupal/case-semicolon
 drupal/class-comment
 drupal/class-name-acronym
@@ -36,6 +37,7 @@ drupal/file-encoding
 drupal/file-start-whitespace
 drupal/form-alter-comment
 drupal/fully-qualified-name
+drupal/function-blank-line
 drupal/function-comment
 drupal/function-name
 drupal/function-prefix
@@ -88,6 +90,7 @@ drupal/strict-config-schema
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema
+drupal/tab-character
 drupal/test-class-suffix
 drupal/todo-comment
 drupal/todo-current-issue

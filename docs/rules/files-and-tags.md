@@ -135,3 +135,63 @@ Coder asks for `<?php echo` in place of the `<?=` short echo tag.
       break. This fix turns spaces and tabs after the tag into one space.
     - Mago stops parsing a file that ends right after a bare `<?=`, so no rule sees that file. Coder
       reports it, and its fixer crashes on it.
+
+---
+
+## drupal/tab-character
+
+- **Level:** error
+- **Fix:** safe in a comment, potentially unsafe in HTML. It writes 4 spaces for each tab.
+- **Standard:** [Indenting and Whitespace](https://project.pages.drupalcode.org/coding_standards/php/coding/#indenting-and-whitespace)
+- **Ports:** `Generic.WhiteSpace.DisallowTabIndent`: `NonIndentTabsUsed`, `TabsUsed`
+
+> Use an indent of 2 spaces, with no tabs.
+
+`mago format` writes spaces in the code and in the indent of a comment's lines. It prints the text
+of a comment and the HTML outside the PHP tags as written, so the rule reports the tabs left there.
+
+**Reports:**
+
+- a tab in the text of a comment or a docblock, once per line;
+- a tab in the HTML outside the PHP tags, once per line.
+
+**Not reported:**
+
+- a tab in the whitespace at the start of a comment's line, which `mago format` replaces;
+- a tab in a string or a heredoc, as in Coder;
+- a `.yml` file, which Mago parses as HTML. Coder doesn't report tabs there.
+
+The fix in HTML is potentially unsafe, because the tabs are part of the page output, as in a
+`<pre>` element or a plain-text mail body.
+
+??? example "Example"
+
+    The fix turns the reported code into the fine code. The gap after `Net:` in the reported comment
+    is a tab.
+
+    ```php
+    // Reported.
+    function example_total(array $prices): int {
+      // Net:	the price before tax.
+      return array_sum($prices);
+    }
+
+    // Fine.
+    function example_total(array $prices): int {
+      // Net:    the price before tax.
+      return array_sum($prices);
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder also reports a tab in the whitespace of the code and at the start of a comment's lines.
+      `mago format` replaces those.
+    - A tab that becomes 4 spaces can push a comment line past 80 characters, which
+      [`drupal/comment-line-length`](comment-text.md#drupalcomment-line-length) then reports. phpcbf
+      does the same.
+    - The fix also changes a tab in an `@code` sample, which can show output that holds a tab.
+    - `mago format` copies the whitespace before an `<?php` tag in HTML onto the code after the tag,
+      up to the next `?>`. A tab there comes out in front of each statement, and Coder reports
+      those lines. The fix replaces the tab in the HTML, and the next `mago format` writes spaces
+      in front of the code.

@@ -130,19 +130,29 @@ Mago doesn't parse the example as code, so no other rule sees it.
 
 **Reports:**
 
-- a `@param`, `@return`, `@var` or `@throws` type written as the short name of a class that only
-  docblocks use. The rule reads every name in the type, including generic arguments, array shape
-  values and callable parameters, such as `Cc` in `array<string, Cc>`.
+- a class that only docblocks use, written by its short name in:
+    - the type of a `@param`, `@return`, `@var`, `@throws`, `@mixin`, `@property`,
+      `@property-read` or `@property-write` tag, and of the `phpstan-` and `psalm-` forms of
+      `@param`, `@return` and `@var`;
+    - the type after the alias of a `@phpstan-type` or `@psalm-type` tag;
+    - the first word of a `@see` tag, also before `::`, as in `@see Foo::create()`;
+    - the return type and the parameter types of a `@method` tag.
+
+The rule reads every name in a type, including generic arguments, array shape values and callable
+parameters, such as `Cc` in `array<string, Cc>`.
 
 **Not reported:**
 
 - a short name whose import the code uses too;
 - a name after the first space outside brackets, where the type ends, so the return type in
-  `callable(Foo): Bar` isn't read.
+  `callable(Foo): Bar` isn't read;
+- a mention in prose or in `{@link}`. It also keeps the import, as the fix only removes an import
+  when every mention is rewritten.
 
-The fix writes the fully qualified name for each such name in the type, when the whole type is on
-the tag's line and the docblock is below the import, in a file with one namespace. It removes the
-import when every mention of the name in the file's docblocks is rewritten.
+The fix writes the fully qualified name for each such name in the tag, when the part of the tag that
+holds the names is on the tag's line and the docblock is below the import, in a file with one
+namespace. It removes the import when every mention of the name in the file's docblocks is
+rewritten.
 
 ??? example "Example"
 
@@ -205,8 +215,11 @@ import when every mention of the name in the file's docblocks is rewritten.
       class that no longer resolves. Mago counts a docblock mention as a use, so its
       `no-redundant-use` reports only the imports that nothing uses, and this rule reports the ones
       that only docblocks use.
-    - An import that only a `@see` tag mentions is reported by neither rule, and the same goes for
-      any tag other than `@param`, `@return`, `@var` and `@throws`. Coder reports it as unused.
+    - An import that only prose or a `{@link}` mentions is reported by neither rule. Coder reports
+      it as unused.
+    - Mago's `no-redundant-use` also counts a mention by the full name, as in
+      `@var \Drupal\Core\Url` for `use Drupal\Core\Url;`, as a use of the import. Neither rule
+      reports that import, and Coder does.
     - Coder 8's `Drupal.Commenting.DataTypeNamespace`, which is still run by core 11.4's
       `phpcs.xml.dist`, reports a short name even when the code uses its import too. No such sniff
       exists in Coder 9.
@@ -505,29 +518,42 @@ pass applies it.
 ## drupal/post-statement-comment
 
 - **Level:** warning
-- **Fix:** safe. It moves the comment to its own line above.
+- **Fix:** safe. It moves the comment to its own line above the statement, or below the opening
+  brace of a class.
 - **Standard:** [In-line code comments](https://project.pages.drupalcode.org/coding_standards/php/documentation/#in-line-code-comments)
-- **Ports:** `Drupal.Commenting.PostStatementComment.Found`
+- **Ports:**
+    - `Drupal.Classes.ClassDeclaration.ContentAfterBrace`
+    - `Drupal.Commenting.PostStatementComment.Found`
 
 > Comments should be on a separate line immediately before the code line or block they reference.
 
 **Reports:**
 
-- a `//` comment on the same line as the statement before it.
+- a `//` comment on the same line as the statement before it;
+- a `//`, `#` or `/* */` comment after the opening brace of a class, interface, trait, enum or
+  anonymous class, on the brace's line.
 
 **Not reported:**
 
 - a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment,
   because moving a tool pragma can change the lines it covers. An `@phpstan-ignore-line` moved to a
-  line of its own would cover no statement.
+  line of its own would cover no statement;
+- a docblock after the opening brace of a class, which
+  [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) reports.
+
+The fix puts a comment from the line of a class's opening brace directly above the first member,
+with no blank line between them, or on the line below the brace when the body is empty. `mago format`
+then adds the blank line after the brace. A method's docblock or attributes get one blank line
+above them, which Coder's `Squiz.WhiteSpace.FunctionSpacing.Before` counts from the comment.
 
 There is no fix where the move could attach the comment to something else:
 
-- a line that opens a block or closes a construct;
+- a line that opens a block, other than a class body, or closes a construct;
 - a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement;
 - a line inside a string;
 - a comment that the next line continues;
-- a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`.
+- a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`;
+- a comment after a class's opening brace with code after it on the same line.
 
 ??? example "Example"
 
@@ -555,6 +581,15 @@ There is no fix where the move could attach the comment to something else:
     - Coder skips only a `phpcs:` comment, not the other tool pragmas.
     - phpcbf moves every comment it reports, also one below a docblock or another comment. It
       writes the comment at the start of the line and leaves a space after the statement.
+    - Coder doesn't report a block comment after the opening brace of an anonymous class as
+      `ContentAfterBrace`. It reports the space before it as
+      `Drupal.WhiteSpace.OpenBracketSpacing.OpeningWhitespace`, which the move removes too.
+    - phpcbf turns a `//` comment after the opening brace of a class into a second docblock above
+      the class.
+    - For a `//` comment that the fix puts above a method's docblock, DrupalPractice's
+      `CommentEmptyLine.SpacingAfter` reports the blank line between them, and Coder's
+      `FunctionSpacing.Before` reports the layout without it. The fix keeps the blank line, which
+      [`drupal/inline-comment-blank-line`](#drupalinline-comment-blank-line) allows.
 
 ---
 

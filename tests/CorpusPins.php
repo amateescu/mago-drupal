@@ -55,6 +55,7 @@ use function str_contains;
 use function str_replace;
 use function str_starts_with;
 use function strlen;
+use function strrpos;
 use function substr;
 use function symlink;
 use function sys_get_temp_dir;
@@ -295,7 +296,8 @@ final class CorpusPins
 
     /**
      * The first line number from `$from` (0-based) on that is not blank, a
-     * comment or an attribute, 1-based.
+     * comment or an attribute, 1-based. A line with code after the end of a
+     * block comment is not a comment.
      *
      * @param list<string> $lines
      */
@@ -303,12 +305,13 @@ final class CorpusPins
     {
         for ($index = $from; $index < count($lines); $index++) {
             $line = trim($lines[$index]);
+            $close = strrpos($line, needle: '*/');
             $comment =
                 $line === ''
                 || str_starts_with($line, '//')
-                || str_starts_with($line, '/*')
-                || str_starts_with($line, '*')
-                || str_starts_with($line, '#');
+                || str_starts_with($line, '#')
+                || (str_starts_with($line, '/*') || str_starts_with($line, '*'))
+                && ($close === false || trim(substr($line, $close + 2)) === '');
             if (!$comment) {
                 return $index + 1;
             }

@@ -14,6 +14,7 @@ use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ByteOrderMarkRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseFallThroughRule;
+use amateescu\MagoDrupal\Linter\Rules\CaseLabelLineRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseSemicolonRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassNameAcronymRule;
@@ -48,6 +49,7 @@ use amateescu\MagoDrupal\Linter\Rules\FileEncodingRule;
 use amateescu\MagoDrupal\Linter\Rules\FileStartWhitespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\FormAlterCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
+use amateescu\MagoDrupal\Linter\Rules\FunctionBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
@@ -98,6 +100,7 @@ use amateescu\MagoDrupal\Linter\Rules\ShortListRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortTernaryRule;
 use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
+use amateescu\MagoDrupal\Linter\Rules\TabCharacterRule;
 use amateescu\MagoDrupal\Linter\Rules\TestClassSuffixRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCurrentIssueRule;
@@ -308,6 +311,7 @@ final class DrupalExtension
             new ByteOrderMarkRule(),
             new CaseBreakBlankLineRule(),
             new CaseFallThroughRule(),
+            new CaseLabelLineRule(),
             new CaseSemicolonRule(),
             new ClassCommentRule(),
             new ClassNameAcronymRule(),
@@ -342,6 +346,7 @@ final class DrupalExtension
             new FileStartWhitespaceRule(),
             new FormAlterCommentRule(),
             new FullyQualifiedNameRule(),
+            new FunctionBlankLineRule(),
             new FunctionCommentRule(),
             new FunctionNameRule(),
             new FunctionPrefixRule(),
@@ -392,6 +397,7 @@ final class DrupalExtension
             new ShortTernaryRule(),
             new StrictConfigSchemaRule(),
             new SymfonyYamlParseRule(),
+            new TabCharacterRule(),
             new TestClassSuffixRule(),
             new TodoCommentRule(),
             new TodoCurrentIssueRule(),
