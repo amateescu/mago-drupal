@@ -39,7 +39,7 @@ final class MethodNameRule implements Rule
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // The class-like gives the class name for the PHP 4 constructor
-            // skip. A Method target has no parent in its snapshot.
+            // skip. A Method target doesn't have a parent in its snapshot.
             targets: Nodes::CLASS_LIKE,
         );
     }
@@ -59,9 +59,9 @@ final class MethodNameRule implements Rule
                 continue;
             }
 
-            // Coder strips the leading underscores before the check. Every
-            // skip below only lets a name through, so a name that passes the
-            // check needs none of them.
+            // Coder strips the leading underscores before the check. Every skip
+            // below only lets a name through, so a name that passes the check
+            // doesn't need any of them.
             $name = $file->getText($identifier);
             if (self::isCamelCaps(ltrim($name, characters: '_'))) {
                 continue;
@@ -83,7 +83,7 @@ final class MethodNameRule implements Rule
 
     /**
      * Coder's `Common::isCamelCaps()` in strict mode: a lower-case ASCII
-     * letter, then only ASCII letters and digits, with no two capitals in a
+     * letter, then only ASCII letters and digits, without two capitals in a
      * row. A digit ends a run of capitals.
      */
     private static function isCamelCaps(string $name): bool

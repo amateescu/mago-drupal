@@ -94,7 +94,7 @@ final class Types
 
     /**
      * Whether a default holds a value: anything but NULL, FALSE and the empty
-     * string, a constant included. An absent type holds none.
+     * string, a constant included. An absent type doesn't hold one.
      */
     public static function holdsValue(?Type $type): bool
     {
@@ -140,8 +140,8 @@ final class Types
 
     /**
      * The one answer every object in the type gives, or null when one of them
-     * gives none, two give different ones, or a member is not an object at
-     * all. A null member is skipped: a call on null is reported on its own.
+     * doesn't give one, two give different ones, or a member is not an object
+     * at all. A null member is skipped: a call on null is reported on its own.
      *
      * @template T of object|string
      * @param Closure(NamedObjectType): (T|null) $resolve

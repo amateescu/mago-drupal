@@ -27,8 +27,8 @@ use function strpos;
  * the issue being worked on is work the merge request leaves undone. The issue
  * number comes from GitLab CI: the start of the source branch name, as in
  * `3456789-fix-thing`, or the end of the issue fork's project path, as in
- * `issue/mymodule-3456789`. Outside a merge request pipeline neither is set
- * and the rule reports nothing, so unlike phpstan-drupal's rule it is on by
+ * `issue/mymodule-3456789`. Outside a merge request pipeline neither is set and
+ * the rule doesn't report anything, so unlike phpstan-drupal's rule it is on by
  * default.
  */
 final class TodoCurrentIssueRule implements Rule

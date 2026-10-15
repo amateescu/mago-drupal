@@ -508,7 +508,8 @@ final class ElementCallbacks
     }
 
     /**
-     * Reads one callback value, or null when it names nothing statically.
+     * Reads one callback value, or null when it doesn't name anything
+     * statically.
      */
     private function callback(string $key, CallbackUse $use, Node $value): ?ElementCallback
     {
@@ -679,9 +680,9 @@ final class ElementCallbacks
 
     /**
      * The class a variable holds when the function it is used in assigns it
-     * once, with `=`, from an expression classOf() reads, as element info
-     * does with `$class = get_class($this)`. Mago types get_class() as a
-     * plain string, so the variable's type names no class. A variable that a
+     * once, with `=`, from an expression classOf() reads, as element info does
+     * with `$class = get_class($this)`. Mago types get_class() as a plain
+     * string, so the variable's type doesn't name a class. A variable that a
      * foreach or a reference may bind as well is left alone.
      *
      * @return array{non-empty-string, bool}|null
@@ -879,7 +880,7 @@ final class ElementCallbacks
     }
 
     /**
-     * The value of a string literal. The analyzer snapshot carries no decoded
+     * The value of a string literal. The analyzer snapshot doesn't have decoded
      * literals, so a single-quoted one is unescaped here, and a double-quoted
      * one only counts without variables and without escapes other than a
      * doubled backslash.

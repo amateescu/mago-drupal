@@ -29,7 +29,7 @@ use function trim;
 
 /**
  * Checks that t() and the other translation entry points get a string
- * literal, and that no string is joined after the call.
+ * literal, and that a string isn't joined after the call.
  *
  * Ports `NotLiteralString` and `ConcatString` of Drupal.Semantics.FunctionT.
  * The string extractor reads the source and does not run it, so it sees

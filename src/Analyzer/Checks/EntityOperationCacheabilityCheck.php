@@ -69,7 +69,7 @@ final class EntityOperationCacheabilityCheck implements MetadataCheck
 
     /**
      * The position of the cacheability parameter an implementation of the
-     * hook lacks, or null when it has it or the hook takes none. Core's
+     * hook lacks, or null when it has it or the hook doesn't take any. Core's
      * `hook_<name>()` documentation must declare the parameter.
      *
      * @param list<ParameterMetadata> $parameters
@@ -91,7 +91,7 @@ final class EntityOperationCacheabilityCheck implements MetadataCheck
     /**
      * The issue for an implementation without the cacheability parameter.
      * The suggested default keeps it working on core before 11.3, which
-     * passes no such argument.
+     * doesn't pass such an argument.
      */
     public static function issue(string $name, string $hook, int $position, Span|SourceLocation $where): Issue
     {

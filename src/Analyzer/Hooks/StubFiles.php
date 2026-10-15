@@ -48,7 +48,7 @@ final class StubFiles implements InitializationHook
 
     /**
      * @param Closure(): ?string $coreVersion The installed core version, or
-     *   null when there is no core to read it from.
+     *   null when there isn't a core to read it from.
      */
     public function __construct(
         ?string $directory = null,

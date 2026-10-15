@@ -23,7 +23,7 @@ final class Values
     /**
      * Returns the decoded value of a literal-string node.
      *
-     * Linter snapshots hold no decoded values. The value is then read from
+     * Linter snapshots don't hold decoded values. The value is then read from
      * the source text the way PHP reads it.
      */
     public static function literalString(SourceFile $file, Node $node): ?string

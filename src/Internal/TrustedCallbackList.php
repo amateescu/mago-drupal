@@ -26,9 +26,9 @@ use const T_VARIABLE;
  * The method names a `trustedCallbacks()` body returns, read off its tokens.
  *
  * Two body shapes are understood: `return <list>;`, and a variable set to a
- * list, grown with `$variable[] = 'name';` and returned. A list is an array
- * of string literals, `parent::trustedCallbacks()` or an `array_merge()` of
- * lists. Any other body gives no answer, since its result cannot be known
+ * list, grown with `$variable[] = 'name';` and returned. A list is an array of
+ * string literals, `parent::trustedCallbacks()` or an `array_merge()` of lists.
+ * Any other body doesn't give an answer, since its result cannot be known
  * without running it.
  *
  * @internal

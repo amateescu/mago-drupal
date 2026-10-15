@@ -12,9 +12,9 @@ use function preg_match;
  * The Drupal major a project is getting ready for.
  *
  * A deprecation Drupal removes in a later major can wait, so it is not
- * reported. Text that names no Drupal removal version is always reported: a
- * contrib module's own deprecations and Symfony's say nothing about when
- * Drupal drops them.
+ * reported. Text that doesn't name a Drupal removal version is always reported:
+ * a contrib module's own deprecations and Symfony's don't say anything about
+ * when Drupal drops them.
  *
  * @internal
  */

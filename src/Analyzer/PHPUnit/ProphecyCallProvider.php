@@ -21,17 +21,17 @@ use function strtolower;
 /**
  * Types the calls that set up a prophecy.
  *
- * `$prophecy->getFoo()` on an `ObjectProphecy<Foo>` goes through
- * `__call()`, which returns a `MethodProphecy`. Mago reports every such call
- * as undocumented, since the class has no `@method` tag for it. This provider
- * answers for a method the prophesized class declares, or for any method when
- * the class is not known. A method the class lacks stays reported, as Prophecy
- * throws for it. A double of an interface that is `Traversable` but neither an
- * `Iterator` nor an `IteratorAggregate` also has the `Iterator` methods, which
- * Prophecy's `TraversablePatch` adds.
+ * `$prophecy->getFoo()` on an `ObjectProphecy<Foo>` goes through `__call()`,
+ * which returns a `MethodProphecy`. Mago reports every such call as
+ * undocumented, since the class doesn't have a `@method` tag for it. This
+ * provider answers for a method the prophesized class declares, or for any
+ * method when the class is not known. A method the class lacks stays reported,
+ * as Prophecy throws for it. A double of an interface that is `Traversable` but
+ * neither an `Iterator` nor an `IteratorAggregate` also has the `Iterator`
+ * methods, which Prophecy's `TraversablePatch` adds.
  *
  * A prophecy documented as `@var Foo|ObjectProphecy` is typed half by half.
- * The bare `ObjectProphecy` names no class, so its half gets a
+ * The bare `ObjectProphecy` doesn't name a class, so its half gets a
  * `MethodProphecy`, and the `Foo` half gets the real method's result. A
  * prophecy is never a `Foo`, so the docblock is what needs fixing, to
  * `ObjectProphecy<Foo>`, and `ProphecyUnionHook` reports it.

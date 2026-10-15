@@ -21,8 +21,8 @@ use function substr;
  * `PluginBase` documents `$pluginDefinition` as
  * `array|PluginDefinitionInterface`, and `DeriverInterface` documents the base
  * definition the same way, so Mago reports every `['key']` on one for the
- * object half. A property has no provider to retype it, so this filter drops
- * the report on `$this->pluginDefinition[...]` when
+ * object half. A property doesn't have a provider to retype it, so this filter
+ * drops the report on `$this->pluginDefinition[...]` when
  * `PluginDefinitions::ownAreArrays()` holds. `getPluginDefinition()` is typed
  * by `PluginDefinitionProvider` instead. In a deriver every report naming that
  * union goes: a deriver for a plugin type with definition objects calls their

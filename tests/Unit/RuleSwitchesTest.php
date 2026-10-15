@@ -134,7 +134,7 @@ final class RuleSwitchesTest extends TestCase
             }
 
             PHP;
-        $missing = ['The docblock has no short description.'];
+        $missing = ['The docblock doesn\'t have a short description.'];
 
         $core = new MissingSummaryRule(core: true);
 

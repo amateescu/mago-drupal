@@ -25,18 +25,18 @@ use function strlen;
 use function strpos;
 
 /**
- * Every check of `drupal/file-comment` and `drupal/missing-file-comment`
- * starts at the first trivia in the file, so a `@mago-expect` comment that
- * suppresses an issue becomes that trivia and changes the result. The corpus
- * can only make sure that a correct file gets no report. This test runs both
- * rules and covers the negative cases.
+ * Every check of `drupal/file-comment` and `drupal/missing-file-comment` starts
+ * at the first trivia in the file, so a `@mago-expect` comment that suppresses
+ * an issue becomes that trivia and changes the result. The corpus can only make
+ * sure that a correct file doesn't get a report. This test runs both rules and
+ * covers the negative cases.
  *
  * @mago-expect lint:too-many-methods
  */
 final class FileCommentRuleTest extends TestCase
 {
     /**
-     * The parent, first child and next sibling of a node that has none.
+     * The parent, first child and next sibling of a node that doesn't have any.
      */
     private const NO_LINKS = [4_294_967_295, 4_294_967_295, 4_294_967_295];
 
@@ -84,8 +84,8 @@ final class FileCommentRuleTest extends TestCase
             "test-{$counter}-{$path}",
             $contents,
             [],
-            // The tree holds the Program node and no statements, so the
-            // check of the line above `declare` finds nothing to read.
+            // The tree holds only the Program node, so the check of the line
+            // above `declare` doesn't find anything to read.
             new NodeStore([NodeKind::Program], pack('CNNNNN', 0, 0, strlen($contents), ...self::NO_LINKS), 1),
             new ResolvedNameStore('', '', '', 0),
             new TriviaStore($records, $records === '' ? 0 : 1),

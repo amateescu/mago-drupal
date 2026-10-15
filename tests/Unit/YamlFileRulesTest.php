@@ -33,7 +33,7 @@ use function substr_count;
 
 /**
  * Runs the rules for `.info.yml` and `.routing.yml` files on YAML text. A
- * YAML file has no PHP comments, so the corpus cannot hold `@mago-expect`
+ * YAML file doesn't have PHP comments, so the corpus cannot hold `@mago-expect`
  * pragmas for them.
  */
 final class YamlFileRulesTest extends TestCase
@@ -134,7 +134,7 @@ final class YamlFileRulesTest extends TestCase
             'mymodule/mymodule.info.yml',
             "name: My module\ntype: module\n",
             [
-                '1: The info file has no "core_version_requirement" key.',
+                '1: The info file doesn\'t have a "core_version_requirement" key.',
             ],
         ];
         yield 'core version requirement' => [
@@ -167,7 +167,7 @@ final class YamlFileRulesTest extends TestCase
             'mymodule/mymodule.info.yml',
             "name: My module\ntype: module\n",
             [
-                '1: The info file has no "description" key.',
+                '1: The info file doesn\'t have a "description" key.',
             ],
         ];
         yield 'empty description' => [

@@ -20,7 +20,8 @@ final class ServiceParametersTest extends TestCase
         self::assertSame('string', (string) $parameters->type('app.root'));
         self::assertSame('int', (string) $parameters->type('limit'));
         self::assertSame('float', (string) $parameters->type('ratio'));
-        // A mapping and a list get no shape, since other files may change it.
+        // A mapping and a list don't get a shape, since other files may change
+        // it.
         self::assertSame('array<int|string, mixed>', (string) $parameters->type('options'));
         self::assertSame('array<int|string, mixed>', (string) $parameters->type('list'));
         // A placeholder inside a longer string, and an escaped `@`.

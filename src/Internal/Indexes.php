@@ -61,7 +61,7 @@ final class Indexes
     /**
      * The analyzed files of the annotated plugin, entity and element
      * directories as the last scan saw them, by real path: the text when it
-     * has an annotation, null when it has none.
+     * has an annotation, null when it doesn't have one.
      *
      * @var array<string, string|null>
      */
@@ -190,7 +190,7 @@ final class Indexes
     /**
      * The raw definitions of every source.
      *
-     * Provider ids read off disk have no class, so YAML wins over them and
+     * Provider ids read off disk don't have a class, so YAML wins over them and
      * the scanned providers win over YAML, without an id-only entry ever
      * erasing a class.
      *
@@ -391,7 +391,7 @@ final class Indexes
 
     /**
      * Classes marked `@internal` under the root, for the internal-parent
-     * check. Read once at registration, so nothing is kept here.
+     * check. Read once at registration, so it isn't kept here.
      */
     public function internalClasses(): InternalClasses
     {
@@ -420,7 +420,7 @@ final class Indexes
 
     /**
      * Symbols marked `@deprecated` under the root, for the deprecation checks
-     * Mago has none of. Read once at registration.
+     * that Mago doesn't have. Read once at registration.
      */
     public function deprecatedSymbols(): DeprecatedSymbols
     {
@@ -509,9 +509,9 @@ final class Indexes
      * A watch or editor session analyzes again in the same worker, and an
      * incremental analysis runs the codebase scan only when a file it targets
      * changed. An edited services or schema file, or an edited entity class,
-     * reaches no scan hook, so the scan cannot be what drops the indexes. The
-     * generation on the codebase moves with every analysis. The scan results
-     * are kept: a scan that did not run found nothing new.
+     * doesn't reach a scan hook, so the scan cannot be what drops the indexes.
+     * The generation on the codebase moves with every analysis. The scan
+     * results are kept: a scan that did not run didn't find anything new.
      */
     private function follow(Codebase $codebase): void
     {

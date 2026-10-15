@@ -31,8 +31,8 @@ final class OldStyleConstructorRule implements Rule
             description: 'Reports a method named after its class in a class without __construct().',
             defaultLevel: Level::Error,
             defaultEnabled: true,
-            // Coder checks classes only. An anonymous class has no name to
-            // match.
+            // Coder checks classes only. An anonymous class doesn't have a
+            // name to match.
             targets: [NodeKind::Class_],
         );
     }

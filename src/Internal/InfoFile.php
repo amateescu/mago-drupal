@@ -26,7 +26,7 @@ final class InfoFile
 
     /**
      * The machine name for the file at $path, as Mago names it, or null
-     * when the file has none.
+     * when the file doesn't have one.
      *
      * A `.module`, `.install`, `.profile` or `.theme` file is named after
      * it. Any other file, such as an `.inc` file or a class in `src/`, takes

@@ -99,8 +99,8 @@ final class PropertyNameRule implements Rule
                     continue;
                 }
 
-                // PSR2.Classes.PropertyDeclaration.Underscore has no exempt
-                // classes, so a leading underscore is still reported there,
+                // PSR2.Classes.PropertyDeclaration.Underscore doesn't exempt
+                // any classes, so a leading underscore is still reported there,
                 // except on core.
                 $exempt ??= $this->allowsAnyCase($file, $property);
                 if ($exempt && ($this->core || !str_starts_with($name, '_'))) {

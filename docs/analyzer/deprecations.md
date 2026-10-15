@@ -9,7 +9,7 @@ Mago reports every use of a deprecated symbol. Drupal has places where that use 
 code, or is allowed, and the analyzer drops the report there. Four markers open a scope:
 
 - a `@group legacy` docblock on a class or a method in test code (any file under a
-  `tests` directory). The group is for the test runner, so it marks nothing elsewhere;
+  `tests` directory). The group is for the test runner, so it doesn't mark anything elsewhere;
 - a `@deprecated` docblock on a class-like or a function, since deprecated code may use other
   deprecated code. phpstan-deprecation-rules skips the same places, and Mago 1.57.0 and later skip
   their own deprecation reports in a `@deprecated` function, method or class-like as well;
@@ -18,7 +18,7 @@ code, or is allowed, and the analyzer drops the report there. Four markers open 
   runs on older core.
 
 A marker on a class covers the whole class. A marker on a method covers that method's body, and
-stops at its closing brace. A `@deprecated` property or constant opens no scope.
+stops at its closing brace. A `@deprecated` property or constant doesn't open a scope.
 
 A method that overrides a deprecated method is a scope too, whatever its own docblock says, unless
 it says `@not-deprecated`. PHPStan counts such a method as deprecated, and a decorator that forwards
@@ -44,15 +44,16 @@ since it is about PHP language features, not about the Drupal API that a legacy 
 
 ??? note "How the scopes are found"
 
-    The scopes are read from the file's own bytes with PHP's tokenizer. A file that holds none of
-    the four markers is screened out by a substring test, and Mago batches the issues of a file into
-    one request, so a marked file is tokenized once.
+    The scopes are read from the file's own bytes with PHP's tokenizer. A file that doesn't hold any
+    of the four markers is screened out by a substring test, and Mago batches the issues of a file
+    into one request, so a marked file is tokenized once.
 
-    The override scope takes the codebase, so it runs only for an issue that no marker covers. The
-    tokens name the method and its class-like, and the class's ancestors say whether one of them
-    declares the method deprecated. Mago analyzes a trait once, on its own, so a trait method counts
-    when every class that gets it from the trait inherits a deprecated declaration. Finding those
-    classes is a search by method name across the codebase, and only a trait pays for it.
+    The override scope takes the codebase, so it runs only for an issue that isn't covered by a
+    marker. The tokens name the method and its class-like, and the class's ancestors say whether one
+    of them declares the method deprecated. Mago analyzes a trait once, on its own, so a trait
+    method counts when every class that gets it from the trait inherits a deprecated declaration.
+    Finding those classes is a search by method name across the codebase, and only a trait pays for
+    it.
 
 ??? note "Compared with phpstan-drupal"
 
@@ -75,8 +76,8 @@ command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amate
 ```
 
 The removal version comes from the `@deprecated` text, in Drupal's form:
-`in drupal:11.4.0 and is removed from drupal:13.0.0.` Text that names no Drupal removal version is
-always reported. That covers a contrib module's own deprecations, as in
+`in drupal:11.4.0 and is removed from drupal:13.0.0.` Text that doesn't name a Drupal removal
+version is always reported. That covers a contrib module's own deprecations, as in
 `removed from webform:7.0.0`, and the deprecations of Symfony and PHP.
 
 Mago's issue names the deprecated symbol but not its `@deprecated` text, which isn't kept by Mago.

@@ -41,7 +41,7 @@ final class MissingClassCommentRule implements Rule
         $comment = DeclarationComment::of($context);
         if ($comment->comment === null || $comment->hasFileTag($context->file)) {
             $keyword = Nodes::CLASS_KEYWORDS[$context->node->kind->name];
-            $context->report(Issue::new("The {$keyword} has no docblock.", $context->node->span));
+            $context->report(Issue::new("The {$keyword} doesn't have a docblock.", $context->node->span));
         }
     }
 }

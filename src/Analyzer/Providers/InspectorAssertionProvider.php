@@ -31,9 +31,10 @@ use function strtolower;
  *
  * Ports phpstan-drupal's InspectorTypeExtension, with each type read off what
  * the method tests: `assertAllNumeric()` uses `is_numeric()`, so numeric
- * strings count, and a strict array has the keys 0 to n-1 in order, which is
- * a list. `assertAll()` takes any callable, so it only says the value is
- * iterable, and it narrows a `mixed` value alone. A false call says nothing.
+ * strings count, and a strict array has the keys 0 to n-1 in order, which is a
+ * list. `assertAll()` takes any callable, so it only says the value is
+ * iterable, and it narrows a `mixed` value alone. A false call doesn't say
+ * anything.
  *
  * @internal
  */
@@ -123,8 +124,8 @@ final class InspectorAssertionProvider implements MethodAssertionProvider
     }
 
     /**
-     * The classes `assertAllObjects()` names, or any object when it names
-     * none or one of them is not a literal class name.
+     * The classes `assertAllObjects()` names, or any object when it doesn't
+     * name any or one of them is not a literal class name.
      */
     private static function objects(Invocation $invocation): Type
     {

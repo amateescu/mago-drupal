@@ -71,7 +71,7 @@ final class PHPStanIgnoresTest extends TestCase
 
     /**
      * A tag without identifiers, a longer tag name and a tag in a string
-     * cover nothing.
+     * don't cover anything.
      */
     public function testIgnoresWhatIsNotAnIgnoreComment(): void
     {

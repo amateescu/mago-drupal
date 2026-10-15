@@ -17,7 +17,7 @@ use function sprintf;
 final class Utf8
 {
     /**
-     * One valid UTF-8 sequence, or one byte that starts none in group 1.
+     * One valid UTF-8 sequence, or one byte that doesn't start one, in group 1.
      */
     private const SEQUENCE =
         '/[\x00-\x7F]+|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]'

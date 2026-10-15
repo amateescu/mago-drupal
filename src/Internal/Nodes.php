@@ -75,7 +75,8 @@ final class Nodes
 
     /**
      * The span of a function's or method's body, or the whole node when it
-     * has none. The attributes and the parameter list are not part of it.
+     * doesn't have one. The attributes and the parameter list are not part of
+     * it.
      */
     public static function bodySpan(SourceFile $file, Node $node): Span
     {

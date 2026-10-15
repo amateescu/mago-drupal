@@ -46,12 +46,12 @@ final class EmptyPhpTagsRule implements Rule
             return;
         }
 
-        $issue = Issue::new('Remove the PHP tags that hold no code.', new Span($start, $start + 2));
+        $issue = Issue::new('Remove the PHP tags that don\'t hold any code.', new Span($start, $start + 2));
 
         // PHP skips one line break after a close tag, so the fix removes it
         // with the pair and the output stays the same. An empty echo tag is a
         // parse error, and dropping it would turn a broken file into a
-        // working one, so it gets no fix.
+        // working one, so it doesn't get a fix.
         $context->report(
             $isEcho ? $issue : $issue->withEdit(TextEdit::delete(new Span($start, $start + strlen($match[0])))),
         );

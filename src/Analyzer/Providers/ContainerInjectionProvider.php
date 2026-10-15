@@ -15,14 +15,14 @@ use function count;
 /**
  * Types an undocumented `create()` of a container-injected class as `static`.
  *
- * `ContainerInjectionInterface::create()` promises a new instance of the
- * called class but documents no return type, so a `create()` that only says
+ * `ContainerInjectionInterface::create()` promises a new instance of the called
+ * class but doesn't document a return type, so a `create()` that only says
  * `{@inheritdoc}` returns `mixed`. That also hides `AutowireTrait`'s
- * `@return static`: Mago looks for the documented method up the parent
- * classes by the class that declares it, so a method a parent gets from a
- * trait is skipped and the interface wins. `FormBase` and `ControllerBase`
- * use the trait, so `parent::create($container)` in most forms and
- * controllers is `mixed`. A `create()` with a return type of its own keeps it.
+ * `@return static`: Mago looks for the documented method up the parent classes
+ * by the class that declares it, so a method a parent gets from a trait is
+ * skipped and the interface wins. `FormBase` and `ControllerBase` use the
+ * trait, so `parent::create($container)` in most forms and controllers is
+ * `mixed`. A `create()` with a return type of its own keeps it.
  *
  * @internal
  */

@@ -69,7 +69,7 @@ values, and `app.root` and `site.path` are empty strings that the kernel replace
 
 - a name whose value is `null`, one `%name%` reference to another parameter, a `'@id'` service
   reference or a custom tag;
-- a name that no services file defines.
+- a name that isn't defined in any services file.
 
 ```php
 $container->getParameter('app.root');                   // string
@@ -136,7 +136,7 @@ public. Visibility is read from the providers in the analyzed paths. The ids rea
 public.
 
 Drupal 9.2 deprecated leaving the visibility out, and since Drupal 10 such a definition stays
-private. Core 11.4 raises no deprecation for it, so the only report is
+private. Core 11.4 doesn't raise a deprecation for it, so the only report is
 [`drupal/unknown-service`](#drupalunknown-service) on a lookup.
 
 ### Decorators
@@ -157,7 +157,7 @@ own module is always there, and the id returns its class. A decorator from anoth
 Workspaces decorating `cron`, may be off on the site. The id then gets the type that both classes
 share: the decorated class when the decorator extends it, otherwise the most specific classes and
 interfaces that they both have, such as `CronInterface`. That is an intersection when there are
-several, and the declared type when they share none.
+several, and the declared type when they don't share any.
 
 A decorator whose class isn't in the codebase, such as one from a module that the run doesn't
 analyze, leaves the id its own class. Otherwise one contrib module that decorates a core service
@@ -263,7 +263,7 @@ container leaves out the ids that no services file or provider defines, and the 
   class name, with no line in a services file;
 - a lookup with a second argument other than `ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE`,
   which asks for null on purpose;
-- an id whose first segment names no module in the codebase and starts no known id, such as
+- an id whose first segment doesn't name a module in the codebase or start a known id, such as
   `persistent_login.token_manager`. It belongs to a module that the site may not have, so a typo in
   the first segment goes unreported too. With `--core`, these ids are checked, since core looks up
   only its own services;

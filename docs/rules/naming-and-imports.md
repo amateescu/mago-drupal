@@ -18,8 +18,8 @@ Rules for the names of classes, constants, functions, methods, properties and va
 
 **Reports:**
 
-- a class, interface, trait or enum name that starts with three upper-case letters and has no
-  lower-case letter after them, such as `HTTP` or `URL_2`. Digits, underscores and multi-byte
+- a class, interface, trait or enum name that starts with three upper-case letters and doesn't have
+  a lower-case letter after them, such as `HTTP` or `URL_2`. Digits, underscores and multi-byte
   letters don't count as lower case.
 
 **Not reported:**
@@ -81,8 +81,8 @@ Mago's `constant-name` covers `const`, the other half of the sniff.
 
 - an enum case name that doesn't start with a capital letter;
 - an enum case name that holds an underscore;
-- an enum case name that starts with three upper-case letters and has no lower-case letter after
-  them, the check of `drupal/class-name-acronym`.
+- an enum case name that starts with three upper-case letters and doesn't have a lower-case letter
+  after them, the check of `drupal/class-name-acronym`.
 
 A name that fails several checks gets one issue for each.
 
@@ -131,7 +131,7 @@ A name that fails several checks gets one issue for each.
 - an `.api.php` file.
 
 In a file with no namespace, the fix puts the import below the `@file` docblock and any `declare`,
-or below the open tag, and after the last `use` when the file has one. There is no fix in a file
+or below the open tag, and after the last `use` when the file has one. There isn't a fix in a file
 with several namespaces or a braced one, where the import would go below code or a constant, and
 when the file already uses the short name for something else: another import, a class of that
 name, or a docblock that writes the short name in the same case.
@@ -163,9 +163,9 @@ name, or a docblock that writes the short name in the same case.
     - A name in the conflict block of a trait `use` isn't reported. Coder reports it.
     - In a file with no namespace, the fix never puts an import in the clause of a closure. Coder's
       fix does when a closure holds the first `use` of the file.
-    - There is no fix when the short name is taken by an interface, a trait, an enum, an import that
-      differs in case only, or a class whose name has a comment before it. Coder reports a fixable
-      error there, and its fix writes code that PHP rejects.
+    - There isn't a fix when the short name is taken by an interface, a trait, an enum, an import
+      that differs in case only, or a class whose name has a comment before it. Coder reports a
+      fixable error there, and its fix writes code that PHP rejects.
     - The rule also reports a namespace-relative name such as `namespace\Sub\Bar`. Coder never
       checks that form.
 
@@ -202,7 +202,7 @@ by Coder. The [configuration](../setup/configuration.md) turns it off.
 - **Level:** error
 - **Fix:** safe. It adds the backslash.
 - **Standard:** ["use"-ing classes](https://project.pages.drupalcode.org/coding_standards/php/namespaces/#use-ing-classes)
-- **Ports:** none. No such sniff exists in Coder.
+- **Ports:** none. Coder doesn't have such a sniff.
 - **Off with `--core`**
 
 > Classes and interfaces without a backslash `\` inside their fully-qualified name (for example, the
@@ -280,8 +280,8 @@ holds the hook name without the prefix, so a name with it is never invoked.
 
 ??? note "Compared with Coder"
 
-    - Coder's fix removes the prefix. The rule has no fix, because removing the prefix changes which
-      hook runs.
+    - Coder's fix removes the prefix. The rule doesn't have a fix, because removing the prefix
+      changes which hook runs.
     - It reads only the attribute's own first argument. Coder 9 reads the next string literal in the
       file, so it also reports an unrelated string below a `#[Hook(self::CRON)]` or a `#[Hook]`
       attribute.
@@ -365,8 +365,8 @@ does.
 - a method named after its class, or after its class with one leading underscore, the PHP 4
   constructor and destructor. The names are compared without regard to case.
 
-A rename breaks the callers and the overrides of a method, so the rule has no fix. A name that PHP
-or a parent class sets, such as the `stream_open()` method of a stream wrapper, needs a
+A rename breaks the callers and the overrides of a method, so the rule doesn't have a fix. A name
+that PHP or a parent class sets, such as the `stream_open()` method of a stream wrapper, needs a
 `@mago-expect lint:drupal/method-name` comment.
 
 Mago's own `method-name` accepts a run of capitals, as in `getURL()`, so it can't stand in for this
@@ -428,8 +428,8 @@ rule.
 - a name that is only two underscores, or starts with three.
 
 The names are matched without regard to case. The two-underscore check accepts 29 names: the 17
-magic methods of PHP and the 12 methods of `SoapClient`. Mago's `method-name` rule reports no name
-that starts with two underscores, so no other rule repeats this check.
+magic methods of PHP and the 12 methods of `SoapClient`. Mago's `method-name` rule doesn't report a
+name that starts with two underscores, so this check isn't repeated by another rule.
 
 ??? note "Compared with Coder"
 
@@ -452,7 +452,7 @@ object.
 **Reports:**
 
 - a method of a class whose name is the name of the class, compared without regard to case, when
-  the class declares no `__construct()`. Abstract and static methods count.
+  the class doesn't declare `__construct()`. Abstract and static methods count.
 
 **Not reported:**
 
@@ -462,7 +462,7 @@ object.
 A `__construct()` in an anonymous class inside a method doesn't count. A constructor that the class
 takes from a trait doesn't count either, since the rule reads only the class's own declarations.
 
-There is no fix. A rename to `__construct()` changes what `new` runs, and any rename breaks the
+There isn't a fix. A rename to `__construct()` changes what `new` runs, and any rename breaks the
 callers of the method.
 
 ??? example "Example"
@@ -485,8 +485,8 @@ callers of the method.
     }
     ```
 
-The analyzer reports a call such as `parent::ExampleWidget()` when the parent has no method of that
-name, as `non-existent-method`. That is the other code of the sniff, `OldStyleCall`.
+The analyzer reports a call such as `parent::ExampleWidget()` when the parent doesn't have a method
+of that name, as `non-existent-method`. That is the other code of the sniff, `OldStyleCall`.
 
 ---
 
@@ -525,8 +525,8 @@ class declared inside an `if` or a function is checked.
 
     - Core's config turns `PSR2.Classes.PropertyDeclaration.Underscore` off. The rule still reports
       a leading underscore under `--core`. The lowerCamelCase check covers it in most classes, but
-      not in the config entities and plugin annotations above, where Coder reports nothing under
-      core's config.
+      not in the config entities and plugin annotations above, where Coder doesn't report anything
+      under core's config.
 
 ---
 
@@ -552,7 +552,7 @@ class declared inside an `if` or a function is checked.
 - `use const`;
 - grouped imports such as `use Foo\{Bar, Baz};`.
 
-The fix reads the references from the resolved names. There is no fix while a docblock in the file
+The fix reads the references from the resolved names. There isn't a fix while a docblock in the file
 names the class in the same case without a leading backslash, in a type, an annotation or prose.
 `drupal/doc-type-namespace` fixes the types.
 
@@ -612,8 +612,8 @@ names the class in the same case without a leading backslash, in a type, an anno
 
 **Not reported:**
 
-- a class outside the test directories below, where the parent's name says nothing: core's test
-  entity class is called `EntityTest`;
+- a class outside the test directories below, where the parent's name doesn't say anything: core's
+  test entity class is called `EntityTest`;
 - a class whose parent is declared in the same file without a parent whose name ends in `Test`,
   `TestBase` or `TestCase`. Such a parent is a fixture, not a test base.
 
@@ -713,7 +713,7 @@ nothing.
 - a name that starts with a capital outside ASCII, such as `$É`.
 
 A rename of a parameter breaks the callers that pass it by name, and a global or static variable is
-shared with other code, so the rule has no fix.
+shared with other code, so the rule doesn't have a fix.
 
 Mago's own `variable-name` checks only assignments and parameters, and it also reports a name such
 as `$foo_Bar`, which Coder accepts.

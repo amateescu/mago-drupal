@@ -33,8 +33,9 @@ use function substr_compare;
  * the receiver's type is fetched from the host, and only an entity that does
  * not declare `$original` itself is reported. The deprecation scopes Mago's
  * own deprecation codes get apply here too, `backwardsCompatibleCall()` and
- * overrides of deprecated methods included. Nothing is reported on a core
- * without `EntityInterface::getOriginal()`, which Drupal 11.2 added.
+ * overrides of deprecated methods included. The hook doesn't report anything
+ * while `EntityInterface::getOriginal()` doesn't exist in core; it was added in
+ * Drupal 11.2.
  *
  * @internal
  */
@@ -97,7 +98,7 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
             return;
         }
 
-        // Before Drupal 11.2 the property is the only API: there is no
+        // Before Drupal 11.2 the property is the only API: there isn't a
         // getOriginal() to call instead.
         $receiver = self::receiver($contents, $span, $length);
         if (
@@ -110,7 +111,7 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
 
         // Mago hands back the narrowed type of an access it has already
         // seen in the same scope without analyzing the receiver again, so a
-        // repeat has no receiver type and reuses the earlier answer.
+        // repeat doesn't have a receiver type and reuses the earlier answer.
         $source = $context->source;
         $object = $source->getText($receiver);
         $type = $context->analysis->getExpressionType($receiver);

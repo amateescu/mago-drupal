@@ -582,9 +582,9 @@ final class DrupalRoot
     }
 
     /**
-     * One walk serves every list. A cached walk is reused while every
-     * directory it read or probed keeps its modification time; editing a file
-     * changes no directory, and the walk only lists files, so that is right.
+     * One walk serves every list. A cached walk is reused while every directory
+     * it read or probed keeps its modification time; editing a file doesn't
+     * change a directory, and the walk only lists files, so that is right.
      */
     private function files(): ExtensionFileSet
     {
@@ -629,7 +629,7 @@ final class DrupalRoot
 
         // Several indexes read the same source file list, so each list's
         // files are checked once per worker. A list with a file still being
-        // written has no fingerprint, and is checked again next time.
+        // written doesn't have a fingerprint, and is checked again next time.
         $list = sha1(implode("\0", $paths));
         $fingerprint = $this->fingerprints[$list] ?? DiskCache::fingerprint($paths);
         if ($fingerprint !== null) {

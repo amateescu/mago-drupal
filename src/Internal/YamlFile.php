@@ -26,8 +26,8 @@ use const PREG_OFFSET_CAPTURE;
 /**
  * Reads a YAML file, such as an `.info.yml` or a `.routing.yml` file.
  *
- * Mago reads a file that has no PHP open tag as text outside PHP, so the
- * linter gives the rules its contents. The setup config adds `yml` to the
+ * Mago reads a file that doesn't have a PHP open tag as text outside PHP, so
+ * the linter gives the rules its contents. The setup config adds `yml` to the
  * extensions that Mago reads.
  *
  * @internal

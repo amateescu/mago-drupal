@@ -40,12 +40,12 @@ use function strlen;
  * Only the docblock right above the `function` keyword counts, so a comment
  * or an attribute between the two hides it.
  *
- * Coder reads no methods. The rule also checks a `#[Hook]` method, which is
+ * Coder doesn't read methods. The rule also checks a `#[Hook]` method, which is
  * a hook implementation whatever its name. Drupal's documentation standard
  * predates OOP hooks: it asks a hook implementation for an "Implements
- * hook_x()." summary and does not mention methods. Core writes that summary
- * on its `#[Hook]` methods, so the rule asks for it. A method's docblock may
- * sit above the attributes. Core's `phpcs.xml.dist` has no such check, so
+ * hook_x()." summary and does not mention methods. Core writes that summary on
+ * its `#[Hook]` methods, so the rule asks for it. A method's docblock may sit
+ * above the attributes. Core's `phpcs.xml.dist` doesn't have such a check, so
  * `--core` leaves methods out.
  *
  * Functions and hook methods together need many branches.
@@ -91,7 +91,7 @@ final class HookCommentRule implements Rule
         }
 
         // Function is a target for `TopLevel::functions()`. Its own
-        // dispatches do nothing.
+        // dispatches don't do anything.
         if ($context->node->kind !== NodeKind::Program) {
             return;
         }

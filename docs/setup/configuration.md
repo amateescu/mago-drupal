@@ -45,7 +45,7 @@ single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*
 function-name = { enabled = false }
 # drupal/unused-variable reports a variable that its function never reads, and a variable in a
 # closure's `use` list that the closure never reads, as Coder does. no-redundant-variable is a
-# different check. It reports a value that no later line reads, and also a catch variable, the value
+# different check. It reports a value that isn't read later, and also a catch variable, the value
 # of a `$key => $value` foreach and a write through a reference, which Coder allows.
 # no-unused-closure-capture repeats the `use` list check.
 no-redundant-variable = { enabled = false }
@@ -55,9 +55,9 @@ no-unused-closure-capture = { enabled = false }
 # Report a PHP function that is called with the wrong case. That is Drupal's
 # Squiz.PHP.LowercasePHPFunctions.
 check-name-casing = true
-# A YAML file holds no PHP for the analyzer. An api.php file documents hooks with example code, and
-# test fixtures are often broken on purpose. phpstan-drupal leaves both out as well. The linter
-# still checks them, as phpcs does.
+# A YAML file doesn't hold any PHP for the analyzer. An api.php file documents hooks with example
+# code, and test fixtures are often broken on purpose. phpstan-drupal leaves both out as well. The
+# linter still checks them, as phpcs does.
 excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
 # For a project that also runs PHPStan: let its @phpstan-ignore comments drop the Mago issues that
 # report the same finding. See the PHPStan ignores page of the analyzer docs.
@@ -68,7 +68,7 @@ excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
 
 Mago has many more rules than Drupal's standard. A module that passes phpcs starts out with issues
 not asked for by the standard, from rules such as `assert-description` or `no-else-clause`. Turning
-those rules off loses no check done by phpcs:
+those rules off doesn't lose any check done by phpcs:
 
 ```toml
 [linter.rules]

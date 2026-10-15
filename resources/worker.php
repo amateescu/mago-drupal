@@ -3,9 +3,9 @@
 /**
  * Ready-made worker entrypoint. With it, one TOML block adds this extension.
  *
- * Mago has no equivalent of phpstan/extension-installer, so a project must
- * name a command to run. If you point that command here, you do not have to
- * write a PHP file by hand:
+ * Mago doesn't have an equivalent of phpstan/extension-installer, so a project
+ * must name a command to run. If you point that command here, you do not have
+ * to write a PHP file by hand:
  *
  *     [extension-hosts.drupal]
  *     command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]

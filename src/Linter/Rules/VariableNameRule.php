@@ -55,8 +55,8 @@ final class VariableNameRule implements Rule
     public function lint(LintContext $context): void
     {
         $file = $context->file;
-        // Nearly every file has no such name, and the text says so without
-        // reading the nodes.
+        // Nearly every file doesn't have such a name, and the text says so
+        // without reading the nodes.
         if (preg_match('/\$(?!GLOBALS\b)[A-Z]/', $file->contents) !== 1) {
             return;
         }

@@ -35,8 +35,8 @@ trait RedirectTrait {
 **Not typed:**
 
 - a call to a method that one of the classes lacks, which keeps the report;
-- a call in a trait that no class uses, or in one that declares no method of its own, since the
-  classes are found through one of its methods;
+- a call in an unused trait, or in one that doesn't declare a method of its own, since
+  the classes are found through one of its methods;
 - a call to a generic method, which returns `mixed`, and to one whose documented return type names
   something that can't be resolved by Mago, such as a stray `*` after the class name in a docblock.
   A call on the class returns `mixed` there too.
@@ -58,16 +58,16 @@ report of a missing property is dropped:
 - `$this->name` needs a property that isn't static.
 
 The value stays `mixed`. The SDK types a property only as a magic one, and on a trait without
-`__get()` Mago would report that in turn. Mago records no reference for the read either, so a
+`__get()` Mago would report that in turn. Mago doesn't record a reference for the read either, so a
 private property, or a protected one in a final class, that only the trait reads is still reported
 as `unused-property`.
 
 ## Fluent setters
 
 Core documents `@return $this` on an interface, and keeps the body in a trait with a bare
-`{@inheritdoc}`. A trait has no parent to inherit from, so on a concrete class the call is typed
-`mixed`, and the rest of the chain with it. The analyzer hands back the receiver for the 42 methods
-of 16 core traits whose bodies only ever `return $this`.
+`{@inheritdoc}`. A trait doesn't have a parent to inherit from, so on a concrete class the call is
+typed `mixed`, and the rest of the chain with it. The analyzer hands back the receiver for the 42
+methods of 16 core traits whose bodies only ever `return $this`.
 
 ```php
 AccessResult::allowed()->addCacheableDependency($entity)->andIf($other);  // AccessResultAllowed
@@ -77,7 +77,7 @@ $form_state->setValue('a', 1)->setValue('b', 2);                          // For
 
 A typed chain lets Mago check calls that stay unchecked on `mixed`, so it can show mistakes. For
 example, `setReason()` is declared on the neutral and forbidden results, not on `AccessResult`, and
-core calls it after an `isAllowed()` check that says nothing about the type.
+core calls it after an `isAllowed()` check that doesn't say anything about the type.
 
 ---
 
@@ -86,9 +86,9 @@ core calls it after an `isAllowed()` check that says nothing about the type.
 - **Level:** error
 - **Source:** PHP
 
-A static method has no `$this`, so `self::name()` or `static::name()` in it can't reach an instance
-method, and PHP throws an `Error`. Mago analyzes a trait on its own, and reports a static call to an
-instance method only from outside the class (`invalid-static-method-access`).
+A static method doesn't have `$this`, so `self::name()` or `static::name()` in it can't reach an
+instance method, and PHP throws an `Error`. Mago analyzes a trait on its own, and reports a static
+call to an instance method only from outside the class (`invalid-static-method-access`).
 
 **Reports:**
 
@@ -99,8 +99,8 @@ instance method only from outside the class (`invalid-static-method-access`).
 **Not reported:**
 
 - a call to a method that the trait declares itself;
-- the same call in a class, which nothing reports;
-- a call in a trait that no class uses.
+- the same call in a class, which isn't reported by Mago either;
+- a call in an unused trait.
 
 ??? example "Example"
 
@@ -169,5 +169,5 @@ instance method only from outside the class (`invalid-static-method-access`).
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal has no rule for this. PHPStan reports the call as `method.staticCall`, since it
-    checks the body of a trait in each class that uses it.
+    phpstan-drupal doesn't have a rule for this. PHPStan reports the call as `method.staticCall`,
+    since it checks the body of a trait in each class that uses it.

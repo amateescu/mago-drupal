@@ -39,8 +39,8 @@ final class ModuleFunctions
     private const DECLARATION = '/\bfunction\s++&?\s*+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*+\(/';
 
     /**
-     * The directory that holds no function a module declares besides the
-     * ones the extension scan skips: `src`, where PSR-4 classes live.
+     * The directory that doesn't hold any function a module declares besides
+     * the ones the extension scan skips: `src`, where PSR-4 classes live.
      */
     private const CLASSES = 'src';
 

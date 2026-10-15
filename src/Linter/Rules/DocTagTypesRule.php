@@ -57,7 +57,7 @@ final class DocTagTypesRule implements Rule
         foreach ($tags->params() as [$tag, $param]) {
             if ($param === null) {
                 if (trim($tag->content()) !== '') {
-                    $context->report(Issue::new('The @param tag has no $variable name.', $tag->contentSpan()));
+                    $context->report(Issue::new('The @param tag doesn\'t have a $variable name.', $tag->contentSpan()));
                 }
 
                 continue;
@@ -84,7 +84,7 @@ final class DocTagTypesRule implements Rule
 
         $last = $tags->tags[count($tags->tags) - 1] === $return->tag;
         if (!$last || $return->tag->textBelow() !== '') {
-            $context->report(Issue::new('The @return tag has no type.', $return->tag->nameSpan));
+            $context->report(Issue::new('The @return tag doesn\'t have a type.', $return->tag->nameSpan));
         }
     }
 
@@ -96,7 +96,7 @@ final class DocTagTypesRule implements Rule
      */
     private static function missingType(DocblockTag $tag): Issue
     {
-        $issue = Issue::new('The @param tag has no type.', $tag->contentSpan());
+        $issue = Issue::new('The @param tag doesn\'t have a type.', $tag->contentSpan());
         $line = $tag->lines[0];
         $matches = [];
         if (preg_match(self::VARIABLE_THEN_TYPE, $line->text, $matches) !== 1) {

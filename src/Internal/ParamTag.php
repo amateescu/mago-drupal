@@ -21,7 +21,7 @@ final class ParamTag
 {
     /**
      * The type and the variable of a `@param` line. The type is everything
-     * before the first `$`, `.` or `&$`. A line with no variable gives an
+     * before the first `$`, `.` or `&$`. A line without a variable gives an
      * empty second group.
      */
     public const LINE = '/((?:(?![$.]|&(?=\$)).)*)(?:((?:\.\.\.)?(?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/';
@@ -35,9 +35,9 @@ final class ParamTag
     ) {}
 
     /**
-     * Reads the tag, or returns null when it has no variable. The `&` of a
-     * reference and the `...` of a variadic parameter belong to the
-     * variable, as in Coder, so `@param &$a` has no type.
+     * Reads the tag, or returns null when it doesn't have a variable. The `&`
+     * of a reference and the `...` of a variadic parameter belong to the
+     * variable, as in Coder, so `@param &$a` doesn't have a type.
      */
     public static function read(DocblockTag $tag): ?self
     {

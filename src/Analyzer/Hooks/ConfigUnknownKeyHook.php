@@ -51,16 +51,16 @@ final class ConfigUnknownKeyHook implements MethodCallAnalysisHook
 
     public function analyze(NodeAnalysisContext $context): void
     {
-        // Update code reads the config as an older version of the module
-        // wrote it, and moving those keys is what it is there for, so
-        // today's schema says nothing about them. Navigation's two update
-        // hooks alone read nine keys they then remove.
+        // Update code reads the config as an older version of the module wrote
+        // it, and moving those keys is what it is there for, so today's schema
+        // doesn't say anything about them. Navigation's two update hooks alone
+        // read nine keys they then remove.
         if (DrupalFile::fromPath($context->analysis->file)->isUpdate()) {
             return;
         }
 
         $name = Configs::nameOf($context->receiverType);
-        // `get()` takes the key alone, so naming it changes nothing.
+        // `get()` takes the key alone, so naming it doesn't change anything.
         $key = ($context->argumentTypes[0] ?? null)?->getLiteralString();
         if ($name === null || $key === null || $key === '') {
             return;

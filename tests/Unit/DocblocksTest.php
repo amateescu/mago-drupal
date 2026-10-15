@@ -97,7 +97,7 @@ final class DocblocksTest extends TestCase
     /**
      * Returns a bare declaration node that spans $needle inside $contents.
      * `closest()` reads only the declaration's start offset, so the
-     * node has no store behind it.
+     * node doesn't have a store behind it.
      */
     private static function declarationAt(string $contents, string $needle): Node
     {
@@ -345,7 +345,7 @@ final class DocblocksTest extends TestCase
 
     /**
      * The lower edge of the boundary search. Every trivia entry ends after
-     * the declaration starts, so no candidate exists.
+     * the declaration starts, so there aren't any candidates.
      */
     public function testClosestReturnsNullWhenAllTriviaFollowTheDeclaration(): void
     {

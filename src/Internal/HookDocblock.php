@@ -52,8 +52,8 @@ final class HookDocblock
      * The lines that Coder takes as the short description: the first line
      * with text, and each line right below it that holds a string. A tag's
      * text counts as a string, so a `@param` right under the first line is
-     * part of the description. A blank line or a tag with no text ends it.
-     * An empty result means there is no text, or the first line is a tag.
+     * part of the description. A blank line or a tag without text ends it.
+     * An empty result means there isn't any text, or the first line is a tag.
      *
      * @return list<DocblockLine>
      */

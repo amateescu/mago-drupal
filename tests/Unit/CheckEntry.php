@@ -40,7 +40,8 @@ final class CheckEntry
 
     /**
      * Returns how the facts list breaks the rules for an analyzer entry: a
-     * Level line, one Source line, and no Fix line, since checks have no fix.
+     * Level line, one Source line, and no Fix line, since checks don't have a
+     * fix.
      *
      * @return list<string>
      */
@@ -53,7 +54,7 @@ final class CheckEntry
         }
 
         if (str_contains($facts, '- **Fix:**')) {
-            $problems[] = "{$this->code}: an analyzer check has no fix, so the entry needs no Fix line.";
+            $problems[] = "{$this->code}: an analyzer check doesn't have a fix, so the entry doesn't need a Fix line.";
         }
 
         return [...$problems, ...SourceLine::problems($this->code, $facts)];

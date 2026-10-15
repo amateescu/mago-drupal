@@ -73,7 +73,7 @@ final class AnonymousInternalParentHook implements NodeAnalysisHook
     /**
      * The module owning the anonymous class: the one owning the class around
      * it, or the module of a procedural file. Mago names an anonymous class
-     * after its file, which names no module.
+     * after its file, which doesn't name a module.
      */
     private static function owner(NodeAnalysisContext $context): ?string
     {

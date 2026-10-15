@@ -33,7 +33,7 @@ use function substr;
  * or closure ends the same way with or without the statement. A `return;`
  * that ends a `{ }` block at the end of the body counts too. An `if`, loop,
  * `switch` or `try` that ends with `return;` does not, and neither does an
- * arrow function, since it has no statements.
+ * arrow function, since it doesn't have statements.
  *
  * @mago-expect lint:cyclomatic-complexity
  */
@@ -41,8 +41,8 @@ final class RedundantReturnRule implements Rule
 {
     /**
      * A `return` with nothing but comments before its `;` or `?>`. A function
-     * without one has nothing to report, and the text search costs far less
-     * than reading its statements.
+     * without one doesn't have anything to report, and the text search costs
+     * far less than reading its statements.
      */
     private const BARE_RETURN = '/\breturn(?:\s++|\/\*.*?\*\/|(?:\/\/|#)(?:[^\r\n?]|\?(?!>))*+)*+(?:;|\?>)/is';
 

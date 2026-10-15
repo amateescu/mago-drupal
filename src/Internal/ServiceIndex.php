@@ -84,7 +84,8 @@ final class ServiceIndex
     }
 
     /**
-     * Returns the service behind an id, or null when the container has none.
+     * Returns the service behind an id, or null when the container doesn't have
+     * one.
      */
     public function get(string $id): ?ServiceDefinition
     {

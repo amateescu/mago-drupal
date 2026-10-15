@@ -64,8 +64,8 @@ class must be a concrete class that implements `FormInterface`, with every ances
 - a first argument that is `self::class`, `static::class`, a double-quoted string, computed, or an
   object;
 - a call that unpacks an argument;
-- a call to a form whose `buildForm()` takes nothing after the form state. Such a form reads what
-  it is passed from `$form_state->getBuildInfo()['args']`, if at all, as core's
+- a call to a form whose `buildForm()` doesn't take anything after the form state. Such a form reads
+  what it is passed from `$form_state->getBuildInfo()['args']`, if at all, as core's
   `ThemeExperimentalConfirmForm` does, and alter hooks can read it there too. Its calls take any
   number of arguments.
 
@@ -90,7 +90,7 @@ Core runs the callbacks in a render or form array in four ways, and each one fai
   turns `'::method'` into a method of the form object, and then through the callable resolver,
   which throws for anything that it can't call.
 - `#value_callback` runs only when `is_callable()` accepts it. Otherwise the element's default value
-  callback runs, and nothing says so.
+  callback runs, without a warning.
 - The machine name element passes the `exists` of `#machine_name` to `call_user_func()`, and the
   managed file element calls each of `#file_value_callbacks` as it is. Neither resolves or trusts
   anything, and both throw for anything that PHP can't call.
@@ -159,9 +159,9 @@ skipped without a word on `#value_callback`.
 - a callback that names a method its class doesn't have. A method from a parent or a trait counts,
   and a class with `__call()` or `__callStatic()` has every method;
 - a `'::method'` on a form key, written in a class that implements `FormInterface`, when that class
-  has no such method. The form object is the class that the callback is written in;
+  doesn't have such a method. The form object is the class that the callback is written in;
 - a `'::method'` on any other key, wherever it is written. Only `prepareCallback()` turns
-  `'::method'` into a method, so on other keys it names no class at all;
+  `'::method'` into a method, so on other keys it doesn't name a class at all;
 - a plain function name on the form keys, on `#value_callback`, on `exists` and on
   `#file_value_callbacks`, when the function would be in the codebase if it existed. That is a name
   that starts with `<module>_` or `_<module>_`, after the module directory that the file is in, when
@@ -293,7 +293,7 @@ skipped on `#value_callback`.
 
 Core calls every callback from its own classes: the callable resolver, `is_callable()` in the form
 builder, a `callable` parameter of the date and component elements, or the machine name and managed
-file elements. None of them can reach a protected or private method, so such a callback throws, or
+file elements. They can't reach a protected or private method, so such a callback throws, or
 is skipped on `#value_callback`.
 
 **Reports:**
@@ -456,7 +456,7 @@ case-sensitively, and so does the check.
     - phpstan-drupal trusts every method of a class that implements `TrustedCallbackInterface`,
       whatever its `trustedCallbacks()` lists. The check reads the list.
     - phpstan-drupal trusts a class that implements `RenderCallbackInterface` on the date keys too,
-      where core trusts no extra interface.
+      where core doesn't trust any extra interface.
     - phpstan-drupal doesn't check the component keys `#propsAlter` and `#slotsAlter`.
     - phpstan-drupal reads a callback only from an array literal, not from an assignment, an append,
       `array_unshift()`, `array_push()` or `array_merge()`.

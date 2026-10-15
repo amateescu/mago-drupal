@@ -34,7 +34,7 @@ use function trim;
  *
  * Ports Drupal.Files.LineLength. The sniff only measures lines that end in a
  * comment. `mago format` wraps code to the configured width but does not
- * change comment text, so nothing else covers this.
+ * change comment text, so this isn't covered by anything else.
  *
  * The work starts from the long lines, not from the comments. One regex over
  * the source finds every line past the limit in bytes. Each of those lines
@@ -90,7 +90,7 @@ final class CommentLineLengthRule implements Rule
 
         // One regex call finds every line past the limit in bytes, with its
         // offset. A line of 80 characters or fewer cannot reach 81 bytes, so
-        // the byte check misses nothing.
+        // the byte check doesn't miss anything.
         $matches = [];
         preg_match_all(self::LONG_LINE_PATTERN, $file->contents, $matches, flags: PREG_OFFSET_CAPTURE);
 
@@ -229,7 +229,7 @@ final class CommentLineLengthRule implements Rule
     }
 
     /**
-     * Whether the line holds nothing but the comment.
+     * Whether the line holds only the comment.
      */
     private function isCommentOnly(SourceFile $file, Trivia $comment, int $start): bool
     {

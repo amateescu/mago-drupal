@@ -35,7 +35,7 @@ final class DocTagGroupsRule implements Rule
     public function getDefinition(): RuleDefinition
     {
         // Function and Method are targets for `OuterDocblocks::of()`. Their
-        // own dispatches do nothing.
+        // own dispatches don't do anything.
         return new RuleDefinition(
             code: 'drupal/doc-tag-groups',
             name: 'Doc tag groups',

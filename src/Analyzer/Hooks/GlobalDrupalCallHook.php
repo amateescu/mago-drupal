@@ -35,17 +35,17 @@ use function substr;
  *
  * Ports phpstan-drupal's GlobalDrupalDependencyInjectionRule, narrowed to
  * classes that can take services: descendants of ContainerInjectionInterface
- * and ContainerFactoryPluginInterface, entity handlers and container
- * derivers, whose factories get the container, classes registered as
- * services in a services file, hook classes, which Drupal registers as
- * autowired services, and BlockBase plugins, as Coder reports them.
- * Entities, typed data and stream wrappers are left alone. Static methods have no injected services to use instead
- * and are skipped too, and so are constructors with a parameter that accepts
- * null (see isFallback()). Deprecated code and the callables passed to
+ * and ContainerFactoryPluginInterface, entity handlers and container derivers,
+ * whose factories get the container, classes registered as services in a
+ * services file, hook classes, which Drupal registers as autowired services,
+ * and BlockBase plugins, as Coder reports them. Entities, typed data and stream
+ * wrappers are left alone. Static methods don't have injected services to use
+ * instead, and are skipped too, and so are constructors with a parameter that
+ * accepts null (see isFallback()). Deprecated code and the callables passed to
  * `DeprecationHelper::backwardsCompatibleCall()` are skipped as well: a
  * deprecated method keeps its lookup until it is removed, and a callable for
- * newer core can use a service older core does not have. The host hands over
- * the `\Drupal::` calls themselves, subclasses and instances of `Drupal`
+ * newer core can use a service that doesn't exist in older core. The host hands
+ * over the `\Drupal::` calls themselves, subclasses and instances of `Drupal`
  * included; the enclosing class and method come from their locations.
  *
  * The plugin registers a second instance for static entity loads, which
@@ -211,7 +211,7 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
      * Whether the class implements a hook through `#[Hook]`, on the class or
      * on a method it declares. Drupal registers such a class as an autowired
      * service, so its constructor can take any service. A class whose text
-     * holds no attribute at all costs no method lookup.
+     * doesn't hold any attribute doesn't cost a method lookup.
      */
     private static function hookClass(
         FileMembers $members,

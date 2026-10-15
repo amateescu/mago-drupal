@@ -21,17 +21,17 @@ use function strpos;
 use function substr;
 
 /**
- * Reports container lookups of an id no services file or provider defines,
- * or of a private one: the compiled container leaves both out.
+ * Reports container lookups of a service that isn't defined in a services file
+ * or provider, or of a private one: the compiled container leaves both out.
  *
  * Only a plain string id is checked. A `Foo::class` id may be a hook class or
  * another autowired service the container registers under its class name
- * without a YAML line, and a lookup that asks for null on a missing service
- * is a probe, not a mistake. An id whose first segment names no module in the
- * codebase and starts no known id belongs to a module the site may not have,
+ * without a YAML line, and a lookup that asks for null on a missing service is
+ * a probe, not a mistake. An id whose first segment doesn't name a module in
+ * the codebase or start a known id belongs to a module the site may not have,
  * as `persistent_login.token_manager` behind a `hasService()` check, so it is
- * left alone, as `config-unknown-name` leaves such a config name. Core looks
- * up only its own services, so with `--core` every id is checked.
+ * left alone, as `config-unknown-name` leaves such a config name. Core looks up
+ * only its own services, so with `--core` every id is checked.
  *
  * @internal
  *
@@ -47,7 +47,8 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
 
     /**
      * A core service every Drupal site has. Without it in the index, core's
-     * services file is outside the root and an unknown id proves nothing.
+     * services file is outside the root and an unknown id doesn't prove
+     * anything.
      */
     public const SENTINEL = 'entity_type.manager';
 
@@ -111,7 +112,7 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             $service === null
-                ? Issue::new("No service with id \"{$id}\" is defined.", $span, 'unknown service id')->withHelp(
+                ? Issue::new("The service \"{$id}\" isn't defined.", $span, 'unknown service id')->withHelp(
                     'Check the id against the services files, or make sure the module defining it is under the Drupal root.',
                 )
                 : Issue::new(

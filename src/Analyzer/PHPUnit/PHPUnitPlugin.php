@@ -13,8 +13,8 @@ use function array_keys;
 /**
  * Gives the analyzer the facts PHPUnit and Prophecy leave out of their types.
  *
- * Nothing here depends on Drupal: the providers read PHPUnit's and Prophecy's
- * own classes, so they apply to any test suite.
+ * The plugin doesn't depend on Drupal: the providers read PHPUnit's and
+ * Prophecy's own classes, so they apply to any test suite.
  *
  * @internal
  */

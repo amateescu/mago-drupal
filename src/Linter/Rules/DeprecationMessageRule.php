@@ -87,7 +87,7 @@ final class DeprecationMessageRule implements Rule
         }
 
         // Scanning the source takes much less time than one pass over the
-        // target list. Almost no file has a deprecation. PHP function names
+        // target list. Most files don't have a deprecation. PHP function names
         // are case-insensitive, so the scan is too.
         if (stripos($context->file->contents, needle: 'trigger_error') === false) {
             return;

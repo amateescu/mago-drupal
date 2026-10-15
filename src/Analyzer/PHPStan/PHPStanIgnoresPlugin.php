@@ -13,7 +13,7 @@ use Mago\Sdk\Analyzer\PluginRegistry;
  *
  * Off by default: a project that runs PHPStan next to Mago, or moves from one
  * to the other, turns it on to avoid writing a `@mago-expect` for every line
- * PHPStan already ignores. Nothing here depends on Drupal.
+ * PHPStan already ignores. The plugin doesn't depend on Drupal.
  *
  * @internal
  */

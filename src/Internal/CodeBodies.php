@@ -16,7 +16,7 @@ use function usort;
  * The parts of a file that sit inside a body: a block, a class-like body, a
  * `match`, a `switch` or a body in the alternative syntax.
  *
- * A bare `{ }` block at the top level is no body, nor is a block inside
+ * A bare `{ }` block at the top level isn't a body, nor is a block inside
  * another such block. Coder reads these the same way.
  *
  * @internal
@@ -142,7 +142,7 @@ final class CodeBodies
     }
 
     /**
-     * The spans of the bodies that need no search for a brace: the blocks
+     * The spans of the bodies that don't need a search for a brace: the blocks
      * that are not bare, and the bodies in the alternative syntax.
      *
      * @return list<array{int, int}>

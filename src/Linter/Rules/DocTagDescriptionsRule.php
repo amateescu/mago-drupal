@@ -32,10 +32,10 @@ use const PREG_SET_ORDER;
  * method with `@param` tags documents every parameter.
  *
  * Ports `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`
- * and part of `ParamNameNoMatch` of Drupal.Commenting.FunctionComment. The
- * last two read the signature. Nothing else reports a method with partial
- * `@param` coverage that has no entry for a real parameter, or a `@param`
- * tag that repeats an earlier one or is out of order.
+ * and part of `ParamNameNoMatch` of Drupal.Commenting.FunctionComment. The last
+ * two read the signature. Only this rule reports a method with partial `@param`
+ * coverage that doesn't have an entry for a real parameter, or a `@param` tag
+ * that repeats an earlier one or is out of order.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -72,7 +72,7 @@ final class DocTagDescriptionsRule implements Rule
         foreach ($params as [$tag, $param]) {
             $paramTags[] = $tag;
             if ($param !== null && $param->description === '') {
-                $context->report(Issue::new('The @param tag has no description.', $tag->contentSpan()));
+                $context->report(Issue::new('The @param tag doesn\'t have a description.', $tag->contentSpan()));
             }
         }
 
@@ -100,7 +100,7 @@ final class DocTagDescriptionsRule implements Rule
     /**
      * Whether a `@return` with a type needs a description. A variable name
      * after the type is `drupal/doc-tag-layout`'s, and `@return void`,
-     * `@return static` and `@return $this` need no description.
+     * `@return static` and `@return $this` don't need a description.
      */
     private static function needsDescription(ReturnTag $return): bool
     {
@@ -118,11 +118,11 @@ final class DocTagDescriptionsRule implements Rule
      * Reports a typed `@param` tag for a real parameter that repeats an
      * earlier tag or comes out of order.
      *
-     * This is Coder's scan. Each tag looks for its parameter from the one
-     * after the last match onward. A tag that finds none is reported, and
-     * the scan goes back to the tag's own position. As in Coder, a tag with
-     * no type or no variable takes a position and is skipped, and a variable
-     * that ends in a period takes none. A name that isn't a parameter is the
+     * This is Coder's scan. Each tag looks for its parameter from the one after
+     * the last match onward. A tag that doesn't find one is reported, and the
+     * scan goes back to the tag's own position. As in Coder, a tag without a
+     * type or a variable takes a position and is skipped, and a variable that
+     * ends in a period doesn't take one. A name that isn't a parameter is the
      * analyzer's `invalid-param-tag`.
      *
      * @param list<DocblockTag> $paramTags
@@ -209,7 +209,7 @@ final class DocTagDescriptionsRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new("The docblock has no @param tag for {$name}.", $context->node->span));
+            $context->report(Issue::new("The docblock doesn't have a @param tag for {$name}.", $context->node->span));
         }
     }
 
@@ -229,10 +229,10 @@ final class DocTagDescriptionsRule implements Rule
             }
 
             // The rule reads the variables off the list's text, not its nodes.
-            // The nodes take several reads per parameter. A type, an
-            // attribute or a default value holds no variable. The only other
-            // places for a `$` are a quoted string or a comment. The rule
-            // blanks those first.
+            // The nodes take several reads per parameter. A type, an attribute
+            // or a default value doesn't hold a variable. The only other places
+            // for a `$` are a quoted string or a comment. The rule blanks those
+            // first.
             $text =
                 preg_replace(self::QUOTED_OR_COMMENT, replacement: '', subject: $context->file->getText($child)) ?? '';
             $matches = [];

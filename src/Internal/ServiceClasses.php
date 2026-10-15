@@ -35,7 +35,7 @@ final class ServiceClasses
     /**
      * The classes in a services file: each `class` value, and each service
      * whose name is a class, as in `Drupal\foo\Bar: ~`. A file that does
-     * not parse has none.
+     * not parse doesn't have any.
      *
      * @return array<string, true>
      */

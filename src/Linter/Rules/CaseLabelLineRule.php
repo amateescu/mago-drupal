@@ -101,7 +101,7 @@ final class CaseLabelLineRule implements Rule
     /**
      * The offset where the spaces and tabs right before $offset start. Most
      * labels have only their indent before them, so the walk back is short
-     * and copies nothing.
+     * and doesn't copy anything.
      */
     private static function blankStart(string $contents, int $offset): int
     {
@@ -113,8 +113,8 @@ final class CaseLabelLineRule implements Rule
     }
 
     /**
-     * The offset where the comment that ends at $end starts, or null when no
-     * comment ends there.
+     * The offset where the comment that ends at $end starts, or null when a
+     * comment doesn't end there.
      */
     private static function commentStart(SourceFile $file, int $end): ?int
     {

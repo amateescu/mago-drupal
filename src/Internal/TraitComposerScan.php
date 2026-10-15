@@ -10,12 +10,11 @@ use function array_key_exists;
  * The classes that use a trait (see TraitComposers), with what is needed to
  * tell whether they still do after some files changed.
  *
- * The scan behind them reads only the declarations of the files that name
- * the trait or one of the traits that use it. A file that names none of
- * them, before or after a change, cannot change the result, and an edit
- * rarely names one. So the earlier result is kept unless a changed, added
- * or removed file names one of the traits, and the scan runs again only
- * then.
+ * The scan behind them reads only the declarations of the files that name the
+ * trait or one of the traits that use it. A file that doesn't name any of them,
+ * before or after a change, can't change the result, and an edit rarely names
+ * one. So the earlier result is kept unless a changed, added or removed file
+ * names one of the traits, and the scan runs again only then.
  *
  * @internal
  */
@@ -55,8 +54,8 @@ final class TraitComposerScan
     }
 
     /**
-     * Whether no file that changed, came or went names one of the traits,
-     * before or now. A file with a null stamp counts as changed.
+     * Whether the files that changed, came or went don't name any of the
+     * traits, before or now. A file with a null stamp counts as changed.
      *
      * @param array<string, string|null> $stamps
      */

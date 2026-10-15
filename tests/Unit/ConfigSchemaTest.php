@@ -45,7 +45,7 @@ final class ConfigSchemaTest extends TestCase
         self::assertNull($schema->definitionName('corpus.nothing'));
         self::assertNull($schema->definitionName('nodot'));
         self::assertNull($schema->definitionName(''));
-        // The malformed file contributes nothing.
+        // The malformed file doesn't contribute anything.
         self::assertNull($schema->definitionName('broken'));
         self::assertSame(13, $schema->count());
     }
@@ -144,7 +144,7 @@ final class ConfigSchemaTest extends TestCase
         self::assertNull($schema->typeOf('corpus.settings', 'missing'));
         self::assertNull($schema->typeOf('corpus.settings', 'page.back'));
         self::assertNull($schema->typeOf('corpus.settings', 'name.deeper'));
-        // Not fully validatable, so nothing is promised.
+        // Not fully validatable, so the type isn't promised.
         self::assertNull($schema->typeOf('corpus.loose', 'name'));
         self::assertNull($schema->typeOf('corpus.nothing', 'name'));
     }

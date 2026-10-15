@@ -74,7 +74,7 @@ final class DeprecatedUse
 
     /**
      * The class a `Foo::`, `self::`, `static::` or `parent::` prefix names,
-     * or null when it names none. The prefix is the text before `::`,
+     * or null when it doesn't name one. The prefix is the text before `::`,
      * starting at the offset.
      */
     public static function className(NodeAnalysisContext $context, string $prefix, int $offset): ?string

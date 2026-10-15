@@ -21,7 +21,7 @@ use function preg_match;
  *
  * Ports `MissingShort` of Drupal.Commenting.DocComment. A `phpcs:` line
  * inside the docblock is not part of a description. Coder reads it the same
- * way below the summary, but above it Coder finds no summary. The summary
+ * way below the summary, but above it Coder doesn't find a summary. The summary
  * of a file docblock is the text after its `@file` tag.
  */
 final class MissingSummaryRule implements Rule
@@ -42,7 +42,7 @@ final class MissingSummaryRule implements Rule
     public function getDefinition(): RuleDefinition
     {
         // Function and Method are targets for `OuterDocblocks::of()`. Their
-        // own dispatches do nothing.
+        // own dispatches don't do anything.
         return new RuleDefinition(
             code: 'drupal/missing-summary',
             name: 'Missing summary',
@@ -76,15 +76,15 @@ final class MissingSummaryRule implements Rule
 
             // Coder reads the first tag, or the one after a leading `@file`.
             // The text after `@file` is a file docblock's summary, so a
-            // docblock that holds `@file` and nothing else has none, as Coder
-            // reports. `@covers` needs no summary, as PHPUnit test methods
-            // often have none, and a bare `@inheritdoc` gets the braces report
-            // of `drupal/doc-comment` instead. Coder reads no other tag, so
-            // `@covers` followed by `@group` is fine.
+            // docblock that holds `@file` and nothing else doesn't have one, as
+            // Coder reports. `@covers` doesn't need a summary, as PHPUnit test
+            // methods often don't have one, and a bare `@inheritdoc` gets the
+            // braces report of `drupal/doc-comment` instead. Coder doesn't read
+            // any other tag, so `@covers` followed by `@group` is fine.
             $tag = DocblockSummary::leadTag($context->file, $tags);
             if ($tag === null) {
                 if ($tags[0]->content() === '') {
-                    $context->report(Issue::new('The docblock has no short description.', $span));
+                    $context->report(Issue::new('The docblock doesn\'t have a short description.', $span));
                 }
 
                 continue;
@@ -94,7 +94,7 @@ final class MissingSummaryRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new('The docblock has no short description.', $span));
+            $context->report(Issue::new('The docblock doesn\'t have a short description.', $span));
         }
     }
 }

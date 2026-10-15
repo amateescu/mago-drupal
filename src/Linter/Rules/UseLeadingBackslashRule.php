@@ -21,8 +21,8 @@ use function strlen;
  *
  * Ports SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash, which
  * Coder 9 runs. A `use` statement always names a class, function or constant
- * from the root, so the backslash adds nothing. Like the sniff, the rule
- * checks only the first name of a statement: the name after `use`,
+ * from the root, so the backslash doesn't add anything. Like the sniff, the
+ * rule checks only the first name of a statement: the name after `use`,
  * `use function` or `use const`, or the prefix of a group.
  */
 final class UseLeadingBackslashRule implements Rule

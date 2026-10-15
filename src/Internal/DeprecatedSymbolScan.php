@@ -166,8 +166,8 @@ final class DeprecatedSymbolScan
                 continue;
             }
 
-            // No key is numeric, so a spread keeps each name where it first
-            // came, with the text of the last file that declares it.
+            // The keys are never numeric, so a spread keeps each name where it
+            // first came, with the text of the last file that declares it.
             /** @var array{classLikes: array<string, string>, interfaces: list<non-empty-string>, methods: array<string, string>} $file */
             $file = $one;
             $classLikes = [...$classLikes, ...$file['classLikes']];

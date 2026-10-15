@@ -77,7 +77,7 @@ final class RenderCallbackRule implements Rule
 
     public function __construct()
     {
-        // Almost no file has a callback key, so the rule checks the file
+        // Most files don't have a callback key, so the rule checks the file
         // once before it reads any element.
         $this->gate = new FileGate(needles: [...self::LIST_KEYS, ...self::SINGLE_KEYS]);
     }
@@ -92,7 +92,7 @@ final class RenderCallbackRule implements Rule
             defaultEnabled: true,
             // `KeyValueArrayElement` is a target so that Rust collects every
             // element into the file's target list. The Program pass reads that
-            // list. The per-element dispatches do nothing. A dispatched
+            // list. The per-element dispatches don't do anything. A dispatched
             // element's snapshot holds only its own subtree, and the
             // `#lazy_builder` exemption must know the class of the element.
             targets: [NodeKind::Program, NodeKind::KeyValueArrayElement],

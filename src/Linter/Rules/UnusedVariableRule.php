@@ -71,7 +71,7 @@ final class UnusedVariableRule implements Rule
             defaultEnabled: true,
             // Program has the whole file in the snapshot. The other kinds
             // put the scopes in the file's target nodes, and their own
-            // dispatches do nothing.
+            // dispatches don't do anything.
             targets: [NodeKind::Program, ...FunctionScopes::REGIONS],
         );
     }

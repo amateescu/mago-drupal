@@ -20,7 +20,7 @@ use function str_ends_with;
  *
  * Ports VariableAnalysis.CodeAnalysis.VariableAnalysis.VariableRedeclaration
  * with the settings of Coder's DrupalPractice standard. The sniff compares
- * the declarations of a name in source order, so it needs no flow analysis.
+ * the declarations of a name in source order, so it doesn't need flow analysis.
  */
 final class VariableRedeclarationRule implements Rule
 {
@@ -42,7 +42,7 @@ final class VariableRedeclarationRule implements Rule
             defaultEnabled: true,
             // Program has the whole file in the snapshot. The other kinds
             // put the scopes in the file's target nodes, and their own
-            // dispatches do nothing.
+            // dispatches don't do anything.
             targets: [NodeKind::Program, ...FunctionScopes::REGIONS],
         );
     }

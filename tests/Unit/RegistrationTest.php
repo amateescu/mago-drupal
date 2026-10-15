@@ -44,8 +44,8 @@ use function substr;
  *
  * The test runs the real registration into the SDK's registry and walks what
  * got registered, into the checks the metadata hooks hold. A class that
- * nothing registers fails here instead of going quiet. A class with nothing
- * but static methods cannot be registered, so it counts as a helper.
+ * isn't registered fails here instead of going quiet. A class with only
+ * static methods cannot be registered, so it counts as a helper.
  */
 final class RegistrationTest extends TestCase
 {
@@ -74,7 +74,8 @@ final class RegistrationTest extends TestCase
 
     protected function setUp(): void
     {
-        // Registration reads the root's indexes, which need no disk cache here.
+        // Registration reads the root's indexes, which don't need a disk cache
+        // here.
         $this->cache = getenv('MAGO_DRUPAL_CACHE');
         putenv('MAGO_DRUPAL_CACHE=0');
     }
@@ -112,7 +113,8 @@ final class RegistrationTest extends TestCase
     {
         $root = dirname(__DIR__) . '/corpus';
         $reached = [];
-        // Holds every object walked, so none is freed and its id reused.
+        // Holds every object walked, so they aren't freed and their ids aren't
+        // reused.
         /** @var SplObjectStorage<object, null> $seen */
         $seen = new SplObjectStorage();
         foreach ([

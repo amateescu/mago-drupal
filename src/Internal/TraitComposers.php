@@ -21,8 +21,8 @@ use function strtolower;
  * Mago's class-like targets follow parent classes and interfaces, not
  * traits, so a hook that wants every class with a trait targets the
  * descendants of these classes instead. A trait that uses the trait counts
- * as the trait, and the files are read again for its short name until no
- * new trait turns up. `TraitComposerWalk` reads one file.
+ * as the trait, and the files are read again for its short name until a
+ * pass doesn't find a new trait. `TraitComposerWalk` reads one file.
  *
  * @internal
  */

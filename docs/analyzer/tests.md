@@ -9,8 +9,8 @@ The `drupal` plugin has the checks for Drupal's test classes.
 
 PHPUnit 11 puts `@phpstan-assert` on `assertTrue()`, `assertFalse()`, `assertNull()`,
 `assertNotNull()`, `assertInstanceOf()`, `assertSame()` and the `assertIs*()` family, and Mago reads
-it, so those assertions narrow the value on their own. `assertNotEmpty()` and `assertEmpty()` have
-no such tag, and Drupal's tests use those two a lot. A loaded entity then stays nullable for the
+it, so those assertions narrow the value on their own. `assertNotEmpty()` and `assertEmpty()` don't
+have such a tag, and Drupal's tests use those two a lot. A loaded entity then stays nullable for the
 rest of the test, and every call on it is reported.
 
 The `phpunit` plugin narrows the value for these two: after `assertNotEmpty()` it isn't empty, and
@@ -76,10 +76,10 @@ from that side. A typed chain also lets Mago check calls that stay unchecked on 
 ## Prophecy calls
 
 `$prophecy->getFoo()` on an `ObjectProphecy<Foo>` goes through `__call()`, which returns a
-`MethodProphecy`. Mago reports every such call as undocumented, since the class has no `@method` tag
-for it. The `phpunit` plugin types the call as a `MethodProphecy` when the prophesized class
-declares the method, or when the class isn't known. A method that the class lacks stays reported,
-since Prophecy throws for it.
+`MethodProphecy`. Mago reports every such call as undocumented, since the class doesn't have a
+`@method` tag for it. The `phpunit` plugin types the call as a `MethodProphecy` when the prophesized
+class declares the method, or when the class isn't known. A method that the class lacks stays
+reported, since Prophecy throws for it.
 
 ```php
 $storage = $this->prophesize(EntityStorageInterface::class);
@@ -88,9 +88,9 @@ $storage->notAMethod();                // still reported
 ```
 
 A prophecy documented as a union with its class, such as `@var Foo|ObjectProphecy`, is typed half by
-half. The bare `ObjectProphecy` names no class, so its half gets a `MethodProphecy`. A
-`ProphecyInterface` half has no such method at all. The `Foo` half gets the result of the real
-method, although a prophecy is never a `Foo`.
+half. The bare `ObjectProphecy` doesn't name a class, so its half gets a `MethodProphecy`. A
+`ProphecyInterface` half doesn't have such a method at all. The `Foo` half gets the result of the
+real method, although a prophecy is never a `Foo`.
 [`phpunit/prophecy-union`](#phpunitprophecy-union) reports the docblock.
 
 `willImplement()` and `willExtend()` declare `@phpstan-this-out static<T&U>`, which isn't applied by
@@ -122,7 +122,7 @@ $items->valid()->willReturn(TRUE, FALSE);  // added by Prophecy, no non-document
 - **Source:** phpstan-phpunit
 
 phpstan-phpunit reports a PHPUnit assertion that always passes, given the type of the value. Such an
-assertion tests nothing.
+assertion doesn't test anything.
 
 **Reports:**
 
@@ -142,8 +142,8 @@ Mago types some values more narrowly than the code behaves, and these are left a
 - `$this->name`, unless the native type of the property passes the assertion too. Mago keeps the
   narrowed type of a property across calls that may change it, such as a callback that sets
   `$this->fired`. A property typed only by `@var` never counts: PHP doesn't check the tag, and the
-  property is NULL until something is assigned. A magic property, which has no declaration, never
-  counts either;
+  property is NULL until something is assigned. A magic property, which doesn't have a declaration,
+  never counts either;
 - another object's property, `$other->name`, since the check doesn't know the class of that object;
 - a variable that an inline `@var` tag names in the same method. The tag is the test's own claim,
   often over a `load()` that can return NULL, and the assertion is what checks it at runtime;
@@ -221,15 +221,15 @@ Mago types some values more narrowly than the code behaves, and these are left a
 - **Level:** warning
 - **Source:** PHPStan
 
-A mock typed as the mocked class alone, without `MockObject`, has no `expects()` or `method()` for
-Mago. The [mock union](#mock-unions) types answer for such a call all the same, since they see one
-type at a time. This check sees the whole type of the value and reports the call: the value is a
+A mock typed as the mocked class alone, without `MockObject`, doesn't have `expects()` or `method()`
+for Mago. The [mock union](#mock-unions) types answer for such a call all the same, since they see
+one type at a time. This check sees the whole type of the value and reports the call: the value is a
 mock at runtime, but the property, parameter or return type that it comes from leaves `MockObject`
 out. PHPStan reports the same calls as undefined methods.
 
 **Reports:**
 
-- an `expects()` or `method()` call on a value whose type names no PHPUnit class and doesn't declare
+- an `expects()` or `method()` call on a value whose type doesn't name a PHPUnit class or declare
   the method. The check takes an `expects()` call with one argument, and a `method()` call that
   names a method of the type.
 
@@ -392,21 +392,21 @@ it protected, see the [change record](https://www.drupal.org/node/2909426).
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `BrowserTestBaseDefaultThemeRule`
 
-phpstan-drupal reports a functional test that sets no `$defaultTheme`. When the install profile of
-the test installs no theme, Drupal throws while it sets up the test.
+phpstan-drupal reports a functional test that doesn't set `$defaultTheme`. When the install profile
+of the test doesn't install a theme, Drupal throws while it sets up the test.
 
 **Reports:**
 
-- a browser test on a themeless profile that sets no `$defaultTheme`. The test is a concrete
+- a browser test on a themeless profile that doesn't set `$defaultTheme`. The test is a concrete
   `BrowserTestBase` descendant whose name ends in `Test`, and the property counts when it is set on
   the class, on a base class, or by a trait that either of them uses.
 
 The check finds the test's `$profile` the same way, on the class, a base class or a trait. A profile
-is themeless when it ships no `system.theme` config in `config/sync` or `config/install`, which is
-checked by Drupal when the test runs. Profiles are read from core, from the site's `profiles`
-directory, and from the `tests/profiles` directories of core's modules and of extensions. A profile
-not found there counts as themeless when it is one of core's themeless test profiles, such as
-`testing`.
+is themeless when it doesn't ship a `system.theme` config in `config/sync` or `config/install`,
+which is checked by Drupal when the test runs. Profiles are read from core, from the site's
+`profiles` directory, and from the `tests/profiles` directories of core's modules and of extensions.
+A profile not found there counts as themeless when it is one of core's themeless test profiles, such
+as `testing`.
 
 **Not reported:**
 

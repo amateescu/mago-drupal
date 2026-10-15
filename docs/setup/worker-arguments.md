@@ -73,7 +73,7 @@ command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amate
 ```
 
 A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an
-error when a code names no rule.
+error when a code doesn't name a rule.
 
 A project that turns phpcs sub-codes off in its `phpcs.xml` can turn off the matching rules this
 way. [Coming from Coder](../coder/index.md) says which rule ports each sub-code.

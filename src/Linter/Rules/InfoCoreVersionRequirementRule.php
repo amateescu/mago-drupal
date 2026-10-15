@@ -45,7 +45,7 @@ final class InfoCoreVersionRequirementRule implements Rule
         }
 
         $context->report(Issue::new(
-            'The info file has no "core_version_requirement" key.',
+            'The info file doesn\'t have a "core_version_requirement" key.',
             YamlFile::firstLine($context->file),
         )->withHelp('Drupal installs the extension only on the core versions that the key names.'));
     }

@@ -60,8 +60,8 @@ final class TranslatableCall
      * `t` and `formatPlural` are too short for a bare text search, so they
      * need an anchor. The anchor is the name alone before an opening
      * parenthesis, or the name after `new` as a class name. A comment between
-     * a callee and its parenthesis defeats the first anchor. Nothing writes
-     * that.
+     * a callee and its parenthesis defeats the first anchor. Real code
+     * doesn't write that.
      */
     private const GATE = '/(?<!\w)(?:t|formatplural)\s*\(|new\s+[\w\\\\]*(?:t|formatplural)\b/i';
 

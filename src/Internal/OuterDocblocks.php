@@ -154,7 +154,7 @@ final class OuterDocblocks
     public static function isGroup(SourceFile $file, Span $span): bool
     {
         // Every marker starts with `@`, so a docblock whose first text is
-        // something else is no group, and its lines need no reading.
+        // something else isn't a group, and its lines don't need reading.
         $first = $span->start + 3 + strspn($file->contents, characters: " \t\r\n\0\x0B*/", offset: $span->start + 3);
         if ($first >= $span->end || $file->contents[$first] !== '@') {
             return false;

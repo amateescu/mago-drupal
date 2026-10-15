@@ -39,9 +39,9 @@ See [Hook implementations](#hook-implementations) for the implementations that a
 **Reports:**
 
 - an implementation of a hook whose `hook_*()` documentation function has a `@deprecated` tag;
-- an implementation of a hook that has no documentation function of its own name, when a deprecated
-  documentation function with an uppercase placeholder matches it, as `search_api_query_foo_alter`
-  matches `hook_search_api_query_TAG_alter`;
+- an implementation of a hook that doesn't have a documentation function of its own name, when a
+  deprecated documentation function with an uppercase placeholder matches it, as
+  `search_api_query_foo_alter` matches `hook_search_api_query_TAG_alter`;
 - an implementation of `hook_field_widget_form_alter()`, `hook_field_widget_multivalue_form_alter()`
   or their `WIDGET_TYPE` forms. Drupal 10 removed these hooks and their documentation, so core never
   calls them. The check knows them from a list of its own, which it uses when the api files document
@@ -204,7 +204,7 @@ Drupal 11.3 added a `CacheableMetadata` parameter to `hook_entity_operation()` a
 `hook_entity_operation_alter()`. phpstan-drupal reports an implementation that doesn't take it, and
 suggests a required `\Drupal\Core\Cache\CacheableMetadata $cacheability`. The check's report
 suggests `?\Drupal\Core\Cache\CacheableMetadata $cacheability = NULL`, which keeps the
-implementation working on core before 11.3, which passes no such argument.
+implementation working on core before 11.3, which doesn't pass such an argument.
 
 **Reports:**
 
@@ -282,8 +282,8 @@ interface takes the object too. A missing or untyped parameter is reported. See
 
 `ModuleHandlerInterface::loadInclude($module, $type, $name)` loads
 `<module directory>/<name>.<type>`, and `$name` defaults to the module. For a file that doesn't
-exist, or a module that isn't installed, it returns FALSE and loads nothing. phpstan-drupal reports
-a call that names a file that doesn't exist.
+exist, or a module that isn't installed, it returns FALSE and doesn't load anything. phpstan-drupal
+reports a call that names a file that doesn't exist.
 
 **Reports:**
 

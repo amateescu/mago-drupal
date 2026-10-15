@@ -35,8 +35,8 @@ use function trim;
  * so quotes, spacing and parentheses do not matter, and the result is the
  * same before and after `mago format`.
  *
- * The rule reports every match and fixes only the ones that keep behavior:
- * X is a plain variable, property, index or constant read, and B needs no
+ * The rule reports every match and fixes only the ones that keep behavior: X is
+ * a plain variable, property, index or constant read, and B doesn't need
  * parentheses after `??`. A fix that drops a comment is potentially unsafe.
  *
  * The two shapes and the checks before a fix need many branches.
@@ -70,7 +70,7 @@ final class NullCoalesceRule implements Rule
         $file = $context->file;
         $parts = Operands::expressions($file, $context->node);
 
-        // A short ternary has no middle part.
+        // A short ternary doesn't have a middle part.
         if (count($parts) !== 3) {
             return;
         }

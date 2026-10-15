@@ -12,7 +12,7 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 /**
- * Checks that no blank line follows a `//` comment on its own line.
+ * Checks that a `//` comment on its own line isn't followed by a blank line.
  *
  * Ports `SpacingAfter` of Drupal.Commenting.InlineComment, which core's
  * `phpcs.xml.dist` turns off. A blank line between a comment and a closing
@@ -27,7 +27,7 @@ final class InlineCommentBlankLineRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-comment-blank-line',
             name: 'Inline comment blank line',
-            description: 'Checks that no blank line follows a `//` comment on its own line.',
+            description: 'Checks that a `//` comment on its own line isn\'t followed by a blank line.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

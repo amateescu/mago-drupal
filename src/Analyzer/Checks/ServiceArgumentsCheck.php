@@ -29,7 +29,7 @@ use function substr;
  * argument. Only a service whose arguments come from the services files
  * alone is counted, see ServiceWiring. Too few is an ArgumentCountError when
  * the container builds the service. Too many is a warning: PHP drops the
- * rest, and so does the container when the class has no constructor.
+ * rest, and so does the container when the class doesn't have a constructor.
  *
  * @internal
  *
@@ -140,7 +140,7 @@ final class ServiceArgumentsCheck implements MetadataCheck
 
             $reporter->warning(self::CODE, Reporter::issue(
                 $constructor === null
-                    ? "{$passes}, but {$class->name()} has no constructor."
+                    ? "{$passes}, but {$class->name()} doesn't have a constructor."
                     : "{$passes} to {$class->name()}::__construct(), which takes {$maximum}.",
                 $location,
                 'PHP drops the extra arguments silently. Remove them from the service definition.',

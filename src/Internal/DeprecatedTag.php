@@ -121,7 +121,7 @@ final class DeprecatedTag
 
     /**
      * The text of the first `@deprecated` tag in a docblock, on one line, or
-     * null when it has none.
+     * null when it doesn't have one.
      */
     public static function text(string $docblock): ?string
     {

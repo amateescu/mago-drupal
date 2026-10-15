@@ -94,7 +94,7 @@ final class SummarySentences
     /**
      * Reports a paragraph whose first character is not a capital letter.
      * Like phpcbf, the fix uppercases a lower-case letter. Any other first
-     * character gets no fix.
+     * character doesn't get a fix.
      */
     private static function reportCapital(LintContext $context, DocblockLine $line, string $label): void
     {

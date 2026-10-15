@@ -61,8 +61,8 @@ final class GenderNeutralCommentRule implements Rule
         }
 
         foreach ($context->file->getTrivia() as $trivia) {
-            // A comment with no match has no line with one, so one scan of
-            // the whole comment skips most of them.
+            // A comment with no match doesn't have a line with one, so one scan
+            // of the whole comment skips most of them.
             if (preg_match(self::ANY, $context->file->getText($trivia->span)) !== 1) {
                 continue;
             }

@@ -76,7 +76,7 @@ use const PHP_OS_FAMILY;
  * `MAGO_DRUPAL_CACHE=0` turns the cache off; any other value is the directory
  * to use. The default sits under the system temporary directory, one per
  * user, and is only used while it belongs to that user (see trusted()). With
- * no way to tell the user's id, there is no default cache.
+ * no way to tell the user's id, there isn't a default cache.
  * `scoped()` gives each Drupal root its own subdirectory, so the
  * one-entry-per-kind sweep never crosses roots.
  *
@@ -110,7 +110,7 @@ final class DiskCache
     /**
      * A run entry is only read while it is this fresh, and is dropped once it
      * is older. Every worker of a run asks for an index within seconds of the
-     * others, and on a system that publishes no process start times this is
+     * others, and on a system that doesn't publish process start times this is
      * what keeps a run from reading an entry left by an older one whose host
      * had the same process id.
      */
@@ -170,7 +170,7 @@ final class DiskCache
         }
 
         // Windows gives every user a temporary directory of their own, and
-        // reports no file owner to check.
+        // doesn't report a file owner to check.
         if (PHP_OS_FAMILY === 'Windows') {
             return new self(sys_get_temp_dir() . '/mago-drupal');
         }
@@ -523,7 +523,7 @@ final class DiskCache
     /**
      * Closes a directory of this user's to everyone else, then deletes what
      * is in it, since any of it may have been planted while it was open.
-     * Closing it first means nothing more can be added. Links are removed,
+     * Closing it first means more entries can't be added. Links are removed,
      * never followed. An entry that cannot be deleted, such as another
      * user's subdirectory, leaves the cache refused.
      *
@@ -563,7 +563,7 @@ final class DiskCache
     }
 
     /**
-     * Removes a kind's run entries that no worker will read again: those of
+     * Removes a kind's run entries that won't be read again: those of
      * a host process that is gone, those older than RUN_FRESHNESS, and those
      * of this host from an earlier analysis generation. A watch or editor
      * session writes a new entry for every generation, so without the last
@@ -600,7 +600,7 @@ final class DiskCache
     }
 
     /**
-     * Removes a kind's temporary files that no write will finish: those of a
+     * Removes a kind's temporary files whose write won't finish: those of a
      * process that is gone, and those older than RUN_FRESHNESS. A worker
      * killed between the write and the rename leaves one behind, and no entry
      * sweep matches its name.

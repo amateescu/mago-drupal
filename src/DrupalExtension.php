@@ -202,7 +202,7 @@ final class DrupalExtension
      * wins, matching how repeated CLI flags behave.
      *
      * @throws InvalidArgumentException When `--deprecations` is not a major
-     *   version, or a code in `--disable` names no rule.
+     *   version, or a code in `--disable` doesn't name a rule.
      *
      * @param array<mixed> $arguments
      */
@@ -251,8 +251,8 @@ final class DrupalExtension
      *   removed in this major or earlier, such as 12; every deprecation when
      *   null.
      *
-     * @throws InvalidArgumentException When a code in $disabled names no rule,
-     *   or $deprecations is not a positive number.
+     * @throws InvalidArgumentException When a code in $disabled doesn't name
+     *   a rule, or $deprecations is not a positive number.
      *
      * @mago-expect lint:no-boolean-flag-parameter
      */
@@ -439,7 +439,7 @@ final class DrupalExtension
      */
     private static function version(): string
     {
-        // A package loaded without Composer's autoloader has no record.
+        // A package loaded without Composer's autoloader doesn't have a record.
         if (!InstalledVersions::isInstalled(self::PACKAGE)) {
             return 'unknown';
         }

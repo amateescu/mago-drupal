@@ -37,7 +37,7 @@ final class AuthorTagRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Almost no file has the tag. One scan of the raw source skips the
+        // Most files don't have the tag. One scan of the raw source skips the
         // docblock parsing for the rest.
         if (stripos($context->file->contents, needle: '@author') === false) {
             return;

@@ -72,8 +72,8 @@ final class DeprecatedHookCheck implements MetadataCheck
 
     /**
      * The issue for a function or method that implements a deprecated hook.
-     * A hook that Drupal 10 removed has no api.php note left to point at, so
-     * the help names its replacement.
+     * A hook that Drupal 10 removed doesn't have an api.php note to point at,
+     * so the help names its replacement.
      */
     public static function issue(
         string $name,

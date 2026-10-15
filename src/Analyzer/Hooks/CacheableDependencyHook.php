@@ -23,7 +23,7 @@ use function in_array;
 use function strtolower;
 
 /**
- * Reports `addCacheableDependency()` handed something that carries no
+ * Reports `addCacheableDependency()` handed something that doesn't have any
  * cacheability.
  *
  * Ports phpstan-drupal's CacheableDependencyRule. A dependency that does not
@@ -117,7 +117,7 @@ final class CacheableDependencyHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             Issue::new(
-                "A dependency of type `{$dependency}` carries no cacheability, so adding it turns caching off.",
+                "A dependency of type `{$dependency}` doesn't have any cacheability, so adding it turns caching off.",
                 $context->node->span,
                 'not a CacheableDependencyInterface',
             )->withHelp(
@@ -141,8 +141,8 @@ final class CacheableDependencyHook implements MethodCallAnalysisHook
                 continue;
             }
 
-            // A scalar, an array or null carries no cacheability; anything
-            // else, `mixed` and a bare `object` included, might.
+            // A scalar, an array or null doesn't have any cacheability;
+            // anything else, `mixed` and a bare `object` included, might.
             if (!Types::isScalarOnly(Type::fromAtomic($atomic))) {
                 return false;
             }
@@ -170,7 +170,7 @@ final class CacheableDependencyHook implements MethodCallAnalysisHook
             }
 
             // The declared type is an upper bound, so a class that can be
-            // extended says nothing: core's own CacheableHttpException
+            // extended doesn't say anything: core's own CacheableHttpException
             // extends Symfony's HttpException to add the cacheability.
             if (!$metadata->flags->contains(MetadataFlags::FINAL)) {
                 return false;

@@ -192,7 +192,7 @@ final class DrupalExtensionTest extends TestCase
         foreach (DrupalExtension::create()->linterRules as $rule) {
             $definition = $rule->getDefinition();
 
-            self::assertNotEmpty($definition->targets, "{$definition->code} subscribes to no node kinds.");
+            self::assertNotEmpty($definition->targets, "{$definition->code} doesn't subscribe to any node kinds.");
             self::assertNotSame('', $definition->name);
             self::assertNotSame('', $definition->description);
         }

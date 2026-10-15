@@ -17,9 +17,9 @@ use function preg_match;
  * Drops `missing-magic-method` for magic properties an entity interface has
  * at runtime.
  *
- * The plugin types entity fields and `original` as magic properties, and
- * Mago then reports every access on a variable typed as an interface, since
- * an interface declares no `__get()` or `__set()`. Every content entity class
+ * The plugin types entity fields and `original` as magic properties, and Mago
+ * then reports every access on a variable typed as an interface, since an
+ * interface doesn't declare `__get()` or `__set()`. Every content entity class
  * extends `ContentEntityBase`, whose magic methods read and write fields and
  * any other name, and `EntityBase` handles `original` for every entity. A
  * concrete class without the magic method keeps the report, and so does any

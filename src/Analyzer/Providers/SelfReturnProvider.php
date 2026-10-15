@@ -14,8 +14,8 @@ use Mago\Sdk\Analyzer\Type;
  *
  * Each of these bodies ends in `return $this`, and the interface that declares
  * the method documents `@return $this`. The trait itself carries only
- * `{@inheritdoc}`, and a trait has no parent to inherit from, so the call
- * is typed `mixed` and takes the rest of the chain with it:
+ * `{@inheritdoc}`, and a trait doesn't have a parent to inherit from, so the
+ * call is typed `mixed` and takes the rest of the chain with it:
  * `AccessResult::allowed()->addCacheableDependency($entity)->andIf(...)` loses
  * the access result at the first link. The same call through the interface is
  * typed already, and the receiver is what it resolves to.

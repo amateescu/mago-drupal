@@ -25,7 +25,7 @@ use function in_array;
  *
  * Only types that PHP can never call count: an int, a float, a bool, null,
  * an array that can't be a two-element pair, and an object whose class and
- * descendants have no `__invoke()`. A string may name a function or a
+ * descendants don't have `__invoke()`. A string may name a function or a
  * method, and `mixed` may be anything, so neither counts.
  *
  * @internal

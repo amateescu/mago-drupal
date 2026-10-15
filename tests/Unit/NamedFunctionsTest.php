@@ -13,7 +13,7 @@ final class NamedFunctionsTest extends TestCase
 {
     /**
      * A closure belongs to the method it sits in, and a function outside a
-     * class has no class-like.
+     * class doesn't have a class-like.
      */
     public function testFindsTheMethodAndItsClassLike(): void
     {
@@ -40,8 +40,8 @@ final class NamedFunctionsTest extends TestCase
     }
 
     /**
-     * `Foo::class` declares nothing, and a method of an anonymous class has
-     * no named class-like.
+     * `Foo::class` doesn't declare anything, and a method of an anonymous
+     * class doesn't have a named class-like.
      */
     public function testLeavesOutClassConstantsAndAnonymousClasses(): void
     {
@@ -85,8 +85,8 @@ final class NamedFunctionsTest extends TestCase
     }
 
     /**
-     * A `class:` argument of an attribute declares nothing, so the method
-     * after it stays in its class.
+     * A `class:` argument of an attribute doesn't declare anything, so the
+     * method after it stays in its class.
      */
     public function testSkipsClassArgumentsOfAttributes(): void
     {

@@ -26,13 +26,13 @@ use function trim;
  * Reports a global class written without its leading backslash in a file
  * with no namespace, as `new DateTime()` for `new \DateTime()`.
  *
- * Drupal's coding standards say that a class whose name has no backslash
- * is always written fully qualified, and show it in a `.module` file. In a
- * file with no namespace both forms name the same class, so the fix adds the
- * backslash. A name that a `use` statement imports resolves to a namespaced
- * class and is left alone. An API file is skipped: its examples leave out
- * their imports, so a short name there stands for a namespaced class. Coder
- * has no such sniff.
+ * Drupal's coding standards say that a class whose name doesn't have a
+ * backslash is always written fully qualified, and show it in a `.module` file.
+ * In a file with no namespace both forms name the same class, so the fix adds
+ * the backslash. A name that a `use` statement imports resolves to a namespaced
+ * class and is left alone. An API file is skipped: its examples leave out their
+ * imports, so a short name there stands for a namespaced class. Coder doesn't
+ * have such a sniff.
  *
  * The places where a class name can stand need many branches.
  *

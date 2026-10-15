@@ -84,13 +84,13 @@ final class FileMembers
         }
 
         // Inside an anonymous class, `$this` and `self` are that class, which
-        // has no metadata name to hand back.
+        // doesn't have a metadata name to hand back.
         if ($found !== null && preg_match(self::ANONYMOUS, $file->contents) === 1) {
             return ClassLikeRanges::inAnonymous($file->contents, $span) ? null : $found;
         }
 
-        // A node hook's snapshot keeps only the names inside its targets,
-        // so an interface or enum that is not a target has no name there.
+        // A node hook's snapshot keeps only the names inside its targets, so an
+        // interface or enum that is not a target doesn't have a name there.
         return $found ?? ClassLikeRanges::classAt($codebase, $file->contents, $span);
     }
 

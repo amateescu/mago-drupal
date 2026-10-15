@@ -76,7 +76,7 @@ final class FullyQualifiedNameRule implements Rule
             // The name kinds and the skipped kinds are targets. Rust then
             // collects them into the file's target list, and the Program
             // pass reads that list instead of the node table. Their own
-            // dispatches do nothing.
+            // dispatches don't do anything.
             targets: [
                 NodeKind::Program,
                 NodeKind::Namespace,
@@ -89,7 +89,8 @@ final class FullyQualifiedNameRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // The name dispatches do nothing. The Program pass reads them all.
+        // The name dispatches don't do anything. The Program pass reads them
+        // all.
         if ($context->node->kind !== NodeKind::Program) {
             return;
         }
@@ -160,7 +161,7 @@ final class FullyQualifiedNameRule implements Rule
         $written = ltrim(trim($file->getText($name)), characters: '\\');
 
         // A name relative to the current namespace, such as `namespace\Foo`,
-        // has nothing to import, and Coder skips it.
+        // doesn't have anything to import, and Coder skips it.
         return (
             str_contains($written, '\\')
             && stripos($written, needle: 'namespace\\') !== 0

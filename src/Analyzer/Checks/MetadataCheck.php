@@ -18,9 +18,9 @@ use amateescu\MagoDrupal\Internal\ClassFacts;
 interface MetadataCheck
 {
     /**
-     * A pattern the class's source text has to match for the check to apply,
-     * or null when it always applies. The descendant hook checks it before
-     * any codebase request, so a class that cannot be reported costs none.
+     * A pattern the class's source text has to match for the check to apply, or
+     * null when it always applies. The descendant hook checks it before any
+     * codebase request, so a class that cannot be reported doesn't cost any.
      * The class hook gates its checks on the names in the class instead.
      */
     public function textGate(): ?string;

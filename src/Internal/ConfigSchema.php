@@ -221,8 +221,8 @@ final class ConfigSchema
 
     /**
      * Drupal's `getFallbackName()`. Replace the last segment with `*`. If that
-     * has no definition, collapse trailing wildcards into one and retry. Then
-     * move up one segment and start over.
+     * doesn't have a definition, collapse trailing wildcards into one and
+     * retry. Then move up one segment and start over.
      */
     private function fallbackName(string $name): ?string
     {
@@ -376,8 +376,8 @@ final class ConfigSchema
 
         $mapping = Shape::array($definition['mapping'] ?? null);
         if ($mapping === null) {
-            // A scalar has no children. Without `mapping` and without a known
-            // scalar type, the schema does not say what is inside.
+            // A scalar doesn't have children. Without `mapping` and without a
+            // known scalar type, the schema does not say what is inside.
             $type = Shape::string($definition['type'] ?? null);
 
             return $type === null || !self::isScalarTypeName($type);
@@ -465,9 +465,9 @@ final class ConfigSchema
      * The keys of a mapping as an array shape.
      *
      * Types are only handed out under `FullyValidatable`, where every key is
-     * required unless it says `requiredKey: false` or is deprecated, and
-     * Drupal rejects keys the mapping does not list, so the shape is sealed. A mapping that lists no
-     * keys can hold anything.
+     * required unless it says `requiredKey: false` or is deprecated, and Drupal
+     * rejects keys the mapping does not list, so the shape is sealed. A mapping
+     * that doesn't list any keys can hold anything.
      *
      * @param Definition $definition
      */

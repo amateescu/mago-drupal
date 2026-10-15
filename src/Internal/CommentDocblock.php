@@ -58,8 +58,8 @@ final class CommentDocblock
      */
     public static function edit(SourceFile $file, Trivia $comment, Node $declaration, Node $anchor): ?TextEdit
     {
-        // A comment below the attributes with a docblock above them gets no
-        // fix. The fix would leave two docblocks, and PHP reads only the
+        // A comment below the attributes with a docblock above them doesn't get
+        // a fix. The fix would leave two docblocks, and PHP reads only the
         // lower one.
         if ($anchor->span->start !== $declaration->span->start && Docblocks::attachedTo($file, $declaration) !== null) {
             return null;

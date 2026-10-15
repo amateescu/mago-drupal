@@ -239,7 +239,7 @@ final class ElementCallbackHook implements NodeAnalysisHook
     /**
      * `'::method'`, checked against the form class it is written in on a
      * form key. In any other class, a hook or a form alter, the form object
-     * is some other class. On any other key it names no class at all.
+     * is some other class. On any other key it doesn't name a class at all.
      */
     private function checkFormObject(NodeAnalysisContext $context, ElementCallback $callback): void
     {
@@ -249,7 +249,7 @@ final class ElementCallbackHook implements NodeAnalysisHook
                 $callback,
                 self::UNKNOWN,
                 Issue::new(
-                    "The {$callback->key} callback \"::{$callback->name}\" names no class. Only the form API callbacks turn \"::method\" into a method of the form object.",
+                    "The {$callback->key} callback \"::{$callback->name}\" doesn't name a class. Only the form API callbacks turn \"::method\" into a method of the form object.",
                     $callback->value->span,
                     'no class to call',
                 )->withHelp("Name the class, as in [static::class, '{$callback->name}'], or use a closure."),
@@ -289,7 +289,7 @@ final class ElementCallbackHook implements NodeAnalysisHook
             $callback,
             self::UNKNOWN,
             Issue::new(
-                "The form {$class->originalName} has no method {$callback->name}(), so the {$callback->key} callback \"::{$callback->name}\" cannot run.",
+                "The form {$class->originalName} doesn't have a method {$callback->name}(), so the {$callback->key} callback \"::{$callback->name}\" cannot run.",
                 $callback->value->span,
                 'no such method',
             )->withHelp('Check the name for a typo, or add the method to the form.'),
@@ -373,7 +373,7 @@ final class ElementCallbackHook implements NodeAnalysisHook
     private static function missing(ElementCallback $callback, ClassLikeMetadata $class): Issue
     {
         return Issue::new(
-            "{$class->originalName} has no method {$callback->name}(), so the {$callback->key} callback cannot run.",
+            "{$class->originalName} doesn't have a method {$callback->name}(), so the {$callback->key} callback cannot run.",
             $callback->value->span,
             'no such method',
         )->withHelp('Check the class and the method name.');

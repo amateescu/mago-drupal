@@ -43,8 +43,8 @@ final class Containers
     private function __construct() {}
 
     /**
-     * The type behind a service id, or null when none of the candidates is
-     * in the codebase.
+     * The type behind a service id, or null when the codebase doesn't have
+     * any of the candidates.
      *
      * A decorator only replaces the service while the module that declares
      * it is enabled, and a site need not enable an optional module such as
@@ -57,8 +57,9 @@ final class Containers
      * decorator class that is not in the codebase, such as one from a module
      * this run does not analyze, leaves the class it took over.
      *
-     * @param non-empty-string|null $fallback Used when the service names no
-     *   class the codebase has, such as an id that is itself a class name.
+     * @param non-empty-string|null $fallback Used when the service doesn't
+     *   name a class the codebase has, such as an id that is itself a class
+     *   name.
      */
     public static function typeFor(Codebase $codebase, ?ServiceDefinition $service, ?string $fallback = null): ?Type
     {
@@ -85,7 +86,8 @@ final class Containers
     /**
      * The most specific types a decorator and the class it decorates both
      * have: the decorated class when the decorator extends it, otherwise
-     * every common class or interface no other common one extends.
+     * every common class or interface that isn't extended by another common
+     * one.
      *
      * @param non-empty-string $decorator
      * @param non-empty-string $original

@@ -79,7 +79,7 @@ can't do this check. A deeper indent from the formatter can push a comment past 
 
 - the `array()` syntax inside a docblock `@code` example.
 
-Mago doesn't parse the example as code, so no other rule sees it.
+Mago doesn't parse the example as code, so other rules don't see it.
 
 ??? example "Example"
 
@@ -111,16 +111,16 @@ Mago doesn't parse the example as code, so no other rule sees it.
 
 ??? note "Compared with Coder"
 
-    - The rule reports `array()` in a `@code` example that has no `@endcode`, up to the end of the
-      docblock. Coder takes such a docblock as malformed and skips the rest of it.
+    - The rule reports `array()` in a `@code` example that doesn't have an `@endcode`, up to the end
+      of the docblock. Coder takes such a docblock as malformed and skips the rest of it.
 
 ---
 
 ## drupal/doc-type-namespace
 
 - **Level:** warning
-- **Fix:** safe. It writes the fully qualified name, and removes the import when nothing else uses
-  it.
+- **Fix:** safe. It writes the fully qualified name, and removes the import when it isn't used
+  anywhere else.
 - **Standard:** [Classes and namespaces](https://project.pages.drupalcode.org/coding_standards/php/documentation/#classes-and-namespaces),
   [Data types](https://project.pages.drupalcode.org/coding_standards/php/documentation/#data-types-in-documentation)
 - **Ports:** `SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse` (partly)
@@ -213,7 +213,7 @@ rewritten.
     - Coder 9 accepts short names in docblocks, but its `UnusedUses` sniff doesn't read docblocks.
       It reports such an import as unused, and phpcbf deletes it, which leaves the docblock naming a
       class that no longer resolves. Mago counts a docblock mention as a use, so its
-      `no-redundant-use` reports only the imports that nothing uses, and this rule reports the ones
+      `no-redundant-use` reports only the unused imports, and this rule reports the ones
       that only docblocks use.
     - An import that only prose or a `{@link}` mentions is reported by neither rule. Coder reports
       it as unused.
@@ -304,7 +304,7 @@ these tags. Use `expectException()` and the related methods.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.Commenting.GenderNeutralComment.GenderNeutral`
 
-Coder asks for no gendered pronouns in comments.
+Coder doesn't allow gendered pronouns in comments.
 
 **Reports:**
 
@@ -318,7 +318,7 @@ Coder asks for no gendered pronouns in comments.
 
 - **Level:** warning
 - **Fix:** safe. It uppercases the first letter and sets the space after `//`. The other checks
-  have no fix.
+  don't have a fix.
 - **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation),
   [In-line code comments](https://project.pages.drupalcode.org/coding_standards/php/documentation/#in-line-code-comments)
 - **Ports:** `Drupal.Commenting.InlineComment`: `DocBlock`, `NoSpaceBefore`, `NotCapital`, `SpacingBefore`, `TabBefore`, `WrongStyle`
@@ -336,7 +336,7 @@ Coder asks for no gendered pronouns in comments.
 - a `#` comment. `mago format` also writes it as `//`;
 - a `//` comment that doesn't have one space after `//`, or has a tab. More spaces are fine to line
   up with a list item or `@todo` on the line above. A line indented deeper than the comment line
-  above for no such reason is reported without a fix;
+  above without such a reason is reported without a fix;
 - a `/**` docblock inside a body, such as a function, a class or an `if`, that doesn't start with a
   tag and isn't in front of a declaration, an enum case, an include or a modifier.
 
@@ -540,7 +540,7 @@ pass applies it.
 
 - a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment after
   a statement or an opening brace, because moving a tool pragma can change the lines it covers. An
-  `@phpstan-ignore-line` moved to a line of its own would cover no statement;
+  `@phpstan-ignore-line` moved to a line of its own wouldn't cover any statement;
 - a comment after the closing brace of an anonymous class or of any other block;
 - a docblock after the opening brace of a class, which
   [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) reports.
@@ -550,7 +550,7 @@ with no blank line between them, or on the line below the brace when the body is
 then adds the blank line after the brace. A method's docblock or attributes get one blank line
 above them, which Coder's `Squiz.WhiteSpace.FunctionSpacing.Before` counts from the comment.
 
-There is no fix where the move could attach the comment to something else:
+There isn't a fix where the move could attach the comment to something else:
 
 - a line that opens a block, other than a class body, or closes a construct;
 - a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement;
@@ -558,7 +558,7 @@ There is no fix where the move could attach the comment to something else:
 - a comment that the next line continues;
 - a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`;
 - a comment after a class's opening brace with code after it on the same line;
-- a comment after a class's closing brace. Coder has no fix for it either.
+- a comment after a class's closing brace. Coder doesn't have a fix for it either.
 
 ??? example "Example"
 
@@ -597,7 +597,7 @@ There is no fix where the move could attach the comment to something else:
       [`drupal/inline-comment-blank-line`](#drupalinline-comment-blank-line) allows.
     - After a class's closing brace, Coder reports anything on the line as `CloseBraceSameLine`:
       code, a `?>` and trailing spaces too. `mago format` moves the code to a line of its own and
-      removes the spaces. Nothing reports the `?>`.
+      removes the spaces. The `?>` isn't reported.
     - Coder doesn't report a comment glued to a class's closing brace, as in `}// End.`, since
       phpcs keeps the line break in the comment's token. The rule reports it. `mago format` moves
       it to a line of its own.
@@ -612,8 +612,8 @@ There is no fix where the move could attach the comment to something else:
 - **Standard:** [@todo](https://project.pages.drupalcode.org/coding_standards/php/documentation/#todo-to-do-notes)
 - **Ports:** `Drupal.Commenting.TodoComment.TodoFormat`
 
-The standard has no sentence for the format. Its `@todo` examples write `@todo` followed by the
-text, in a docblock and in a `//` comment.
+The standard doesn't have a sentence for the format. Its `@todo` examples write `@todo` followed by
+the text, in a docblock and in a `//` comment.
 
 **Reports:**
 

@@ -35,7 +35,7 @@ use const SCANDIR_SORT_NONE;
  * Finds extension-owned files under a Drupal root without booting Drupal.
  *
  * The walk is one loop with a directory stack on purpose. It covers all of
- * core/modules on a worker's first lookup, so it stays a single pass with no
+ * core/modules on a worker's first lookup, so it stays a single pass without
  * iterator objects per entry.
  *
  * @internal
@@ -159,9 +159,9 @@ final class ExtensionFiles
             $probed[$candidate] = self::recordedMtime($candidate);
         }
 
-        // Core's api.php files and services file sit in `core` itself, and
-        // its schema two directories below, none of them walked. A file added
-        // to either changes the directory it was added to.
+        // Core's api.php files and services file sit in `core` itself, and its
+        // schema two directories below, and the walk doesn't cover them. A file
+        // added to either changes the directory it was added to.
         $probed[$root . '/core'] = self::recordedMtime($root . '/core');
         $probed[$root . '/core/config'] = self::recordedMtime($root . '/core/config');
         $probed[$root . '/core/config/schema'] = self::recordedMtime($root . '/core/config/schema');
@@ -238,7 +238,7 @@ final class ExtensionFiles
      * The modification time to store for a directory the walk just listed.
      *
      * A modification time only has second resolution, so a directory written
-     * in the last seconds gets -1, which no later reading matches. Without
+     * in the last seconds gets -1, which a later reading never matches. Without
      * that, a file added between the listing and this call would be missed
      * for as long as the directory stays otherwise untouched.
      */
@@ -383,7 +383,7 @@ final class ExtensionFiles
     /**
      * Whether the extension directory sits under `modules` rather than
      * `themes` or `profiles`; the closest of the three decides, so a module
-     * shipped inside a profile counts. A directory under none of them is taken
+     * shipped inside a profile counts. A directory outside all three is taken
      * as a module.
      */
     private static function isModuleDirectory(string $directory): bool

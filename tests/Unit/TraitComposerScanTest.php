@@ -21,8 +21,8 @@ use function uniqid;
 use function unlink;
 
 /**
- * The result is kept while no changed file names one of the traits, and
- * matches a new scan whenever one does.
+ * The result is kept while the changed files don't name any of the traits,
+ * and matches a new scan whenever one does.
  */
 final class TraitComposerScanTest extends TestCase
 {
@@ -53,7 +53,7 @@ final class TraitComposerScanTest extends TestCase
         self::assertEquals(TraitComposers::fromFiles($this->files(), self::TRAIT), $scan->composers);
 
         // Another trait of the same short name counts as a mention, as in the
-        // scan, so the edit is made to a file that names none of them.
+        // scan, so the edit is made to a file that doesn't name any of them.
         $this->write('Other.php', "<?php\n\nnamespace Drupal\\fixture;\n\nclass Other {}\n");
         $kept = $this->update($scan);
         self::assertSame($scan->composers, $kept->composers);

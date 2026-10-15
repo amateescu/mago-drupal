@@ -25,8 +25,8 @@ use function strtolower;
  *
  * Ports phpstan-drupal's ClassExtendsInternalClassRule. The host sends the
  * descendants of every class the disk scan found marked internal, so a class
- * with an ordinary parent costs nothing. The parent's metadata confirms the
- * flag. A module may extend its own internal classes, and its tests count
+ * with an ordinary parent doesn't cost anything. The parent's metadata confirms
+ * the flag. A module may extend its own internal classes, and its tests count
  * as the module: `Drupal\Tests\node\…` owns what `Drupal\node\…` owns.
  * Anonymous classes never reach a class-like hook, so
  * AnonymousInternalParentHook covers them.
@@ -90,7 +90,7 @@ final class InternalParentHook implements ClassLikeAnalysisHook
      * module.
      *
      * @param string|null $owner The module owning the class, as owner() names
-     *   it, or null when no module owns it.
+     *   it, or null when it doesn't belong to a module.
      */
     public static function report(
         NodeAnalysisContext $context,
@@ -126,7 +126,7 @@ final class InternalParentHook implements ClassLikeAnalysisHook
     /**
      * The module that owns a Drupal class: `node` for `Drupal\node\…` and for
      * `Drupal\Tests\node\…`, `Core` for `Drupal\Core\…`. Null outside the
-     * `Drupal` namespace, which owns nothing and so is always reported.
+     * `Drupal` namespace, which doesn't own anything and so is always reported.
      */
     public static function owner(string $class): ?string
     {

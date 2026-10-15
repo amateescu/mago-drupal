@@ -22,7 +22,7 @@ final class TrustedCallbackClassesTest extends TestCase
         ));
 
         // A class that only implements the interface is not one, and an
-        // anonymous class has no name to target. A trait is kept apart.
+        // anonymous class doesn't have a name to target. A trait is kept apart.
         self::assertSame(['Drupal\fixture\Imported', 'Drupal\fixture\FullyQualified'], $found->classes);
         self::assertSame(['Drupal\fixture\Shared'], $found->traits);
         self::assertSame(['prerender', 'lazybuilder', 'fromtrait'], $found->methods);

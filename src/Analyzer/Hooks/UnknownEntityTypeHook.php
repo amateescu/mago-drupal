@@ -23,7 +23,7 @@ use function preg_quote;
 use function substr;
 
 /**
- * Reports entity type manager lookups of an id no entity type declares.
+ * Reports entity type manager lookups of an entity type that doesn't exist.
  *
  * `getDefinition($id, FALSE)` asks for null instead of an exception, so it is
  * a probe and is left alone, and so is a lookup after a `hasDefinition()`
@@ -47,7 +47,7 @@ final class UnknownEntityTypeHook implements MethodCallAnalysisHook
     /**
      * The one entity type every Drupal site has, since the user module cannot
      * be uninstalled. Without it in the index, core is outside the analyzed
-     * code and an unknown id proves nothing.
+     * code and an unknown id doesn't prove anything.
      */
     public const SENTINEL = 'user';
 
@@ -127,7 +127,7 @@ final class UnknownEntityTypeHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             Issue::new(
-                "No entity type with id \"{$id}\" is defined.",
+                "The entity type \"{$id}\" isn't defined.",
                 $context->node->span,
                 'unknown entity type id',
             )->withHelp(

@@ -15,7 +15,7 @@ use function array_slice;
 /**
  * Finds the class a class node declares without the node's children.
  *
- * A lifecycle hook that asks for no subtree gets the node's span and the
+ * A lifecycle hook that doesn't ask for a subtree gets the node's span and the
  * file's resolved names. Every bare name in the span comes back resolved
  * against the namespace, imports flagged: the declaration itself, parents and
  * traits written without a `use`, but also called functions and constants.
@@ -49,7 +49,7 @@ final class DeclaredClass
 
     /**
      * The metadata of the class-like declared by the node, or null when the
-     * codebase has none at that span.
+     * codebase doesn't have one at that span.
      *
      * @param list<non-empty-string>|null $candidates Precomputed by `names()`.
      */

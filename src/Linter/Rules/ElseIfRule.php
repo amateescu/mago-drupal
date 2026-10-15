@@ -20,8 +20,8 @@ use function strlen;
  * Reports `else if` written as two keywords.
  *
  * Ports Drupal.ControlStructures.ElseIf. `mago format` does not change the
- * pair, so nothing else covers it. An `else` with braces around a nested
- * `if` is a different construct. The rule skips it.
+ * pair, so it isn't covered by anything else. An `else` with braces around a
+ * nested `if` is a different construct. The rule skips it.
  */
 final class ElseIfRule implements Rule
 {

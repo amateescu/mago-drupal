@@ -27,7 +27,7 @@ Coder also checks `.test` files, a Drupal 7 format. To check them too, add `test
 extensions.
 
 The same worker adds the [analyzer plugins](../analyzer/index.md) to `mago analyze`. They are on by
-default and need no configuration. To run other Mago extensions in the same worker, see
+default and don't need any configuration. To run other Mago extensions in the same worker, see
 [Your own worker file](worker-arguments.md#your-own-worker-file).
 
 Run Mago as `vendor/bin/mago`. The worker loads the PHP SDK from the same Composer package, and the
@@ -38,8 +38,8 @@ with `Unsupported analyzer protocol version`. The linter rules work either way.
 ## Xdebug and pcov
 
 `-d xdebug.mode=off` turns off Xdebug, and `-d pcov.enabled=0` turns off pcov, the code coverage
-driver that PHPUnit can use. While either one is on, the worker takes up to twice as long, even
-though nothing debugs it or collects coverage. PHP ignores each option when its extension isn't
+driver that PHPUnit can use. While either one is on, the worker takes up to twice as long, even when
+it isn't being debugged or measured for coverage. PHP ignores each option when its extension isn't
 installed.
 
 An `XDEBUG_MODE` environment variable wins over `xdebug.mode`, so

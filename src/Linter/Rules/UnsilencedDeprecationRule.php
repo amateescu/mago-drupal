@@ -30,7 +30,7 @@ use function stripos;
  *
  * The rule reads the calls from the file's target list, the same way that
  * `DeprecationMessageRule` does. That is why `FunctionCall` is a target. The
- * per-call dispatches do nothing.
+ * per-call dispatches don't do anything.
  */
 final class UnsilencedDeprecationRule implements Rule
 {

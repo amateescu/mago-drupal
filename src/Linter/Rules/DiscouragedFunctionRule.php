@@ -67,8 +67,8 @@ final class DiscouragedFunctionRule extends CallRule
             return;
         }
 
-        // A first-class callable such as `dpm(...)` has no argument list to
-        // view, so it skips inspect(). Coder reports it like a call.
+        // A first-class callable such as `dpm(...)` doesn't have an argument
+        // list to view, so it skips inspect(). Coder reports it like a call.
         $name = $this->match($context);
         if ($name !== null) {
             $this->reportName($context, $name);

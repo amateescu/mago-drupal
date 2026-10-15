@@ -135,7 +135,7 @@ final class AnnotatedDeclarations
      *
      * @param array<string, array{string, self}> $disk See merge().
      * @param array<string, string|null> $scanned Real path to the analyzed
-     *   text, or null when that text has no annotation.
+     *   text, or null when that text doesn't have an annotation.
      */
     public static function current(array $disk, array $scanned): self
     {
@@ -143,8 +143,8 @@ final class AnnotatedDeclarations
         $replaced = [];
         foreach ($scanned as $path => $contents) {
             if ($contents === null) {
-                // The analyzed text has none of the annotations the file
-                // may have on disk.
+                // The analyzed text doesn't have any of the annotations the
+                // file may have on disk.
                 $replaced[$path] = true;
                 continue;
             }

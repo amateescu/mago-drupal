@@ -365,8 +365,8 @@ final class DrupalPlugin implements Plugin
     /**
      * The internal classes are read off the disk at registration, since the
      * host wants the ancestors before the first request; a workspace without
-     * any needs no hook at all. Core's own phpstan configuration ignores the
-     * rule, so `--core` leaves it out too.
+     * any doesn't need the hook at all. Core's own phpstan configuration
+     * ignores the rule, so `--core` leaves it out too.
      */
     private function registerInternalParentHook(PluginRegistry $registry): void
     {

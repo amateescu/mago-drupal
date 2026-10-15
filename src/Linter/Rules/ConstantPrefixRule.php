@@ -16,7 +16,8 @@ use Mago\Sdk\Syntax\NodeKind;
 use function str_starts_with;
 
 /**
- * Reports define() constants in a procedural file that have no module prefix.
+ * Reports define() constants in a procedural file that don't have a module
+ * prefix.
  *
  * Ports Drupal.Semantics.ConstantName.ConstantStart. Constants that a module
  * defines share one global namespace. The prefix keeps them apart.

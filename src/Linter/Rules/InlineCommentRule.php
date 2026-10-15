@@ -49,7 +49,7 @@ final class InlineCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-comment',
             name: 'Inline comment',
-            description: "Checks that a `//` comment has one space after `//`, starts with a capital letter, and doesn't use `#`, and that no docblock sits inside code.",
+            description: "Checks that a `//` comment has one space after `//`, starts with a capital letter, and doesn't use `#`, and that a docblock doesn't sit inside code.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

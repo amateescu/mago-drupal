@@ -55,8 +55,8 @@ final class EntityIdField
 
     /**
      * Whether the `id()` a class declares or inherits has a return type that
-     * holds no integer, such as an override typed `: string`. No class means
-     * no such declaration.
+     * doesn't hold an integer, such as an override typed `: string`. It's
+     * false for a null class.
      */
     public static function declaredWithoutInteger(Codebase $codebase, ?string $class): bool
     {

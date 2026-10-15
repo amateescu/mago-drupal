@@ -77,8 +77,8 @@ final class TagSentences
 
     /**
      * Checks that a `@throws` description starts with a capital letter and
-     * ends with terminal punctuation. A type-only `@throws` needs no
-     * description.
+     * ends with terminal punctuation. A type-only `@throws` doesn't
+     * need a description.
      */
     public static function checkThrows(LintContext $context, DocblockTag $tag): void
     {
@@ -189,9 +189,9 @@ final class TagSentences
     }
 
     /**
-     * The span from the first text below the tag's own line to the end of
-     * the tag's last text, or the tag's content when nothing is below.
-     * Coder reports a missing capital letter or full stop in a `@throws`
+     * The span from the first text below the tag's own line to the end of the
+     * tag's last text, or the tag's content when the tag doesn't have text
+     * below. Coder reports a missing capital letter or full stop in a `@throws`
      * description on the first line below the tag.
      */
     private static function textBelowSpan(DocblockTag $tag): Span

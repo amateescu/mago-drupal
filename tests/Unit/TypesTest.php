@@ -33,7 +33,7 @@ final class TypesTest extends TestCase
     }
 
     /**
-     * Every member has to be a literal string, or there is no answer.
+     * Every member has to be a literal string, or there isn't an answer.
      */
     public function testReadsTheValuesOfALiteralStringUnion(): void
     {

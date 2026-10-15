@@ -59,8 +59,8 @@ final class PluginDefinitions
      * an array definition.
      *
      * A class's own definition is an array unless its plugin type has
-     * definition objects, whether or not an interface names the type. The
-     * bases every plugin type extends say nothing, since a subclass of any
+     * definition objects, whether or not an interface names the type. The bases
+     * every plugin type extends don't say anything, since a subclass of any
      * type may be `$this` there.
      */
     public static function ownAreArrays(Codebase $codebase, ClassLikeMetadata $class): bool

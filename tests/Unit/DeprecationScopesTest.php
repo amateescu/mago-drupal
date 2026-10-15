@@ -109,7 +109,8 @@ final class DeprecationScopesTest extends TestCase
     }
 
     /**
-     * An abstract method has no body, so its scope ends at the semicolon.
+     * An abstract method doesn't have a body, so its scope ends at the
+     * semicolon.
      */
     public function testDeclarationWithoutABodyEndsAtTheSemicolon(): void
     {
@@ -126,8 +127,8 @@ final class DeprecationScopesTest extends TestCase
     }
 
     /**
-     * A deprecated method covers its body. A deprecated property opens no
-     * scope, so the method after it is still checked.
+     * A deprecated method covers its body. A deprecated property doesn't
+     * open a scope, so the method after it is still checked.
      */
     public function testDeprecatedDeclarationCoversItsBody(): void
     {

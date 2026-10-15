@@ -45,7 +45,7 @@ final class DocblockGap
 
     /**
      * The edit that puts the code right on the line below the docblock, or
-     * null when it is there already or nothing follows.
+     * null when it is there already or the docblock is last in the file.
      */
     private static function noBlankLine(SourceFile $file, Span $docblock): ?TextEdit
     {
@@ -70,7 +70,8 @@ final class DocblockGap
 
     /**
      * The edit that adds a blank line between the docblock and the code
-     * below it, or null when there is one already or nothing follows.
+     * below it, or null when there is one already or the docblock is last in
+     * the file.
      */
     public static function blankLine(SourceFile $file, Span $docblock): ?TextEdit
     {

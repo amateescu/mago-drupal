@@ -55,7 +55,7 @@ final class IndexesTest extends TestCase
         $indexes->setProvided(['provided' => ['class' => 'Drupal\Core\Provided']]);
         self::assertTrue($indexes->services(AnalysisGenerationTest::codebase(1))->has('provided'));
 
-        // A scan that did not run found nothing new.
+        // A scan that did not run didn't find anything new.
         self::assertTrue($indexes->services(AnalysisGenerationTest::codebase(2))->has('provided'));
 
         // A scan that runs starts over and publishes what it finds.

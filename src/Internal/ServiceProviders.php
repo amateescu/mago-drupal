@@ -360,7 +360,7 @@ final class ServiceProviders
     /**
      * What one use of the variable shows: the definition an assignment puts
      * in it, or the method calls made on it. A `setDefinition()` argument
-     * shows nothing. Null for an assignment of anything but a new
+     * doesn't show anything. Null for an assignment of anything but a new
      * definition.
      *
      * @return array{Built|null, list<Invocation>}|null

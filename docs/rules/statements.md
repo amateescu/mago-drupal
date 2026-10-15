@@ -12,8 +12,8 @@ and for how methods, properties and parameters are declared.
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
 - **Ports:** `Squiz.ControlStructures.SwitchDeclaration.SpacingAfterBreak`
 
-The standard has no sentence for this. Its switch example puts a blank line after the `break` that
-ends each case.
+The standard doesn't have a sentence for this. Its switch example puts a blank line after the
+`break` that ends each case.
 
 **Reports:**
 
@@ -127,8 +127,8 @@ A case that runs on into the next one needs a comment there, so a reader can tel
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
 - **Ports:** `Squiz.ControlStructures.SwitchDeclaration`: `ContentBeforeCase`, `ContentBeforeDefault`
 
-The standard has no sentence for this. Its switch example puts each `case` and `default` label at
-the start of its line.
+The standard doesn't have a sentence for this. Its switch example puts each `case` and `default`
+label at the start of its line.
 
 **Reports:**
 
@@ -182,8 +182,8 @@ the start of its line.
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
 - **Ports:** `PSR2.ControlStructures.SwitchDeclaration`: `WrongOpenercase` (partly), `WrongOpenerdefault` (partly)
 
-The standard has no sentence for this. Its switch example ends each `case` and `default` label with
-a colon.
+The standard doesn't have a sentence for this. Its switch example ends each `case` and `default`
+label with a colon.
 
 **Reports:**
 
@@ -281,7 +281,7 @@ Coder asks every switch to have at least one `case` label.
 
     - The rule reads the labels in the switch's own body. Coder walks tokens, so it needs special
       cases for nested switches.
-    - A file that doesn't parse gives no report. Coder reports a statement placed directly in a
+    - A file that doesn't parse doesn't get a report. Coder reports a statement placed directly in a
       switch body, which is invalid PHP.
 
 ---
@@ -345,8 +345,8 @@ a baseline entry written for one code doesn't cover the other.
 
 Coder asks for a blank line between a function and the code or comment before it. `mago format`
 writes that line after a `use`, `namespace` or `declare` statement, a class and another function,
-and keeps one that is there. It adds none after a plain statement, such as a `define()` call or the
-`}` of an `if`.
+and keeps one that is there. It doesn't add one after a plain statement, such as a `define()` call
+or the `}` of an `if`.
 
 **Reports:**
 
@@ -394,8 +394,8 @@ the function to a line of its own, and the next fix adds the blank line.
 ??? note "Compared with Coder"
 
     - Coder counts the blank line from a `//` comment right above the docblock, and DrupalPractice's
-      `CommentEmptyLine.SpacingAfter` then reports a blank line below that comment. No layout
-      satisfies both. The rule follows `FunctionSpacing`, and
+      `CommentEmptyLine.SpacingAfter` then reports a blank line below that comment. A layout
+      can't satisfy both. The rule follows `FunctionSpacing`, and
       [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) allows
       a blank line between a comment and a docblock.
     - A run of comment lines right above the docblock that holds a tool comment, such as
@@ -431,8 +431,8 @@ the function to a line of its own, and the next fix adds the blank line.
 - **Ports:** core's `SlevomatCodingStandard.Exceptions.RequireNonCapturingCatch`, which is left out
   of Coder's rulesets.
 
-From PHP 8.0, a `catch` clause can leave out its variable. A variable that nothing reads only looks
-like the code uses the exception.
+From PHP 8.0, a `catch` clause can leave out its variable. A variable that's never read only makes
+it look like the code uses the exception.
 
 **Reports:**
 
@@ -541,7 +541,7 @@ need parentheses after `??`. These are reported without a fix:
     - It also reports `X === null ? B : X` where B is a ternary without parentheses, such as
       `$a === null ? $b ?: 1 : $a`, and reports B as well when B matches. The sniff reports neither.
     - The sniff's fix drops comments and casts without notice. Here a comment makes the fix
-      potentially unsafe, and a cast gets no fix.
+      potentially unsafe, and a cast doesn't get a fix.
 
 ---
 
@@ -552,7 +552,7 @@ need parentheses after `??`. These are reported without a fix:
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.Functions.MultiLineFunctionDeclaration.EmptyLine`
 
-Coder asks for no blank lines in a parameter list that spans lines. The standard's format for such
+Coder doesn't allow blank lines in a parameter list that spans lines. The standard's format for such
 a list puts one parameter on each line, and doesn't mention blank lines.
 
 **Reports:**
@@ -610,15 +610,15 @@ Coder asks for one property in each declaration statement.
 - a statement that declares more than one property, as in `public $a, $b;`. The report is on the
   first name.
 
-There is no fix, because a split would have to sort out attributes, the docblock and the comments
+There isn't a fix, because a split would have to sort out attributes, the docblock and the comments
 between the names.
 
 ??? note "Compared with Coder"
 
     - The rule reads the names of the declaration. Coder looks for the next variable before the next
       semicolon, so it reports a property hook that reads `$this` or takes a `$value` parameter, and
-      a property that is followed by a hook with no semicolon in it. The rule reports none of those,
-      because a hooked property has one name.
+      a property that is followed by a hook with no semicolon in it. The rule doesn't report any of
+      those, because a hooked property has one name.
     - Coder skips a property in an enum. The rule doesn't look at the enclosing type, so it also
       reports a multi-name statement in an enum, which is rejected by PHP and reported by Mago as
       well.
@@ -657,7 +657,7 @@ between the names.
 
 - **Level:** warning
 - **Fix:** safe. It removes the statement, and the line when the statement is alone on it. There
-  is no fix when a comment sits inside the statement, such as `return /* note */;`.
+  isn't a fix when a comment sits inside the statement, such as `return /* note */;`.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Squiz.PHP.NonExecutableCode.ReturnNotRequired`
 
@@ -755,7 +755,7 @@ off.
 
 - **Level:** error
 - **Fix:** safe. It writes `[...]` and removes the blank space between `list` and the parenthesis.
-  It is potentially unsafe when it would drop a comment there. An empty `list()` has no fix.
+  It is potentially unsafe when it would drop a comment there. An empty `list()` doesn't have a fix.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `SlevomatCodingStandard.PHP.ShortList.LongListUsed`
 - **Off with `--core`**
@@ -778,7 +778,7 @@ Coder asks for the short `[...]` form for destructuring, as for arrays.
     - Coder's fix drops a comment between `list` and the parenthesis. Here such a fix is potentially
       unsafe, and a plain `--fix` leaves it.
     - Coder fixes an empty `list()` into `[]`, which PHP rejects as well. The rule reports it and
-      offers no fix.
+      doesn't offer a fix.
 
 ---
 
@@ -813,7 +813,7 @@ as in `$a = $b = 1` and `example_save($id = 5)`.
 
 - a parameter, also one that the function assigns;
 - a `catch` variable, and other writes of its name in the same scope.
-  [`drupal/non-capturing-catch`](#drupalnon-capturing-catch) reports one that nothing reads;
+  [`drupal/non-capturing-catch`](#drupalnon-capturing-catch) reports one that's never read;
 - the value of a `$key => $value` foreach, and other writes of its name in the same scope;
 - `$this`, the superglobals, `$argv`, `$argc`, `$http_response_header` and `$HTTP_RAW_POST_DATA`;
 - a variable of a `use (&$x)` list;
@@ -825,7 +825,7 @@ as in `$a = $b = 1` and `example_save($id = 5)`.
 - with `--core`, a `*.api.php` file and the transliteration tables in
   `core/lib/Drupal/Component/Transliteration/data`, which core's `phpcs.xml.dist` leaves out.
 
-Mago's own `no-redundant-variable` reports a value that no later line reads, which is a different
+Mago's own `no-redundant-variable` reports a value that isn't read later, which is a different
 check. The [configuration](../setup/configuration.md) turns it off.
 
 ??? example "Example"

@@ -150,8 +150,8 @@ final class PluginManagerCheck implements MetadataCheck
      *
      * Mago names a file in the workspace relative to it, and the worker reads
      * that name from its own working directory, so a worker started elsewhere
-     * cannot read it. The check then says nothing about the class rather
-     * than report calls it could not see.
+     * cannot read it. The check then doesn't say anything about the class
+     * rather than report calls it could not see.
      *
      * @return array<string, true>|null
      */

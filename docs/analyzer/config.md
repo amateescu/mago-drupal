@@ -1,7 +1,7 @@
 # Config
 
 The analyzer types config objects, and the values read from them by their config schema. The checks
-report config names that no schema describes, and keys that a fully validatable schema doesn't list.
+report config names without a schema, and keys that a fully validatable schema doesn't list.
 
 ## Config objects
 
@@ -48,16 +48,16 @@ The schema types map to PHP types:
 - `array<int|string, T>`, for a sequence;
 - an array shape, for a mapping. The shape lists every key of the mapping. A key is required unless
   it says `requiredKey: false` or is marked `deprecated:`, and `nullable: true` adds `null` to its
-  type. Drupal rejects the keys that a fully validatable mapping doesn't list, so the shape holds no
-  others. A mapping that lists no keys is `array<string, mixed>`.
+  type. Drupal rejects the keys that a fully validatable mapping doesn't list, so the shape doesn't
+  hold any others. A mapping that doesn't list any keys is `array<string, mixed>`.
 
-A key passed to `get()` can always be absent, so `null` stays in its type. `get()` with no key gives
-the shape of the whole object.
+A key passed to `get()` can always be absent, so `null` stays in its type. `get()` without a key
+gives the shape of the whole object.
 
 ## Config storage
 
 `read('name')` on a config `StorageInterface` returns the stored data of the whole object, with the
-same shape, or `false` when nothing is stored under the name:
+same shape, or `false` when the storage doesn't have the name:
 
 ```php
 // array{'_core'?: array{'default_config_hash': string}, 'langcode'?: string,
@@ -141,15 +141,15 @@ without a schema also fails Drupal's strict schema checks in tests.
 
 **Reports:**
 
-- a literal config name that no schema describes. The check reads the name passed to
+- a literal config name without a schema. The check reads the name passed to
   `\Drupal::config()`, a config factory's `get()` or `getEditable()`, or the `config()` method of a
   class that uses `ConfigFormBaseTrait` or extends `ControllerBase` or `FormBase`. A name that a
   wildcard definition such as `user.role.*` covers is described.
 
 **Not reported:**
 
-- a name whose first part isn't `core` and names no module in the codebase. A module that reads the
-  config of an optional module can't expect its schema;
+- a name whose first part isn't `core` and doesn't name a module in the codebase. A module that
+  reads the config of an optional module can't expect its schema;
 - any name while core's own schema isn't in the index;
 - update code (`.install` and `.post_update.php` files);
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).

@@ -14,12 +14,12 @@ use function is_object;
  * Reads the number Mago gives the frozen codebase of one analysis.
  *
  * Every request the host sends carries it, and it moves whenever the host
- * analyzes again, which is what tells one analysis from the next inside a
- * watch or editor session. The SDK keeps it on the metadata cache behind the
- * `Codebase` and publishes no accessor, so it is read by reflection, and a
- * caller has to cope with null. Counting scans in the worker instead is
+ * analyzes again, which is what tells one analysis from the next inside a watch
+ * or editor session. The SDK keeps it on the metadata cache behind the
+ * `Codebase` and doesn't publish an accessor, so it is read by reflection, and
+ * a caller has to cope with null. Counting scans in the worker instead is
  * wrong: a replacement worker replays only the last scan, and an incremental
- * analysis may run none at all.
+ * analysis may not run any at all.
  *
  * @internal
  */

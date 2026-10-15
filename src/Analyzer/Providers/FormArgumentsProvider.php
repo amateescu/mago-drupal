@@ -112,8 +112,8 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
     }
 
     /**
-     * The form class the argument text names, or null when it names none
-     * this provider can be sure of.
+     * The form class the argument text names, or null when it doesn't name
+     * one this provider can be sure of.
      */
     private function formClass(Codebase $codebase, string $expression): ?string
     {
@@ -137,7 +137,7 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
      * fetch gives, or null.
      *
      * Mago asks for the signature before it analyzes the arguments, so the
-     * class is read off the argument's text. The request carries no file,
+     * class is read off the argument's text. The request doesn't have a file,
      * and the answer is kept for every call with the same text, so the
      * file's imports cannot be read. Only a string or a `\Foo\Bar::class`
      * names the class in full. A relative name could be an import alias for
@@ -166,14 +166,14 @@ final class FormArgumentsProvider implements MethodReturnTypeProvider, CallableS
      * `$form_arg` and the parameters of `buildForm()` after the first two,
      * or null when there are none or one of them is named `$form_arg`.
      *
-     * A form that takes nothing after the form state reads what it is
+     * A form that doesn't take anything after the form state reads what it is
      * passed from `$form_state->getBuildInfo()['args']`, if at all, and
      * alter hooks can read it there too, so any number of arguments is fine.
      *
      * An argument goes through `getForm()`'s variadic, so it is passed by
      * value whatever `buildForm()` declares. A default counts only where
      * every later parameter has one too, since PHP makes the others
-     * required, and the SDK takes no required parameter after an optional
+     * required, and the SDK doesn't take a required parameter after an optional
      * one.
      *
      * @return non-empty-list<CallableParameter>|null

@@ -19,9 +19,9 @@ final class PropertyTags
     private function __construct() {}
 
     /**
-     * The tags, or null when the property has no docblock, a comment in the
-     * wrong style, or a docblock with `{@inheritdoc}`. A property that
-     * inherits its parent's docblock has nothing of its own to check.
+     * The tags, or null when the property doesn't have a docblock, a comment in
+     * the wrong style, or a docblock with `{@inheritdoc}`. A property that
+     * inherits its parent's docblock doesn't have anything of its own to check.
      * Coder's sniff makes the same exemption.
      *
      * @return null|list<DocblockTag>

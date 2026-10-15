@@ -66,7 +66,7 @@ final class UnknownPluginHook implements MethodCallAnalysisHook
 
         // The sentinel is a core plugin that is always present once core's
         // plugins were scanned. Without it, core is outside the analyzed code
-        // and an unknown id proves nothing.
+        // and an unknown id doesn't prove anything.
         $sentinel = PluginManagers::SENTINELS[$attribute] ?? null;
         $index = ($this->index)($context->codebase);
         if (
@@ -85,7 +85,7 @@ final class UnknownPluginHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             Issue::new(
-                "No plugin with id \"{$id}\" carries #[{$attribute}].",
+                "The plugin \"{$id}\" isn't declared with #[{$attribute}].",
                 $context->node->span,
                 'unknown plugin id',
             )->withHelp($help),

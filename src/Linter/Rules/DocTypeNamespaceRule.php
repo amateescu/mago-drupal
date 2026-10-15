@@ -76,8 +76,8 @@ final class DocTypeNamespaceRule implements Rule
     {
         // `Use` is a target. Rust then collects every import into the file's
         // target-node list, and the Program pass reads that list at no cost.
-        // The per-import dispatches do nothing. A node table query is one
-        // full, unindexed re-scan per file.
+        // The per-import dispatches don't do anything. A node table query is
+        // one full, unindexed re-scan per file.
         return new RuleDefinition(
             code: 'drupal/doc-type-namespace',
             name: 'Doc comment type namespace',
@@ -192,7 +192,8 @@ final class DocTypeNamespaceRule implements Rule
             $uses[] = $node;
         }
 
-        // The resolved names are the names in the code. Docblocks have none.
+        // The resolved names are the names in the code. Docblocks don't have
+        // any.
         $used = [];
         foreach ($context->file->getResolvedNames() as $name) {
             if (!$name->imported || self::inside($uses, $name->span)) {
@@ -316,8 +317,8 @@ final class DocTypeNamespaceRule implements Rule
         $edits = [];
         $names = [];
         // Keywords such as `int` and `class-string` come out as names too.
-        // PHP reserves the type keywords and allows no hyphen in a class
-        // name, so no import matches them.
+        // PHP reserves the type keywords and doesn't allow a hyphen in a class
+        // name, so they never match an import.
         foreach ($found as [$name, $position]) {
             $import = $imports[$name] ?? null;
             if ($import === null) {

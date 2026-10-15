@@ -51,7 +51,7 @@ final class RuleEntry
         }
 
         if (preg_match('/^- \*\*Fix:\*\* \S/m', $facts) !== 1) {
-            $problems[] = "{$this->code}: the entry has no Fix line.";
+            $problems[] = "{$this->code}: the entry doesn't have a Fix line.";
         }
 
         if (str_contains($facts, '- **Off with `--core`**') !== $offWithCore) {

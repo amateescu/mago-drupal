@@ -19,8 +19,8 @@ use function str_starts_with;
 use function strlen;
 
 /**
- * Reports `expects()` or `method()` on a value whose type names no PHPUnit
- * double.
+ * Reports `expects()` or `method()` on a value whose type doesn't name a
+ * PHPUnit double.
  *
  * MockUnionProvider sees one type of a union at a time, so it answers for a
  * value typed `X` alone just as for the `X` half of `X|MockObject`. This hook

@@ -25,8 +25,8 @@ use function substr;
 /**
  * Reports `array()` syntax inside a docblock's `@code` example block.
  *
- * Ports Drupal.Commenting.DocCommentLongArraySyntax. `@code` content is
- * example source, not real code that Mago parses. Nothing else reports this.
+ * Ports Drupal.Commenting.DocCommentLongArraySyntax. `@code` content is example
+ * source, not real code that Mago parses. This isn't reported by anything else.
  */
 final class DocCommentArraySyntaxRule implements Rule
 {
@@ -44,10 +44,10 @@ final class DocCommentArraySyntaxRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Most files have no @code example at all. One scan of the raw source
-        // skips the docblock parsing for them. A report needs both an example
-        // and the long syntax somewhere in the file. Almost no file has the
-        // long syntax.
+        // Most files don't have a @code example at all. One scan of the raw
+        // source skips the docblock parsing for them. A report needs both an
+        // example and the long syntax somewhere in the file. Most files don't
+        // have the long syntax.
         if (
             !str_contains($context->file->contents, needle: '@code')
             || preg_match('/\barray\s*\(/', $context->file->contents) !== 1

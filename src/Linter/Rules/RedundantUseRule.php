@@ -56,7 +56,7 @@ final class RedundantUseRule implements Rule
             // A Use dispatch sees only the statement itself. The fix rewrites
             // the references to the class, which only the Program pass sees,
             // so the Program pass reads the use statements from the target
-            // list and their own dispatches do nothing.
+            // list and their own dispatches don't do anything.
             targets: [NodeKind::Program, NodeKind::Use],
         );
     }
@@ -263,7 +263,7 @@ final class RedundantUseRule implements Rule
     }
 
     /**
-     * The class an item imports when it has no namespace, without the
+     * The class an item imports when it doesn't have a namespace, without the
      * leading backslash.
      */
     private static function globalClass(SourceFile $file, Node $item): ?string

@@ -59,7 +59,8 @@ final class TranslatableStringRule implements Rule
         }
 
         // A call with only named or only unpacked arguments is not empty. It
-        // has no readable positional argument, so the rule does not check it.
+        // doesn't have a readable positional argument, so the rule does not
+        // check it.
         if ($call->invocation->isEmpty()) {
             $context->report(Issue::new('Do not call ' . $call->callee . ' without arguments.', $context->node->span));
 

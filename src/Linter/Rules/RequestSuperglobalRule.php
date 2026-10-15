@@ -56,7 +56,7 @@ final class RequestSuperglobalRule implements Rule
     {
         $file = $context->file;
 
-        // Almost no file has one of the four names. A text search is much
+        // Most files don't have any of the four names. A text search is much
         // cheaper than a read of every variable.
         $this->gate ??= new FileGate(needles: ['$_GET', '$_POST', '$_FILES', '$_COOKIE']);
         if (!$this->gate->passes($file)) {
@@ -88,7 +88,7 @@ final class RequestSuperglobalRule implements Rule
 
     /**
      * Returns the source text of the first key that indexes the variable, or
-     * NULL when no key does, as in `$_GET`, `$_GET[]` and `foo($_GET)`.
+     * NULL when it isn't indexed, as in `$_GET`, `$_GET[]` and `foo($_GET)`.
      */
     private function indexedKey(SourceFile $file, Node $variable): ?string
     {

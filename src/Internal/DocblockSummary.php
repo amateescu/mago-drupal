@@ -21,7 +21,7 @@ final class DocblockSummary
 
     /**
      * The line that holds the short description, or null when the docblock
-     * has none or writes it on the `@file` line.
+     * doesn't have one or writes it on the `@file` line.
      *
      * @param list<DocblockRow> $rows
      */

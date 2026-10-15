@@ -88,7 +88,7 @@ final class FileDocblock
     /**
      * Whether the file has a PHP open tag. Coder checks every file with one,
      * a `.php` file too. A YAML file, which Mago parses as text outside PHP,
-     * has none.
+     * doesn't have one.
      */
     public static function hasOpenTag(SourceFile $file): bool
     {

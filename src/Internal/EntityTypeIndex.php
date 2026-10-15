@@ -47,7 +47,7 @@ final class EntityTypeIndex
      * @param array<string, non-empty-string> $byClass Lowercased entity class
      *   to entity type id.
      * @param array<string, true> $ambiguous Ids two classes declare, which
-     *   are known but name no definition, as with plugins.
+     *   are known but don't name a definition, as with plugins.
      */
     private function __construct(
         private readonly array $types,
@@ -101,8 +101,8 @@ final class EntityTypeIndex
             }
         }
 
-        // An ambiguous id names no definition, so no class or storage leads
-        // to it either.
+        // An ambiguous id doesn't name a definition, so no class or storage
+        // leads to it either.
         foreach ($ambiguous as $id => $_) {
             unset($types[$id]);
         }
@@ -149,8 +149,8 @@ final class EntityTypeIndex
     }
 
     /**
-     * Whether some class declares the id, even when two do and no definition
-     * can be handed back for it.
+     * Whether some class declares the id, even when two do and a definition
+     * can't be handed back for it.
      */
     public function declares(string $id): bool
     {

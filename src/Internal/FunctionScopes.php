@@ -165,9 +165,9 @@ final class FunctionScopes
     /**
      * Returns the scope of a variable from the regions around it.
      *
-     * An arrow function has no scope of its own. Its body uses the enclosing
-     * scope, except for the names of its parameters. A class body outside a
-     * method, such as a property, is in no scope.
+     * An arrow function doesn't have a scope of its own. Its body uses the
+     * enclosing scope, except for the names of its parameters. A class body
+     * outside a method, such as a property, is in no scope.
      *
      * @param list<Node> $open
      *
@@ -205,7 +205,7 @@ final class FunctionScopes
 
     /**
      * Where the body of an anonymous class starts: at its first member, or
-     * at its end when it has none.
+     * at its end when it doesn't have any.
      */
     private function bodyStart(Node $class): int
     {

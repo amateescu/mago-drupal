@@ -43,7 +43,7 @@ final class PHPStanIgnores
     ) {}
 
     /**
-     * The comments of a file, or null when it has none.
+     * The comments of a file, or null when it doesn't have any.
      */
     public static function of(string $contents): ?self
     {
@@ -80,7 +80,7 @@ final class PHPStanIgnores
 
     /**
      * What the line holding the offset ignores: identifiers, true for all of
-     * them, or null when no comment covers the line.
+     * them, or null when a comment doesn't cover the line.
      *
      * @return list<string>|true|null
      */

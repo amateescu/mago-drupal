@@ -56,7 +56,7 @@ final class MethodVisibilityRule implements Rule
         // Nearly every method declares its visibility. The text says so
         // without reading the method's nodes. A head that the pattern
         // cannot read, such as an attribute with a `]` in it, goes on to the
-        // node walk. Nothing is missed.
+        // node walk. So the rule doesn't miss anything.
         if (preg_match(self::DECLARED, $file->contents, offset: $context->node->span->start) === 1) {
             return;
         }

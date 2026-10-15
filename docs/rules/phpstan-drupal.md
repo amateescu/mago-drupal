@@ -51,7 +51,7 @@ Drupal. Drupal trusts only closures, `service:method` strings and class methods.
     - the date callbacks `#date_date_callbacks` and `#date_time_callbacks`;
     - the component callbacks `#propsAlter` and `#slotsAlter`;
 - a value of those keys that isn't an array literal at all, such as `'#pre_render' => $callbacks`,
-  because nothing can be checked there.
+  because there isn't anything to check there.
 
 **Not reported:**
 
@@ -136,8 +136,8 @@ request. A merge request should resolve its own to-dos rather than land them.
 - anything outside a GitLab merge request pipeline. The issue number comes from the variables set by
   GitLab CI there: the digits at the start of `CI_MERGE_REQUEST_SOURCE_BRANCH_NAME`, as in
   `3456789-fix-thing`, or at the end of `CI_MERGE_REQUEST_SOURCE_PROJECT_PATH`, as in
-  `issue/mymodule-3456789`. Without them, the rule has nothing to compare, so it is on by default,
-  where phpstan-drupal's rule has to be added by hand.
+  `issue/mymodule-3456789`. Without them, the rule doesn't have anything to compare, so it is on by
+  default, where phpstan-drupal's rule has to be added by hand.
 
 ??? note "Compared with phpstan-drupal"
 

@@ -204,7 +204,7 @@ final class Operands
     }
 
     /**
-     * Whether every node below is a plain read with no side effects.
+     * Whether every node below is a plain read without side effects.
      */
     public static function isPure(SourceFile $file, Node $node): bool
     {

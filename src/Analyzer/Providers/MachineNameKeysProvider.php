@@ -19,8 +19,8 @@ use function strtolower;
  *
  * Core documents these as `EntityTypeInterface[]`, `FieldItemListInterface[]`
  * and so on, keyed by entity type ID or field name. A field name matches
- * `/^[_a-z]+[_a-z0-9]*$/`, and entity type IDs are machine names no entity
- * type makes numeric, so PHP never turns one into an integer key. With string
+ * `/^[_a-z]+[_a-z0-9]*$/`, and entity type IDs are machine names that are
+ * never numeric, so PHP never turns one into an integer key. With string
  * keys, `array_keys()` and `foreach` hand the name on to the methods that
  * take one. phpstan-drupal's stubs type the entity's field methods the same
  * way. Only the keys change; the values keep the type core documents.
