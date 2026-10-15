@@ -143,6 +143,34 @@ final class DocType
     }
 
     /**
+     * The items of a comma-separated list, such as the parameters of a
+     * `@method` signature, each with its offset. A comma inside brackets or
+     * quotes doesn't split the list.
+     *
+     * @return list<array{string, int}>
+     */
+    public static function listItems(string $list): array
+    {
+        $items = [];
+        $start = 0;
+        $depth = 0;
+        $length = strlen($list);
+        for ($i = 0; $i < $length; $i++) {
+            $character = $list[$i];
+            $i = self::quoteEnd($list, $i);
+            $depth += self::depthChange($character);
+            if ($depth === 0 && $character === ',') {
+                $items[] = [substr($list, $start, $i - $start), $start];
+                $start = $i + 1;
+            }
+        }
+
+        $items[] = [substr($list, $start), $start];
+
+        return $items;
+    }
+
+    /**
      * Whether every bracket in the type is closed.
      */
     public static function balanced(string $type): bool

@@ -130,19 +130,29 @@ Mago doesn't parse the example as code, so no other rule sees it.
 
 **Reports:**
 
-- a `@param`, `@return`, `@var` or `@throws` type written as the short name of a class that only
-  docblocks use. The rule reads every name in the type, including generic arguments, array shape
-  values and callable parameters, such as `Cc` in `array<string, Cc>`.
+- a class that only docblocks use, written by its short name in:
+    - the type of a `@param`, `@return`, `@var`, `@throws`, `@mixin`, `@property`,
+      `@property-read` or `@property-write` tag, and of the `phpstan-` and `psalm-` forms of
+      `@param`, `@return` and `@var`;
+    - the type after the alias of a `@phpstan-type` or `@psalm-type` tag;
+    - the first word of a `@see` tag, also before `::`, as in `@see Foo::create()`;
+    - the return type and the parameter types of a `@method` tag.
+
+The rule reads every name in a type, including generic arguments, array shape values and callable
+parameters, such as `Cc` in `array<string, Cc>`.
 
 **Not reported:**
 
 - a short name whose import the code uses too;
 - a name after the first space outside brackets, where the type ends, so the return type in
-  `callable(Foo): Bar` isn't read.
+  `callable(Foo): Bar` isn't read;
+- a mention in prose or in `{@link}`. It also keeps the import, as the fix only removes an import
+  when every mention is rewritten.
 
-The fix writes the fully qualified name for each such name in the type, when the whole type is on
-the tag's line and the docblock is below the import, in a file with one namespace. It removes the
-import when every mention of the name in the file's docblocks is rewritten.
+The fix writes the fully qualified name for each such name in the tag, when the part of the tag that
+holds the names is on the tag's line and the docblock is below the import, in a file with one
+namespace. It removes the import when every mention of the name in the file's docblocks is
+rewritten.
 
 ??? example "Example"
 
@@ -205,8 +215,11 @@ import when every mention of the name in the file's docblocks is rewritten.
       class that no longer resolves. Mago counts a docblock mention as a use, so its
       `no-redundant-use` reports only the imports that nothing uses, and this rule reports the ones
       that only docblocks use.
-    - An import that only a `@see` tag mentions is reported by neither rule, and the same goes for
-      any tag other than `@param`, `@return`, `@var` and `@throws`. Coder reports it as unused.
+    - An import that only prose or a `{@link}` mentions is reported by neither rule. Coder reports
+      it as unused.
+    - Mago's `no-redundant-use` also counts a mention by the full name, as in
+      `@var \Drupal\Core\Url` for `use Drupal\Core\Url;`, as a use of the import. Neither rule
+      reports that import, and Coder does.
     - Coder 8's `Drupal.Commenting.DataTypeNamespace`, which is still run by core 11.4's
       `phpcs.xml.dist`, reports a short name even when the code uses its import too. No such sniff
       exists in Coder 9.

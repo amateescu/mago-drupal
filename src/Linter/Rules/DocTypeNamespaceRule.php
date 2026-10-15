@@ -6,8 +6,8 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
-use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\ImportPlan;
+use amateescu\MagoDrupal\Internal\TagClassNames;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -22,7 +22,6 @@ use Mago\Sdk\Syntax\TriviaKind;
 use function array_key_exists;
 use function array_keys;
 use function explode;
-use function in_array;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
@@ -33,8 +32,8 @@ use function strtolower;
 use function substr;
 
 /**
- * Reports a docblock type written as the short name of a class that is
- * imported only for docblocks.
+ * Reports a docblock tag that names a class imported only for docblocks by
+ * its short name.
  *
  * Coder 9 and core 11.5 accept short names in docblocks: they dropped
  * Drupal.Commenting.DataTypeNamespace. But their
@@ -46,6 +45,12 @@ use function substr;
  * import the code also uses is fine. The rule only handles single imports,
  * and skips a grouped or comma-separated `use` statement.
  *
+ * The rule reads the types of `@param`, `@return`, `@var`, `@throws`,
+ * `@mixin` and the `@property` tags, the `phpstan-` and `psalm-` forms of
+ * `@param`, `@return`, `@var` and `@type`, the class in the first word of
+ * `@see`, and the return and parameter types of `@method`. A mention in
+ * prose or in `{@link}` is left alone, and keeps the import.
+ *
  * The rule targets the whole file, not one `use` statement at a time. It
  * thus reads the imports once and walks every docblock once. A per-import
  * dispatch walks every docblock once per import. This has one
@@ -56,8 +61,8 @@ use function substr;
  * class.
  *
  * The fix writes the fully qualified name in place of each imported short
- * name in the tag's type, generic arguments included. It is left out for a
- * type that is not all on the tag's first line, for a docblock above the
+ * name in the tag, generic arguments included. It is left out for a type
+ * that is not all on the tag's first line, for a docblock above the
  * import, and for a file with more than one namespace, whose imports belong
  * to their own block. The import goes only when every mention of its name
  * in the file's docblocks is rewritten.
@@ -67,8 +72,6 @@ use function substr;
  */
 final class DocTypeNamespaceRule implements Rule
 {
-    private const TAGS = ['param', 'return', 'var', 'throws'];
-
     public function getDefinition(): RuleDefinition
     {
         // `Use` is a target. Rust then collects every import into the file's
@@ -78,7 +81,7 @@ final class DocTypeNamespaceRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-type-namespace',
             name: 'Doc comment type namespace',
-            description: 'Reports @param, @return, @var and @throws types written as the short name of a class imported only for docblocks.',
+            description: 'Reports a docblock tag, such as @param or @see, that names a class imported only for docblocks by its short name.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Use, NodeKind::Namespace],
@@ -115,9 +118,7 @@ final class DocTypeNamespaceRule implements Rule
             }
 
             foreach (Docblocks::tags($context->file, $trivia->span) as $tag) {
-                $finding = in_array($tag->name, self::TAGS, strict: true)
-                    ? $this->checkTag($tag, $imports, $fixable)
-                    : null;
+                $finding = $this->checkTag($tag, $imports, $fixable);
                 if ($finding !== null) {
                     $findings[] = $finding;
                 }
@@ -288,9 +289,9 @@ final class DocTypeNamespaceRule implements Rule
     }
 
     /**
-     * The tag's issue when its type names one of the imports by its short
-     * name, with an edit for each such name when the fix applies, and the
-     * short names those edits rewrite.
+     * The tag's issue when it names one of the imports by its short name,
+     * with an edit for each such name when the fix applies, and the short
+     * names those edits rewrite.
      *
      * @param array<string, array{string, int, Node}> $imports
      * @param bool $fixable Whether the file allows the fix at all.
@@ -300,14 +301,16 @@ final class DocTypeNamespaceRule implements Rule
      */
     private function checkTag(DocblockTag $tag, array $imports, bool $fixable): ?array
     {
-        $type = DocType::leading($tag->content());
-        if ($type === null) {
+        $content = $tag->content();
+        $read = TagClassNames::of($tag->name, $content);
+        if ($read === null) {
             return null;
         }
 
-        // The edits need the type's offset, which is known when the whole
-        // type is on the tag's first line.
-        $start = $fixable ? $tag->typeStart($type) : null;
+        // The edits need the names' offsets, which are known when the whole
+        // part of the content that holds them is on the tag's first line.
+        [$length, $found] = $read;
+        $start = $fixable ? $tag->typeStart(substr($content, offset: 0, length: $length)) : null;
 
         $first = null;
         $edits = [];
@@ -315,7 +318,7 @@ final class DocTypeNamespaceRule implements Rule
         // Keywords such as `int` and `class-string` come out as names too.
         // PHP reserves the type keywords and allows no hyphen in a class
         // name, so no import matches them.
-        foreach (DocType::names($type) as [$name, $position]) {
+        foreach ($found as [$name, $position]) {
             $import = $imports[$name] ?? null;
             if ($import === null) {
                 continue;
@@ -336,7 +339,7 @@ final class DocTypeNamespaceRule implements Rule
 
         [$name, $fullyQualified] = $first;
         $issue = Issue::new(
-            "{$name} is imported only for docblocks. Write \\{$fullyQualified} in the @{$tag->name} type and remove the import.",
+            "{$name} is imported only for docblocks. Write \\{$fullyQualified} in the @{$tag->name} tag and remove the import.",
             $tag->contentSpan(),
         )->withHelp('Coder 9 reports an import that only docblocks use as unused, and phpcbf deletes it.');
         foreach ($edits as $edit) {

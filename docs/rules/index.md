@@ -145,7 +145,7 @@ the line-length check for comments. For the comment whitespace set by `mago form
 | [`drupal/author-tag`](comment-text.md#drupalauthor-tag) | warning | Reports @author tags in docblocks. |
 | [`drupal/comment-line-length`](comment-text.md#drupalcomment-line-length) | warning | Reports comment lines longer than 80 characters. |
 | [`drupal/doc-comment-array-syntax`](comment-text.md#drupaldoc-comment-array-syntax) | warning | Reports `array()` syntax inside a docblock @code example. |
-| [`drupal/doc-type-namespace`](comment-text.md#drupaldoc-type-namespace) | warning | Reports @param, @return, @var and @throws types written as the short name of a class imported only for docblocks. |
+| [`drupal/doc-type-namespace`](comment-text.md#drupaldoc-type-namespace) | warning | Reports a docblock tag, such as @param or @see, that names a class imported only for docblocks by its short name. |
 | [`drupal/expected-exception-tag`](comment-text.md#drupalexpected-exception-tag) | warning | Reports the legacy PHPUnit @expectedException* docblock tags. |
 | [`drupal/gender-neutral-comment`](comment-text.md#drupalgender-neutral-comment) | warning | Reports gendered pronouns in comments. |
 | [`drupal/inline-comment`](comment-text.md#drupalinline-comment) | warning | Checks that a `//` comment has one space after `//`, starts with a capital letter, and doesn't use `#`, and that no docblock sits inside code. |
