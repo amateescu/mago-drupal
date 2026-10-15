@@ -83,12 +83,12 @@ final class AnnotatedDeclarationsTest extends TestCase
             file_put_contents($directory . '/Saved.php', data: self::block('Saved', 'saved_id'));
             file_put_contents($directory . '/Included.php', data: self::block('Included', 'included_id'));
             $real = (string) realpath($directory);
-            $disk = AnnotatedDeclarations::byFile([
+            $disk = AnnotatedDeclarations::merge(array_map(AnnotatedDeclarations::file(...), [
                 $directory . '/Renamed.php',
                 $directory . '/Dropped.php',
                 $directory . '/Saved.php',
                 $directory . '/Included.php',
-            ]);
+            ]));
 
             $current = AnnotatedDeclarations::current($disk, [
                 $real . '/Renamed.php' => self::block('Renamed', 'new_id'),

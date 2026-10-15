@@ -76,7 +76,7 @@ final class HookCommentRule implements Rule
             description: 'Checks the "Implements hook_x()." docblock convention on a hook implementation.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
-            targets: [NodeKind::Program, NodeKind::Method],
+            targets: [NodeKind::Program, NodeKind::Method, NodeKind::Function],
         );
     }
 
@@ -87,6 +87,12 @@ final class HookCommentRule implements Rule
                 $this->checkMethod($context, $context->node);
             }
 
+            return;
+        }
+
+        // Function is a target for `TopLevel::functions()`. Its own
+        // dispatches do nothing.
+        if ($context->node->kind !== NodeKind::Program) {
             return;
         }
 

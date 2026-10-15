@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Internal;
 
 use function array_key_exists;
 use function file_get_contents;
+use function is_array;
 use function is_file;
 use function is_string;
 use function ltrim;
@@ -31,6 +32,7 @@ use function strtolower;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final class AnnotatedDeclarations
 {
@@ -74,25 +76,42 @@ final class AnnotatedDeclarations
     ) {}
 
     /**
-     * Reads the annotated classes of PHP files under the Drupal root off
-     * disk, the analyzed ones included: the declarations of each file that
-     * has an annotation, by real path, with a hash of the text they were
-     * read from.
+     * The declarations of one PHP file under the Drupal root, read off disk,
+     * with its real path and a hash of the text they were read from, or null
+     * for a file without an annotation.
      *
-     * @param list<string> $paths
+     * @return array{string, string, self}|null
+     */
+    public static function file(string $path): ?array
+    {
+        $contents = is_file($path) ? file_get_contents($path) : false;
+        if ($contents === false || preg_match(self::GATE, $contents) !== 1) {
+            return null;
+        }
+
+        $real = realpath($path);
+
+        return [$real === false ? $path : $real, sha1($contents), self::fromContents($contents)];
+    }
+
+    /**
+     * The declarations of several files, from what file() read in each, in
+     * the shape `DrupalRoot::annotatedFiles()` returns.
+     *
+     * @param iterable<mixed> $read
      * @return array<string, array{string, self}>
      */
-    public static function byFile(array $paths): array
+    public static function merge(iterable $read): array
     {
         $files = [];
-        foreach ($paths as $path) {
-            $contents = is_file($path) ? file_get_contents($path) : false;
-            if ($contents === false || preg_match(self::GATE, $contents) !== 1) {
+        /** @var mixed $one */
+        foreach ($read as $one) {
+            if (!is_array($one)) {
                 continue;
             }
 
-            $real = realpath($path);
-            $files[$real === false ? $path : $real] = [sha1($contents), self::fromContents($contents)];
+            /** @var array{string, string, self} $one */
+            $files[$one[0]] = [$one[1], $one[2]];
         }
 
         return $files;
@@ -114,7 +133,7 @@ final class AnnotatedDeclarations
      * have saved; every other file from disk. Where the two texts match, the
      * disk entry is used as is.
      *
-     * @param array<string, array{string, self}> $disk See byFile().
+     * @param array<string, array{string, self}> $disk See merge().
      * @param array<string, string|null> $scanned Real path to the analyzed
      *   text, or null when that text has no annotation.
      */

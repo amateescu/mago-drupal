@@ -22,7 +22,7 @@ Register the worker in `mago.toml`, and add Drupal's file extensions:
 extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
 
 [extension-hosts.drupal]
-command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 [Configuration](docs/setup/configuration.md) has the formatter and analyzer excludes that go with

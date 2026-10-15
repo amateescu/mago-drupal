@@ -8,6 +8,7 @@ use PhpToken;
 
 use function count;
 use function file_get_contents;
+use function is_array;
 use function is_file;
 use function str_contains;
 use function strtolower;
@@ -49,6 +50,7 @@ use const T_WHITESPACE;
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
+ * @mago-expect lint:too-many-methods
  */
 final class DeprecatedSymbolScan
 {
@@ -125,24 +127,55 @@ final class DeprecatedSymbolScan
     private function __construct() {}
 
     /**
-     * @param list<string> $files
+     * What one file declares deprecated, in the shape merge() takes, or null
+     * for a file without the tag.
+     *
+     * @return array{
+     *   classLikes: array<string, string>,
+     *   interfaces: list<non-empty-string>,
+     *   methods: array<string, string>,
+     * }|null
      */
-    public static function files(array $files): DeprecatedSymbols
+    public static function file(string $file): ?array
     {
+        $source = is_file($file) ? file_get_contents($file) : false;
+        if ($source === false || !str_contains($source, self::TAG)) {
+            return null;
+        }
+
         $scan = new self();
-        foreach ($files as $file) {
-            $source = is_file($file) ? file_get_contents($file) : false;
-            if ($source === false || !str_contains($source, self::TAG)) {
+        $scan->walk(PhpToken::tokenize($source));
+
+        return $scan->found;
+    }
+
+    /**
+     * The symbols of several files, from what file() found in each, in file
+     * order. A later file's text wins for a name two files declare.
+     *
+     * @param iterable<mixed> $found
+     */
+    public static function merge(iterable $found): DeprecatedSymbols
+    {
+        $classLikes = [];
+        $interfaces = [];
+        $methods = [];
+        /** @var mixed $one */
+        foreach ($found as $one) {
+            if (!is_array($one)) {
                 continue;
             }
 
-            [$scan->namespace, $scan->class, $scan->pending, $scan->depth, $scan->text] = ['', null, null, 0, null];
-            $scan->walk(PhpToken::tokenize($source));
+            // No key is numeric, so a spread keeps each name where it first
+            // came, with the text of the last file that declares it.
+            /** @var array{classLikes: array<string, string>, interfaces: list<non-empty-string>, methods: array<string, string>} $file */
+            $file = $one;
+            $classLikes = [...$classLikes, ...$file['classLikes']];
+            $interfaces = [...$interfaces, ...$file['interfaces']];
+            $methods = [...$methods, ...$file['methods']];
         }
 
-        $found = $scan->found;
-
-        return new DeprecatedSymbols($found['classLikes'], $found['interfaces'], $found['methods']);
+        return new DeprecatedSymbols($classLikes, $interfaces, $methods);
     }
 
     /**

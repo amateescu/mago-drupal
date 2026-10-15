@@ -158,6 +158,6 @@ final class FieldNamesTest extends TestCase
 
     public function testEveryNameCountsWithoutAnyDefinition(): void
     {
-        self::assertTrue(FieldNames::fromFiles([], [])->has('pass_raw'));
+        self::assertTrue(FieldNames::merge([])->has('pass_raw'));
     }
 }

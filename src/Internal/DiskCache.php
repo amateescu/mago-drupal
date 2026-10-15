@@ -257,6 +257,41 @@ final class DiskCache
     }
 
     /**
+     * The stamp of each file (see stamp()), by path.
+     *
+     * @param list<string> $paths
+     * @return array<string, string|null>
+     */
+    public static function stamps(array $paths): array
+    {
+        // PHP keeps the last stat result, and before 8.3 a write does not
+        // drop it.
+        clearstatcache();
+        $stamps = [];
+        foreach ($paths as $path) {
+            $stamps[$path] ??= self::stamp($path);
+        }
+
+        return $stamps;
+    }
+
+    /**
+     * The modification time and size of one file, as `<mtime>|<size>`, or
+     * null while it may still be changing (see fingerprint()). A missing
+     * file counts as time and size 0. The caller clears the stat cache.
+     */
+    public static function stamp(string $path): ?string
+    {
+        $recent = time() - self::RECENT;
+
+        return self::quietly(static function () use ($path, $recent): ?string {
+            $mtime = (int) filemtime($path);
+
+            return $mtime >= $recent ? null : (string) $mtime . '|' . (string) (int) filesize($path);
+        });
+    }
+
+    /**
      * @param list<class-string> $classes Classes the stored value may contain.
      */
     public function get(string $kind, string $fingerprint, array $classes = []): mixed

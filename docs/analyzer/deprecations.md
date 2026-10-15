@@ -71,7 +71,7 @@ for later. This is the "fix now" list of upgrade_status.
 
 ```toml
 [extension-hosts.drupal]
-command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--deprecations=12"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--deprecations=12"]
 ```
 
 The removal version comes from the `@deprecated` text, in Drupal's form:

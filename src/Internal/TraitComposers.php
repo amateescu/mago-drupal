@@ -44,6 +44,21 @@ final class TraitComposers
      */
     public static function fromFiles(array $files, string $trait): self
     {
+        return self::scan($files, $trait)[0];
+    }
+
+    /**
+     * The classes and traits that use the trait, with the files the scan
+     * read the declarations of: those that name the trait or one of the
+     * traits found.
+     *
+     * @param list<string> $files
+     * @param non-empty-string $trait
+     * @return array{self, array<string, true>}
+     */
+    public static function scan(array $files, string $trait): array
+    {
+        $walked = [];
         $own = strtolower(ltrim($trait, characters: '\\'));
         /** @var array<string, non-empty-string> $traits */
         $traits = [$own => $trait];
@@ -58,6 +73,8 @@ final class TraitComposers
                 if ($source === false || !self::mentionsAny($source, $wanted)) {
                     continue;
                 }
+
+                $walked[$file] = true;
 
                 foreach ((new TraitComposerWalk($traits))->walk(PhpToken::tokenize($source)) as [$name, $isTrait]) {
                     $key = strtolower($name);
@@ -76,7 +93,20 @@ final class TraitComposers
 
         unset($traits[$own]);
 
-        return new self(array_values($classes), array_values($traits));
+        return [new self(array_values($classes), array_values($traits)), $walked];
+    }
+
+    /**
+     * Whether the file names the trait or one of the traits that use it, as
+     * the scan looks for them.
+     *
+     * @param non-empty-string $trait
+     */
+    public function namedIn(string $file, string $trait): bool
+    {
+        $source = is_file($file) ? file_get_contents($file) : false;
+
+        return $source !== false && self::mentionsAny($source, [$trait, ...$this->traits]);
     }
 
     /**

@@ -26,7 +26,7 @@ excludes = ["src/UseLeadingBackslash.php", "**/*.yml"]
 
 # `--deprecations=12` so src/DeprecationTargets.php can prove it.
 [extension-hosts.drupal]
-command = ["php", "../../resources/worker.php", "--deprecations=12"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "../../resources/worker.php", "--deprecations=12"]
 workers = 1
 
 [analyzer]

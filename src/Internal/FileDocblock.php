@@ -18,14 +18,40 @@ use function substr;
  * Finds the comment at the start of a file, and tells which files Coder
  * checks for a file docblock, as Drupal.Commenting.FileComment does.
  *
+ * The single pass over the target nodes sorts them by kind in one match.
+ *
  * @internal
+ *
+ * @mago-expect lint:kan-defect
  */
 final class FileDocblock
 {
     /**
-     * The declarations that Coder counts as a class.
+     * The node kinds that a rule calling isClassFile() or
+     * isNamespacedClassFile() must target, besides `Program`. Rust then puts
+     * every node of these kinds in the file's target-node list, which the
+     * worker builds before the rules run. One pass over that list replaces a
+     * getNodes() call per kind, and each of those re-scans the whole tree.
      */
-    private const CLASS_LIKES = [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum];
+    public const DECLARATIONS = [
+        NodeKind::Class_,
+        NodeKind::Interface,
+        NodeKind::Trait,
+        NodeKind::Enum,
+        NodeKind::Namespace,
+        NodeKind::Function,
+        NodeKind::Method,
+    ];
+
+    private static ?SourceFile $file = null;
+
+    /**
+     * The class-likes, whether there is a namespace, and the functions and
+     * methods of the last file.
+     *
+     * @var array{list<Node>, bool, list<Node>}
+     */
+    private static array $declarations = [[], false, []];
 
     private function __construct() {}
 
@@ -77,12 +103,12 @@ final class FileDocblock
      */
     public static function isClassFile(SourceFile $file): bool
     {
-        $declarations = self::classLikes($file);
+        [$declarations, $namespaced, $functions] = self::declarations($file);
         if ($declarations === []) {
             return false;
         }
 
-        if ($file->getNodes(NodeKind::Namespace) !== []) {
+        if ($namespaced) {
             return true;
         }
 
@@ -93,7 +119,7 @@ final class FileDocblock
         // Coder counts a function, or a method of an anonymous class, outside
         // the class. A closure or an arrow function does not count.
         $class = $declarations[0]->span;
-        foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
+        foreach ($functions as $function) {
             if (!$class->contains($function->span)) {
                 return false;
             }
@@ -114,21 +140,38 @@ final class FileDocblock
      */
     public static function isNamespacedClassFile(SourceFile $file): bool
     {
-        return $file->getNodes(NodeKind::Namespace) !== [] && count(self::classLikes($file)) === 1;
+        [$declarations, $namespaced] = self::declarations($file);
+
+        return $namespaced && count($declarations) === 1;
     }
 
     /**
-     * The class, interface, trait and enum declarations of the file.
+     * The class, interface, trait and enum declarations of the file, whether
+     * it has a namespace, and its functions and methods. Coder counts the
+     * first four as a class.
      *
-     * @return list<Node>
+     * @return array{list<Node>, bool, list<Node>}
      */
-    private static function classLikes(SourceFile $file): array
+    private static function declarations(SourceFile $file): array
     {
-        $declarations = [];
-        foreach (self::CLASS_LIKES as $kind) {
-            $declarations = [...$declarations, ...$file->getNodes($kind)];
+        if (self::$file === $file) {
+            return self::$declarations;
         }
 
-        return $declarations;
+        $classLikes = [];
+        $namespaced = false;
+        $functions = [];
+        foreach ($file->getTargetNodes() as $node) {
+            match ($node->kind) {
+                NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum => $classLikes[] = $node,
+                NodeKind::Function, NodeKind::Method => $functions[] = $node,
+                NodeKind::Namespace => $namespaced = true,
+                default => null,
+            };
+        }
+
+        self::$file = $file;
+
+        return self::$declarations = [$classLikes, $namespaced, $functions];
     }
 }

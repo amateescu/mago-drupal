@@ -44,7 +44,7 @@ the config file is kept outside the project, set `working-directory` to the proj
 
 ```toml
 [extension-hosts.drupal]
-command = ["php", "/path/to/mago-drupal/resources/worker.php", "--root=/path/to/drupal"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "/path/to/mago-drupal/resources/worker.php", "--root=/path/to/drupal"]
 working-directory = "/path/to/project"
 ```
 
@@ -60,7 +60,7 @@ Mago doesn't take this extension's rule codes under `[linter.rules]`. To turn ru
 
 ```toml
 [extension-hosts.drupal]
-command = ["php", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
 ```
 
 A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an
@@ -79,3 +79,50 @@ ignore = [
     { code = "drupal/entity-storage-injection", in = "src/Legacy/" },
 ]
 ```
+
+## Your own worker file
+
+`worker.php` turns its arguments into a call to `DrupalExtension::create()`. A project can make that
+call in its own worker file instead, and run other Mago extensions in the same worker. They then
+share one pool of PHP processes. With `worker.php`, each extension needs its own extension host,
+and each host starts its own pool.
+
+Save the file as `.mago/extensions.php` in the project:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use amateescu\MagoDrupal\DrupalExtension;
+use Mago\Sdk\Worker;
+
+// Mago reads the worker's stdout as its protocol stream, so PHP errors go to stderr.
+ini_set('display_errors', 'stderr');
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+(new Worker(
+    DrupalExtension::create(),
+    // Other extensions go here.
+))->run();
+```
+
+Then point the command at it:
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", ".mago/extensions.php"]
+```
+
+Each worker argument has a named argument of `create()`:
+
+| Worker argument | `create()` argument |
+| --- | --- |
+| `--core` | `core: true` |
+| `--root=PATH` | `root: 'PATH'` |
+| `--deprecations=12` | `deprecations: 12` |
+| `--disable=<code>,<code>` | `disabled: ['<code>', '<code>']` |
+
+For example, `DrupalExtension::create(core: true, deprecations: 12)` does the same as
+`"--core", "--deprecations=12"`.

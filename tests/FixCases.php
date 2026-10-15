@@ -118,7 +118,7 @@ foreach ($groups as $key => $cases) {
     $workspace = sys_get_temp_dir() . '/mago-drupal-fixes-' . getmypid() . '-' . $rule . ($flag === '' ? '' : '-' . substr($flag, 2));
     mkdir($workspace, recursive: true);
     file_put_contents($workspace . '/mago.toml', sprintf(
-        "version = \"1\"\nphp-version = \"8.1\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"%s\"]\n",
+        "version = \"1\"\nphp-version = \"8.1\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"-d\", \"xdebug.mode=off\", \"-d\", \"pcov.enabled=0\", \"%s\"]\n",
         $worker,
     ));
     foreach ($cases as $case) {
