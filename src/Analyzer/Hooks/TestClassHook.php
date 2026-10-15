@@ -7,12 +7,12 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Checks\TestClassCheck;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
+use amateescu\MagoDrupal\Internal\TestClassSuffix;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
-use Mago\Sdk\Analyzer\Type\Visibility;
 use Mago\Sdk\Syntax\NodeKind;
 
 /**
@@ -21,8 +21,10 @@ use Mago\Sdk\Syntax\NodeKind;
  * Test classes are the largest group of classes in core, so the class text,
  * or for the component test rule the file's namespace, decides first whether
  * any rule could report, and only then is the class looked up. The `Test`
- * suffix is the linter rule `drupal/test-class-suffix`. The `$modules`
- * property is fetched by name rather than through the class's property list.
+ * suffix is mostly the linter rule `drupal/test-class-suffix`, and the name
+ * check here reports the classes that the linter rule doesn't take for
+ * tests. The `$modules` property is fetched by name rather than through the
+ * class's property list.
  *
  * @internal
  */
@@ -44,14 +46,17 @@ final class TestClassHook implements ClassLikeAnalysisHook
             return;
         }
 
-        // The component test rule reads the file's namespace, the other two
-        // the class text.
-        $mayReport = TestClassCheck::mayReport($context->source->getText($context->node->span));
-        if (!$mayReport && !TestClassCheck::mayBeComponentTest($context->source->contents)) {
+        // The component test rule reads the file's namespace, the other
+        // rules the class text.
+        $source = $context->source;
+        $text = $source->getText($context->node->span);
+        $mayReport = TestClassCheck::mayReport($text);
+        $misnamed = TestClassSuffix::mayBeMisnamed($text, $source->path, $source->contents);
+        if (!$mayReport && !$misnamed && !TestClassCheck::mayBeComponentTest($source->contents)) {
             return;
         }
 
-        $class = DeclaredClass::resolve($context->source, $context->node, $context->codebase);
+        $class = DeclaredClass::resolve($source, $context->node, $context->codebase);
         if ($class === null || $class->kind !== ClassLikeKind::Class_) {
             return;
         }
@@ -59,6 +64,15 @@ final class TestClassHook implements ClassLikeAnalysisHook
         $name = $class->originalName;
         $where = $class->nameLocation ?? $class->location;
         $reporter = new Reporter($context);
+        $shortName = $misnamed ? TestClassSuffix::misnamed($class) : null;
+        if ($shortName !== null) {
+            $reporter->error(TestClassCheck::NAME_CODE, Reporter::issue(
+                "Test class {$shortName} must have a name that ends in Test. PHPUnit runs only the files named *Test.php, so this test never runs.",
+                $where,
+                'Rename the class and its file to end in Test, or make the class abstract if it is a base class.',
+            ));
+        }
+
         $coreBase = TestClassCheck::coreBase($name, $class->directParentClass, $class->parentClasses);
         if ($coreBase !== null) {
             $reporter->error(TestClassCheck::COMPONENT_CODE, Reporter::issue(
@@ -68,19 +82,9 @@ final class TestClassHook implements ClassLikeAnalysisHook
             ));
         }
 
-        // An inherited or trait property has its name in another file or
-        // outside this class and is the declaring class's business.
         $modules = $mayReport ? $context->codebase->getProperty($name, '$modules') : null;
-        if ($modules === null || $modules->readVisibility !== Visibility::Public) {
-            return;
-        }
-
-        $location = $modules->nameLocation ?? $modules->location;
-        if (
-            $location === null
-            || $location->file !== $context->source->path
-            || !$context->node->span->contains($location->span)
-        ) {
+        $location = TestClassCheck::publicModules($modules, $source->path, $context->node->span);
+        if ($location === null) {
             return;
         }
 

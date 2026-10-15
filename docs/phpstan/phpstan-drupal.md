@@ -150,8 +150,8 @@ Off by default in phpstan-drupal.
 - `renderCallback.containsClosure`: [`drupal/form-closure-callback`](../analyzer/render-and-forms.md#drupalform-closure-callback)
 - `renderCallback.expectsArrayOfCallbacks`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
 - `renderCallback.expectsCallableArrayWithArguments`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
-- `renderCallback.invalidKeyValue`: nothing. A callback whose type isn't known to be callable, such as a number or a string variable.
-- `renderCallback.nonCallableCallback`: [`drupal/unknown-callback`](../analyzer/render-and-forms.md#drupalunknown-callback)
+- `renderCallback.invalidKeyValue`: [`drupal/invalid-callback`](../analyzer/render-and-forms.md#drupalinvalid-callback), partly
+- `renderCallback.nonCallableCallback`: [`drupal/unknown-callback`](../analyzer/render-and-forms.md#drupalunknown-callback), [`drupal/invalid-callback`](../analyzer/render-and-forms.md#drupalinvalid-callback)
 - `renderCallback.nonTrustedCallback`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
 
 ### StaticServiceDeprecatedServiceRule
@@ -168,7 +168,7 @@ Off by default in phpstan-drupal.
 
 ### TestClassSuffixNameRule
 
-- `nonAbstractTestClass.NameNoSuffixTest`: [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix), partly
+- `nonAbstractTestClass.NameNoSuffixTest`: [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix), [`drupal/test-class-name`](../analyzer/tests.md#drupaltest-class-name)
 
 ### TodoCommentWithIssueUrlRule
 
@@ -205,7 +205,7 @@ plugin does the same work, and the linked section says how.
 - `EntityRepositoryReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead.
-- `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. It isn't narrowed by a `hasKey()` call for the same key.
+- `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. A `hasKey()` check for the same key doesn't narrow it, but the reports about a possible `false` from a `getKey()` call that such a check guards in an `if` are dropped.
 - `EntityTypeLinkTemplateByExistence`: nothing. `getLinkTemplate()` isn't false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
 - `EntityTypeManagerGetStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `GetQueryReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)

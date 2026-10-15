@@ -175,6 +175,7 @@ Not ported from phpstan-drupal's type extensions:
 - narrowing one method's result by another call on the same object: `id()` isn't null once `isNew()`
   is false, and `getKey()` or `getLinkTemplate()` isn't false once `hasKey()` or `hasLinkTemplate()`
   is true for the same key. Mago's assertions narrow a variable or a parameter, not what another
-  method returns. `getKey()` is a string for the keys that every entity type has, see
-  [Entity type keys](entities.md#entity-type-keys);
+  method returns. `getKey()` is a string for the keys that every entity type has, and the plugin
+  drops the reports about a possible `false` from a `getKey()` call that a `hasKey()` check guards,
+  see [Entity type keys](entities.md#entity-type-keys);
 - the `entity-type-id` docblock type.

@@ -50,6 +50,8 @@ namespace Drupal\Core\Entity {
          * @return string|false
          */
         public function getKey(string $key);
+
+        public function hasKey(string $key): bool;
     }
 
     interface ContentEntityTypeInterface extends EntityTypeInterface {}

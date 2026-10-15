@@ -131,7 +131,8 @@ quiet.
 
 - a `service:method` string, since the container may hand back a decorator or a lazy proxy;
 - closures, first-class callables, variables and anything computed. A closure in a form is
-  [`drupal/form-closure-callback`](#drupalform-closure-callback);
+  [`drupal/form-closure-callback`](#drupalform-closure-callback), and a value whose type can never
+  be called is [`drupal/invalid-callback`](#drupalinvalid-callback);
 - a class not scanned by Mago, or one whose hierarchy couldn't be resolved;
 - the `form_submit` of a batch set. `_batch_next_set()` checks it with a plain `is_callable()`
   before it resolves it, so a `'::method'` or a `'Class::method'` that names an instance method is
@@ -559,6 +560,71 @@ cached between requests, as for an AJAX rebuild, and PHP can't serialize a closu
     phpstan-drupal reads a callback only from an array literal. The check also reads a closure
     assigned or appended to the key, or added with `array_unshift()`, `array_push()` or
     `array_merge()`.
+
+---
+
+## drupal/invalid-callback
+
+- **Level:** error
+- **Source:** phpstan-drupal
+- **Ports:** phpstan-drupal's `RenderCallbackRule`, the check of the value's type
+
+phpstan-drupal reports a value under a render callback key whose type isn't surely callable. Core
+hands such a value to `doTrustedCallback()`, which throws for anything that PHP can't call.
+
+**Reports:**
+
+- a value under a render, date or component key whose type PHP can never call: an int, a float, a
+  bool, NULL, an array that can't be a two-element pair, or an object without `__invoke()`. Every
+  member of a union must be one of them, as in `?int`.
+
+The keys are `#pre_render`, `#post_render`, the first element of `#lazy_builder`,
+`#access_callback`, `#date_date_callbacks`, `#date_time_callbacks`, `#propsAlter` and
+`#slotsAlter`. An object counts when its class doesn't have `__invoke()`, and no descendant in the
+codebase has it either, unless the class is final.
+
+**Not reported:**
+
+- a string, which may name a function or a method, and `mixed`, which may be anything. So a callback
+  read from config or passed in as a string stays quiet;
+- a closure, a `callable`, an array that may be a pair, such as `[$object, $method]` or
+  `array<int, string>`, and an object of a class not scanned by Mago;
+- the callbacks that the other checks read, such as `[Helper::class, 'build']`;
+- test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    function example_build(?int $weight): array {
+      return [
+        '#markup' => '',
+        '#pre_render' => [$weight],
+      ];
+    }
+
+    // Fine.
+    function example_build(callable $callback): array {
+      return [
+        '#markup' => '',
+        '#pre_render' => [$callback],
+      ];
+    }
+    ```
+
+??? note "Compared with phpstan-drupal"
+
+    - phpstan-drupal reports any value that isn't surely callable, so it also reports a `string`, a
+      `?string`, `mixed` and an array such as `array<int, string>`. Core runs a string from config
+      or from a parameter when it names a trusted callback, so the check leaves those alone.
+    - phpstan-drupal reports `[$class, 'method']` with a `string $class` as not callable. The check
+      leaves it alone too.
+    - phpstan-drupal reports an array that isn't a pair, such as
+      `[Helper::class, 'build', 'extra']`, under its `renderCallback.nonCallableCallback`
+      identifier. The check reports it with the other values that can never be called.
+    - phpstan-drupal reads a callback only from an array literal, and doesn't check the component
+      keys. The check also reads a value assigned or appended to the key, or added with
+      `array_unshift()`, `array_push()` or `array_merge()`.
 
 ---
 

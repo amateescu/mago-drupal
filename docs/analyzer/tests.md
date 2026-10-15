@@ -485,3 +485,62 @@ reported once, and not again on the tests below it.
 ??? note "Compared with core's rule"
 
     Core's rule reports every component test below such a base too, not only the base.
+
+---
+
+## drupal/test-class-name
+
+- **Level:** error
+- **Source:** phpstan-drupal
+- **Ports:** phpstan-drupal's `TestClassSuffixNameRule`, the part that needs the class's ancestry
+
+PHPUnit runs only the files named `*Test.php`, and so do `phpunit -c core` and run-tests.sh, so a
+test class whose name doesn't end in `Test` never runs. The lint rule
+[`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix) reports most of
+them from the parent's name, with no types. The check reports the ones that the lint rule can't
+tell apart from other classes.
+
+**Reports:**
+
+- a concrete class that descends from PHPUnit's `TestCase`, whose name doesn't end in `Test`, and
+  that `drupal/test-class-suffix` doesn't take for a test. That is a class outside the lint rule's
+  test directories, such as one directly in `tests/src` or in `src`, a class whose parent's name
+  doesn't end in `Test`, `TestBase` or `TestCase`, and a class whose parent is declared in the same
+  file without such a parent of its own.
+
+**Not reported:**
+
+- a class that the lint rule reports, so a class gets one report when both run;
+- an abstract class and an anonymous class.
+
+??? example "Example"
+
+    ```php title="modules/example/tests/src/Unit/ExampleUnitBase.php"
+    namespace Drupal\Tests\example\Unit;
+
+    use Drupal\Tests\UnitTestCase;
+
+    abstract class ExampleUnitBase extends UnitTestCase {
+    }
+    ```
+
+    ```php title="modules/example/tests/src/Unit/ExampleChecks.php"
+    // Reported.
+    namespace Drupal\Tests\example\Unit;
+
+    final class ExampleChecks extends ExampleUnitBase {
+    }
+
+    // Fine.
+    // The class and its file are named ExampleChecksTest.
+    namespace Drupal\Tests\example\Unit;
+
+    final class ExampleChecksTest extends ExampleUnitBase {
+    }
+    ```
+
+??? note "Compared with phpstan-drupal"
+
+    phpstan-drupal reports every such class from one rule. The check leaves the classes that the
+    lint rule reports to it, so a project that runs `mago analyze` without `mago lint` doesn't see
+    those.

@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
+use Mago\Sdk\Analyzer\Metadata\PropertyMetadata;
+use Mago\Sdk\Analyzer\Type\Visibility;
+use Mago\Sdk\SourceLocation;
+use Mago\Sdk\Span;
+
 use function in_array;
 use function preg_match;
 use function str_contains;
@@ -14,10 +19,12 @@ use function strtolower;
  * Codes and the text gates of the test class conventions; TestClassHook
  * does the checking.
  *
- * Ports phpstan-drupal's TestClassesProtectedPropertyModulesRule and core's
- * own ComponentTestDoesNotExtendCoreTest rule. phpstan-drupal's
- * TestClassSuffixNameRule is the linter rule `drupal/test-class-suffix`,
- * which needs no class lookup.
+ * Ports phpstan-drupal's TestClassesProtectedPropertyModulesRule and
+ * TestClassSuffixNameRule, and core's own ComponentTestDoesNotExtendCoreTest
+ * rule. The linter rule `drupal/test-class-suffix` reports most misnamed
+ * tests with no class lookup. The name check reports only the TestCase
+ * descendants that the linter rule doesn't take for tests, see
+ * TestClassSuffix.
  *
  * @internal
  */
@@ -26,6 +33,8 @@ final class TestClassCheck
     public const MODULES_CODE = 'test-modules-visibility';
 
     public const COMPONENT_CODE = 'component-test-core-base';
+
+    public const NAME_CODE = 'test-class-name';
 
     public const ANCESTORS = ['PHPUnit\Framework\TestCase'];
 
@@ -60,6 +69,21 @@ final class TestClassCheck
     public static function mayReport(string $text): bool
     {
         return preg_match(self::PUBLIC_MODULES, $text) === 1;
+    }
+
+    /**
+     * Where the public `$modules` that the class declares itself is, or null.
+     * An inherited or trait property has its name in another file or outside
+     * the class, and is the declaring class's business.
+     */
+    public static function publicModules(?PropertyMetadata $modules, string $path, Span $class): ?SourceLocation
+    {
+        $location =
+            $modules === null || $modules->readVisibility !== Visibility::Public
+                ? null
+                : $modules->nameLocation ?? $modules->location;
+
+        return $location !== null && $location->file === $path && $class->contains($location->span) ? $location : null;
     }
 
     /**
