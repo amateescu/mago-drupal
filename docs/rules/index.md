@@ -1,11 +1,11 @@
 # Linter rules
 
 Every linter rule of the extension, grouped by what it checks. Each group has a page, and each rule
-has an entry there. An entry starts with the rule's level, what its fix does, the Coder checks
-ported by the rule, and either the section of
+has an entry there. An entry starts with the rule's level, what its fix does, either the section of
 [Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) checked by the
-rule or, for a check not covered by the standards, where the check comes from. Then come what the
-rule reports and, where it skips cases, what it leaves alone.
+rule or, for a check not covered by the standards, where the check comes from, and then the checks
+ported by the rule, from Coder, core's own phpcs or PHPStan config, or phpstan-drupal. Then come
+what the rule reports and, where it skips cases, what it leaves alone.
 
 Coder 9 is the parity target. Where the written standards ask for less than Coder, the rules
 follow Coder. Where they ask for more, some rules follow the standards, and their entries say so.

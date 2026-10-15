@@ -81,6 +81,10 @@ as phpstan-drupal does. Each type is what the method tests:
 
 An assertion that the type already holds is reported as `redundant-type-comparison`.
 
+phpstan-drupal narrows `assertAllNumeric()` to an iterable of `int|float`, so it reports the
+assertion on numeric strings as always false. It narrows `assertStrictArray()` to an array with
+non-negative int keys.
+
 ## Stub files
 
 The worker loads the stub files under `resources/stubs/` into Mago's symbol table before the
@@ -147,8 +151,9 @@ Not translated from phpstan-drupal's stub directory:
   a literal gives the union, and `AccessResultAllowed` doesn't implement
   `AccessResultReasonInterface`, so `allowedIf($x)->setReason()` becomes an error in the contrib
   code that calls it that way;
-- `$modules` on `KernelTestBase` and `BrowserTestBase`. Restating those class headers drops the
-  PHPUnit ancestry that the test checks and every assertion depend on;
+- `$modules` on `KernelTestBase`. Restating that class header drops the PHPUnit ancestry that the
+  test checks and every assertion depend on. Core's `BrowserTestBase` already documents `$modules`
+  as `string[]`;
 - whatever is already done by the plugin's own providers: entity storage, entity queries, container
   lookups, config, plugin managers and `getDefinition()`.
 

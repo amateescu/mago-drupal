@@ -208,6 +208,11 @@ that extends a deprecated interface. The check reports the other uses.
       class-like, as in `$old->run()`, and a static property of one. Neither Mago nor the check
       reports them. On core, almost every such call is on `$this` in a class that extends a
       deprecated class, which is reported once by Mago, at the `extends`.
+    - phpstan-deprecation-rules reports a deprecated class-like in a property type, in a `catch` and
+      in an enum's `implements` only when PHPStan's bleedingEdge is on. The check always reports
+      them.
+    - phpstan-deprecation-rules also reports a deprecated class-like in a docblock type, such as a
+      `@param` tag on an untyped parameter. The check reads native types only.
     - phpstan-deprecation-rules reads the deprecations of every package. The check reads only
       Drupal's files.
 

@@ -102,6 +102,12 @@ several tie, the implementation is reported only if all of them are deprecated.
     - phpstan-drupal reports `hook_field_widget_multivalue_form_alter` and
       `hook_field_widget_multivalue_WIDGET_TYPE_form_alter` implementations from a list of its own,
       since Drupal 10 removed their documentation. The check reports neither.
+    - phpstan-drupal reads the hook documentation only with `checkCoreDeprecatedHooksInApiFiles` or
+      `checkContribDeprecatedHooksInApiFiles` on, which `bleedingEdge.neon` turns on. Without them
+      it reports only the two field widget hooks from its own list.
+    - phpstan-drupal reads the documentation functions only from the `<module>.api.php` file of each
+      module. It misses the hooks documented under `core/lib`, such as `hook_updater_info()`. The
+      check reads every `*.api.php` file under the Drupal root.
     - phpstan-drupal also checks a function with `#[LegacyHook]` or `#[LegacyRequirementsHook]`, and
       the functions from `#[ProceduralHookScanStop]` on.
     - phpstan-drupal reports every deprecation. Nothing like `--deprecations=12` exists in
@@ -168,6 +174,8 @@ A form alter implementation is an implementation of `hook_form_alter()` or
       a variadic or optional fourth included. The check reports only a required fourth parameter.
     - phpstan-drupal reports a parameter typed as `mixed`, and a form state typed as `object`. The
       check accepts them.
+    - phpstan-drupal reports each wrong parameter as an error of its own. The check reports one
+      issue for the implementation, and its message lists them.
 
 ---
 
@@ -180,8 +188,9 @@ A form alter implementation is an implementation of `hook_form_alter()` or
     - phpstan-drupal's `ProceduralHookEntityOperationCacheabilityRule`
 
 Drupal 11.3 added a `CacheableMetadata` parameter to `hook_entity_operation()` and
-`hook_entity_operation_alter()`. phpstan-drupal reports an implementation that doesn't take it. The
-report suggests `?\Drupal\Core\Cache\CacheableMetadata $cacheability = NULL`, which keeps the
+`hook_entity_operation_alter()`. phpstan-drupal reports an implementation that doesn't take it, and
+suggests a required `\Drupal\Core\Cache\CacheableMetadata $cacheability`. The check's report
+suggests `?\Drupal\Core\Cache\CacheableMetadata $cacheability = NULL`, which keeps the
 implementation working on core before 11.3, which passes no such argument.
 
 **Reports:**
@@ -319,7 +328,7 @@ the module handler.
       the check use the module's name.
     - phpstan-drupal takes the first string of a union such as `'a'|'b'`. The check needs one
       literal string.
-    - phpstan-drupal also checks test code and `*.api.php` files.
+    - phpstan-drupal also checks test code.
 
 ---
 

@@ -2,8 +2,9 @@
 
 Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`,
 `NamespacedDependency` and part of `VariableAnalysis` from this standard. The worker's
-[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the rules that port
-the other sniffs.
+[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the linter rules
+that port the other sniffs. The analyzer check `drupal/global-drupal-call`, which ports
+`GlobalDrupal` in part, stays on.
 
 <!-- docs-gen:coder-practice -->
 
@@ -25,13 +26,13 @@ the other sniffs.
 | `DrupalPractice.InfoFiles.Description` | [`drupal/info-description`](../rules/info-and-routing-files.md#drupalinfo-description) |  |
 | `DrupalPractice.InfoFiles.NamespacedDependency` | [`drupal/info-namespaced-dependency`](../rules/info-and-routing-files.md#drupalinfo-namespaced-dependency) |  |
 | `DrupalPractice.Objects.GlobalClass` | Nothing | A static `Node::load()` style call in a class that can have the storage injected. Not ported: it needs the analyzer. |
-| `DrupalPractice.Objects.GlobalDrupal` | [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call), partly | Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer check needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, or a `#[Hook]` on the class or one of its methods, so it skips other services and a `BlockBase` plugin without `create()`. |
+| `DrupalPractice.Objects.GlobalDrupal` | [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call), partly | Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer check needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, or a `#[Hook]` on the class or one of its methods, so it skips other services and a `BlockBase` plugin without `create()`. It also reports a hook class, which Coder skips. |
 | `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |  |
 | `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |  |
 | `DrupalPractice.Objects.UnusedPrivateMethod` | `mago analyze` (`unused-method`) | The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer reports none of them. |
 | `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |  |
 | `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |  |
-| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `SelfOutsideClass`: `mago analyze` (`self-outside-class-scope`)<br>`StaticOutsideClass`: `mago analyze` (`static-outside-class-scope`)<br>`UndefinedUnsetVariable`, `VariableRedeclaration`: Nothing<br>`UnusedVariable`: Mago `no-redundant-variable`, Mago `no-unused-closure-capture`, partly | Coder's ruleset skips `*.tpl.php` files. Mago checks them too. `UndefinedUnsetVariable`: A variable read after `unset()`. Not ported: it needs flow analysis. `UnusedVariable`: With `no-redundant-variable = { enabled = true }`, and `no-unused-closure-capture = { enabled = true }` for a variable in a closure's `use` list. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows. `VariableRedeclaration`: A variable declared twice, such as a parameter redeclared with `static`. Not ported: it needs flow analysis. |
+| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `SelfOutsideClass`: `mago analyze` (`self-outside-class-scope`)<br>`StaticOutsideClass`: `mago analyze` (`static-outside-class-scope`)<br>`UndefinedUnsetVariable`, `VariableRedeclaration`: Nothing<br>`UnusedVariable`: Mago `no-redundant-variable`, Mago `no-unused-closure-capture`, partly | Coder's ruleset skips `*.tpl.php` files. Mago checks them too. `UndefinedUnsetVariable`: An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`. `UnusedVariable`: With `no-redundant-variable = { enabled = true }`, and `no-unused-closure-capture = { enabled = true }` for a variable in a closure's `use` list. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows. `VariableRedeclaration`: A variable declared twice, such as a parameter redeclared with `static`. Not ported: it needs flow analysis. |
 
 <!-- /docs-gen -->
 
@@ -40,9 +41,10 @@ the other sniffs.
 These checks look for Drupal 7 functions, hooks and arrays, such as `check_plain()`, `hook_menu()`
 or `$form_state['input']`, and Coder runs some of them only on a Drupal 7 module. They aren't
 ported. On Drupal 8 and later most of those functions don't exist, and `mago analyze` reports a call
-to one as an unknown function. Nothing in Mago reports the `hook_menu()` checks,
-`$form_state['input']` or an `'und'` key. The Drupal 7 checks of the `Drupal` standard are on the
-[Drupal standard](drupal.md) page, since core's config still runs them.
+to one as an unknown function. Nothing in Mago reports the `hook_menu()` checks or an `'und'` key.
+`mago analyze` reports `$form_state['input']` only when `$form_state` is typed as
+`FormStateInterface`, as an array access on an object. The Drupal 7 checks of the `Drupal` standard
+are on the [Drupal standard](drupal.md) page, since core's config still runs them.
 
 <!-- docs-gen:coder-drupal7 -->
 

@@ -208,8 +208,11 @@ Mago types some values more narrowly than the code behaves, and these are left a
       `assertEmpty()` and `assertArrayHasKey()`, and their `Not` forms, so PHPStan reports those
       when they always pass too.
     - PHPStan also reports an assertion that can never pass, whatever the value is.
-    - PHPStan forgets the narrowed type of a property after a call that may change it. Mago keeps
-      it, so the check asks for the native type of the property instead.
+    - PHPStan forgets the narrowed type of a property after any call that may change it. Mago
+      forgets it only after a method call on `$this`, such as `$this->change()`. It keeps it after a
+      function call, a static call and a call on another object, such as a dispatcher that runs a
+      callback which sets the property. So the check asks for the native type of the property
+      instead.
 
 ---
 
@@ -378,7 +381,8 @@ it protected, see the [change record](https://www.drupal.org/node/2909426).
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal also reports a `$modules` declared with `var`, which PHP makes public too.
+    phpstan-drupal also reports a `$modules` declared with `var`, which PHP makes public too, and a
+    public `$modules` declared by a trait, once for each test class that uses the trait.
 
 ---
 

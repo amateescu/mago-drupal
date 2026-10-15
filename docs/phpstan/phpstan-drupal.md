@@ -187,6 +187,7 @@ plugin does the same work, and the linked section says how.
 <!-- docs-gen:phpstan-drupal-extensions -->
 
 - `AccessCheckTypeSpecifyingExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
+- `BootstrapResultCacheMetaExtension`: nothing. It invalidates PHPStan's result cache when an extension's info file, a services file, a config schema file or the Drupal version changes. The analyzer keys its own index cache by the modification times and sizes of its files, see [Index cache](../setup/install.md#index-cache).
 - `ConfigGetDynamicReturnTypeExtension`: [Config: Config objects](../analyzer/config.md#config-objects). Off by default in phpstan-drupal.
 - `ContainerDynamicReturnTypeExtension`: [Services: Container lookups](../analyzer/services.md#container-lookups)
 - `DeprecationHelperScope`: [Deprecations: Deprecation scopes](../analyzer/deprecations.md#deprecation-scopes)
@@ -203,7 +204,7 @@ plugin does the same work, and the linked section says how.
 - `EntityQueryDynamicReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `EntityRepositoryReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
-- `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type.
+- `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead.
 - `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. It isn't narrowed by a `hasKey()` call for the same key.
 - `EntityTypeLinkTemplateByExistence`: nothing. `getLinkTemplate()` isn't false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
 - `EntityTypeManagerGetStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)

@@ -84,7 +84,9 @@ DrupalPractice asks not to turn off curl's check of the server's SSL certificate
       backslash, a value in parentheses and a zero in any integer base.
     - It reads the whole value, so `FALSE ?: TRUE` doesn't count. A method call doesn't count,
       `$object?->curl_setopt()` included.
-    - It skips a call with too few arguments. Coder stops checking the file there.
+    - It reads named arguments. Coder reads the arguments by position only.
+    - It skips a call with too few arguments and a call that spreads its arguments. Coder stops
+      checking the file at either one.
 
 ---
 
@@ -198,8 +200,8 @@ Drupal's standard allows a global constant whose name starts with the module nam
 - **Ports:** `DrupalPractice.Variables.GetRequestData`: `SuperglobalAccessed`, `SuperglobalAccessedWithVar`
 - **Off with `--core`**
 
-DrupalPractice asks for the request object in place of the `$_GET`, `$_POST`, `$_COOKIE` and
-`$_FILES` superglobals.
+DrupalPractice asks for the request object in place of the `$_GET`, `$_POST`, `$_COOKIE`, `$_FILES`
+and `$_REQUEST` superglobals.
 
 **Reports:**
 
@@ -255,6 +257,8 @@ rule uses the nearest named class or trait.
 
 ??? note "Compared with Coder"
 
+    - Coder takes a class with `Test` anywhere in its name, such as `Testimonial` or `Testable`, as
+      a test class.
     - For a property of an anonymous class, Coder uses the outermost scope, and reads the first
       name after its `class` keyword, such as `FooTest` in `new class extends FooTest`.
 

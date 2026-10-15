@@ -26,6 +26,12 @@ available.
 
 Coder 9 also lists `eval`, which is reported by Mago's own `no-eval` rule.
 
+??? note "Compared with Coder and phpstan-drupal"
+
+    - phpstan-drupal's list leaves out `ddebug_backtrace()`, `ddm()`, `kint()` and `ksm()`, and it
+      doesn't report a first-class callable such as `dpm(...)`.
+    - Coder reports each call as a warning, where the rule reports an error.
+
 ---
 
 ## drupal/render-callback
@@ -71,6 +77,10 @@ Drupal. Drupal trusts only closures, `service:method` strings and class methods.
 Whether Drupal trusts the class method that a callback names is the analyzer's
 `drupal/untrusted-callback`, and a closure under these keys in a form is its
 `drupal/form-closure-callback`. See [Render and form callbacks](../analyzer/render-and-forms.md#render-and-form-callbacks).
+
+??? note "Compared with phpstan-drupal"
+
+    - phpstan-drupal doesn't check the component callbacks `#propsAlter` and `#slotsAlter`.
 
 ---
 
@@ -128,3 +138,8 @@ request. A merge request should resolve its own to-dos rather than land them.
   `3456789-fix-thing`, or at the end of `CI_MERGE_REQUEST_SOURCE_PROJECT_PATH`, as in
   `issue/mymodule-3456789`. Without them, the rule has nothing to compare, so it is on by default,
   where phpstan-drupal's rule has to be added by hand.
+
+??? note "Compared with phpstan-drupal"
+
+    - phpstan-drupal doesn't read a `https://www.drupal.org/node/3456789` link as the issue. The
+      rule does.

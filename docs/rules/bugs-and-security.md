@@ -81,6 +81,7 @@ The rule closes a bracket delimiter with its counterpart, so it reports `'{a}e'`
 ??? note "Compared with Coder"
 
     - Coder also reports a concatenation whose first piece only looks like it ends in modifiers.
+    - Coder doesn't close a bracket delimiter with its counterpart, so it misses `'{a}e'`.
     - The rule also reports a call with a leading backslash or in other letter case, such as
       `\preg_replace()` or `PREG_REPLACE()`. Coder skips both, though PHP calls the same function.
 

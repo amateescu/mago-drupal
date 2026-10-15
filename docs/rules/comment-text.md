@@ -385,7 +385,7 @@ Coder asks for no gendered pronouns in comments.
 
 **Not reported:**
 
-- a `cspell:` line, and a directive such as a `@codingStandardsIgnore*` line;
+- a directive such as a `phpcs:` or `@codingStandardsIgnore*` line;
 - a `//` comment with no text, a comment right before a docblock, and a `// @code` example;
 - a blank line before a closing bracket, which is handled by `mago format`. The formatter takes such
   a line out, except before the closing brace of a class, interface, trait or enum with members,
@@ -422,6 +422,7 @@ pass applies it.
     - `Drupal.Commenting.InlineComment` skips a `//` comment with no text, a comment right before a
       docblock and a `// @code` example, as the rule does. DrupalPractice's `CommentEmptyLine`
       reports all three.
+    - Coder also reports a blank line below a `@codingStandardsIgnore*` line. The rule skips it.
 
 ---
 
@@ -514,7 +515,8 @@ pass applies it.
 **Not reported:**
 
 - a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment,
-  because a tool pragma works only on the line of its statement.
+  because moving a tool pragma can change the lines it covers. An `@phpstan-ignore-line` moved to a
+  line of its own would cover no statement.
 
 There is no fix where the move could attach the comment to something else:
 
@@ -548,6 +550,8 @@ There is no fix where the move could attach the comment to something else:
 ??? note "Compared with Coder"
 
     - Coder skips only a `phpcs:` comment, not the other tool pragmas.
+    - phpcbf moves every comment it reports, also one below a docblock or another comment. It
+      writes the comment at the start of the line and leaves a space after the statement.
 
 ---
 
