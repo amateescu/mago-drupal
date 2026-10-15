@@ -44,6 +44,7 @@ use amateescu\MagoDrupal\Linter\Rules\EmptyPhpTagsRule;
 use amateescu\MagoDrupal\Linter\Rules\EmptySwitchRule;
 use amateescu\MagoDrupal\Linter\Rules\EnumCaseNameRule;
 use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
+use amateescu\MagoDrupal\Linter\Rules\ExplicitNullableParamRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FileEncodingRule;
 use amateescu\MagoDrupal\Linter\Rules\FileStartWhitespaceRule;
@@ -341,6 +342,7 @@ final class DrupalExtension
             new EmptySwitchRule(),
             new EnumCaseNameRule(),
             new ExpectedExceptionTagRule(),
+            new ExplicitNullableParamRule(),
             new FileCommentRule(),
             new FileEncodingRule(),
             new FileStartWhitespaceRule(),

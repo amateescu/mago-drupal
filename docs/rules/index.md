@@ -121,6 +121,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between `yield` and `from`. |
 | [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |
 | [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that has no case label. |
+| [`drupal/explicit-nullable-param`](statements.md#drupalexplicit-nullable-param) | error | Reports a typed parameter with a null default whose type doesn't allow null. |
 | [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Checks that a blank line separates a function declaration from the code or comment before it. |
 | [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports methods declared without an explicit visibility keyword. |
 | [`drupal/non-capturing-catch`](statements.md#drupalnon-capturing-catch) | error | Reports a catch variable that nothing reads, which the clause can leave out from PHP 8.0. |

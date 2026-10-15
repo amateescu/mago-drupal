@@ -185,7 +185,7 @@ final class CoderTables
                 static fn(array $code): string => $code['status'],
                 $codes,
             )));
-            $by = $this->handledBy($handlers, $statuses, $sniff['gate'] ?? null);
+            $by = $this->handledBy($handlers, $statuses, $sniff['gate'] ?? []);
             if (in_array('partial', $statuses, strict: true)) {
                 $by .= ', partly';
             }
@@ -235,32 +235,32 @@ final class CoderTables
     }
 
     /**
-     * Names what handles a check. A Mago rule that handles only gaps is off
-     * by default, unless $gate names what else it needs.
+     * Names what handles a check. $gates maps a handler to what it needs to
+     * run, which is shown after its name. A Mago rule that handles only gaps
+     * and has no entry there is off by default.
      *
      * @param list<string> $handlers
      * @param list<string> $statuses
+     * @param array<string, string> $gates
      */
-    private function handledBy(array $handlers, array $statuses, ?string $gate = null): string
+    private function handledBy(array $handlers, array $statuses, array $gates = []): string
     {
         $names = [];
         foreach ($handlers as $handler) {
             $parts = explode(separator: ':', string: $handler, limit: 2);
             $tool = $parts[0];
             $name = $parts[1] ?? '';
-            $names[] = match ($tool) {
+            $gate = $gates[$handler] ?? null;
+            $label = match ($tool) {
                 'ext', 'check' => $this->ruleLink($name),
-                'lint' => "Mago `{$name}`" . match (true) {
-                    $gate !== null => " ({$gate})",
-                    $statuses === ['gap'] => ' (off by default)',
-                    default => '',
-                },
+                'lint' => "Mago `{$name}`" . ($gate === null && $statuses === ['gap'] ? ' (off by default)' : ''),
                 'format' => '`mago format`',
                 'analyze' => $name === '' ? '`mago analyze`' : "`mago analyze` (`{$name}`)",
                 'branch' => 'The analyzer (not released)',
                 'phpcs' => 'phpcs',
                 default => 'Nothing',
             };
+            $names[] = $gate === null ? $label : "{$label} ({$gate})";
         }
 
         return implode(', ', array_values(array_unique($names)));

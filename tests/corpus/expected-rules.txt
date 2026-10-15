@@ -32,6 +32,7 @@ drupal/empty-php-tags
 drupal/empty-switch
 drupal/enum-case-name
 drupal/expected-exception-tag
+drupal/explicit-nullable-param
 drupal/file-comment
 drupal/file-encoding
 drupal/file-start-whitespace

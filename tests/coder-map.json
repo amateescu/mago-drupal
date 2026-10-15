@@ -1068,11 +1068,10 @@
     {
         "sniff": "SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue",
         "standard": "Drupal",
-        "where": ["lint:explicit-nullable-param"],
-        "gate": "PHP 8.4 and later",
-        "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on.",
+        "where": ["ext:drupal/explicit-nullable-param", "lint:explicit-nullable-param"],
+        "gate": {"ext:drupal/explicit-nullable-param": "below PHP 8.4", "lint:explicit-nullable-param": "PHP 8.4 and later"},
         "codes": [
-            {"code": "NullabilityTypeMissing", "status": "gap"}
+            {"code": "NullabilityTypeMissing", "status": "fix"}
         ]
     },
     {

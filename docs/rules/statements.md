@@ -286,6 +286,56 @@ Coder asks every switch to have at least one `case` label.
 
 ---
 
+## drupal/explicit-nullable-param
+
+- **Level:** error
+- **Fix:** safe. It writes `?T` for one type and `A|B|null` for a union. For an intersection, it
+  writes `(A&B)|null` when `php-version` is 8.2 or later, and nothing below 8.2.
+- **Source:** Coder's `Drupal` standard
+- **Ports:** `SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilityTypeMissing`
+
+A `null` default makes a parameter's type nullable even when the type doesn't say so, as in
+`int $id = NULL`. PHP 8.4 deprecates that. The fix writes the type that PHP already uses, so the
+code runs the same. Its forms are the ones `mago format` writes with the drupal preset.
+
+Mago's own `explicit-nullable-param` reports the same parameters, but it runs only when
+`php-version` is 8.4 or later. This rule runs below 8.4 and stays silent from 8.4, so only one of
+them reports a parameter. The issue code changes with `php-version`, so a `@mago-expect` comment or
+a baseline entry written for one code doesn't cover the other.
+
+**Reports:**
+
+- a parameter of a function, method, closure or arrow function that has a type and a `null` default,
+  in any case and with or without a leading backslash, when the type isn't `?T`, isn't `mixed` and
+  doesn't include `null`. A parameter passed by reference counts.
+
+**Not reported:**
+
+- a parameter with no type;
+- any parameter when `php-version` is 8.4 or later. Mago's rule reports it there, except for a
+  `\null` default.
+
+??? example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    function example_load(int $id = NULL, int|string $key = NULL): void {
+    }
+
+    // Fine.
+    function example_load(?int $id = NULL, int|string|null $key = NULL): void {
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - For an intersection, phpcbf writes `?A&B`, which PHP doesn't parse. The fix writes
+      `(A&B)|null` from PHP 8.2, and leaves the type alone below 8.2.
+
+---
+
 ## drupal/function-blank-line
 
 - **Level:** error
