@@ -30,13 +30,18 @@ final class MissingFileCommentRule implements Rule
             description: "Reports a PHP file that isn't a class file and has no comment at its start.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
-            targets: [NodeKind::Program],
+            targets: [NodeKind::Program, ...FileDocblock::DECLARATIONS],
         );
     }
 
     public function lint(LintContext $context): void
     {
-        // The class file check scans the whole tree, so it runs last.
+        // The declarations are targets only so that the class file check can
+        // read them from the target-node list.
+        if ($context->node->kind !== NodeKind::Program) {
+            return;
+        }
+
         $file = $context->file;
         if (
             FileDocblock::firstComment($file) === null

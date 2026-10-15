@@ -44,15 +44,20 @@ final class FileCommentRule implements Rule
             description: "Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file doesn't start with a comment.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
-            targets: [NodeKind::Program],
+            targets: [NodeKind::Program, ...FileDocblock::DECLARATIONS],
         );
     }
 
     public function lint(LintContext $context): void
     {
+        // The declarations are targets only so that the class file checks
+        // can read them from the target-node list.
+        if ($context->node->kind !== NodeKind::Program) {
+            return;
+        }
+
         // A namespaced class file has its own check, which comes before the
-        // `@file` checks. The tree scan runs only for a file that starts
-        // with a comment.
+        // `@file` checks.
         $first = FileDocblock::firstComment($context->file);
         if ($first === null) {
             return;
@@ -165,8 +170,6 @@ final class FileCommentRule implements Rule
      */
     private function report(LintContext $context, Issue $issue): void
     {
-        // The skip is checked only for a file that has an issue, because it
-        // scans the whole tree.
         if (!FileDocblock::isClassFile($context->file)) {
             $context->report($issue);
         }

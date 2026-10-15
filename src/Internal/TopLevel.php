@@ -71,12 +71,20 @@ final class TopLevel
      * The functions declared at the top level of a file. A function after
      * `namespace X;` counts, one inside `namespace X { }` does not.
      *
+     * The rule that calls this must target `Function`. Rust then puts every
+     * function in the file's target-node list, which costs far less to read
+     * than a getNodes() call, a full scan of the tree.
+     *
      * @return list<Node>
      */
     public static function functions(SourceFile $file): array
     {
         $functions = [];
-        foreach ($file->getNodes(NodeKind::Function) as $function) {
+        foreach ($file->getTargetNodes() as $function) {
+            if ($function->kind !== NodeKind::Function) {
+                continue;
+            }
+
             $statement = $file->getParent($function);
             $holder = $statement === null ? null : $file->getParent($statement);
             if (in_array($holder?->kind, [NodeKind::Program, NodeKind::NamespaceImplicitBody], strict: true)) {
