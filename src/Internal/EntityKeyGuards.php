@@ -12,6 +12,7 @@ use function preg_match;
 use function preg_quote;
 use function preg_replace;
 use function strlen;
+use function strtolower;
 use function substr;
 use function trim;
 
@@ -20,13 +21,13 @@ use const T_FUNCTION;
 use const T_VARIABLE;
 
 /**
- * Finds the `hasKey()` check that guards a `getKey()` call on an entity
- * type.
+ * Finds the check that guards a `getKey()` or `getLinkTemplate()` call on an
+ * entity type: `hasKey()` or `hasLinkTemplate()` with the same key.
  *
- * `getKey()` returns FALSE for a key that the entity type doesn't have, and
+ * Both getters return FALSE for a key that the entity type doesn't have, and
  * Mago doesn't narrow one call's result by another call on the same object.
  * This reads the code around the call instead. The call counts as guarded
- * when a `hasKey()` call on the same receiver, with the same key, guards it
+ * when the matching check on the same receiver, with the same key, guards it
  * in the same function, in one of the shapes that IfGuards accepts.
  *
  * The receiver is a variable or a chain of properties, and the key a string
@@ -38,22 +39,29 @@ use const T_VARIABLE;
 final class EntityKeyGuards
 {
     /**
-     * A `getKey()` call on a variable or a property chain, with a literal or
-     * a variable key. A double-quoted key counts without variables or
-     * escapes.
+     * A getter call on a variable or a property chain, with a literal or a
+     * variable key. A double-quoted key counts without variables or escapes.
      */
-    private const GET_KEY = '/^(?<receiver>\$\w+(?:\s*->\s*\w+)*)\s*->\s*getKey\s*\(\s*(?<key>\'[^\'\\\\]*\'|"[^"\\\\$]*"|\$\w+)\s*\)$/i';
+    private const GETTER = '/^(?<receiver>\$\w+(?:\s*->\s*\w+)*)\s*->\s*(?<getter>getKey|getLinkTemplate)\s*\(\s*(?<key>\'[^\'\\\\]*\'|"[^"\\\\$]*"|\$\w+)\s*\)$/i';
+
+    /**
+     * The check for each getter, keyed by the lowercased getter name.
+     */
+    private const CHECKS = [
+        'getkey' => 'hasKey',
+        'getlinktemplate' => 'hasLinkTemplate',
+    ];
 
     private function __construct() {}
 
     /**
-     * Whether the `getKey()` call between the byte offsets runs only when
-     * `hasKey()` is true for the same receiver and key.
+     * Whether the getter call between the byte offsets runs only when its
+     * check is true for the same receiver and key.
      */
     public static function guarded(string $contents, int $start, int $end): bool
     {
         $call = [];
-        if (preg_match(self::GET_KEY, substr($contents, $start, $end - $start), $call) !== 1) {
+        if (preg_match(self::GETTER, substr($contents, $start, $end - $start), $call) !== 1) {
             return false;
         }
 
@@ -65,7 +73,8 @@ final class EntityKeyGuards
 
         $receiver = self::receiverPattern($call['receiver']);
         $key = self::keyPattern($call['key']);
-        $check = '/\G' . $receiver . '\s*->\s*(?i:hasKey)\s*\(\s*' . $key . '\s*\)/';
+        $name = self::CHECKS[strtolower($call['getter'])];
+        $check = '/\G' . $receiver . '\s*->\s*(?i:' . $name . ')\s*\(\s*' . $key . '\s*\)/';
         $variable = trim(explode('->', $call['receiver'])[0]);
         for ($i = self::functionStart($tokens, $at, $end); $i < $at; $i++) {
             $match = [];

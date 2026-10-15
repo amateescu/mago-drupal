@@ -205,8 +205,8 @@ plugin does the same work, and the linked section says how.
 - `EntityRepositoryReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead.
-- `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. A `hasKey()` check for the same key doesn't narrow it, but the reports about a possible `false` from a `getKey()` call that such a check guards in an `if` are dropped.
-- `EntityTypeLinkTemplateByExistence`: nothing. `getLinkTemplate()` isn't false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
+- `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. A `hasKey()` check for the same key doesn't narrow it, but the reports about a possible `false` from a `getKey()` call that such a check guards in an `if` or an `&&` chain are dropped.
+- `EntityTypeLinkTemplateByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. A `hasLinkTemplate()` check for the same template doesn't narrow `getLinkTemplate()`, but the reports about a possible `false` from a `getLinkTemplate()` call that such a check guards in an `if` or an `&&` chain are dropped. A false check doesn't narrow the call to `false`.
 - `EntityTypeManagerGetStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `GetQueryReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `GroupLegacyScope`: [Deprecations: Deprecation scopes](../analyzer/deprecations.md#deprecation-scopes)

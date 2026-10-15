@@ -52,6 +52,13 @@ namespace Drupal\Core\Entity {
         public function getKey(string $key);
 
         public function hasKey(string $key): bool;
+
+        /**
+         * @return string|false
+         */
+        public function getLinkTemplate(string $key);
+
+        public function hasLinkTemplate(string $key): bool;
     }
 
     interface ContentEntityTypeInterface extends EntityTypeInterface {}

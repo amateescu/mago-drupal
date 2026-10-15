@@ -8,6 +8,7 @@ use PhpToken;
 
 use function in_array;
 use function strlen;
+use function strtolower;
 use function substr;
 
 use const T_BOOLEAN_OR;
@@ -20,21 +21,26 @@ use const T_RETURN;
 use const T_THROW;
 
 /**
- * Says whether an `if` whose condition holds a check guards a later token.
+ * Says whether a check guards a later token.
  *
- * Two shapes count:
+ * Three shapes count:
  *
- * - the condition holds the check as one of its `&&` parts, and the token
- *   comes later in the condition or in the statement that the `if` guards;
- * - the condition is the check negated with `!` and nothing else, its block
- *   ends in `throw` or `return`, and the token comes after the block, still
- *   inside the block that holds the `if`.
+ * - an `if` condition holds the check as one of its `&&` parts, and the
+ *   token comes later in the condition or in the statement that the `if`
+ *   guards;
+ * - an `if` condition is the check negated with `!` and nothing else, its
+ *   block ends in `throw` or `return`, and the token comes after the block,
+ *   still inside the block that holds the `if`;
+ * - a statement holds the check as one of its `&&` parts outside any
+ *   parentheses, as in `$a = $check && f($b);`, and the token comes later in
+ *   the same `&&` chain.
  *
  * Like the walks in PhpTokens, these walks are branchy by nature.
  *
  * @internal
  *
  * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class IfGuards
 {
@@ -56,6 +62,10 @@ final class IfGuards
         $before = PhpTokens::previous($tokens, $check - 1);
         $negated = $before !== null && $tokens[$before]->text === '!';
         $open = $negated ? PhpTokens::previous($tokens, $before - 1) : self::conditionOpen($tokens, $check);
+        if (!$negated && $open === null) {
+            return $before !== null && self::chainHoldsFor($tokens, $before, $checkEnd, $at);
+        }
+
         $keyword = $open === null ? null : PhpTokens::previous($tokens, $open - 1);
         if (
             $open === null
@@ -83,7 +93,7 @@ final class IfGuards
     private static function holdsFor(array $tokens, int $open, int $close, int $check, int $at): bool
     {
         for ($i = $open + 1; $i < $close; $i++) {
-            if ($tokens[$i]->is(self::DISJUNCTIONS) || $tokens[$i]->text === '?') {
+            if (self::splits($tokens[$i])) {
                 return false;
             }
         }
@@ -93,6 +103,64 @@ final class IfGuards
         }
 
         return $at > $close && $tokens[$at]->pos < PhpTokens::bodyEnd($tokens, $close + 1);
+    }
+
+    /**
+     * Whether the check outside any parentheses, with the token `$before`
+     * before it and ending at byte offset `$checkEnd`, is one `&&` part of
+     * its statement, and the token `$at` comes later in the same `&&` chain.
+     * A `||`, `or`, `xor`, `??` or `?` anywhere from the start of the
+     * statement to the token cancels the guard, and so does a comma, a `=>`
+     * or a `;` outside brackets between the check and the token.
+     *
+     * @param list<PhpToken> $tokens
+     */
+    private static function chainHoldsFor(array $tokens, int $before, int $checkEnd, int $at): bool
+    {
+        $end = PhpTokens::at($tokens, $checkEnd);
+        $after = $end === null ? null : PhpTokens::next($tokens, $end);
+        if (
+            $after === null
+            || $at <= $after
+            || !in_array(strtolower($tokens[$after]->text), ['&&', 'and'], strict: true)
+            || !in_array(strtolower($tokens[$before]->text), ['&&', 'and', '=', 'return'], strict: true)
+        ) {
+            return false;
+        }
+
+        for ($i = $before; $i >= 0 && !in_array($tokens[$i]->text, [';', '{', '}'], strict: true); $i--) {
+            if (self::splits($tokens[$i])) {
+                return false;
+            }
+        }
+
+        $depth = 0;
+        for ($i = $after; $i < $at; $i++) {
+            $text = $tokens[$i]->text;
+            $depth += match ($text) {
+                '(', '[', '{', '${' => 1,
+                ')', ']', '}' => -1,
+                default => 0,
+            };
+            if (
+                $depth < 0
+                || self::splits($tokens[$i])
+                || $depth === 0 && in_array($text, [',', '=>', ';'], strict: true)
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether the token lets an expression hold without each of its `&&`
+     * parts.
+     */
+    private static function splits(PhpToken $token): bool
+    {
+        return $token->is(self::DISJUNCTIONS) || $token->text === '?';
     }
 
     /**

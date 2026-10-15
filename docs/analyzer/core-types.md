@@ -177,6 +177,6 @@ Not ported from phpstan-drupal's type extensions:
   is false, and `getKey()` or `getLinkTemplate()` isn't false once `hasKey()` or `hasLinkTemplate()`
   is true for the same key. Mago's assertions narrow a variable or a parameter, not what another
   method returns. `getKey()` is a string for the keys that every entity type has, and the plugin
-  drops the reports about a possible `false` from a `getKey()` call that a `hasKey()` check guards,
-  see [Entity type keys](entities.md#entity-type-keys);
+  drops the reports about a possible `false` from a `getKey()` or `getLinkTemplate()` call that a
+  `hasKey()` or `hasLinkTemplate()` check guards, see [Entity type keys](entities.md#entity-type-keys);
 - the `entity-type-id` docblock type.
