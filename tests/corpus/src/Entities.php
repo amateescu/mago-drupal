@@ -399,6 +399,55 @@ final class Entities {
   }
 
   /**
+   * The ID and the UUID are mutation-free, so a check narrows later calls.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   * @param array<string, string> $labels
+   *   Labels keyed by UUID.
+   */
+  public function checkedId(EntityInterface $entity, array $labels): string {
+    if ($entity->id() === NULL) {
+      throw new \LogicException('The entity has no ID.');
+    }
+    $this->requireId($entity->id());
+    if ($entity->uuid() === NULL) {
+      return '';
+    }
+
+    return $labels[$entity->uuid()] ?? '';
+  }
+
+  /**
+   * A call that can change the entity ends the narrowing.
+   */
+  public function savedId(EntityInterface $entity): void {
+    if ($entity->id() === NULL) {
+      throw new \LogicException('The entity has no ID.');
+    }
+    $entity->save();
+    // @mago-expect analysis:possibly-null-argument
+    $this->requireId($entity->id());
+  }
+
+  /**
+   * A false isNew() says nothing about the ID.
+   */
+  public function notNewId(EntityInterface $entity): void {
+    if ($entity->isNew()) {
+      throw new \LogicException('The entity is new.');
+    }
+    // @mago-expect analysis:possibly-null-argument
+    $this->requireId($entity->id());
+  }
+
+  /**
+   * Takes an entity ID.
+   */
+  private function requireId(int|string $id): void {
+  }
+
+  /**
    * A storage of an unknown entity type gives back the type it was handed.
    */
   public function revisionOfUnknownStorage(

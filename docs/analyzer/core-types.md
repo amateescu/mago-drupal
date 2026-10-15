@@ -76,6 +76,7 @@ as phpstan-drupal does. Each type is what the method tests:
 - `assertAllStrings($names)` gives `iterable<mixed, string>`;
 - `assertAllNumeric()` counts numeric strings, since it uses `is_numeric()`;
 - `assertStrictArray()` gives a list;
+- `assertStringable($label)` gives `string|\Stringable`;
 - `assertAllObjects($items, Foo::class)` gives an iterable of `Foo`;
 - `assertAll()` takes any callable, so it only makes a `mixed` value iterable.
 
@@ -83,7 +84,7 @@ An assertion that the type already holds is reported as `redundant-type-comparis
 
 phpstan-drupal narrows `assertAllNumeric()` to an iterable of `int|float`, so it reports the
 assertion on numeric strings as always false. It narrows `assertStrictArray()` to an array with
-non-negative int keys.
+non-negative int keys. It doesn't narrow with `assertStringable()`.
 
 ## Stub files
 
@@ -118,6 +119,14 @@ $permissions->getPermissions()[$name]['title']; // TranslatableMarkup|string
   `PermissionHandler` wraps the title and the description of every permission from a
   `*.permissions.yml` file in `t()`, and the title from a permission callback is whatever the
   callback returns. So the title is `TranslatableMarkup|string`.
+- **Entity IDs.** `id()` and `uuid()` of `EntityInterface` only read what the entity holds, so the
+  stub marks them `@psalm-mutation-free`. Mago then keeps what a check on one call shows for the
+  later calls on the same entity, up to a call that can change it, such as `save()`. After
+  `if ($entity->id() === NULL) { throw ...; }` or `isset($labels[$entity->uuid()])`, the next call
+  isn't null. This holds for a receiver typed as `EntityInterface` or one of its interfaces, such as
+  `ContentEntityInterface`. An entity class such as `Node` declares its own `id()`, which isn't
+  marked. PHPStan remembers what a check on any method call shows, on a class too, and keeps it
+  across `save()`.
 
 A stub only wins where core is a dependency. When core itself is the analyzed code, Mago keeps
 core's own declaration, so `--core` runs see no change.
@@ -174,8 +183,12 @@ Not ported from phpstan-drupal's type extensions:
 
 - narrowing one method's result by another call on the same object: `id()` isn't null once `isNew()`
   is false, and `getKey()` or `getLinkTemplate()` isn't false once `hasKey()` or `hasLinkTemplate()`
-  is true for the same key. Mago's assertions narrow a variable or a parameter, not what another
-  method returns. `getKey()` is a string for the keys that every entity type has, and the plugin
-  drops the reports about a possible `false` from a `getKey()` call that a `hasKey()` check guards,
-  see [Entity type keys](entities.md#entity-type-keys);
+  is true for the same key. A provider's assertion narrows a variable or a parameter, not what
+  another method returns. A docblock assertion can name `$this->id()`, but Mago reads it both ways:
+  `@psalm-assert-if-false !null $this->id()` on `isNew()` would also make `id()` null whenever
+  `isNew()` is true, which is wrong after `enforceIsNew()`. A call with arguments, such as
+  `getKey('owner')`, can't be named at all. `getKey()` is a string for the keys that every entity
+  type has, and the plugin drops the reports about a possible `false` from a `getKey()` or
+  `getLinkTemplate()` call that a `hasKey()` or `hasLinkTemplate()` check guards, see
+  [Entity type keys](entities.md#entity-type-keys);
 - the `entity-type-id` docblock type.

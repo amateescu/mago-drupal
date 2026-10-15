@@ -11,14 +11,14 @@ use Mago\Sdk\Analyzer\IssueFilterHook;
 use Mago\Sdk\Reporting\AnnotationKind;
 
 /**
- * Drops the `false` reports on an entity type's `getKey()` call that a
- * `hasKey()` check for the same key guards.
+ * Drops the `false` reports on an entity type's `getKey()` or
+ * `getLinkTemplate()` call that a `hasKey()` or `hasLinkTemplate()` check for
+ * the same key guards.
  *
- * `EntityTypeInterface::getKey()` returns `string|false`, and Mago doesn't
- * narrow it after `hasKey()`, since it narrows a variable, not what another
- * call on the same object returns. phpstan-drupal does. Each of these
- * reports has the `getKey()` call as its primary span, and
- * EntityKeyGuards reads the code around it.
+ * Both getters return `string|false`, and Mago doesn't narrow them after the
+ * check, since it narrows a variable, not what another call on the same
+ * object returns. phpstan-drupal does. Each of these reports has the getter
+ * call as its primary span, and EntityKeyGuards reads the code around it.
  *
  * @internal
  */

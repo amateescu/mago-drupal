@@ -100,7 +100,12 @@ final class ProceduralHookHook implements NodeAnalysisHook
         $where = $function->nameLocation ?? $function->location;
         $documented = DeprecatedHookCheck::reported($hooks, $this->target, $hook);
         if ($documented !== null) {
-            $reporter->warning(DeprecatedHookCheck::CODE, DeprecatedHookCheck::issue($short, $documented, $where));
+            $reporter->warning(DeprecatedHookCheck::CODE, DeprecatedHookCheck::issue(
+                $short,
+                $documented,
+                $where,
+                $hooks->replacement($documented),
+            ));
         }
 
         $problems = FormAlterSignatureCheck::isFormAlter($hook)

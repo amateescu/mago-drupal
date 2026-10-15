@@ -48,7 +48,12 @@ final class DeprecatedHookCheck implements MetadataCheck
                 continue;
             }
 
-            $reporter->warning(self::CODE, self::issue(HookMethods::label($method), $documented, $location));
+            $reporter->warning(self::CODE, self::issue(
+                HookMethods::label($method),
+                $documented,
+                $location,
+                $hooks->replacement($documented),
+            ));
         }
     }
 
@@ -67,13 +72,19 @@ final class DeprecatedHookCheck implements MetadataCheck
 
     /**
      * The issue for a function or method that implements a deprecated hook.
+     * A hook that Drupal 10 removed has no api.php note left to point at, so
+     * the help names its replacement.
      */
-    public static function issue(string $name, string $documented, Span|SourceLocation $where): Issue
-    {
-        return Reporter::issue(
-            "{$name}() implements {$documented}, which is deprecated.",
-            $where,
-            "See the @deprecated note on {$documented}() in the module's api.php for the replacement.",
-        );
+    public static function issue(
+        string $name,
+        string $documented,
+        Span|SourceLocation $where,
+        ?string $replacement,
+    ): Issue {
+        $help = $replacement === null
+            ? "See the @deprecated note on {$documented}() in the module's api.php for the replacement."
+            : "Drupal 10 removed {$documented}(), so core never calls it. Implement {$replacement}() instead.";
+
+        return Reporter::issue("{$name}() implements {$documented}, which is deprecated.", $where, $help);
     }
 }

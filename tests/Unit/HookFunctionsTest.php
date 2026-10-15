@@ -90,6 +90,71 @@ final class HookFunctionsTest extends TestCase
         self::assertSame(1, $hooks->parameterCount('hook_thing_query_TAG_alter'));
     }
 
+    public function testAddsTheHooksDrupal10Removed(): void
+    {
+        $hooks = HookFunctions::fromApiFiles([dirname(__DIR__) . '/fixtures/api/widgets.api.php']);
+
+        self::assertSame(
+            [
+                'hook_field_widget_multivalue_form_alter',
+                'in drupal:9.2.0 and is removed from drupal:10.0.0. Use hook_field_widget_complete_form_alter() instead.',
+            ],
+            $hooks->deprecation('hook_field_widget_multivalue_form_alter'),
+        );
+        self::assertSame(
+            'hook_field_widget_complete_form_alter',
+            $hooks->replacement('hook_field_widget_multivalue_form_alter'),
+        );
+        self::assertSame(3, $hooks->parameterCount('hook_field_widget_form_alter'));
+        self::assertSame(
+            'hook_field_widget_single_element_form_alter',
+            $hooks->replacement('hook_field_widget_form_alter'),
+        );
+        // The multivalue name has more text outside its placeholder than the
+        // plain widget type one, which matches it too.
+        self::assertSame(
+            'hook_field_widget_multivalue_WIDGET_TYPE_form_alter',
+            $hooks->deprecation('hook_field_widget_multivalue_string_textfield_form_alter')[0] ?? null,
+        );
+        self::assertSame(
+            'hook_field_widget_complete_WIDGET_TYPE_form_alter',
+            $hooks->replacement('hook_field_widget_multivalue_WIDGET_TYPE_form_alter'),
+        );
+        self::assertSame(
+            'hook_field_widget_WIDGET_TYPE_form_alter',
+            $hooks->deprecation('hook_field_widget_string_textfield_form_alter')[0] ?? null,
+        );
+        // The documented names decide for the hooks that replace them.
+        self::assertNull($hooks->deprecation('hook_field_widget_complete_form_alter'));
+        self::assertNull($hooks->deprecation('hook_field_widget_complete_string_textfield_form_alter'));
+        self::assertNull($hooks->deprecation('hook_field_widget_single_element_form_alter'));
+        self::assertNull($hooks->replacement('hook_field_widget_complete_form_alter'));
+    }
+
+    public function testLeavesOutTheRemovedHooksWithoutTheirReplacements(): void
+    {
+        $hooks = HookFunctions::fromApiFiles([dirname(__DIR__) . '/fixtures/api/sample.api.php']);
+
+        self::assertNull($hooks->deprecation('hook_field_widget_multivalue_form_alter'));
+        self::assertNull($hooks->deprecation('hook_field_widget_complete_form_alter'));
+        self::assertNull($hooks->replacement('hook_field_widget_form_alter'));
+    }
+
+    public function testAnApiFileKeepsWhatItSaysAboutARemovedHook(): void
+    {
+        $hooks = HookFunctions::fromApiFiles([
+            dirname(__DIR__) . '/fixtures/api/widgets.api.php',
+            dirname(__DIR__) . '/fixtures/api/removed.api.php',
+        ]);
+
+        self::assertNull($hooks->deprecation('hook_field_widget_form_alter'));
+        self::assertNull($hooks->replacement('hook_field_widget_form_alter'));
+        self::assertSame(
+            'hook_field_widget_multivalue_form_alter',
+            $hooks->deprecation('hook_field_widget_multivalue_form_alter')[0] ?? null,
+        );
+    }
+
     public function testReadsPlaceholdersFromDefinitionNames(): void
     {
         $hooks = HookFunctions::fromDefinitions([

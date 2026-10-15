@@ -69,9 +69,77 @@ final class EntityKeyGuards {
   }
 
   /**
+   * The checks that guard a link template.
+   */
+  public function linkGuarded(EntityTypeInterface $type, string $rel, bool $flag): string {
+    if ($type->hasLinkTemplate('canonical')) {
+      $this->path($type->getLinkTemplate('canonical'));
+    }
+    if ($type->hasLinkTemplate('add-form') && str_contains($type->getLinkTemplate('add-form'), '{')) {
+      $this->path('/add');
+    }
+    if ($this->entityType->hasLinkTemplate('collection')) {
+      $this->path($this->entityType->getLinkTemplate('collection'));
+    }
+    if ($type->hasLinkTemplate($rel)) {
+      $this->path($type->getLinkTemplate($rel));
+    }
+    $pinned = $flag && $type->hasLinkTemplate('restore') && str_contains($type->getLinkTemplate('restore'), '{');
+    if ($pinned) {
+      $this->path('/restore');
+    }
+    if (!$type->hasLinkTemplate('edit-form')) {
+      throw new \LogicException('The entity type has no edit form.');
+    }
+
+    return $type->getLinkTemplate('edit-form');
+  }
+
+  /**
+   * The link template checks that guard nothing.
+   */
+  public function linkUnguarded(EntityTypeInterface $type, EntityTypeInterface $other, bool $flag): bool {
+    if ($type->hasLinkTemplate('canonical')) {
+      // @mago-expect analysis:possibly-false-argument
+      $this->path($type->getLinkTemplate('edit-form'));
+      // @mago-expect analysis:possibly-false-argument
+      $this->path($other->getLinkTemplate('canonical'));
+    }
+    if (!$type->hasLinkTemplate('canonical')) {
+      $flag = TRUE;
+    }
+    // @mago-expect analysis:possibly-false-argument
+    $this->path($type->getLinkTemplate('canonical'));
+    // @mago-expect analysis:possibly-false-argument
+    $either = $type->hasLinkTemplate('canonical') || str_contains($type->getLinkTemplate('canonical'), '{');
+    // @mago-expect analysis:possibly-false-argument
+    $negated = !$type->hasLinkTemplate('canonical') && str_contains($type->getLinkTemplate('canonical'), '{');
+    // @mago-expect analysis:possibly-false-argument
+    $wrapped =
+      $this->check($type->hasLinkTemplate('canonical')) && str_contains($type->getLinkTemplate('canonical'), '{');
+    // @mago-expect analysis:possibly-false-argument
+    $listed = [$flag && $type->hasLinkTemplate('canonical'), str_contains($type->getLinkTemplate('canonical'), '{')];
+
+    return $either && $negated && $wrapped && $listed[0];
+  }
+
+  /**
    * Takes a field name.
    */
   private function field(string $name): void {
+  }
+
+  /**
+   * Takes a path.
+   */
+  private function path(string $path): void {
+  }
+
+  /**
+   * Hands a flag back.
+   */
+  private function check(bool $flag): bool {
+    return $flag;
   }
 
 }

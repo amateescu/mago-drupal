@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * `id()` and `uuid()` only read what the entity holds, so they are marked
+ * `@psalm-mutation-free`. Mago then keeps what a check on the result shows
+ * for the later calls on the same entity, up to the next call that can change
+ * it: after `if ($entity->id())` or `isset($list[$entity->id()])`, the next
+ * `$entity->id()` isn't null.
+ *
+ * `isNew()` gets no assertion about `id()`. A docblock assertion holds both
+ * ways, so `@psalm-assert-if-false !null $this->id()` would also type `id()`
+ * as null when `isNew()` is true, which `enforceIsNew()` and an entity
+ * created with an ID make wrong.
+ *
+ * A stub replaces the interface header and Mago builds the descendants of a
+ * stubbed interface from the stub alone, so the header and every method are
+ * restated here even though only two of them change. A restated docblock
+ * replaces core's as well, so each one repeats core's types.
+ * `@stub-added-in` drops a member on a core older than the release that adds
+ * it.
+ */
+
+namespace Drupal\Core\Entity;
+
+use Drupal\Core\Access\AccessibleInterface;
+use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
+
+interface EntityInterface extends AccessibleInterface, CacheableDependencyInterface, RefinableCacheableDependencyInterface
+{
+    /**
+     * @return string|null
+     *
+     * @psalm-mutation-free
+     */
+    public function uuid();
+
+    /**
+     * @return string|int|null
+     *
+     * @psalm-mutation-free
+     */
+    public function id();
+
+    /**
+     * @return \Drupal\Core\Language\LanguageInterface
+     */
+    public function language();
+
+    /**
+     * @return bool
+     */
+    public function isNew();
+
+    /**
+     * @param bool $value
+     * @return $this
+     */
+    public function enforceIsNew($value = true);
+
+    /**
+     * @return string
+     */
+    public function getEntityTypeId();
+
+    /**
+     * @return string
+     */
+    public function bundle();
+
+    /**
+     * @return string|\Drupal\Core\StringTranslation\TranslatableMarkup|null
+     */
+    public function label();
+
+    /**
+     * @param string $rel
+     * @param array $options
+     * @return \Drupal\Core\Url
+     *
+     * @throws \Drupal\Core\Entity\EntityMalformedException
+     * @throws \Drupal\Core\Entity\Exception\UndefinedLinkTemplateException
+     */
+    public function toUrl($rel = null, array $options = []);
+
+    /**
+     * @param string|null|array|\Drupal\Component\Render\MarkupInterface $text
+     * @param string $rel
+     * @param array $options
+     * @return \Drupal\Core\Link
+     *
+     * @throws \Drupal\Core\Entity\EntityMalformedException
+     * @throws \Drupal\Core\Entity\Exception\UndefinedLinkTemplateException
+     */
+    public function toLink($text = null, $rel = 'canonical', array $options = []);
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasLinkTemplate($key);
+
+    /**
+     * @return string[]
+     */
+    public function uriRelationships();
+
+    /**
+     * @param mixed $id
+     * @return static|null
+     */
+    public static function load($id);
+
+    /**
+     * @param array $ids
+     * @return static[]
+     */
+    public static function loadMultiple(?array $ids = null);
+
+    /**
+     * @param array $values
+     * @return static
+     */
+    public static function create(array $values = []);
+
+    /**
+     * @return int
+     *
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     */
+    public function save();
+
+    /**
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     */
+    public function delete();
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     *
+     * @throws \Exception
+     */
+    public function preSave(EntityStorageInterface $storage);
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     * @param bool $update
+     */
+    public function postSave(EntityStorageInterface $storage, $update = true);
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     * @param mixed[] $values
+     */
+    public static function preCreate(EntityStorageInterface $storage, array &$values);
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     */
+    public function postCreate(EntityStorageInterface $storage);
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     * @param \Drupal\Core\Entity\EntityInterface[] $entities
+     */
+    public static function preDelete(EntityStorageInterface $storage, array $entities);
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     * @param \Drupal\Core\Entity\EntityInterface[] $entities
+     */
+    public static function postDelete(EntityStorageInterface $storage, array $entities);
+
+    /**
+     * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+     * @param \Drupal\Core\Entity\EntityInterface[] $entities
+     */
+    public static function postLoad(EntityStorageInterface $storage, array &$entities);
+
+    /**
+     * @return static
+     */
+    public function createDuplicate();
+
+    /**
+     * @return \Drupal\Core\Entity\EntityTypeInterface
+     */
+    public function getEntityType();
+
+    /**
+     * @return \Drupal\Core\Entity\EntityInterface[]
+     */
+    public function referencedEntities();
+
+    /**
+     * @return int|string|null
+     */
+    public function getOriginalId();
+
+    /**
+     * @return string[]
+     */
+    public function getCacheTagsToInvalidate();
+
+    /**
+     * @param int|string|null $id
+     * @return $this
+     */
+    public function setOriginalId($id);
+
+    /**
+     * @return mixed[]
+     */
+    public function toArray();
+
+    /**
+     * @return \Drupal\Core\TypedData\ComplexDataInterface
+     */
+    public function getTypedData();
+
+    /**
+     * @return string
+     */
+    public function getConfigDependencyKey();
+
+    /**
+     * @return string
+     */
+    public function getConfigDependencyName();
+
+    /**
+     * @return string
+     */
+    public function getConfigTarget();
+
+    /**
+     * @return static|null
+     *
+     * @stub-added-in 11.2
+     */
+    public function getOriginal(): ?static;
+
+    /**
+     * @param \Drupal\Core\Entity\EntityInterface|null $original
+     * @return $this
+     *
+     * @stub-added-in 11.2
+     */
+    public function setOriginal(?EntityInterface $original): static;
+}

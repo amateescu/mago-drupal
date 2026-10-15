@@ -41,7 +41,12 @@ See [Hook implementations](#hook-implementations) for the implementations that a
 - an implementation of a hook whose `hook_*()` documentation function has a `@deprecated` tag;
 - an implementation of a hook that has no documentation function of its own name, when a deprecated
   documentation function with an uppercase placeholder matches it, as `search_api_query_foo_alter`
-  matches `hook_search_api_query_TAG_alter`.
+  matches `hook_search_api_query_TAG_alter`;
+- an implementation of `hook_field_widget_form_alter()`, `hook_field_widget_multivalue_form_alter()`
+  or their `WIDGET_TYPE` forms. Drupal 10 removed these hooks and their documentation, so core never
+  calls them. The check knows them from a list of its own, which it uses when the api files document
+  the four hooks that replace them, as core's `field.api.php` does. The help names the hook to
+  implement instead.
 
 A name can match several placeholders, as `search_api_query_foo_view_alter` also matches core's
 `hook_ENTITY_TYPE_view_alter`. The match with the most text outside its placeholders decides. When
@@ -50,7 +55,12 @@ several tie, the implementation is reported only if all of them are deprecated.
 **Not reported:**
 
 - with `--deprecations=12`, a deprecation whose `@deprecated` text names a Drupal removal version
-  after 12. See [Deprecation target](deprecations.md#deprecation-target).
+  after 12. See [Deprecation target](deprecations.md#deprecation-target);
+- an implementation of `hook_field_widget_complete_form_alter()`,
+  `hook_field_widget_single_element_form_alter()` or their `WIDGET_TYPE` forms, though the name of
+  the removed `hook_field_widget_WIDGET_TYPE_form_alter()` matches them too. A documented name
+  decides first, and the documented `WIDGET_TYPE` forms have more text outside the placeholder;
+- a removed hook that an api file still documents. The api file decides, as for any other hook.
 
 ??? example "Example"
 
@@ -101,7 +111,10 @@ several tie, the implementation is reported only if all of them are deprecated.
       functions with placeholders.
     - phpstan-drupal reports `hook_field_widget_multivalue_form_alter` and
       `hook_field_widget_multivalue_WIDGET_TYPE_form_alter` implementations from a list of its own,
-      since Drupal 10 removed their documentation. The check reports neither.
+      since Drupal 10 removed their documentation. The check's list also has
+      `hook_field_widget_form_alter` and `hook_field_widget_WIDGET_TYPE_form_alter`, which Drupal 10
+      removed as well. The check uses its list only next to the documentation of the hooks that
+      replace them, and phpstan-drupal uses its list without it.
     - phpstan-drupal reads the hook documentation only with `checkCoreDeprecatedHooksInApiFiles` or
       `checkContribDeprecatedHooksInApiFiles` on, which `bleedingEdge.neon` turns on. Without them
       it reports only the two field widget hooks from its own list.

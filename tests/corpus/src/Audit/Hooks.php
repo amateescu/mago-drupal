@@ -215,6 +215,33 @@ final class Hooks {
   public function textfieldElementAlter(): void {
   }
 
+  /**
+   * Implements hook_field_widget_form_alter().
+   *
+   * Drupal 10 removed the hook.
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('field_widget_form_alter')]
+  public function widgetAlter(): void {
+  }
+
+  /**
+   * Implements hook_field_widget_multivalue_string_textfield_form_alter().
+   *
+   * Drupal 10 removed the hook.
+   */
+  // @mago-expect analysis:drupal/deprecated-hook
+  #[Hook('field_widget_multivalue_string_textfield_form_alter')]
+  public function textfieldMultivalueAlter(): void {
+  }
+
+  /**
+   * Implements hook_field_widget_complete_string_textfield_form_alter().
+   */
+  #[Hook('field_widget_complete_string_textfield_form_alter')]
+  public function textfieldCompleteAlter(): void {
+  }
+
 }
 
 /**

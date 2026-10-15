@@ -105,24 +105,32 @@ Any other key keeps `string|false`.
 $entity_type->getKey('id');                     // string
 ```
 
-Mago doesn't narrow one call's result by another call on the same object, so `getKey()` stays
-`string|false` after `hasKey()` is true for the same key. The plugin drops the reports about the
-possible `false` instead, when the code around the call shows the check. The reports are
-`falsable-return-statement`, `invalid-return-statement`, `possibly-false-argument`,
-`possibly-false-operand` and `mismatched-array-index`, on the `getKey()` call itself. The call is on
-a variable or a chain of properties, with a string literal or a variable as the key, and in the same
-function:
+`getLinkTemplate()` is documented as `string|false` as well, and keeps that type for every
+template.
 
-- an `if` or `elseif` condition holds `hasKey()` on the same receiver with the same key, joined to
+Mago doesn't narrow one call's result by another call on the same object, so `getKey()` stays
+`string|false` after `hasKey()` is true for the same key, and `getLinkTemplate()` stays
+`string|false` after `hasLinkTemplate()`. The plugin drops the reports about the possible `false`
+instead, when the code around the call shows the check. The reports are
+`falsable-return-statement`, `invalid-return-statement`, `possibly-false-argument`,
+`possibly-false-operand` and `mismatched-array-index`, on the `getKey()` or `getLinkTemplate()` call
+itself. The call is on a variable or a chain of properties, with a string literal or a variable as
+the key, and in the same function:
+
+- an `if` or `elseif` condition holds the check on the same receiver with the same key, joined to
   its other parts by `&&` only, and the call comes later in that condition or in the statement that
   the `if` guards;
 - an `if (!$entity_type->hasKey('owner'))` block ends in `throw` or `return`, and the call comes
-  after it, in the same block as the `if`.
+  after it, in the same block as the `if`;
+- a statement, such as an assignment or a `return`, holds the check as one of its `&&` parts outside
+  any parentheses, and the call comes later in the same `&&` chain.
 
 ```php
 if ($entity_type->hasKey('owner')) {
   $query->condition($entity_type->getKey('owner'), $uid);  // no possibly-false-argument
 }
+// No possibly-false-argument on the getLinkTemplate() call either.
+$pin = $type->hasLinkTemplate('edit') && str_contains($type->getLinkTemplate('edit'), '{');
 ```
 
 **Still reported:**
@@ -131,16 +139,20 @@ if ($entity_type->hasKey('owner')) {
   call;
 - a call in an `else` branch, after the `if`, in a ternary, or in a closure or an arrow function
   inside the `if`;
-- a call guarded by a condition with `||`, `or`, `xor`, `??` or `?`, and an `if (!hasKey())` whose
-  block doesn't end in `throw` or `return`;
-- a call after a check of `getKey()` itself, as in `if ($entity_type->getKey('label') !== FALSE)`;
+- a call guarded by a condition or a statement with `||`, `or`, `xor`, `??` or `?`, an
+  `if (!hasKey())` whose block doesn't end in `throw` or `return`, and a negated check in an `&&`
+  chain;
+- a call after a check held in another call, as in `check($entity_type->hasKey('owner')) && ...`,
+  and a call after a comma or a `=>`, as in another element of an array;
+- a call after a check of the getter itself, as in `if ($entity_type->getKey('label') !== FALSE)`;
 - a call on a receiver that is itself a call, as in `$entity->getEntityType()->getKey('label')`;
 - the result once assigned, as in `$key = $entity_type->getKey('owner')`, which is still
   `string|false` for later uses.
 
-phpstan-drupal narrows the type of the `getKey()` call itself after `hasKey()`. So it also leaves
-alone the ternary, the closure, the call on another call and the assigned result, and PHPStan
-remembers a `getKey()` call compared with `FALSE`.
+phpstan-drupal narrows the type of the `getKey()` or `getLinkTemplate()` call itself after the
+check. So it also leaves alone the ternary, the closure, the call on another call and the assigned
+result, and PHPStan remembers a getter call compared with `FALSE`. After a `hasLinkTemplate()` that
+is false, phpstan-drupal also narrows `getLinkTemplate()` to `false`.
 
 ## Access checks
 

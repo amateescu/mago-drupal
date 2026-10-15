@@ -159,6 +159,8 @@ function corpus_search_query_node_view_alter(): void {
 
 /**
  * Implements hook_field_widget_WIDGET_TYPE_form_alter().
+ *
+ * Drupal 10 removed the hook and its documentation.
  */
 // @mago-expect analysis:drupal/deprecated-hook
 function corpus_field_widget_string_textfield_form_alter(): void {
@@ -168,6 +170,55 @@ function corpus_field_widget_string_textfield_form_alter(): void {
  * Implements hook_field_widget_single_element_WIDGET_TYPE_form_alter().
  */
 function corpus_field_widget_single_element_string_textfield_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ *
+ * Drupal 10 removed the hook.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_field_widget_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_multivalue_form_alter().
+ *
+ * Drupal 10 removed the hook.
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_field_widget_multivalue_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_multivalue_WIDGET_TYPE_form_alter().
+ *
+ * Drupal 10 removed the hook. Its name has more text outside the placeholder
+ * than hook_field_widget_WIDGET_TYPE_form_alter().
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function corpus_field_widget_multivalue_string_textfield_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_single_element_form_alter().
+ */
+function corpus_field_widget_single_element_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_complete_form_alter().
+ *
+ * The removed WIDGET_TYPE hook matches the name too, but the documented name
+ * decides.
+ */
+function corpus_field_widget_complete_form_alter(): void {
+}
+
+/**
+ * Implements hook_field_widget_complete_WIDGET_TYPE_form_alter().
+ */
+function corpus_field_widget_complete_string_textfield_form_alter(): void {
 }
 
 /**

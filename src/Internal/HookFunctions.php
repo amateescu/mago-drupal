@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
+use function array_column;
+use function array_diff;
 use function array_key_exists;
+use function array_keys;
 use function count;
 use function file_get_contents;
 use function implode;
@@ -50,6 +53,37 @@ final class HookFunctions
      * What a placeholder stands for in a lowercased function name.
      */
     private const PLACEHOLDER_VALUE = '[a-z0-9_]+';
+
+    /**
+     * Hooks that Drupal 10 removed together with their documentation, as
+     * documented name to `[@deprecated text, replacement hook]`. Core never
+     * calls an implementation of one, so they are added for the names that
+     * the api files don't document, when the api files document every
+     * replacement, as core's do.
+     */
+    private const REMOVED = [
+        'hook_field_widget_form_alter' => [
+            'in drupal:9.2.0 and is removed from drupal:10.0.0. Use hook_field_widget_single_element_form_alter() instead.',
+            'hook_field_widget_single_element_form_alter',
+        ],
+        'hook_field_widget_WIDGET_TYPE_form_alter' => [
+            'in drupal:9.2.0 and is removed from drupal:10.0.0. Use hook_field_widget_single_element_WIDGET_TYPE_form_alter() instead.',
+            'hook_field_widget_single_element_WIDGET_TYPE_form_alter',
+        ],
+        'hook_field_widget_multivalue_form_alter' => [
+            'in drupal:9.2.0 and is removed from drupal:10.0.0. Use hook_field_widget_complete_form_alter() instead.',
+            'hook_field_widget_complete_form_alter',
+        ],
+        'hook_field_widget_multivalue_WIDGET_TYPE_form_alter' => [
+            'in drupal:9.2.0 and is removed from drupal:10.0.0. Use hook_field_widget_complete_WIDGET_TYPE_form_alter() instead.',
+            'hook_field_widget_complete_WIDGET_TYPE_form_alter',
+        ],
+    ];
+
+    /**
+     * How many parameters each removed hook took.
+     */
+    private const REMOVED_PARAMETERS = 3;
 
     /**
      * Lowercased function name to `[@deprecated text, parameter count]`.
@@ -122,6 +156,17 @@ final class HookFunctions
             }
         }
 
+        // The placeholder in a removed name also matches the hooks that
+        // replace them, and only their own documentation keeps those quiet,
+        // so the removed hooks come only with it. An api file that still
+        // documents a removed hook keeps its own text.
+        $replacements = array_column(self::REMOVED, column_key: 1);
+        if (array_diff($replacements, array_keys($hooks)) === []) {
+            foreach (self::REMOVED as $name => [$text]) {
+                $hooks[$name] ??= [$text, self::REMOVED_PARAMETERS];
+            }
+        }
+
         return new self($hooks);
     }
 
@@ -183,6 +228,23 @@ final class HookFunctions
         }
 
         return $found === false ? null : $found;
+    }
+
+    /**
+     * The hook to implement instead of a documented name from deprecation(),
+     * when the name is one of the hooks that Drupal 10 removed and no api
+     * file documents it. Null for any other name.
+     */
+    public function replacement(string $documented): ?string
+    {
+        $key = strtolower($documented);
+        foreach (self::REMOVED as $name => [$text, $replacement]) {
+            if (strtolower($name) === $key) {
+                return ($this->hooks[$key][0] ?? null) === $text ? $replacement : null;
+            }
+        }
+
+        return null;
     }
 
     /**
