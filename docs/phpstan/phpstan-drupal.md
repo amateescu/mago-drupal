@@ -121,7 +121,7 @@ phpstan-drupal runs it only when a project adds it to `rules`.
 - `moduleLoadInclude.moduleNotFound`: nothing
 - `moduleLoadInclude.moduleNotLoadable`: nothing
 
-Drupal 11 removed `module_load_include()`.
+Drupal 11 removed `module_load_include()`, and Mago reports a call to it as `non-existent-function`.
 
 ### PluginAnnotationContextDefinitionsRule
 
@@ -130,7 +130,7 @@ Drupal 11 removed `module_load_include()`.
 ### PluginManagerInspectionRule
 
 - `pluginManagerInspection.alterInfoMissing`: [`drupal/plugin-manager-alter-info`](../analyzer/plugins.md#drupalplugin-manager-alter-info)
-- `pluginManagerInspection.yamlPluginManagersInvokesParentConstructor`: nothing. A plugin manager with YAML discovery that calls `parent::__construct()`.
+- `pluginManagerInspection.yamlPluginManagersInvokesParentConstructor`: nothing. A plugin manager with YAML discovery that calls `parent::__construct()`. The call is harmless, since the parent constructor only stores its arguments.
 
 Off by default in phpstan-drupal.
 
@@ -187,7 +187,7 @@ plugin does the same work, and the linked section says how.
 <!-- docs-gen:phpstan-drupal-extensions -->
 
 - `AccessCheckTypeSpecifyingExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
-- `BootstrapResultCacheMetaExtension`: nothing. It invalidates PHPStan's result cache when an extension's info file, a services file, a config schema file or the Drupal version changes. The analyzer keys its own index cache by the modification times and sizes of its files, see [Index cache](../setup/install.md#index-cache).
+- `BootstrapResultCacheMetaExtension`: nothing. It invalidates PHPStan's result cache when an extension's info file, a services file, a config schema file or the Drupal version changes. A one-shot run needs nothing in its place: Mago keeps no result cache, and the analyzer keys its own index cache by the modification times and sizes of its files, see [Index cache](../setup/install.md#index-cache). A watch session re-analyzes only the PHP files that change, so an edit to one of those files shows on the PHP files that depend on it once they change or the session restarts.
 - `ConfigGetDynamicReturnTypeExtension`: [Config: Config objects](../analyzer/config.md#config-objects). Off by default in phpstan-drupal.
 - `ContainerDynamicReturnTypeExtension`: [Services: Container lookups](../analyzer/services.md#container-lookups)
 - `DeprecationHelperScope`: [Deprecations: Deprecation scopes](../analyzer/deprecations.md#deprecation-scopes)
@@ -204,7 +204,7 @@ plugin does the same work, and the linked section says how.
 - `EntityQueryDynamicReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `EntityRepositoryReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
 - `EntityStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)
-- `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead.
+- `EntityTypeIdTypeNodeResolverExtension`: nothing. The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead. phpstan-drupal 2.2.2 accepts any string for it, so `string` loses no check.
 - `EntityTypeKeyByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. `getKey()` is a string for the keys that every entity type has. A `hasKey()` check for the same key doesn't narrow it, but the reports about a possible `false` from a `getKey()` call that such a check guards in an `if` or an `&&` chain are dropped.
 - `EntityTypeLinkTemplateByExistence`: [Entities: Entity type keys](../analyzer/entities.md#entity-type-keys), partly. A `hasLinkTemplate()` check for the same template doesn't narrow `getLinkTemplate()`, but the reports about a possible `false` from a `getLinkTemplate()` call that such a check guards in an `if` or an `&&` chain are dropped. A false check doesn't narrow the call to `false`.
 - `EntityTypeManagerGetStorageDynamicReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)

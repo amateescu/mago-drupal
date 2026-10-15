@@ -150,7 +150,7 @@
         {
             "rule": "ModuleLoadInclude",
             "where": ["none"],
-            "note": "Drupal 11 removed `module_load_include()`.",
+            "note": "Drupal 11 removed `module_load_include()`, and Mago reports a call to it as `non-existent-function`.",
             "identifiers": [
                 {"identifier": "moduleLoadInclude.moduleNotFound", "status": "gap"},
                 {"identifier": "moduleLoadInclude.moduleNotLoadable", "status": "gap"}
@@ -169,7 +169,7 @@
             "where": ["check:drupal/plugin-manager-alter-info"],
             "identifiers": [
                 {"identifier": "pluginManagerInspection.alterInfoMissing", "status": "ported"},
-                {"identifier": "pluginManagerInspection.yamlPluginManagersInvokesParentConstructor", "status": "gap", "where": ["none"], "note": "A plugin manager with YAML discovery that calls `parent::__construct()`."}
+                {"identifier": "pluginManagerInspection.yamlPluginManagersInvokesParentConstructor", "status": "gap", "where": ["none"], "note": "A plugin manager with YAML discovery that calls `parent::__construct()`. The call is harmless, since the parent constructor only stores its arguments."}
             ]
         },
         {
@@ -240,7 +240,7 @@
     ],
     "extensions": [
         {"extension": "AccessCheckTypeSpecifyingExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
-        {"extension": "BootstrapResultCacheMetaExtension", "status": "gap", "where": ["none"], "note": "It invalidates PHPStan's result cache when an extension's info file, a services file, a config schema file or the Drupal version changes. The analyzer keys its own index cache by the modification times and sizes of its files, see [Index cache](../setup/install.md#index-cache)."},
+        {"extension": "BootstrapResultCacheMetaExtension", "status": "gap", "where": ["none"], "note": "It invalidates PHPStan's result cache when an extension's info file, a services file, a config schema file or the Drupal version changes. A one-shot run needs nothing in its place: Mago keeps no result cache, and the analyzer keys its own index cache by the modification times and sizes of its files, see [Index cache](../setup/install.md#index-cache). A watch session re-analyzes only the PHP files that change, so an edit to one of those files shows on the PHP files that depend on it once they change or the session restarts."},
         {"extension": "ConfigGetDynamicReturnTypeExtension", "default": "off", "status": "ported", "where": ["doc:analyzer/config.md#config-objects"]},
         {"extension": "ContainerDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/services.md#container-lookups"]},
         {"extension": "DeprecationHelperScope", "status": "ported", "where": ["doc:analyzer/deprecations.md#deprecation-scopes"]},
@@ -257,7 +257,7 @@
         {"extension": "EntityQueryDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
         {"extension": "EntityRepositoryReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
         {"extension": "EntityStorageDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
-        {"extension": "EntityTypeIdTypeNodeResolverExtension", "status": "gap", "where": ["none"], "note": "The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead."},
+        {"extension": "EntityTypeIdTypeNodeResolverExtension", "status": "gap", "where": ["none"], "note": "The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead. phpstan-drupal 2.2.2 accepts any string for it, so `string` loses no check."},
         {"extension": "EntityTypeKeyByExistence", "status": "partial", "where": ["doc:analyzer/entities.md#entity-type-keys"], "note": "`getKey()` is a string for the keys that every entity type has. A `hasKey()` check for the same key doesn't narrow it, but the reports about a possible `false` from a `getKey()` call that such a check guards in an `if` or an `&&` chain are dropped."},
         {"extension": "EntityTypeLinkTemplateByExistence", "status": "partial", "where": ["doc:analyzer/entities.md#entity-type-keys"], "note": "A `hasLinkTemplate()` check for the same template doesn't narrow `getLinkTemplate()`, but the reports about a possible `false` from a `getLinkTemplate()` call that such a check guards in an `if` or an `&&` chain are dropped. A false check doesn't narrow the call to `false`."},
         {"extension": "EntityTypeManagerGetStorageDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
