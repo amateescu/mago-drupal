@@ -7,6 +7,8 @@ function blank_line_below(array $items): array
 {
     // Counts the items.
     $count = count($items);
+    # A hash comment, which drupal/inline-comment turns into `//`.
+    $count--;
     // The first paragraph.
     // The second paragraph.
     $count++;
@@ -26,7 +28,6 @@ function blank_line_below(array $items): array
     // @codingStandardsIgnoreStart
     $total++;
     // @codingStandardsIgnoreEnd
-
     // phpcs:ignore Some.Sniff
 
     $items = [

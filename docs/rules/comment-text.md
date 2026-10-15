@@ -381,11 +381,13 @@ Coder asks for no gendered pronouns in comments.
 
 **Reports:**
 
-- a blank line below a `//` comment on its own line.
+- a blank line below a `//` or `#` comment on its own line. A `@codingStandardsIgnore*` line counts
+  as a comment, as it does for Coder 9, which runs on PHP_CodeSniffer 4, where those annotations no
+  longer work.
 
 **Not reported:**
 
-- a directive such as a `phpcs:` or `@codingStandardsIgnore*` line;
+- a `phpcs:` directive line;
 - a `//` comment with no text, a comment right before a docblock, and a `// @code` example;
 - a blank line before a closing bracket, which is handled by `mago format`. The formatter takes such
   a line out, except before the closing brace of a class, interface, trait or enum with members,
@@ -422,7 +424,8 @@ pass applies it.
     - `Drupal.Commenting.InlineComment` skips a `//` comment with no text, a comment right before a
       docblock and a `// @code` example, as the rule does. DrupalPractice's `CommentEmptyLine`
       reports all three.
-    - Coder also reports a blank line below a `@codingStandardsIgnore*` line. The rule skips it.
+    - Coder reports the blank line below a `#` comment once its own fix has turned the comment into
+      `//`. The rule reports it at once.
 
 ---
 

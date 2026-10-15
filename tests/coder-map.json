@@ -1108,7 +1108,7 @@
         "sniff": "Squiz.Classes.ClassFileName",
         "standard": "Drupal",
         "where": ["lint:file-name"],
-        "note": "With `file-name = { enabled = true }`. Coder's ruleset skips `*Test.php` and `*TestBase.php` files under `tests/<dir>/`. Mago's rule checks them too.",
+        "note": "With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` under `tests/<dir>/`, as the [configuration](../setup/configuration.md) does and Coder's ruleset does. Mago reports at warning level, Coder at error. Core's own config runs Coder 8, whose sniff checks only the first class-like of a `.php` file.",
         "codes": [
             {"code": "NoMatch", "status": "partial", "where": ["lint:file-name", "lint:single-class-per-file"], "note": "`file-name` checks only a file with one class-like declaration. In a file with several, `single-class-per-file` reports every declaration after the first, whatever its name."}
         ]
