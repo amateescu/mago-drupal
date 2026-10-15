@@ -79,7 +79,7 @@ inside the text doesn't.
 
     - Coder joins the pieces of a message with spaces. It reports a valid message that a split
       leaves with two spaces, as in `'... See ' . 'https://...'`, a heredoc message, and a
-      `\sprintf()` call. The rule reports none of these.
+      `\sprintf()` call. The rule doesn't report any of these.
     - Coder takes the nearest docblock before the call when it sits one nesting level above the
       call. A method with no docblock then takes the tag of the method above it, and a closure in a
       tagged method gets the relaxed wording. The rule uses the docblock of the enclosing function
@@ -209,8 +209,8 @@ methods.
     - It reads the whole argument, so an argument that starts with a literal but is another
       expression, such as `'a' ?: 'b'`, `'a' ?? 'b'` or `'a'[0]`, is reported as not a literal.
       Coder reads only the first token and lets these through.
-    - It skips `t(...$x)` and `t(string: 'x')`, which have no positional first argument to read.
-      Coder reports them as not a literal.
+    - It skips `t(...$x)` and `t(string: 'x')`, which don't have a positional first argument to
+      read. Coder reports them as not a literal.
 
 ---
 
@@ -261,8 +261,8 @@ without `'`.
     - A fix for an escaped quote doesn't exist in Coder. `mago format` also swaps the quotes of a
       double-quoted string that escapes its own quote.
     - The rule reads the escapes in a string literal, where Coder looks for the two characters `\'`
-      or `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so it holds no
-      escaped quote and isn't reported.
+      or `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so it doesn't
+      hold an escaped quote and isn't reported.
     - The whitespace check reads the value that PHP builds from the string. An escape such as `\n`
       or `\t` at either end of a double-quoted string counts as whitespace. Coder reads the two
       characters as written and doesn't report it.

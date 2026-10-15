@@ -22,7 +22,7 @@ any code runs.
 
 - a mark further in.
 
-There is no fix, because removing the mark changes what the file sends.
+There isn't a fix, because removing the mark changes what the file sends.
 
 `drupal/file-comment` and `drupal/missing-file-comment` skip a byte order mark before the open tag,
 so a procedural file with a mark and a correct docblock gets only this rule's report.
@@ -33,7 +33,7 @@ so a procedural file with a mark and a correct docblock gets only this rule's re
 
 - **Level:** warning
 - **Fix:** safe. It removes the pair and the line break that PHP drops after `?>`, so the output
-  stays the same. An empty `<?= ?>` has no fix, because PHP rejects it.
+  stays the same. An empty `<?= ?>` doesn't have a fix, because PHP rejects it.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Generic.CodeAnalysis.EmptyPHPStatement.EmptyPHPOpenCloseTagsDetected`
 
@@ -69,8 +69,8 @@ Coder asks for files in UTF-8.
 **Reports:**
 
 - a file that isn't valid UTF-8. The report sits on the first open tag or run of inline text, not on
-  the bad byte, and the message names no bytes. The text that PHP drops after a `?>` doesn't count
-  as inline text.
+  the bad byte, and the message doesn't name any bytes. The text that PHP drops after a `?>` doesn't
+  count as inline text.
 
 **Not reported:**
 
@@ -79,7 +79,7 @@ Coder asks for files in UTF-8.
 ??? note "Compared with Coder"
 
     - The rule checks UTF-8 with a PCRE pattern, where Coder calls `mb_check_encoding()`.
-    - Coder has an `allowedEncodings` option. The rule has none.
+    - Coder has an `allowedEncodings` option. The rule doesn't have one.
 
 ---
 

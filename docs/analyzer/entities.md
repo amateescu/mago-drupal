@@ -18,7 +18,7 @@ hasn't saved counts. A class that also has the attribute has its annotation igno
 Drupal's discovery does.
 
 Two classes that declare one entity type id cancel each other out, as plugins do. The id is known,
-so it isn't reported, but it names no definition.
+so it isn't reported, but it doesn't name a definition.
 
 **Not indexed:**
 
@@ -70,9 +70,9 @@ The default handlers follow core's entity type classes:
 - a content entity type gets `SqlContentEntityStorage` and `EntityViewBuilder`;
 - a config entity type gets `ConfigEntityStorage`;
 - every kind gets `EntityAccessControlHandler`;
-- list builders and forms have no default;
-- a bare `#[EntityType]` gets no storage default, and its definition isn't narrowed to a definition
-  interface.
+- list builders and forms don't have a default;
+- a bare `#[EntityType]` doesn't get a storage default, and its definition isn't narrowed to a
+  definition interface.
 
 The storage methods:
 
@@ -289,7 +289,7 @@ the call throws, which the types can't tell apart.
 ### Entity interfaces
 
 When the receiver's static type is an interface, such as `NodeInterface`, Mago reports these
-accesses as `missing-magic-method`, since an interface declares no `__get()` or `__set()`. The
+accesses as `missing-magic-method`, since an interface doesn't declare `__get()` or `__set()`. The
 analyzer drops that report:
 
 - on any interface that extends `FieldableEntityInterface`. Every content entity class extends
@@ -369,13 +369,13 @@ The getters are `getStorage()`, `getAccessControlHandler()`, `getViewBuilder()`,
 - **Ports:** phpstan-drupal's `EntityQueryHasAccessCheckRule`
 
 phpstan-drupal reports an entity query that runs without a decision about access checking. Since
-Drupal 10 such a query throws. Config entity queries have no access checking, so they are left
+Drupal 10 such a query throws. Config entity queries don't have access checking, so they are left
 alone.
 
 **Reports:**
 
-- `execute()` on an entity query whose chain has no `accessCheck()` call, unless the entity type is
-  a known config entity type;
+- `execute()` on an entity query whose chain doesn't have an `accessCheck()` call, unless the entity
+  type is a known config entity type;
 - the same on a query of an unknown entity type.
 
 `accessCheck(FALSE)` is a decision, and isn't reported. `$query->accessCheck(TRUE);` as a statement

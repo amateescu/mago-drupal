@@ -35,7 +35,7 @@ for a form, a controller or a plugin.
 
 **Not reported:**
 
-- a static method, which has no injected services to use;
+- a static method, which doesn't have injected services to use;
 - a constructor with a parameter that accepts null. Drupal's deprecation policy adds a new service
   to a constructor as a nullable parameter, and the constructor falls back to `\Drupal::service()`
   for callers that don't pass it yet;
@@ -331,8 +331,8 @@ as [`drupal/entity-storage-injection`](#drupalentity-storage-injection).
 
 phpstan-drupal reports a logger channel that a constructor takes from the logger factory and keeps
 on the object, in a class that uses `DependencySerializationTrait`. The trait serializes a service
-by its id. A channel from the factory has no id, so the trait can't restore the property. Inject the
-channel service itself, such as `logger.channel.example`.
+by its id. A channel from the factory doesn't have an id, so the trait can't restore the property.
+Inject the channel service itself, such as `logger.channel.example`.
 
 **Reports:**
 

@@ -139,8 +139,8 @@ inside its parentheses.
       `array()` of placeholders. The rule also reads `Html::escape()`, the other calls listed above,
       a short array, `\t()` and `\check_plain()`.
     - Coder reports a `!` placeholder too, where the escape is needed.
-    - Coder reports a `check_plain()` anywhere in the array that has no `.` right before it, such
-      as one inside another call. The rule reads only the value of each placeholder.
+    - Coder reports a `check_plain()` anywhere in the array that doesn't have a `.` right before it,
+      such as one inside another call. The rule reads only the value of each placeholder.
 
 ---
 
@@ -239,7 +239,7 @@ Drupal's standard allows a global constant whose name starts with the module nam
 ??? note "Compared with Coder"
 
     - The rule treats the body of an `if`, `elseif` or `else` written without braces, and an arrow
-      function, as nested. Coder sees no enclosing scope there.
+      function, as nested. Coder doesn't see an enclosing scope there.
     - It also reports `\define()` and `DEFINE()`, which are missed by Coder. It doesn't report
       `$object?->define()` or `define(...)`.
     - It keeps the exemption of a `@deprecated` docblock that is above an attribute list.

@@ -48,8 +48,8 @@ The schema types map to PHP types:
 - `array<int|string, T>`, for a sequence;
 - an array shape, for a mapping. The shape lists every key of the mapping. A key is required unless
   it says `requiredKey: false` or is marked `deprecated:`, and `nullable: true` adds `null` to its
-  type. Drupal rejects the keys that a fully validatable mapping doesn't list, so the shape holds no
-  others. A mapping that lists no keys is `array<string, mixed>`.
+  type. Drupal rejects the keys that a fully validatable mapping doesn't list, so the shape doesn't
+  hold any others. A mapping that doesn't list any keys is `array<string, mixed>`.
 
 A key passed to `get()` can always be absent, so `null` stays in its type. `get()` with no key gives
 the shape of the whole object.
@@ -148,8 +148,8 @@ without a schema also fails Drupal's strict schema checks in tests.
 
 **Not reported:**
 
-- a name whose first part isn't `core` and names no module in the codebase. A module that reads the
-  config of an optional module can't expect its schema;
+- a name whose first part isn't `core` and doesn't name a module in the codebase. A module that
+  reads the config of an optional module can't expect its schema;
 - any name while core's own schema isn't in the index;
 - update code (`.install` and `.post_update.php` files);
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).

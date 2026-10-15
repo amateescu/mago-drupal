@@ -145,4 +145,4 @@ Core's PHPStan configuration disallows the weak hash functions. See the
   `crc32b`.
 
 The fix needs `--unsafe`, because a stored digest must be migrated and not only computed again. A
-`md5()`, `sha1()` or `crc32()` call with a second argument has no fix.
+`md5()`, `sha1()` or `crc32()` call with a second argument doesn't have a fix.

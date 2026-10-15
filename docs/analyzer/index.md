@@ -95,7 +95,7 @@ definitions and list builders that leave out what core asks for.
 | Check | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/unknown-entity-type`](entities.md#drupalunknown-entity-type) | warning | A literal entity type id that no indexed entity type declares, passed to a getter of the entity type manager. |
-| [`drupal/entity-query-access-check`](entities.md#drupalentity-query-access-check) | error | `execute()` on an entity query whose chain has no `accessCheck()` call, unless the entity type is a known config entity type. |
+| [`drupal/entity-query-access-check`](entities.md#drupalentity-query-access-check) | error | `execute()` on an entity query whose chain doesn't have an `accessCheck()` call, unless the entity type is a known config entity type. |
 | [`drupal/deprecated-original`](entities.md#drupaldeprecated-original) | warning | A read, a write, an `isset()` and an `unset()` of `original` on an entity. |
 | [`drupal/config-entity-export`](entities.md#drupalconfig-entity-export) | error | A config entity type in the entity type index without `config_export`. |
 | [`drupal/list-builder-cacheability`](entities.md#drupallist-builder-cacheability) | error | A list builder's `getOperations()` or `getDefaultOperations()` method without a second parameter typed as `CacheableMetadata`, on core 11.3 up to 12.0. |
@@ -193,10 +193,10 @@ The `drupal` plugin has the checks for Drupal's test classes.
 | Check | Level | What it reports |
 | --- | --- | --- |
 | [`phpunit/redundant-assertion`](tests.md#phpunitredundant-assertion) | warning | An assertion that the type of its value already guarantees, such as `assertTrue(TRUE)`, or `assertInstanceOf()` on a value already typed as that class. |
-| [`phpunit/mock-call-on-plain-type`](tests.md#phpunitmock-call-on-plain-type) | warning | An `expects()` or `method()` call on a value whose type names no PHPUnit class and doesn't declare the method. |
+| [`phpunit/mock-call-on-plain-type`](tests.md#phpunitmock-call-on-plain-type) | warning | An `expects()` or `method()` call on a value whose type doesn't name a PHPUnit class or declare the method. |
 | [`phpunit/prophecy-union`](tests.md#phpunitprophecy-union) | warning | A docblock type that unions `ProphecyInterface` or `ObjectProphecy` with another class. |
 | [`drupal/test-modules-visibility`](tests.md#drupaltest-modules-visibility) | error | A public `$modules` property, static or not, typed or not, declared in a class that descends from PHPUnit's `TestCase`. |
-| [`drupal/browser-test-default-theme`](tests.md#drupalbrowser-test-default-theme) | error | A browser test on a themeless profile that sets no `$defaultTheme`. |
+| [`drupal/browser-test-default-theme`](tests.md#drupalbrowser-test-default-theme) | error | A browser test on a themeless profile that doesn't set `$defaultTheme`. |
 | [`drupal/component-test-core-base`](tests.md#drupalcomponent-test-core-base) | error | A class in the `Drupal\Tests\Component` namespace that extends `UnitTestCase`, `KernelTestBase`, `BuildTestBase` or `BrowserTestBase`, directly or through its parents. |
 | [`drupal/test-class-name`](tests.md#drupaltest-class-name) | error | A concrete class that descends from PHPUnit's `TestCase`, whose name doesn't end in `Test`, and that `drupal/test-class-suffix` doesn't take for a test. |
 

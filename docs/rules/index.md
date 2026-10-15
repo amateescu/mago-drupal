@@ -211,7 +211,7 @@ the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-co
 
 ## Drupal 7 era
 
-These rules check APIs removed in Drupal 8, so they find nothing in a modern codebase. Core's
+These rules check APIs removed in Drupal 8, so they don't find anything in a modern codebase. Core's
 `phpcs.xml.dist` enables the matching sniffs and Coder 9 ships them, so without these rules a part
 of the standard would go unchecked.
 

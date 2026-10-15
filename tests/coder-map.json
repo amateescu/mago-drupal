@@ -150,7 +150,7 @@
         "sniff": "Drupal.Commenting.DocCommentStar",
         "standard": "Drupal",
         "where": ["format"],
-        "note": "The formatter puts the star back on a docblock line that has none.",
+        "note": "The formatter puts the star back on a docblock line that doesn't have one.",
         "codes": [
             {"code": "StarMissing", "status": "format"}
         ]
@@ -828,7 +828,7 @@
         "sniff": "Generic.PHP.DeprecatedFunctions",
         "standard": "Drupal",
         "where": ["analyze:deprecated-function"],
-        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` has no deprecation, so the analyzer doesn't report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
+        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` doesn't have a deprecation, so the analyzer doesn't report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
         "codes": [
             {"code": "Deprecated", "status": "report"}
         ]
@@ -839,7 +839,7 @@
         "where": ["lint:no-short-opening-tag"],
         "codes": [
             {"code": "EchoFound", "status": "fix", "where": ["ext:drupal/short-echo-tag"]},
-            {"code": "Found", "status": "fix", "note": "Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix writes no space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which doesn't parse."},
+            {"code": "Found", "status": "fix", "note": "Coder reports `<?` only when PHP's `short_open_tag` is on. Mago always reports it. Mago's fix doesn't write a space after `<?php`, so `<?echo 1;` becomes `<?phpecho 1;`, which doesn't parse."},
             {"code": "PossibleFound", "status": "fix", "note": "Mago always reads `<?` as an opening tag, so a `<?` in HTML text that isn't PHP code gives parse errors."}
         ]
     },
@@ -1267,7 +1267,7 @@
         "sniff": "Zend.Files.ClosingTag",
         "standard": "Drupal",
         "where": ["format", "lint:no-closing-tag"],
-        "note": "The formatter removes a closing tag at the end of the file. When the last statement has no `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
+        "note": "The formatter removes a closing tag at the end of the file. When the last statement doesn't have a `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
         "codes": [
             {"code": "NotAllowed", "status": "format"}
         ]
@@ -1594,7 +1594,7 @@
         "sniff": "DrupalPractice.Objects.UnusedPrivateMethod",
         "standard": "DrupalPractice",
         "where": ["analyze:unused-method"],
-        "note": "The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer reports none of them.",
+        "note": "The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer doesn't report any of them.",
         "codes": [
             {"code": "UnusedMethod", "status": "report"}
         ]

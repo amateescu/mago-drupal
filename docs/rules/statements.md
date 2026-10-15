@@ -281,7 +281,7 @@ Coder asks every switch to have at least one `case` label.
 
     - The rule reads the labels in the switch's own body. Coder walks tokens, so it needs special
       cases for nested switches.
-    - A file that doesn't parse gives no report. Coder reports a statement placed directly in a
+    - A file that doesn't parse doesn't get a report. Coder reports a statement placed directly in a
       switch body, which is invalid PHP.
 
 ---
@@ -541,7 +541,7 @@ need parentheses after `??`. These are reported without a fix:
     - It also reports `X === null ? B : X` where B is a ternary without parentheses, such as
       `$a === null ? $b ?: 1 : $a`, and reports B as well when B matches. The sniff reports neither.
     - The sniff's fix drops comments and casts without notice. Here a comment makes the fix
-      potentially unsafe, and a cast gets no fix.
+      potentially unsafe, and a cast doesn't get a fix.
 
 ---
 
@@ -610,15 +610,15 @@ Coder asks for one property in each declaration statement.
 - a statement that declares more than one property, as in `public $a, $b;`. The report is on the
   first name.
 
-There is no fix, because a split would have to sort out attributes, the docblock and the comments
+There isn't a fix, because a split would have to sort out attributes, the docblock and the comments
 between the names.
 
 ??? note "Compared with Coder"
 
     - The rule reads the names of the declaration. Coder looks for the next variable before the next
       semicolon, so it reports a property hook that reads `$this` or takes a `$value` parameter, and
-      a property that is followed by a hook with no semicolon in it. The rule reports none of those,
-      because a hooked property has one name.
+      a property that is followed by a hook with no semicolon in it. The rule doesn't report any of
+      those, because a hooked property has one name.
     - Coder skips a property in an enum. The rule doesn't look at the enclosing type, so it also
       reports a multi-name statement in an enum, which is rejected by PHP and reported by Mago as
       well.
@@ -657,7 +657,7 @@ between the names.
 
 - **Level:** warning
 - **Fix:** safe. It removes the statement, and the line when the statement is alone on it. There
-  is no fix when a comment sits inside the statement, such as `return /* note */;`.
+  isn't a fix when a comment sits inside the statement, such as `return /* note */;`.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Squiz.PHP.NonExecutableCode.ReturnNotRequired`
 
@@ -755,7 +755,7 @@ off.
 
 - **Level:** error
 - **Fix:** safe. It writes `[...]` and removes the blank space between `list` and the parenthesis.
-  It is potentially unsafe when it would drop a comment there. An empty `list()` has no fix.
+  It is potentially unsafe when it would drop a comment there. An empty `list()` doesn't have a fix.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `SlevomatCodingStandard.PHP.ShortList.LongListUsed`
 - **Off with `--core`**
@@ -778,7 +778,7 @@ Coder asks for the short `[...]` form for destructuring, as for arrays.
     - Coder's fix drops a comment between `list` and the parenthesis. Here such a fix is potentially
       unsafe, and a plain `--fix` leaves it.
     - Coder fixes an empty `list()` into `[]`, which PHP rejects as well. The rule reports it and
-      offers no fix.
+      doesn't offer a fix.
 
 ---
 

@@ -1,8 +1,8 @@
 # PHPStan ignores
 
 The `phpstan-ignores` plugin is for a project that also runs PHPStan. It lets a `@phpstan-ignore`
-comment drop the Mago issues that report the same finding, so the line needs no `@mago-expect` on
-top.
+comment drop the Mago issues that report the same finding, so the line doesn't need a `@mago-expect`
+on top.
 
 ## Turning it on
 
@@ -35,7 +35,7 @@ The plugin skips blank lines and other comments, so a `@mago-expect` can sit bet
 
 An identifier drops only the Mago codes listed for it by the plugin, so
 `@phpstan-ignore return.type` still lets a missing method on the same line through. The two line
-forms drop every listed code, and an identifier not listed by the plugin drops nothing.
+forms drop every listed code, and an identifier not listed by the plugin doesn't drop anything.
 
 The list covers PHPStan's identifiers for argument, return and property types, argument counts,
 undefined symbols, static calls to instance methods, deprecations, always-true and always-false

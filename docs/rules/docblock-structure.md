@@ -316,12 +316,12 @@ description of a file docblock are the lines after `@file`, checked like any oth
 
 In the tags:
 
-- a `@param` description whose first line has no upper-case letter anywhere. That line is the first
-  one below the tag, or the text on the tag's line when nothing is below it. So `lower Case.`
-  passes and `_lower.` is reported;
+- a `@param` description whose first line doesn't have an upper-case letter anywhere. That line is
+  the first one below the tag, or the text on the tag's line when nothing is below it. So
+  `lower Case.` passes and `_lower.` is reported;
 - a `@param` description with no full stop, unless it ends in an `@code` example. The fix adds the
   full stop unless the description ends in a url, a tag, or `:`, `,` or `;`;
-- a `@throws` description that starts with a lower-case ASCII letter, or has no full stop.
+- a `@throws` description that starts with a lower-case ASCII letter, or doesn't have a full stop.
 
 [`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) checks
 the end of the long description.
@@ -329,7 +329,7 @@ the end of the long description.
 **Not reported:**
 
 - `{@inheritdoc}` in place of a summary, and a summary that is the file's name;
-- a `@param` with no type, which gets no capital letter or full stop check;
+- a `@param` with no type, which doesn't get a capital letter or full stop check;
 - a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`.
 
@@ -525,7 +525,7 @@ and the blank lines only in a docblock that starts with a summary, or with `@fil
 ## drupal/doc-tag-layout
 
 - **Level:** error
-- **Fix:** safe. A type with spaces has none.
+- **Fix:** safe. A type with spaces doesn't get one.
 - **Standard:** [@param](https://project.pages.drupalcode.org/coding_standards/php/documentation/#param-function-parameters),
   [@return](https://project.pages.drupalcode.org/coding_standards/php/documentation/#return-function-return-values),
   [@throws](https://project.pages.drupalcode.org/coding_standards/php/documentation/#throws-thrown-exceptions)
@@ -598,10 +598,10 @@ A `@return` variable name is read from the tag's own line.
     - A `@return` variable name is a type and one variable on the line, as in Coder, so
       `callable(int $a): int` isn't one.
     - For `@throws` text on the tag's line with nothing below, Coder counts the words on the line.
-      It reports a type such as `\Foo2Bar` or `\A|\B` that has no text, and stops at the first
-      `@throws` with no text below it. This rule reports only text after the type, and checks every
-      `@throws`. A fix for that text or for the `@throws` indent doesn't exist in Coder. The fix
-      here isn't offered for a tag that shares its line with the closing `*/`.
+      It reports a type such as `\Foo2Bar` or `\A|\B` that doesn't have any text, and stops at the
+      first `@throws` with no text below it. This rule reports only text after the type, and checks
+      every `@throws`. A fix for that text or for the `@throws` indent doesn't exist in Coder. The
+      fix here isn't offered for a tag that shares its line with the closing `*/`.
     - A `@param` line with only trailing whitespace after the variable isn't reported. Coder reads
       that whitespace as a description on the tag's line.
     - A run of dots after the variable name, as in `$names...`, is reported with no fix, because it
@@ -626,9 +626,9 @@ A `@return` variable name is read from the tag's own line.
 **Reports**, in the docblock of a function or method:
 
 - a `@param` with no variable name, and one with no type. A `&` or `...` in front of the variable
-  belongs to the variable, so `@param &$a` has no type. On a tag with no type, a single word after
-  the variable is the type. The fix moves that word in front of the variable when it is made of
-  type characters, as in `@param $a int`;
+  belongs to the variable, so `@param &$a` doesn't have a type. On a tag with no type, a single word
+  after the variable is the type. The fix moves that word in front of the variable when it is made
+  of type characters, as in `@param $a int`;
 - a `@return` with no type on its line;
 - more than one `@return`.
 
@@ -773,11 +773,11 @@ with one is reported by [`drupal/missing-file-comment`](#drupalmissing-file-comm
 ??? note "Compared with Coder"
 
     - A directive at the start of the file, such as `// phpcs:disable` or `// @mago-expect`, is
-      skipped, and the comment below it is checked. Coder finds no file comment after a `phpcs:`
-      directive, so it reports nothing in a namespaced class file.
+      skipped, and the comment below it is checked. Coder doesn't find a file comment after a
+      `phpcs:` directive, so it doesn't report anything in a namespaced class file.
     - The report of a missing `@file` sits on the second line of the docblock, where it is put by
-      Coder, or on the opener when the docblock has no star line. Coder puts it on the first line of
-      the file in that case.
+      Coder, or on the opener when the docblock doesn't have a star line. Coder puts it on the first
+      line of the file in that case.
     - A blank line between the docblock and a `?>` that follows it isn't reported. Coder reports it
       (`TemplateSpacingAfterComment`).
 
@@ -948,8 +948,8 @@ inside a run of `//` lines.
 
 ??? note "Compared with Coder"
 
-    - phpcbf writes an empty docblock for a class that has none, which is then reported by Coder as
-      `DocComment.Empty`. The rule has no fix there.
+    - phpcbf writes an empty docblock for a class that doesn't have one, which is then reported by
+      Coder as `DocComment.Empty`. The rule doesn't have a fix there.
 
 ---
 
@@ -986,10 +986,10 @@ inside a run of `//` lines.
 ??? note "Compared with Coder"
 
     - A directive at the start of the file, such as `// phpcs:disable` or `// @mago-expect`, is
-      skipped, and the comment below it counts. Coder finds no file comment after a `phpcs:`
+      skipped, and the comment below it counts. Coder doesn't find a file comment after a `phpcs:`
       directive, so it reports a missing one in a file that isn't a class file. It takes a
       `@codingStandardsIgnore`, `@mago-`, `@phpstan-` or `@psalm-` comment for the file comment.
-    - phpcbf writes an empty stub for a missing docblock. The rule has no fix there.
+    - phpcbf writes an empty stub for a missing docblock. The rule doesn't have a fix there.
 
 ---
 
@@ -1023,8 +1023,8 @@ inside a run of `//` lines.
     - The constructor name is matched in any case, because PHP ignores case in method names. Coder
       matches `__construct` exactly and reports `__CONSTRUCT` as missing a docblock. A function
       named `__construct` outside a class isn't a constructor and is reported. Coder exempts it.
-    - phpcbf writes an empty docblock for a function that has none, which is then reported by Coder
-      as `DocComment.Empty`. The rule has no fix there.
+    - phpcbf writes an empty docblock for a function that doesn't have one, which is then reported
+      by Coder as `DocComment.Empty`. The rule doesn't have a fix there.
 
 ---
 

@@ -17,7 +17,7 @@ setup with this extension.
 | `paths` | `paths` under `[source]`. |
 | `excludePaths` | `excludes` under `[analyzer]`, or under `[source]` to keep a path from every Mago tool. phpstan-drupal leaves out `*.api.php` files and test fixtures by default, and so does the [configuration](../setup/configuration.md). |
 | `fileExtensions` | `extensions` under `[source]`. phpstan-drupal adds Drupal's extensions itself, and Mago needs them listed, as in [Install](../setup/install.md). |
-| `bootstrapFiles`, `scanFiles`, `scanDirectories` | `includes` under `[source]`: code read by Mago for its declarations and not reported. Mago runs no code, so a bootstrap file counts only for what it declares. |
+| `bootstrapFiles`, `scanFiles`, `scanDirectories` | `includes` under `[source]`: code read by Mago for its declarations and not reported. Mago doesn't run any code, so a bootstrap file counts only for what it declares. |
 | `phpVersion` | `php-version`. |
 | `ignoreErrors` | `ignore` under `[analyzer]`, by issue code and optionally by path, as [Turning rules off](../setup/worker-arguments.md#turning-rules-off) shows. Nothing like a message pattern exists in Mago. |
 | A baseline | A PHPStan baseline can't be reused. `vendor/bin/mago analyze --generate-baseline --baseline=analyzer-baseline.toml` writes a new one, and `baseline = "analyzer-baseline.toml"` under `[analyzer]` reads it. |

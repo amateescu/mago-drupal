@@ -111,8 +111,8 @@ Mago doesn't parse the example as code, so no other rule sees it.
 
 ??? note "Compared with Coder"
 
-    - The rule reports `array()` in a `@code` example that has no `@endcode`, up to the end of the
-      docblock. Coder takes such a docblock as malformed and skips the rest of it.
+    - The rule reports `array()` in a `@code` example that doesn't have an `@endcode`, up to the end
+      of the docblock. Coder takes such a docblock as malformed and skips the rest of it.
 
 ---
 
@@ -318,7 +318,7 @@ Coder asks for no gendered pronouns in comments.
 
 - **Level:** warning
 - **Fix:** safe. It uppercases the first letter and sets the space after `//`. The other checks
-  have no fix.
+  don't have a fix.
 - **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation),
   [In-line code comments](https://project.pages.drupalcode.org/coding_standards/php/documentation/#in-line-code-comments)
 - **Ports:** `Drupal.Commenting.InlineComment`: `DocBlock`, `NoSpaceBefore`, `NotCapital`, `SpacingBefore`, `TabBefore`, `WrongStyle`
@@ -550,7 +550,7 @@ with no blank line between them, or on the line below the brace when the body is
 then adds the blank line after the brace. A method's docblock or attributes get one blank line
 above them, which Coder's `Squiz.WhiteSpace.FunctionSpacing.Before` counts from the comment.
 
-There is no fix where the move could attach the comment to something else:
+There isn't a fix where the move could attach the comment to something else:
 
 - a line that opens a block, other than a class body, or closes a construct;
 - a line below a docblock or another comment, such as an `@phpstan-ignore` for the statement;
@@ -612,8 +612,8 @@ There is no fix where the move could attach the comment to something else:
 - **Standard:** [@todo](https://project.pages.drupalcode.org/coding_standards/php/documentation/#todo-to-do-notes)
 - **Ports:** `Drupal.Commenting.TodoComment.TodoFormat`
 
-The standard has no sentence for the format. Its `@todo` examples write `@todo` followed by the
-text, in a docblock and in a `//` comment.
+The standard doesn't have a sentence for the format. Its `@todo` examples write `@todo` followed by
+the text, in a docblock and in a `//` comment.
 
 **Reports:**
 

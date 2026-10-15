@@ -59,8 +59,8 @@ $url->toString($flag);                   // Drupal\Core\GeneratedUrl|string
   one comes back. A stub could say the same, but the descendants of a stubbed class inherit only
   what the stub declares, so a module's own subclass of `Url` would lose every other method.
 - **`create()`.** `ContainerInjectionInterface::create()` returns a new instance of the called
-  class, but documents no return type. Mago gives a `create()` that only says `{@inheritdoc}` that
-  interface's missing type, even where a parent has the `@return static` of `AutowireTrait`. So
+  class, but doesn't document a return type. Mago gives a `create()` that only says `{@inheritdoc}`
+  that interface's missing type, even where a parent has the `@return static` of `AutowireTrait`. So
   `$instance = parent::create($container)` in a form or controller is `static`, and so is
   `Foo::create($container)` when no `create()` on the way documents a type.
 
@@ -129,7 +129,7 @@ $permissions->getPermissions()[$name]['title']; // TranslatableMarkup|string
   across `save()`.
 
 A stub only wins where core is a dependency. When core itself is the analyzed code, Mago keeps
-core's own declaration, so `--core` runs see no change.
+core's own declaration, so `--core` runs don't see a change.
 
 ### How a stub replaces a class
 

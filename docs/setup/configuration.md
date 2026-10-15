@@ -55,9 +55,9 @@ no-unused-closure-capture = { enabled = false }
 # Report a PHP function that is called with the wrong case. That is Drupal's
 # Squiz.PHP.LowercasePHPFunctions.
 check-name-casing = true
-# A YAML file holds no PHP for the analyzer. An api.php file documents hooks with example code, and
-# test fixtures are often broken on purpose. phpstan-drupal leaves both out as well. The linter
-# still checks them, as phpcs does.
+# A YAML file doesn't hold any PHP for the analyzer. An api.php file documents hooks with example
+# code, and test fixtures are often broken on purpose. phpstan-drupal leaves both out as well. The
+# linter still checks them, as phpcs does.
 excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
 # For a project that also runs PHPStan: let its @phpstan-ignore comments drop the Mago issues that
 # report the same finding. See the PHPStan ignores page of the analyzer docs.
