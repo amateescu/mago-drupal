@@ -100,6 +100,7 @@ drupal/translatable-literal
 drupal/translatable-string
 drupal/translated-exception
 drupal/unsilenced-deprecation
+drupal/untranslated-description
 drupal/untranslated-options
 drupal/unused-variable
 drupal/use-leading-backslash

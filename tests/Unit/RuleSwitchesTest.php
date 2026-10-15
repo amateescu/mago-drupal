@@ -108,6 +108,7 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/short-list',
                 'drupal/strict-config-schema',
                 'drupal/unsilenced-deprecation',
+                'drupal/untranslated-description',
                 'drupal/untranslated-options',
             ],
             self::offCodes(DrupalExtension::fromArguments(['--core'])->linterRules),

@@ -112,6 +112,7 @@ use amateescu\MagoDrupal\Linter\Rules\TranslatedExceptionRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookMenuRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\UnsilencedDeprecationRule;
+use amateescu\MagoDrupal\Linter\Rules\UntranslatedDescriptionRule;
 use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
 use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
@@ -183,6 +184,7 @@ final class DrupalExtension
         'drupal/short-list',
         'drupal/strict-config-schema',
         'drupal/unsilenced-deprecation',
+        'drupal/untranslated-description',
         'drupal/untranslated-options',
     ];
 
@@ -412,6 +414,7 @@ final class DrupalExtension
             new TranslationInHookMenuRule(),
             new TranslationInHookSchemaRule(),
             new UnsilencedDeprecationRule(),
+            new UntranslatedDescriptionRule(),
             new UntranslatedOptionsRule(),
             new UnusedVariableRule(core: $core),
             new UseLeadingBackslashRule(),

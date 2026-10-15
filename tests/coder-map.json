@@ -1487,10 +1487,9 @@
     {
         "sniff": "DrupalPractice.General.DescriptionT",
         "standard": "DrupalPractice",
-        "where": ["none"],
-        "note": "A `#description` value that starts with a string literal of more than three characters, not counting tags, as in `'#description' => 'Some text'`. Not ported.",
+        "where": ["ext:drupal/untranslated-description"],
         "codes": [
-            {"code": "DescriptionT", "status": "gap"}
+            {"code": "DescriptionT", "status": "report"}
         ]
     },
     {

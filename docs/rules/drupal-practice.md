@@ -318,6 +318,56 @@ rule uses the nearest named class or trait.
 
 ---
 
+## drupal/untranslated-description
+
+- **Level:** warning
+- **Fix:** none
+- **Source:** Coder's `DrupalPractice` standard
+- **Ports:** `DrupalPractice.General.DescriptionT.DescriptionT`
+- **Off with `--core`**
+
+DrupalPractice asks for a `#description` text that runs through `t()`. Users read the description
+under a form element, so it must be translatable. There's no fix, because a class takes
+`$this->t()` where a function takes `t()`.
+
+**Reports:**
+
+- a plain string as the value of a `#description` key, in an array of either syntax, or assigned
+  to the key, as in `$form['name']['#description'] = 'Some text'`. A string counts when it has
+  more than three characters once its HTML tags are gone. The first string of a concatenation
+  counts, as in `'Some text ' . $more`.
+
+**Not reported:**
+
+- a string in double quotes that holds a variable, and a heredoc;
+- a value that starts with something other than a string, such as `t()`, a variable, a ternary or
+  a nested array;
+- a string added with `.=`.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    $form['name'] = [
+      '#type' => 'textfield',
+      '#description' => 'The name shown on your profile.',
+    ];
+
+    // Fine.
+    $form['name'] = [
+      '#type' => 'textfield',
+      '#description' => t('The name shown on your profile.'),
+    ];
+    ```
+
+??? note "Compared with Coder"
+
+    - For a `#description` string in double quotes that holds a variable, Coder reports the next
+      plain string of the statement instead, which can be the value of another key. The rule skips
+      that string.
+
+---
+
 ## drupal/untranslated-options
 
 - **Level:** warning

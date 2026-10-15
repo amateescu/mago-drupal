@@ -14,8 +14,8 @@ are turned off or not run by core's `phpcs.xml.dist`:
 - `unsilenced-deprecation`;
 - `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](../rules/drupal-practice.md)
   `class-prefix`, `curl-ssl-verify`, `escaped-placeholder`, `form-alter-comment`,
-  `global-constant`, `request-superglobal`, `strict-config-schema` and `untranslated-options`, which
-  all port DrupalPractice sniffs;
+  `global-constant`, `request-superglobal`, `strict-config-schema`, `untranslated-description` and
+  `untranslated-options`, which all port DrupalPractice sniffs;
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`.
 

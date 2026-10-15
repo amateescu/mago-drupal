@@ -202,6 +202,7 @@ the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-co
 | [`drupal/global-constant`](drupal-practice.md#drupalglobal-constant) | warning | Reports a top-level const statement or define() call, as DrupalPractice does. |
 | [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE or $_FILES. The request stack gives the same data. |
 | [`drupal/strict-config-schema`](drupal-practice.md#drupalstrict-config-schema) | error | Reports a test class that turns off strict config schema checking. |
+| [`drupal/untranslated-description`](drupal-practice.md#drupaluntranslated-description) | warning | Reports a plain string as the #description of a form element or render array. |
 | [`drupal/untranslated-options`](drupal-practice.md#drupaluntranslated-options) | warning | Reports a plain string in the #options of a checkboxes, radios, select or tableselect element. |
 
 ## Drupal 7 era

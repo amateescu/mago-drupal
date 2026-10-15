@@ -160,6 +160,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/translatable-string' => [Level::Warning, true],
             'drupal/translated-exception' => [Level::Warning, true],
             'drupal/unsilenced-deprecation' => [Level::Error, true],
+            'drupal/untranslated-description' => [Level::Warning, true],
             'drupal/untranslated-options' => [Level::Warning, true],
             'drupal/unused-variable' => [Level::Warning, true],
             'drupal/use-leading-backslash' => [Level::Error, true],
