@@ -51,6 +51,7 @@ function corpus_empty_echo(): void {
 function corpus_pair_with_content(): void {
   ?>a<?php /* note */ ?>b<?php
   // Note.
+  // @mago-expect lint:drupal/unused-variable
 ?>c<?php $x = 1; ?>d<?php
 }
 

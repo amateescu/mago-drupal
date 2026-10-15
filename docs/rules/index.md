@@ -108,8 +108,8 @@ statements. Mago's own naming rules cover the rest, see
 
 ## Statements and declarations
 
-Rules for switch statements, ternaries and returns, and for how methods, properties and parameters
-are declared.
+Rules for switch statements, ternaries and returns, for variables that are written and never read,
+and for how methods, properties and parameters are declared.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
@@ -127,6 +127,7 @@ are declared.
 | [`drupal/redundant-return`](statements.md#drupalredundant-return) | warning | Reports a `return;` that is the last statement of a function body. |
 | [`drupal/short-ternary`](statements.md#drupalshort-ternary) | error | Reports a ternary that repeats its condition, which "?:" replaces. |
 | [`drupal/short-list`](statements.md#drupalshort-list) | error | Reports a list(...) destructuring that can be written as [...]. |
+| [`drupal/unused-variable`](statements.md#drupalunused-variable) | warning | Reports a variable that is written and never read in its function, closure or file. |
 
 ## Comment text
 

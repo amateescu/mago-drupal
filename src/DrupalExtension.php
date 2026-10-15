@@ -107,6 +107,7 @@ use amateescu\MagoDrupal\Linter\Rules\TranslationInHookMenuRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\UnsilencedDeprecationRule;
 use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
+use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
@@ -399,6 +400,7 @@ final class DrupalExtension
             new TranslationInHookSchemaRule(),
             new UnsilencedDeprecationRule(),
             new UntranslatedOptionsRule(),
+            new UnusedVariableRule(core: $core),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
             new WatchdogMessageRule(),

@@ -11,6 +11,7 @@ declare(strict_types=1);
  * Declares globals in an include file.
  */
 function globals_include_declare(): void {
+  // @mago-expect lint:drupal/unused-variable
   global $_globals_include_owned, $user;
   // @mago-expect lint:drupal/global-variable
   global $globals_include_unprefixed;

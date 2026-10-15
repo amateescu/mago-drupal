@@ -95,6 +95,7 @@ drupal/translatable-string
 drupal/translated-exception
 drupal/unsilenced-deprecation
 drupal/untranslated-options
+drupal/unused-variable
 drupal/use-leading-backslash
 drupal/variable-comment
 drupal/watchdog-message

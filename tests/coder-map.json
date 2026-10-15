@@ -1631,13 +1631,13 @@
     {
         "sniff": "VariableAnalysis.CodeAnalysis.VariableAnalysis",
         "standard": "DrupalPractice",
-        "where": ["lint:no-redundant-variable", "analyze"],
-        "note": "Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
+        "where": ["ext:drupal/unused-variable", "analyze"],
+        "note": "Coder's ruleset skips `*.tpl.php` files, and so does `drupal/unused-variable`. `mago analyze` checks them.",
         "codes": [
             {"code": "SelfOutsideClass", "status": "report", "where": ["analyze:self-outside-class-scope"]},
             {"code": "StaticOutsideClass", "status": "report", "where": ["analyze:static-outside-class-scope"]},
             {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`."},
-            {"code": "UnusedVariable", "status": "partial", "where": ["lint:no-redundant-variable", "lint:no-unused-closure-capture"], "note": "With `no-redundant-variable = { enabled = true }`, and `no-unused-closure-capture = { enabled = true }` for a variable in a closure's `use` list. Variables at file scope are skipped. Mago also reports an unused `catch` variable and an unused `foreach` value, which Coder allows."},
+            {"code": "UnusedVariable", "status": "report", "where": ["ext:drupal/unused-variable"]},
             {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported: it needs flow analysis."}
         ]
     }

@@ -20,8 +20,9 @@ are turned off or not run by core's `phpcs.xml.dist`:
   `info-dependencies-array`, `info-description` and `routing-access`.
 
 It limits `missing-summary` and `missing-function-comment` to the directories where core's
-`phpcs.xml.dist` runs them, and leaves out the leading underscore check of `property-name` in the
-classes whose properties may use any case.
+`phpcs.xml.dist` runs them, and keeps `unused-variable` out of the `*.api.php` files and the
+transliteration tables, which that file leaves out. It also leaves out the leading underscore check
+of `property-name` in the classes whose properties may use any case.
 
 It also turns off the three analyzer checks that don't apply to core,
 [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),

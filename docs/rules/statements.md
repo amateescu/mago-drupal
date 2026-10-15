@@ -1,7 +1,7 @@
 # Statements and declarations
 
-Rules for switch statements, ternaries and returns, and for how methods, properties and parameters
-are declared.
+Rules for switch statements, ternaries and returns, for variables that are written and never read,
+and for how methods, properties and parameters are declared.
 
 ---
 
@@ -544,3 +544,91 @@ Coder asks for the short `[...]` form for destructuring, as for arrays.
       unsafe, and a plain `--fix` leaves it.
     - Coder fixes an empty `list()` into `[]`, which PHP rejects as well. The rule reports it and
       offers no fix.
+
+---
+
+## drupal/unused-variable
+
+- **Level:** warning
+- **Fix:** none
+- **Source:** Coder's `DrupalPractice` standard
+- **Ports:** `VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable`
+
+A variable that is written and never read is dead code, or the code reads another name by mistake.
+The check works per scope and doesn't follow the order of the code: a scope that reads a name
+anywhere uses it. A scope is a function, a method, a closure or the top level of a file. An arrow
+function uses the scope around it, except for the names of its parameters.
+
+**Reports:**
+
+- every write of a name that its scope never reads. A write is the left side of an assignment,
+  compound ones such as `.=` and `??=` included, an element of a list that is assigned, a `foreach`
+  key, a `foreach` value without a key, a `static` declaration, and a `global` declaration that
+  the function never assigns;
+- a variable of a closure's `use` list that the closure never reads, and every write to it in the
+  closure.
+
+Every other use is a read, such as `$count++`, `$items[] = $item`, `$node->title = $title`,
+`isset($x)` and `unset($x)`. A name in an interpolated string or a heredoc and a name in `compact()`
+are reads too, and so is every variable that the scope used before a `get_defined_vars()` call. An
+assignment that is the value of another assignment, or an argument of a call, also counts as a read,
+as in `$a = $b = 1` and `example_save($id = 5)`.
+
+**Not reported:**
+
+- a parameter, also one that the function assigns;
+- a `catch` variable, and other writes of its name in the same scope;
+- the value of a `$key => $value` foreach, and other writes of its name in the same scope;
+- `$this`, the superglobals, `$argv`, `$argc`, `$http_response_header` and `$HTTP_RAW_POST_DATA`;
+- a variable of a `use (&$x)` list;
+- a reference that the code writes through: a `$ref = &$value` binding that a `$ref = ...`
+  assignment writes through, and a `foreach ($items as &$item)` value that an `$item = ...`
+  assignment writes through;
+- a property, and a static property such as `self::$count`;
+- a `*.tpl.php` file, which Coder's ruleset leaves out;
+- with `--core`, a `*.api.php` file and the transliteration tables in
+  `core/lib/Drupal/Component/Transliteration/data`, which core's `phpcs.xml.dist` leaves out.
+
+Mago's own `no-redundant-variable` reports a value that no later line reads, which is a different
+check. The [configuration](../setup/configuration.md) turns it off.
+
+??? example "Example"
+
+    ```php
+    // Reported, on $count and on $key.
+    function example_names(array $items): array {
+      $count = count($items);
+      $names = [];
+      foreach ($items as $key => $item) {
+        $names[] = $item['name'];
+      }
+      return $names;
+    }
+
+    // Fine.
+    function example_names(array $items): array {
+      $names = [];
+      foreach ($items as $item) {
+        $names[] = $item['name'];
+      }
+      return $names;
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - A read in an `else` or `elseif` branch counts. Coder skips it when every earlier write of the
+      name is in the branches above it, so it also reports a value that a loop writes in the `if`
+      branch and reads in the `else` branch on a later pass.
+    - A `= &` binding that walks down an array, as `$target = &$target[$key]` in a loop, reads
+      `$target`. Coder reports the binding before it.
+    - Coder takes a `foreach` key for the value of a `$key => $value` pair when the loop's array holds
+      a `=>`, as in `foreach (['a' => 1] as $key => $value)`, and never reports it. The rule does.
+    - In `fn($a) => fn($b) => $a + $b`, the inner `$a` reads the outer arrow function's parameter.
+      Coder counts it as a read of an `$a` around the arrow functions.
+    - `compact(['name'])` reads `$name`. Coder reads only string arguments and `array(...)`.
+    - The array in `[$map[$key]] = $pair` and the object in `foreach ($items as $object->value)` are
+      read, as in any write to an index or a property. Coder counts them as written.
+    - An assignment in a later element of an array that another assignment holds, as
+      `$x = ['a' => 1, 'b' => $y = 2]`, counts as a read. Coder counts it as a read only in the first
+      element.

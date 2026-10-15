@@ -26,6 +26,7 @@ DEFINE('GLOBALS_UPPER', 1);
 
 // A call inside another call is still at the top level of the file.
 // @mago-expect lint:drupal/global-constant
+// @mago-expect lint:drupal/unused-variable
 $globals_defined = define('GLOBALS_ASSIGNED', 1);
 
 // A namespaced function is not the global one.
@@ -84,6 +85,7 @@ const GLOBALS_COMMENT_BETWEEN = 1;
  *
  * @see https://www.drupal.org/node/1
  */
+// @mago-expect lint:drupal/unused-variable
 $globals_statement_between = 1;
 // @mago-expect lint:drupal/global-constant
 define('GLOBALS_STATEMENT_BETWEEN', 1);
