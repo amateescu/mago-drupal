@@ -247,6 +247,65 @@ Coder asks every switch to have at least one `case` label.
 
 ---
 
+## drupal/non-capturing-catch
+
+- **Level:** error
+- **Fix:** safe. It removes the variable.
+- **Source:** core's `phpcs.xml.dist`
+- **Ports:** core's `SlevomatCodingStandard.Exceptions.RequireNonCapturingCatch`, which is left out
+  of Coder's rulesets.
+
+From PHP 8.0, a `catch` clause can leave out its variable. A variable that nothing reads only looks
+like the code uses the exception.
+
+**Reports:**
+
+- a `catch` variable whose name doesn't appear in the catch block, in the `finally` block, or after
+  the whole `try` statement in the same function or file, when `php-version` is 8.0 or later. A
+  name in a closure's `use` list, in an arrow function and in an interpolated string counts.
+
+**Not reported:**
+
+- a name inside a nested function, closure body or class, which has variables of its own;
+- a function that may read the variable by a name built at run time, through `compact()`,
+  `get_defined_vars()` or a variable variable. The fix would remove a variable that it reads.
+
+[`drupal/unused-variable`](#drupalunused-variable) allows an unused `catch` variable, as Coder's
+`UnusedVariable` does, so this rule is the one that reports it.
+
+??? example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    function example_load(string $path): ?string {
+      try {
+        return file_get_contents($path);
+      }
+      catch (\RuntimeException $e) {
+        return NULL;
+      }
+    }
+
+    // Fine.
+    function example_load(string $path): ?string {
+      try {
+        return file_get_contents($path);
+      }
+      catch (\RuntimeException) {
+        return NULL;
+      }
+    }
+    ```
+
+??? note "Compared with the sniff"
+
+    - The sniff doesn't skip a function that calls `compact()`, so its fix can remove a variable that
+      `compact()` reads.
+
+---
+
 ## drupal/null-coalesce
 
 - **Level:** error
@@ -577,7 +636,8 @@ as in `$a = $b = 1` and `example_save($id = 5)`.
 **Not reported:**
 
 - a parameter, also one that the function assigns;
-- a `catch` variable, and other writes of its name in the same scope;
+- a `catch` variable, and other writes of its name in the same scope.
+  [`drupal/non-capturing-catch`](#drupalnon-capturing-catch) reports one that nothing reads;
 - the value of a `$key => $value` foreach, and other writes of its name in the same scope;
 - `$this`, the superglobals, `$argv`, `$argc`, `$http_response_header` and `$HTTP_RAW_POST_DATA`;
 - a variable of a `use (&$x)` list;

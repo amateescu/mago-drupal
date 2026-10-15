@@ -120,6 +120,7 @@ if (function_exists('globals_define'))
 try {
   define('GLOBALS_IN_TRY', 1);
 }
+// @mago-expect lint:drupal/non-capturing-catch
 catch (\Exception $exception) {
   define('GLOBALS_IN_CATCH', 1);
 }

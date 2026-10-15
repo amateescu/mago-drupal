@@ -79,6 +79,7 @@ use amateescu\MagoDrupal\Linter\Rules\MissingFileCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingFunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingPropertyCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
+use amateescu\MagoDrupal\Linter\Rules\NonCapturingCatchRule;
 use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
@@ -372,6 +373,7 @@ final class DrupalExtension
             new MissingFunctionCommentRule(core: $core),
             new MissingPropertyCommentRule(),
             new MissingSummaryRule(core: $core),
+            new NonCapturingCatchRule(),
             new NullCoalesceRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),

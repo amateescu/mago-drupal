@@ -120,6 +120,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |
 | [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that has no case label. |
 | [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports methods declared without an explicit visibility keyword. |
+| [`drupal/non-capturing-catch`](statements.md#drupalnon-capturing-catch) | error | Reports a catch variable that nothing reads, which the clause can leave out from PHP 8.0. |
 | [`drupal/null-coalesce`](statements.md#drupalnull-coalesce) | error | Reports isset() and strict null checks in a ternary that "??" replaces. |
 | [`drupal/parameter-blank-line`](statements.md#drupalparameter-blank-line) | error | Reports a blank line in a multi-line function declaration. |
 | [`drupal/property-per-statement`](statements.md#drupalproperty-per-statement) | error | Reports a statement that declares more than one property. |

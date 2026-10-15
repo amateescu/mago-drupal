@@ -119,6 +119,7 @@ class UnusedVariable {
     try {
       $this->pick();
     }
+    // @mago-expect lint:drupal/non-capturing-catch
     catch (\Exception $e) {
       return;
     }
