@@ -6,7 +6,9 @@ namespace amateescu\MagoDrupal\Internal;
 
 use function array_key_exists;
 use function count;
+use function ltrim;
 use function str_starts_with;
+use function strtolower;
 
 /**
  * Maps container service ids to the class the container hands back.
@@ -39,6 +41,13 @@ final class ServiceIndex
         'cache.container' => 'Drupal\Core\Cache\CacheBackendInterface',
         'cache_tags_provider.container' => 'Drupal\Core\Cache\CacheTagsChecksumInterface',
     ];
+
+    /**
+     * The lowercased classes the services are built from, read on first use.
+     *
+     * @var array<string, true>|null
+     */
+    private ?array $classes = null;
 
     /**
      * @param array<non-empty-string, ServiceDefinition> $services
@@ -108,5 +117,26 @@ final class ServiceIndex
     public function count(): int
     {
         return count($this->services);
+    }
+
+    /**
+     * Whether some service is built from the class, by its `class:` key or
+     * by an id that names the class. A decorated service counts with both
+     * classes. Class names are compared without case, as PHP does.
+     */
+    public function hasClass(string $class): bool
+    {
+        if ($this->classes === null) {
+            $this->classes = [];
+            foreach ($this->services as $definition) {
+                foreach ([$definition->class, $definition->undecoratedClass] as $name) {
+                    if ($name !== null) {
+                        $this->classes[strtolower(ltrim($name, characters: '\\'))] = true;
+                    }
+                }
+            }
+        }
+
+        return array_key_exists(strtolower(ltrim($class, characters: '\\')), $this->classes);
     }
 }

@@ -7,8 +7,11 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 use amateescu\MagoDrupal\Internal\Attributes;
 use amateescu\MagoDrupal\Internal\DeprecationScopes;
 use amateescu\MagoDrupal\Internal\FileMembers;
+use amateescu\MagoDrupal\Internal\ServiceIndex;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Types;
+use Closure;
+use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeMetadata;
 use Mago\Sdk\Analyzer\Metadata\MethodMetadataProjection;
@@ -27,9 +30,11 @@ use function strtolower;
  *
  * Ports phpstan-drupal's GlobalDrupalDependencyInjectionRule, narrowed to
  * classes that can take services: descendants of ContainerInjectionInterface
- * and ContainerFactoryPluginInterface, and hook classes, which Drupal
- * registers as autowired services. Entities, typed data and stream wrappers
- * are left alone. Static methods have no injected services to use instead
+ * and ContainerFactoryPluginInterface, entity handlers and container
+ * derivers, whose factories get the container, classes registered as
+ * services in a services file, hook classes, which Drupal registers as
+ * autowired services, and BlockBase plugins, as Coder reports them.
+ * Entities, typed data and stream wrappers are left alone. Static methods have no injected services to use instead
  * and are skipped too, and so are constructors with a parameter that accepts
  * null (see isFallback()). Deprecated code and the callables passed to
  * `DeprecationHelper::backwardsCompatibleCall()` are skipped as well: a
@@ -49,7 +54,22 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
     public const ANCESTORS = [
         'Drupal\Core\DependencyInjection\ContainerInjectionInterface',
         'Drupal\Core\Plugin\ContainerFactoryPluginInterface',
+        'Drupal\Core\Entity\EntityHandlerInterface',
+        'Drupal\Core\Plugin\Discovery\ContainerDeriverInterface',
     ];
+
+    /**
+     * The one base class of Coder's list that implements neither container
+     * interface. A block plugin takes services once it adds `create()`.
+     */
+    private const BLOCK_BASE = 'drupal\core\block\blockbase';
+
+    /**
+     * @param Closure(Codebase): ServiceIndex $services Returns the current index.
+     */
+    public function __construct(
+        private readonly Closure $services,
+    ) {}
 
     public function getTargets(): array
     {
@@ -77,10 +97,7 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
 
         $members = FileMembers::of($context->source);
         $class = $members->classAt($context->codebase, $context->source, $context->node->span);
-        if (
-            $class === null
-            || !self::injectable($class->parentInterfaces) && !self::hookClass($members, $context, $class)
-        ) {
+        if ($class === null || !$this->canTakeServices($members, $context, $class)) {
             return;
         }
 
@@ -98,6 +115,20 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
             )->withHelp(
                 'Inject the service through the constructor, or through create() for forms, controllers and plugins.',
             ),
+        );
+    }
+
+    /**
+     * Whether the class can get services injected. The cheap tests on the
+     * class's own metadata come first, and the services index last.
+     */
+    private function canTakeServices(FileMembers $members, NodeAnalysisContext $context, ClassLikeMetadata $class): bool
+    {
+        return (
+            self::injectable($class->parentInterfaces)
+            || in_array(self::BLOCK_BASE, $class->parentClasses, strict: true)
+            || self::hookClass($members, $context, $class)
+            || ($this->services)($context->codebase)->hasClass($class->originalName)
         );
     }
 

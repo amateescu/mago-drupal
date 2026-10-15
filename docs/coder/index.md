@@ -45,8 +45,8 @@ parse errors.
 
 `DrupalPractice.Objects.GlobalDrupal` reports a `\Drupal::service()` call where injection is
 possible. The analyzer check
-[`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call) ports it in part:
-it leaves plain services alone.
+[`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call) ports it, and reads
+the services of every services file where Coder reads only the nearest one.
 
 To keep the line length check of text files, run phpcs with that sniff on those files only:
 

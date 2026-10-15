@@ -1581,7 +1581,7 @@
         "sniff": "DrupalPractice.Objects.GlobalDrupal",
         "standard": "DrupalPractice",
         "where": ["check:drupal/global-drupal-call"],
-        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer check needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, or a `#[Hook]` on the class or one of its methods, so it skips other services and a `BlockBase` plugin without `create()`. It also reports a hook class, which Coder skips.",
+        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.",
         "codes": [
             {"code": "GlobalDrupal", "status": "partial"}
         ]
