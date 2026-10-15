@@ -71,8 +71,8 @@ final class TestClassSuffix
     /**
      * Whether the class text declares a concrete class whose name doesn't end
      * in `Test`, and which the lint rule doesn't take for a test. Most test
-     * classes end in `Test`, and cost the analyzer check no codebase request
-     * then.
+     * classes end in `Test`, and don't cost the analyzer check a codebase
+     * request then.
      */
     public static function mayBeMisnamed(string $text, string $path, string $contents): bool
     {

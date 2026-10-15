@@ -35,17 +35,17 @@ use function substr;
  *
  * Ports phpstan-drupal's GlobalDrupalDependencyInjectionRule, narrowed to
  * classes that can take services: descendants of ContainerInjectionInterface
- * and ContainerFactoryPluginInterface, entity handlers and container
- * derivers, whose factories get the container, classes registered as
- * services in a services file, hook classes, which Drupal registers as
- * autowired services, and BlockBase plugins, as Coder reports them.
- * Entities, typed data and stream wrappers are left alone. Static methods have no injected services to use instead
- * and are skipped too, and so are constructors with a parameter that accepts
- * null (see isFallback()). Deprecated code and the callables passed to
+ * and ContainerFactoryPluginInterface, entity handlers and container derivers,
+ * whose factories get the container, classes registered as services in a
+ * services file, hook classes, which Drupal registers as autowired services,
+ * and BlockBase plugins, as Coder reports them. Entities, typed data and stream
+ * wrappers are left alone. Static methods don't have injected services to use
+ * instead, and are skipped too, and so are constructors with a parameter that
+ * accepts null (see isFallback()). Deprecated code and the callables passed to
  * `DeprecationHelper::backwardsCompatibleCall()` are skipped as well: a
  * deprecated method keeps its lookup until it is removed, and a callable for
- * newer core can use a service older core does not have. The host hands over
- * the `\Drupal::` calls themselves, subclasses and instances of `Drupal`
+ * newer core can use a service that doesn't exist in older core. The host hands
+ * over the `\Drupal::` calls themselves, subclasses and instances of `Drupal`
  * included; the enclosing class and method come from their locations.
  *
  * The plugin registers a second instance for static entity loads, which

@@ -129,7 +129,7 @@ class takes the entity type manager instead, and loads through `getStorage()`.
 - a static method, a constructor with a parameter that accepts null, a call in a
   [deprecation scope](deprecations.md#deprecation-scopes), a call inside an anonymous class and test
   code, as for `drupal/global-drupal-call`;
-- a call in an entity class, such as `static::load()`, since nothing injects services into an
+- a call in an entity class, such as `static::load()`, since services aren't injected into an
   entity;
 - a first-class callable, such as `Node::load(...)`;
 - a call on an object, such as `$this->storage->load()` under a docblock that types the property

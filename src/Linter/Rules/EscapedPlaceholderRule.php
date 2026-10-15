@@ -135,7 +135,7 @@ final class EscapedPlaceholderRule implements Rule
 
     /**
      * Returns the position of the placeholder array of a call or
-     * instantiation, or null when it takes no placeholders.
+     * instantiation, or null when it doesn't take placeholders.
      */
     private static function placeholderPosition(SourceFile $file, Node $node): ?int
     {

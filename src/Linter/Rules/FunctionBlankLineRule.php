@@ -93,7 +93,7 @@ final class FunctionBlankLineRule implements Rule
     }
 
     /**
-     * The issue for the function when no blank line comes before it.
+     * The issue for the function when a blank line doesn't come before it.
      *
      * @param list<Node> $functions Every function of the file.
      */

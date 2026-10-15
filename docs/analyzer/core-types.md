@@ -101,9 +101,9 @@ $permissions->getPermissions()[$name]['title']; // TranslatableMarkup|string
 ```
 
 - **Content entity fields.** A `foreach` over a `ContentEntityInterface` gives its field item lists,
-  keyed by field name, as `ContentEntityBase::getIterator()` builds them. Core names no value type
-  for the `\Traversable` that the interface extends, so the loop variables are `mixed` without the
-  stub.
+  keyed by field name, as `ContentEntityBase::getIterator()` builds them. Core doesn't name a value
+  type for the `\Traversable` that the interface extends, so the loop variables are `mixed` without
+  the stub.
 - **Revision translation flag.** Core documents `isRevisionTranslationAffected()` as returning a
   bool, but `ContentEntityBase` returns the raw field value: `'1'` or `'0'` from MySQL, an int from
   SQLite, or NULL when the flag isn't set. A `(bool)` cast on it is needed, so it isn't reported as

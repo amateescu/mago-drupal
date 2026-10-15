@@ -95,7 +95,7 @@ final class SourceText
 
     /**
      * Returns the offset of the last character before $offset that isn't a
-     * space, a tab or a line break, or -1. The walk back copies nothing.
+     * space, a tab or a line break, or -1. The walk back doesn't copy anything.
      */
     public static function lastNonBlank(string $contents, int $offset): int
     {
@@ -110,7 +110,8 @@ final class SourceText
     /**
      * Returns the offset where the line that holds $offset starts. A line
      * break belongs to the line it ends. The search with a negative offset
-     * runs back from the character before $offset and copies nothing.
+     * runs back from the character before $offset and doesn't copy
+     * anything.
      */
     public static function lineStart(string $contents, int $offset): int
     {

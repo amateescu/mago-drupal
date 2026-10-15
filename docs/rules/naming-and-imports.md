@@ -365,8 +365,8 @@ does.
 - a method named after its class, or after its class with one leading underscore, the PHP 4
   constructor and destructor. The names are compared without regard to case.
 
-A rename breaks the callers and the overrides of a method, so the rule has no fix. A name that PHP
-or a parent class sets, such as the `stream_open()` method of a stream wrapper, needs a
+A rename breaks the callers and the overrides of a method, so the rule doesn't have a fix. A name
+that PHP or a parent class sets, such as the `stream_open()` method of a stream wrapper, needs a
 `@mago-expect lint:drupal/method-name` comment.
 
 Mago's own `method-name` accepts a run of capitals, as in `getURL()`, so it can't stand in for this
@@ -462,7 +462,7 @@ object.
 A `__construct()` in an anonymous class inside a method doesn't count. A constructor that the class
 takes from a trait doesn't count either, since the rule reads only the class's own declarations.
 
-There is no fix. A rename to `__construct()` changes what `new` runs, and any rename breaks the
+There isn't a fix. A rename to `__construct()` changes what `new` runs, and any rename breaks the
 callers of the method.
 
 ??? example "Example"
@@ -485,8 +485,8 @@ callers of the method.
     }
     ```
 
-The analyzer reports a call such as `parent::ExampleWidget()` when the parent has no method of that
-name, as `non-existent-method`. That is the other code of the sniff, `OldStyleCall`.
+The analyzer reports a call such as `parent::ExampleWidget()` when the parent doesn't have a method
+of that name, as `non-existent-method`. That is the other code of the sniff, `OldStyleCall`.
 
 ---
 
@@ -713,7 +713,7 @@ nothing.
 - a name that starts with a capital outside ASCII, such as `$É`.
 
 A rename of a parameter breaks the callers that pass it by name, and a global or static variable is
-shared with other code, so the rule has no fix.
+shared with other code, so the rule doesn't have a fix.
 
 Mago's own `variable-name` checks only assignments and parameters, and it also reports a name such
 as `$foo_Bar`, which Coder accepts.

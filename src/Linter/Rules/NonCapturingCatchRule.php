@@ -72,7 +72,7 @@ final class NonCapturingCatchRule implements Rule
             defaultEnabled: true,
             // Program gives the whole file, so the code after a `try` and
             // the function around it are in reach. Try puts the statements
-            // in the target list. Its own dispatch does nothing.
+            // in the target list. Its own dispatch doesn't do anything.
             targets: [NodeKind::Program, NodeKind::Try],
         );
     }
@@ -172,8 +172,8 @@ final class NonCapturingCatchRule implements Rule
     }
 
     /**
-     * Whether no other function or class lies between the variable and the
-     * node. A closure's `use` list belongs to the code around the closure.
+     * Whether the variable and the node aren't separated by another function or
+     * class. A closure's `use` list belongs to the code around the closure.
      */
     private function inSameScope(SourceFile $file, Node $variable, Node $node): bool
     {

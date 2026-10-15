@@ -50,7 +50,7 @@ final class TestClassSuffixTest extends TestCase
             'modules/node/tests/src/NodeChecks.php',
             '',
         ));
-        // A parent whose name says nothing.
+        // A parent whose name doesn't say anything.
         self::assertTrue(TestClassSuffix::mayBeMisnamed('class NodeChecks extends NodeUnitBase {', $unit, ''));
         // A parent declared in the same file with no test base of its own,
         // in any letter case. A docblock that names it doesn't count.

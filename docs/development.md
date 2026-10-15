@@ -87,13 +87,13 @@ it under that path. A YAML example needs one, such as `title="example.info.yml"`
 An analyzer page under `docs/analyzer/` starts with the types for its topic, then has an entry for
 each check, in the same form as a rule entry. The facts are the level, a Source line that names
 where the check comes from, the phpstan-drupal rules or Coder codes ported by the check, and whether
-`--core` turns it off. A check has no fix, so there is no Fix line. A Level line with two levels
-names the case for the second, as in "error, or warning for extra arguments". Then come a
+`--core` turns it off. A check doesn't have a fix, so there isn't a Fix line. A Level line with two
+levels names the case for the second, as in "error, or warning for extra arguments". Then come a
 **Reports:** list, a **Not reported:** list, an example, and the differences from phpstan-drupal or
 Coder in a collapsed `??? note "Compared with phpstan-drupal"` or `??? note "Compared with Coder"`
-block. A check that ports a Coder sniff is marked `check:drupal/<code>` in `tests/coder-map.json`. `AnalyzerDocsTest` checks that every check the
-corpus pins has one entry, with its facts, and `just docs-gen` builds the table of checks on the
-analyzer index from the entries.
+block. A check that ports a Coder sniff is marked `check:drupal/<code>` in `tests/coder-map.json`.
+`AnalyzerDocsTest` checks that every check the corpus pins has one entry, with its facts, and
+`just docs-gen` builds the table of checks on the analyzer index from the entries.
 
 An analyzer example can hold several code blocks, since a check often needs a services file or a
 class next to the reported code. A block with a `// Fine.` line, or `# Fine.` in YAML, splits into

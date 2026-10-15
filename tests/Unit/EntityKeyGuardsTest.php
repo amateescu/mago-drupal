@@ -59,7 +59,7 @@ final class EntityKeyGuardsTest extends TestCase
     }
 
     /**
-     * Code whose last getter call no check guards.
+     * Code whose last getter call isn't guarded by a check.
      *
      * @return iterable<string, array{string}>
      */

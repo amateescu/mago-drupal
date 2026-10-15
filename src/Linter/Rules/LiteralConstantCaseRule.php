@@ -25,7 +25,7 @@ use function substr;
  * alone. Mago parses `\true` as a constant access, not as a literal, so the
  * formatter prints it as written. The fix writes `TRUE` without the
  * backslash. PHP never looks up these three names in a namespace, so the
- * backslash changes nothing.
+ * backslash doesn't change anything.
  */
 final class LiteralConstantCaseRule implements Rule
 {

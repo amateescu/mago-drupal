@@ -56,7 +56,7 @@ final class TabCharacterRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // Almost no file holds a tab, so most files stop here.
+        // Most files don't hold a tab, so they stop here.
         $file = $context->file;
         if (
             !str_contains($file->contents, "\t")
@@ -95,7 +95,7 @@ final class TabCharacterRule implements Rule
             }
 
             // A search with a negative offset runs back from the tab and
-            // copies nothing.
+            // doesn't copy anything.
             $lineStart = strrpos($contents, needle: "\n", offset: $tab - strlen($contents));
             $lineStart = $lineStart === false ? 0 : $lineStart + 1;
             $lineEnd = $tab + strcspn($contents, characters: "\r\n", offset: $tab, length: $span->end - $tab);

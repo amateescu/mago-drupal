@@ -91,7 +91,7 @@ final class HookCommentRule implements Rule
         }
 
         // Function is a target for `TopLevel::functions()`. Its own
-        // dispatches do nothing.
+        // dispatches don't do anything.
         if ($context->node->kind !== NodeKind::Program) {
             return;
         }

@@ -327,7 +327,7 @@ rule uses the nearest named class or trait.
 - **Off with `--core`**
 
 DrupalPractice asks for a `#description` text that runs through `t()`. Users read the description
-under a form element, so it must be translatable. There's no fix, because a class takes
+under a form element, so it must be translatable. There isn't a fix, because a class takes
 `$this->t()` where a function takes `t()`.
 
 **Reports:**

@@ -24,7 +24,7 @@ use function trim;
  * `phpunit -c core` and run-tests.sh, so such a test never runs. A test class
  * is a concrete class in a PHPUnit test directory whose parent's name ends in
  * `Test`, `TestBase` or `TestCase`. Outside those directories the parent's
- * name says nothing: core's test entity class is called `EntityTest`. A
+ * name doesn't say anything: core's test entity class is called `EntityTest`. A
  * parent declared in the same file without such a parent of its own is a
  * fixture. TestClassSuffix holds these facts, and the analyzer check
  * `drupal/test-class-name` reports the other TestCase descendants. Coder has

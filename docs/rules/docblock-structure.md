@@ -402,8 +402,8 @@ the end of the long description.
   [`drupal/doc-tag-layout`](#drupaldoc-tag-layout);
 - the order of a `@param` with no type, which is reported by
   [`drupal/doc-tag-types`](#drupaldoc-tag-types);
-- a `@param` that names no parameter, or a parameter in another case. `mago analyze` reports it as
-  `invalid-param-tag`.
+- a `@param` that doesn't name a parameter, or a parameter in another case. `mago analyze` reports
+  it as `invalid-param-tag`.
 
 The standard lets a `@param` or `@return` description be left out when the type says it all, such
 as a single class type that can't be null, and asks for no `@return` when nothing is returned.
@@ -729,7 +729,7 @@ A `@return` variable name is read from the tag's own line.
 - a comment at the start of a file with a `namespace` statement and exactly one class, interface,
   trait or enum. This check runs on every file read by Mago, `.php` files included. The fix deletes
   a docblock at the start, with the whitespace after it. The text of the docblock is lost, so the
-  fix is potentially unsafe. A plain comment gets no fix;
+  fix is potentially unsafe. A plain comment doesn't get a fix;
 - no blank line between a `declare(strict_types=1)` that is the first statement and the comment
   right above it, as `SlevomatCodingStandard.TypeHints.DeclareStrictTypes` asks. Any comment counts
   here, a directive such as `// @mago-expect` too, and the check runs on a class file too. The fix

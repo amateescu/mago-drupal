@@ -41,8 +41,8 @@ final class RedundantReturnRule implements Rule
 {
     /**
      * A `return` with nothing but comments before its `;` or `?>`. A function
-     * without one has nothing to report, and the text search costs far less
-     * than reading its statements.
+     * without one doesn't have anything to report, and the text search costs
+     * far less than reading its statements.
      */
     private const BARE_RETURN = '/\breturn(?:\s++|\/\*.*?\*\/|(?:\/\/|#)(?:[^\r\n?]|\?(?!>))*+)*+(?:;|\?>)/is';
 

@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 use function is_int;
 
 /**
- * Scalars and arrays need no codebase request, so the codebase here has no
- * host behind it.
+ * Scalars and arrays don't need a codebase request, so the codebase here
+ * doesn't have a host behind it.
  */
 final class UncallableTypesTest extends TestCase
 {

@@ -12,8 +12,8 @@ and for how methods, properties and parameters are declared.
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
 - **Ports:** `Squiz.ControlStructures.SwitchDeclaration.SpacingAfterBreak`
 
-The standard has no sentence for this. Its switch example puts a blank line after the `break` that
-ends each case.
+The standard doesn't have a sentence for this. Its switch example puts a blank line after the
+`break` that ends each case.
 
 **Reports:**
 
@@ -127,8 +127,8 @@ A case that runs on into the next one needs a comment there, so a reader can tel
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
 - **Ports:** `Squiz.ControlStructures.SwitchDeclaration`: `ContentBeforeCase`, `ContentBeforeDefault`
 
-The standard has no sentence for this. Its switch example puts each `case` and `default` label at
-the start of its line.
+The standard doesn't have a sentence for this. Its switch example puts each `case` and `default`
+label at the start of its line.
 
 **Reports:**
 
@@ -182,8 +182,8 @@ the start of its line.
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
 - **Ports:** `PSR2.ControlStructures.SwitchDeclaration`: `WrongOpenercase` (partly), `WrongOpenerdefault` (partly)
 
-The standard has no sentence for this. Its switch example ends each `case` and `default` label with
-a colon.
+The standard doesn't have a sentence for this. Its switch example ends each `case` and `default`
+label with a colon.
 
 **Reports:**
 
@@ -345,8 +345,8 @@ a baseline entry written for one code doesn't cover the other.
 
 Coder asks for a blank line between a function and the code or comment before it. `mago format`
 writes that line after a `use`, `namespace` or `declare` statement, a class and another function,
-and keeps one that is there. It adds none after a plain statement, such as a `define()` call or the
-`}` of an `if`.
+and keeps one that is there. It doesn't add one after a plain statement, such as a `define()` call
+or the `}` of an `if`.
 
 **Reports:**
 
@@ -825,7 +825,7 @@ as in `$a = $b = 1` and `example_save($id = 5)`.
 - with `--core`, a `*.api.php` file and the transliteration tables in
   `core/lib/Drupal/Component/Transliteration/data`, which core's `phpcs.xml.dist` leaves out.
 
-Mago's own `no-redundant-variable` reports a value that no later line reads, which is a different
+Mago's own `no-redundant-variable` reports a value that isn't read later, which is a different
 check. The [configuration](../setup/configuration.md) turns it off.
 
 ??? example "Example"

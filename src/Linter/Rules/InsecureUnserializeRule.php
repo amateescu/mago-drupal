@@ -39,9 +39,9 @@ use function trim;
  *
  * The rule reads the calls from the file's target list, the same way that
  * `DeprecationMessageRule` does. That is why `FunctionCall` and
- * `FunctionPartialApplication` are declared targets. The per-call
- * dispatches do nothing. A first-class callable, `unserialize(...)`, passes
- * the call on with no options, so it is reported too.
+ * `FunctionPartialApplication` are declared targets. The per-call dispatches
+ * don't do anything. A first-class callable, `unserialize(...)`, passes the
+ * call on with no options, so it is reported too.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect

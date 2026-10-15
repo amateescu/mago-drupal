@@ -160,7 +160,7 @@ final class FullyQualifiedNameRule implements Rule
         $written = ltrim(trim($file->getText($name)), characters: '\\');
 
         // A name relative to the current namespace, such as `namespace\Foo`,
-        // has nothing to import, and Coder skips it.
+        // doesn't have anything to import, and Coder skips it.
         return (
             str_contains($written, '\\')
             && stripos($written, needle: 'namespace\\') !== 0

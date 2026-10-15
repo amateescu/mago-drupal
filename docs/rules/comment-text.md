@@ -540,7 +540,7 @@ pass applies it.
 
 - a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment after
   a statement or an opening brace, because moving a tool pragma can change the lines it covers. An
-  `@phpstan-ignore-line` moved to a line of its own would cover no statement;
+  `@phpstan-ignore-line` moved to a line of its own wouldn't cover any statement;
 - a comment after the closing brace of an anonymous class or of any other block;
 - a docblock after the opening brace of a class, which
   [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) reports.
@@ -558,7 +558,7 @@ There is no fix where the move could attach the comment to something else:
 - a comment that the next line continues;
 - a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`;
 - a comment after a class's opening brace with code after it on the same line;
-- a comment after a class's closing brace. Coder has no fix for it either.
+- a comment after a class's closing brace. Coder doesn't have a fix for it either.
 
 ??? example "Example"
 

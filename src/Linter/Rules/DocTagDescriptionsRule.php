@@ -32,10 +32,10 @@ use const PREG_SET_ORDER;
  * method with `@param` tags documents every parameter.
  *
  * Ports `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`
- * and part of `ParamNameNoMatch` of Drupal.Commenting.FunctionComment. The
- * last two read the signature. Nothing else reports a method with partial
- * `@param` coverage that has no entry for a real parameter, or a `@param`
- * tag that repeats an earlier one or is out of order.
+ * and part of `ParamNameNoMatch` of Drupal.Commenting.FunctionComment. The last
+ * two read the signature. Nothing else reports a method with partial `@param`
+ * coverage that doesn't have an entry for a real parameter, or a `@param` tag
+ * that repeats an earlier one or is out of order.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -118,11 +118,11 @@ final class DocTagDescriptionsRule implements Rule
      * Reports a typed `@param` tag for a real parameter that repeats an
      * earlier tag or comes out of order.
      *
-     * This is Coder's scan. Each tag looks for its parameter from the one
-     * after the last match onward. A tag that finds none is reported, and
-     * the scan goes back to the tag's own position. As in Coder, a tag with
-     * no type or no variable takes a position and is skipped, and a variable
-     * that ends in a period takes none. A name that isn't a parameter is the
+     * This is Coder's scan. Each tag looks for its parameter from the one after
+     * the last match onward. A tag that doesn't find one is reported, and the
+     * scan goes back to the tag's own position. As in Coder, a tag with no type
+     * or no variable takes a position and is skipped, and a variable that ends
+     * in a period doesn't take one. A name that isn't a parameter is the
      * analyzer's `invalid-param-tag`.
      *
      * @param list<DocblockTag> $paramTags

@@ -7,9 +7,9 @@
  * it: after `if ($entity->id())` or `isset($list[$entity->id()])`, the next
  * `$entity->id()` isn't null.
  *
- * `isNew()` gets no assertion about `id()`. A docblock assertion holds both
- * ways, so `@psalm-assert-if-false !null $this->id()` would also type `id()`
- * as null when `isNew()` is true, which `enforceIsNew()` and an entity
+ * `isNew()` doesn't get an assertion about `id()`. A docblock assertion holds
+ * both ways, so `@psalm-assert-if-false !null $this->id()` would also type
+ * `id()` as null when `isNew()` is true, which `enforceIsNew()` and an entity
  * created with an ID make wrong.
  *
  * A stub replaces the interface header and Mago builds the descendants of a

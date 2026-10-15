@@ -64,7 +64,7 @@ use function trim;
  * Any comment after the closing brace of a class, interface, trait or enum
  * is reported too, a docblock or a directive included. That is the comment
  * half of Drupal.Classes.ClassDeclaration.CloseBraceSameLine. A directive
- * there applies to nothing. This check has no fix, as in Coder.
+ * there applies to nothing. This check doesn't have a fix, as in Coder.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect

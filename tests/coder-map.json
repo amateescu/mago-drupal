@@ -739,7 +739,7 @@
         "sniff": "Generic.ControlStructures.InlineControlStructure",
         "standard": "Drupal",
         "where": ["lint:block-statement"],
-        "note": "Mago's rule reports a body without braces, with no fix. The formatter adds no braces. It moves the body to a line of its own. The rule also reports a loop or `if` whose body is a lone `;`, such as `while (next($items));`, which Coder skips.",
+        "note": "Mago's rule reports a body without braces, with no fix. The formatter doesn't add braces. It moves the body to a line of its own. The rule also reports a loop or `if` whose body is a lone `;`, such as `while (next($items));`, which Coder skips.",
         "codes": [
             {"code": "NotAllowed", "status": "report-only"}
         ]
@@ -794,7 +794,7 @@
         "where": ["ext:drupal/old-style-constructor"],
         "codes": [
             {"code": "OldStyle", "status": "report"},
-            {"code": "OldStyleCall", "status": "partial", "where": ["analyze:non-existent-method"], "note": "A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent has no method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared. A parent class outside the scanned paths gives no report."}
+            {"code": "OldStyleCall", "status": "partial", "where": ["analyze:non-existent-method"], "note": "A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent doesn't have a method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared. A parent class outside the scanned paths isn't reported."}
         ]
     },
     {
@@ -1088,7 +1088,7 @@
         "where": ["format"],
         "codes": [
             {"code": "CommaAfterLast", "status": "format"},
-            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array over several lines whose first entry has no key and a later one has. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two. Coder also takes the spread of an array element before a key, as in `[...$x['k'], 'k' => 1]`, for an entry without a key."},
+            {"code": "KeySpecified", "status": "gap", "where": ["none"], "note": "An array over several lines whose first entry doesn't have a key and a later one has. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two. Coder also takes the spread of an array element before a key, as in `[...$x['k'], 'k' => 1]`, for an entry without a key."},
             {"code": "NoKeySpecified", "status": "gap", "where": ["none"], "note": "An array over several lines with an entry without a key after one with a key. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two."},
             {"code": "NoSpaceAfterComma", "status": "format"},
             {"code": "NoSpaceAfterDoubleArrow", "status": "format"},

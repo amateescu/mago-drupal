@@ -21,7 +21,7 @@ use function substr;
  * names the alias first. A `@see` tag names a class or a member, as in
  * `Foo::bar()`, in its first word. A `@method` tag has an optional return
  * type and the types of its parameters. Keywords such as `int` come out as
- * names too, which no import matches.
+ * names too, which don't match any import.
  *
  * @internal
  */
@@ -65,7 +65,7 @@ final class TagClassNames
     /**
      * The names in the tag's content, each with its offset, and the length
      * of the part of the content they come from, or null for a tag that
-     * names no class this way.
+     * doesn't name a class this way.
      *
      * @return ?array{int, list<array{string, int}>}
      */

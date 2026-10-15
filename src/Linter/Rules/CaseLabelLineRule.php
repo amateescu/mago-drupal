@@ -101,7 +101,7 @@ final class CaseLabelLineRule implements Rule
     /**
      * The offset where the spaces and tabs right before $offset start. Most
      * labels have only their indent before them, so the walk back is short
-     * and copies nothing.
+     * and doesn't copy anything.
      */
     private static function blankStart(string $contents, int $offset): int
     {

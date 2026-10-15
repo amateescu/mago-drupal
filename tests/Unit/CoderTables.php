@@ -238,7 +238,7 @@ final class CoderTables
     /**
      * Names what handles a check. $gates maps a handler to what it needs to
      * run, which is shown after its name. A Mago rule that handles only gaps
-     * and has no entry there is off by default.
+     * and doesn't have an entry there is off by default.
      *
      * @param list<string> $handlers
      * @param list<string> $statuses
