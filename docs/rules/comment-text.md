@@ -522,7 +522,7 @@ pass applies it.
   brace of a class.
 - **Standard:** [In-line code comments](https://project.pages.drupalcode.org/coding_standards/php/documentation/#in-line-code-comments)
 - **Ports:**
-    - `Drupal.Classes.ClassDeclaration.ContentAfterBrace`
+    - `Drupal.Classes.ClassDeclaration`: `CloseBraceSameLine` (partly), `ContentAfterBrace`
     - `Drupal.Commenting.PostStatementComment.Found`
 
 > Comments should be on a separate line immediately before the code line or block they reference.
@@ -531,13 +531,17 @@ pass applies it.
 
 - a `//` comment on the same line as the statement before it;
 - a `//`, `#` or `/* */` comment after the opening brace of a class, interface, trait, enum or
-  anonymous class, on the brace's line.
+  anonymous class, on the brace's line;
+- any comment after the closing brace of a class, interface, trait or enum, on the brace's line,
+  such as `} // End of the class.`. A docblock and a directive count too, since a directive there
+  applies to nothing.
 
 **Not reported:**
 
-- a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment,
-  because moving a tool pragma can change the lines it covers. An `@phpstan-ignore-line` moved to a
-  line of its own would cover no statement;
+- a trailing `phpcs:`, `@mago-`, `@phpstan-`, `@psalm-` or `@codingStandardsIgnore` comment after
+  a statement or an opening brace, because moving a tool pragma can change the lines it covers. An
+  `@phpstan-ignore-line` moved to a line of its own would cover no statement;
+- a comment after the closing brace of an anonymous class or of any other block;
 - a docblock after the opening brace of a class, which
   [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) reports.
 
@@ -553,7 +557,8 @@ There is no fix where the move could attach the comment to something else:
 - a line inside a string;
 - a comment that the next line continues;
 - a comment that applies to one line, such as `cspell:disable-line` or `@codeCoverageIgnore`;
-- a comment after a class's opening brace with code after it on the same line.
+- a comment after a class's opening brace with code after it on the same line;
+- a comment after a class's closing brace. Coder has no fix for it either.
 
 ??? example "Example"
 
@@ -590,6 +595,12 @@ There is no fix where the move could attach the comment to something else:
       `CommentEmptyLine.SpacingAfter` reports the blank line between them, and Coder's
       `FunctionSpacing.Before` reports the layout without it. The fix keeps the blank line, which
       [`drupal/inline-comment-blank-line`](#drupalinline-comment-blank-line) allows.
+    - After a class's closing brace, Coder reports anything on the line as `CloseBraceSameLine`:
+      code, a `?>` and trailing spaces too. `mago format` moves the code to a line of its own and
+      removes the spaces. Nothing reports the `?>`.
+    - Coder doesn't report a comment glued to a class's closing brace, as in `}// End.`, since
+      phpcs keeps the line break in the comment's token. The rule reports it. `mago format` moves
+      it to a line of its own.
 
 ---
 

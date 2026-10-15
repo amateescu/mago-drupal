@@ -100,3 +100,54 @@ function brace_block_after_statement(): int {
 
   return $count;
 }
+
+/**
+ * A comment after the closing brace of a class.
+ */
+class BraceClosingComment {
+
+  /**
+   * The count.
+   */
+  public int $count = 0;
+
+  // @mago-expect lint:drupal/post-statement-comment
+
+} // End of the class.
+
+/**
+ * A block comment after the closing brace of an interface.
+ */
+interface BraceClosingBlockInterface {
+  // @mago-expect lint:drupal/post-statement-comment
+} /* End of the interface. */
+
+/**
+ * A docblock after the closing brace of a trait.
+ */
+trait BraceClosingDocblockTrait {
+  // @mago-expect lint:drupal/doc-comment
+  // @mago-expect lint:drupal/post-statement-comment
+} /** End of the trait. */
+
+/**
+ * A directive after the closing brace of an enum, where it applies to nothing.
+ */
+enum BraceClosingEnum {
+
+  case One;
+
+  // @mago-expect lint:drupal/post-statement-comment
+
+} // phpcs:ignore Drupal.Classes.ClassDeclaration
+
+/**
+ * Comments after other closing braces, which are not reported.
+ */
+function brace_closing_other(bool $flag): int {
+  if ($flag) {
+    return \spl_object_id(new class {} /* The closing brace of an anonymous class. */);
+  } // End of the condition.
+
+  return 0;
+} // End of the function.
