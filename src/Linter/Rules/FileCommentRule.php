@@ -164,9 +164,9 @@ final class FileCommentRule implements Rule
      * Reports a comment right above the `declare(strict_types=1)` that starts
      * the code, on the line above or on the same line. Slevomat's
      * DeclareStrictTypes wants a blank line between them, and the fix adds
-     * one. Unlike the file comment checks, it
-     * runs on class files too. `$covered` is the file comment when another
-     * check here already reports the line below it.
+     * one. Unlike the file comment checks, it runs on class files too.
+     * `$covered` is the file comment when another check here already reports
+     * the line below it.
      */
     private function checkBlankLineBeforeDeclare(LintContext $context, ?Trivia $covered): void
     {
