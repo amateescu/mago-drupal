@@ -12,6 +12,7 @@ use amateescu\MagoDrupal\Internal\ServiceIndex;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\TrustedCallbacks;
 use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\UncallableTypes;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -45,7 +46,8 @@ use function strtolower;
  * file: a regex over the file text looks for a quoted callback key first,
  * and only a file with one has its syntax fetched from the host. Callbacks
  * are read by ElementCallbacks; the class and method they name come from
- * the codebase.
+ * the codebase. The other values under the render, date and component keys
+ * are typed in one request, and reported when PHP can never call them.
  *
  * `static::class`, `$this` and an object stand for a class that may be a
  * subclass at run time. For those the class and every descendant in the
@@ -73,6 +75,8 @@ final class ElementCallbackHook implements NodeAnalysisHook
     public const UNTRUSTED = 'untrusted-callback';
 
     public const FORM_CLOSURE = 'form-closure-callback';
+
+    public const INVALID = 'invalid-callback';
 
     private const FORM = 'Drupal\Core\Form\FormInterface';
 
@@ -131,6 +135,45 @@ final class ElementCallbackHook implements NodeAnalysisHook
 
         foreach (ElementCallbacks::closures($file) as [$key, $closure, $class]) {
             self::checkClosure($context, $key, $closure, $class);
+        }
+
+        self::checkComputed($context, ElementCallbacks::computed($file));
+    }
+
+    /**
+     * Values under the render, date and component keys whose type can never
+     * be called, such as a number, NULL or a boolean. One request types them
+     * all.
+     *
+     * @param list<array{string, Node}> $values
+     */
+    private static function checkComputed(NodeAnalysisContext $context, array $values): void
+    {
+        if ($values === []) {
+            return;
+        }
+
+        $nodes = [];
+        foreach ($values as [, $value]) {
+            $nodes[] = $value;
+        }
+
+        $types = $context->analysis->getMultipleExpressionTypes($nodes);
+        foreach ($values as $index => [$key, $value]) {
+            $type = $types[$index] ?? null;
+            if ($type === null || !UncallableTypes::never($context->codebase, $type)) {
+                continue;
+            }
+
+            $context->report(
+                Level::Error,
+                self::INVALID,
+                Issue::new(
+                    "The {$key} callback is `{$type}`, which PHP can never call.",
+                    $value->span,
+                    'not callable',
+                )->withHelp("Pass a callable, such as [static::class, 'method'] for a method with #[TrustedCallback]."),
+            );
         }
     }
 

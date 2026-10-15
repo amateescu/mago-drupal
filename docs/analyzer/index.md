@@ -134,6 +134,7 @@ called, trusted or serialized by core, and cacheable dependencies that can't hav
 | [`drupal/non-public-callback`](render-and-forms.md#drupalnon-public-callback) | error, or warning on `#value_callback` | A callback that names a protected or private method, a `'::method'` of a form included. |
 | [`drupal/untrusted-callback`](render-and-forms.md#drupaluntrusted-callback) | error | A callback under a render, date or component key that names a class method not trusted by core. |
 | [`drupal/form-closure-callback`](render-and-forms.md#drupalform-closure-callback) | error | A closure, an arrow function or a first-class callable under a render or date key, written in a class that implements `FormInterface`. |
+| [`drupal/invalid-callback`](render-and-forms.md#drupalinvalid-callback) | error | A value under a render, date or component key whose type PHP can never call: an int, a float, a bool, NULL, an array that can't be a two-element pair, or an object without `__invoke()`. |
 | [`drupal/trusted-callback-override`](render-and-forms.md#drupaltrusted-callback-override) | warning | A method that overrides one with `#[TrustedCallback]`, declared in a parent class or in a trait that a parent uses, when the override doesn't repeat the attribute. |
 | [`drupal/cacheable-dependency`](render-and-forms.md#drupalcacheable-dependency) | warning | An `addCacheableDependency()` call whose dependency is a scalar, an array, null, or a final class that doesn't implement `CacheableDependencyInterface`. |
 

@@ -196,8 +196,8 @@
                 {"identifier": "renderCallback.containsClosure", "status": "ported", "where": ["check:drupal/form-closure-callback"]},
                 {"identifier": "renderCallback.expectsArrayOfCallbacks", "status": "ported"},
                 {"identifier": "renderCallback.expectsCallableArrayWithArguments", "status": "ported"},
-                {"identifier": "renderCallback.invalidKeyValue", "status": "gap", "where": ["none"], "note": "A callback whose type isn't known to be callable, such as a number or a string variable."},
-                {"identifier": "renderCallback.nonCallableCallback", "status": "ported", "where": ["check:drupal/unknown-callback"]},
+                {"identifier": "renderCallback.invalidKeyValue", "status": "partial", "where": ["check:drupal/invalid-callback"]},
+                {"identifier": "renderCallback.nonCallableCallback", "status": "ported", "where": ["check:drupal/unknown-callback", "check:drupal/invalid-callback"]},
                 {"identifier": "renderCallback.nonTrustedCallback", "status": "ported"}
             ]
         },

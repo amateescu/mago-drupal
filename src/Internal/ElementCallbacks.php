@@ -30,10 +30,12 @@ use function trim;
  * `array_unshift()` and `array_push()` on the key, the literal lists of an
  * `array_merge()` assigned to it, the `callback` of an `#ajax` array and the
  * `exists` of a `#machine_name` array.
- * Only literal callbacks come back: a string, a `[class, 'method']` or
- * `[$object, 'method']` pair, or a class name joined to `'::method'`.
+ * `in()` hands back literal callbacks only: a string, a `[class, 'method']`
+ * or `[$object, 'method']` pair, or a class name joined to `'::method'`.
  * Closures, variables, service notation and anything computed are left
- * out.
+ * out. `closures()` hands back the closures under the render keys, and
+ * `computed()` the other values under the render, date and component keys,
+ * for a check of their type.
  *
  * @internal
  *
@@ -115,6 +117,12 @@ final class ElementCallbacks
     ];
 
     /**
+     * The component element's keys, which run their callbacks through
+     * `doTrustedCallback()` as the render keys do.
+     */
+    private const COMPONENT_KEYS = ['#propsAlter', '#slotsAlter'];
+
+    /**
      * A closure, an arrow function and a first-class callable all make a
      * `Closure` object.
      */
@@ -183,21 +191,67 @@ final class ElementCallbacks
     {
         $walk = new self($file);
         $closures = [];
-        foreach ($file->getNodes(NodeKind::LiteralString) as $literal) {
-            $key = ($file->contents[$literal->span->start + 1] ?? '') === '#' ? $walk->literal($literal) : null;
-            if ($key === null || !in_array($key, self::RENDER_KEYS, strict: true)) {
+        foreach ($walk->valuesUnder(self::RENDER_KEYS) as [$key, $value]) {
+            if (!in_array($value->kind, self::CLOSURES, strict: true)) {
                 continue;
             }
 
-            foreach ($walk->values($literal, $key) as $value) {
-                $value = $walk->inner($value);
-                if (in_array($value->kind, self::CLOSURES, strict: true)) {
-                    $closures[] = [$key, $value, $walk->enclosingClass($value)];
-                }
-            }
+            $closures[] = [$key, $value, $walk->enclosingClass($value)];
         }
 
         return $closures;
+    }
+
+    /**
+     * The values under the render, date and component keys that `in()`
+     * doesn't read and that aren't closures, as `[key, value]`: variables,
+     * calls, constants, numbers and the like. Only their type says whether
+     * they can be called.
+     *
+     * @return list<array{string, Node}>
+     */
+    public static function computed(SourceFile $file): array
+    {
+        $walk = new self($file);
+        $values = [];
+        foreach ($walk->valuesUnder([...self::RENDER_KEYS, ...self::COMPONENT_KEYS]) as [$key, $value]) {
+            // Only whether a callback is read matters, not how core runs it.
+            if (
+                in_array($value->kind, self::CLOSURES, strict: true)
+                || $walk->callback($key, CallbackUse::Render, $value) !== null
+            ) {
+                continue;
+            }
+
+            $values[] = [$key, $value];
+        }
+
+        return $values;
+    }
+
+    /**
+     * The callback values under the keys, as `[key, value]`, with the
+     * wrappers around each value taken off.
+     *
+     * @param list<string> $keys
+     *
+     * @return list<array{string, Node}>
+     */
+    private function valuesUnder(array $keys): array
+    {
+        $values = [];
+        foreach ($this->file->getNodes(NodeKind::LiteralString) as $literal) {
+            $key = ($this->file->contents[$literal->span->start + 1] ?? '') === '#' ? $this->literal($literal) : null;
+            if ($key === null || !in_array($key, $keys, strict: true)) {
+                continue;
+            }
+
+            foreach ($this->values($literal, $key) as $value) {
+                $values[] = [$key, $this->inner($value)];
+            }
+        }
+
+        return $values;
     }
 
     /**

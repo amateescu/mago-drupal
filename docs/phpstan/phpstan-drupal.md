@@ -150,8 +150,8 @@ Off by default in phpstan-drupal.
 - `renderCallback.containsClosure`: [`drupal/form-closure-callback`](../analyzer/render-and-forms.md#drupalform-closure-callback)
 - `renderCallback.expectsArrayOfCallbacks`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
 - `renderCallback.expectsCallableArrayWithArguments`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
-- `renderCallback.invalidKeyValue`: nothing. A callback whose type isn't known to be callable, such as a number or a string variable.
-- `renderCallback.nonCallableCallback`: [`drupal/unknown-callback`](../analyzer/render-and-forms.md#drupalunknown-callback)
+- `renderCallback.invalidKeyValue`: [`drupal/invalid-callback`](../analyzer/render-and-forms.md#drupalinvalid-callback), partly
+- `renderCallback.nonCallableCallback`: [`drupal/unknown-callback`](../analyzer/render-and-forms.md#drupalunknown-callback), [`drupal/invalid-callback`](../analyzer/render-and-forms.md#drupalinvalid-callback)
 - `renderCallback.nonTrustedCallback`: [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback)
 
 ### StaticServiceDeprecatedServiceRule
