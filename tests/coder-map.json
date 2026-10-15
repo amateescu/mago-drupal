@@ -1063,7 +1063,7 @@
         "codes": [
             {"code": "IncorrectStrictTypesFormat", "status": "format"},
             {"code": "IncorrectWhitespaceAfterDeclare", "status": "format"},
-            {"code": "IncorrectWhitespaceBeforeDeclare", "status": "partial", "where": ["format", "ext:drupal/file-comment"]}
+            {"code": "IncorrectWhitespaceBeforeDeclare", "status": "fix", "where": ["format", "ext:drupal/file-comment"]}
         ]
     },
     {

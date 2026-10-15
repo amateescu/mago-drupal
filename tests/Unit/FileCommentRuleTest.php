@@ -15,7 +15,6 @@ use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\PHPVersion;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Span;
-use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\TriviaKind;
@@ -36,6 +35,11 @@ use function strpos;
  */
 final class FileCommentRuleTest extends TestCase
 {
+    /**
+     * The parent, first child and next sibling of a node that has none.
+     */
+    private const NO_LINKS = [4_294_967_295, 4_294_967_295, 4_294_967_295];
+
     /**
      * Finds the span of $needle in $contents, so a fixture never counts
      * byte offsets by hand.
@@ -80,13 +84,15 @@ final class FileCommentRuleTest extends TestCase
             "test-{$counter}-{$path}",
             $contents,
             [],
-            new NodeStore([], '', 0),
+            // The tree holds the Program node and no statements, so the
+            // check of the line above `declare` finds nothing to read.
+            new NodeStore([NodeKind::Program], pack('CNNNNN', 0, 0, strlen($contents), ...self::NO_LINKS), 1),
             new ResolvedNameStore('', '', '', 0),
             new TriviaStore($records, $records === '' ? 0 : 1),
             null,
         );
 
-        $node = new Node(0, NodeKind::Program, new Span(0, strlen($contents)), null);
+        $node = $file->getNode(0);
         $token = new class implements CancellationTokenInterface {
             public function isCancelled(): bool
             {

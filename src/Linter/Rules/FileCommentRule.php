@@ -18,21 +18,30 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Reporting\Safety;
 use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
+use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\Trivia;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
+use function str_contains;
 use function strspn;
 
 /**
  * Checks the docblock at the start of a PHP file: its style, its `@file`
  * tag and the blank line below it, and that a file with a namespace and one
- * class, interface, trait or enum does not start with a comment.
+ * class, interface, trait or enum does not start with a comment. Also checks
+ * the blank line between a comment and the `declare` statement below it.
  *
  * Ports Drupal.Commenting.FileComment, with the sniff's skip of the `@file`
- * checks for a file that holds a class. `drupal/missing-file-comment`
- * reports a file that does not start with a comment.
+ * checks for a file that holds a class, and the blank line before `declare`
+ * of SlevomatCodingStandard.TypeHints.DeclareStrictTypes.
+ * `drupal/missing-file-comment` reports a file that does not start with a
+ * comment.
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class FileCommentRule implements Rule
 {
@@ -56,37 +65,42 @@ final class FileCommentRule implements Rule
             return;
         }
 
+        $first = FileDocblock::firstComment($context->file);
+        $covered = $first !== null && $this->checkFirstComment($context, $first);
+        $this->checkBlankLineBeforeDeclare($context, $covered ? $first : null);
+    }
+
+    /**
+     * Checks the comment at the start of the file. Returns whether an issue
+     * on it also covers the line below it. That is the case for a comment
+     * that must go, a comment in the wrong style and a missing blank line
+     * after the docblock.
+     */
+    private function checkFirstComment(LintContext $context, Trivia $first): bool
+    {
         // A namespaced class file has its own check, which comes before the
         // `@file` checks.
-        $first = FileDocblock::firstComment($context->file);
-        if ($first === null) {
-            return;
-        }
-
         if (FileDocblock::isNamespacedClassFile($context->file)) {
             $this->reportNamespacedFileComment($context, $first);
 
-            return;
+            return true;
         }
 
         if (!FileDocblock::hasOpenTag($context->file)) {
-            return;
+            return false;
         }
 
         if ($first->kind !== TriviaKind::DocBlockComment) {
             $issue = Issue::new('The file docblock must start with "/**".', $first->span);
             $fix = CommentDocblock::fileEdit($context->file, $first);
-            $this->report($context, $fix === null ? $issue : $issue->withEdit($fix));
 
-            return;
+            return $this->report($context, $fix === null ? $issue : $issue->withEdit($fix));
         }
 
         // Tag names are case-sensitive in Coder, so `@FILE` is not a file tag.
         [$tag, $variant] = Docblocks::fileTag($context->file, $first->span);
         if ($tag !== null) {
-            $this->checkTagPosition($context, $first->span, $tag);
-
-            return;
+            return $this->checkTagPosition($context, $first->span, $tag);
         }
 
         $issue = Issue::new('The file docblock must have an @file tag.', FileTags::reportSpan(
@@ -100,22 +114,22 @@ final class FileCommentRule implements Rule
                 ? $issue
                 : $issue->withEdit(TextEdit::insert($opener, LineEnding::of($context->file->contents) . ' * @file')),
         );
+
+        return false;
     }
 
     /**
      * Reports an `@file` tag that is not on the line right below the
      * docblock's opener, and checks the blank line below the docblock when
-     * it is.
+     * it is. Returns whether the blank line got a report.
      *
      * A potentially unsafe fix moves a tag that stands alone on its line.
      */
-    private function checkTagPosition(LintContext $context, Span $docblock, Span $tag): void
+    private function checkTagPosition(LintContext $context, Span $docblock, Span $tag): bool
     {
         $contents = $context->file->contents;
         if (FileTags::onSecondLine($contents, $docblock, $tag)) {
-            $this->checkBlankLineAfter($context, $docblock);
-
-            return;
+            return $this->checkBlankLineAfter($context, $docblock);
         }
 
         $issue = Issue::new('The second line in the file docblock must be "@file".', FileTags::reportSpan(
@@ -124,22 +138,97 @@ final class FileCommentRule implements Rule
         ));
         $moved = FileTags::move($contents, $docblock, $tag);
         $this->report($context, $moved === null ? $issue : $issue->withEdit($moved));
+
+        return false;
     }
 
     /**
-     * Reports a file docblock with no blank line below it. `mago format`
-     * already turns several blank lines into one, so only a missing one is
-     * left to report. Coder skips a docblock right above a `?>`.
+     * Reports a file docblock with no blank line below it, and returns
+     * whether it did. `mago format` already turns several blank lines into
+     * one, so only a missing one is left to report. Coder skips a docblock
+     * right above a `?>`.
      */
-    private function checkBlankLineAfter(LintContext $context, Span $docblock): void
+    private function checkBlankLineAfter(LintContext $context, Span $docblock): bool
     {
         $edit = DocblockGap::blankLine($context->file, $docblock);
         if ($edit === null || preg_match('/\G\s*\?>/', $context->file->contents, offset: $docblock->end) === 1) {
-            return;
+            return false;
         }
 
         $issue = Issue::new('Put a blank line after the file docblock.', new Span($docblock->end - 2, $docblock->end));
-        $this->report($context, $issue->withEdit($edit));
+
+        return $this->report($context, $issue->withEdit($edit));
+    }
+
+    /**
+     * Reports a comment right above the `declare(strict_types=1)` that starts
+     * the code, on the line above or on the same line. Slevomat's
+     * DeclareStrictTypes wants a blank line between them, and the fix adds
+     * one. Unlike the file comment checks, it
+     * runs on class files too. `$covered` is the file comment when another
+     * check here already reports the line below it.
+     */
+    private function checkBlankLineBeforeDeclare(LintContext $context, ?Trivia $covered): void
+    {
+        $file = $context->file;
+        if (!str_contains($file->contents, 'strict_types')) {
+            return;
+        }
+
+        $declare = self::firstDeclare($file, $context->node);
+        if ($declare === null) {
+            return;
+        }
+
+        $above = null;
+        foreach ($file->getTrivia() as $trivia) {
+            if ($trivia->span->end > $declare->span->start) {
+                break;
+            }
+
+            $above = $trivia;
+        }
+
+        if ($above === null || $covered !== null && $above->span->start === $covered->span->start) {
+            return;
+        }
+
+        // Only whitespace parts the last comment from the statement, as the
+        // statement is the first one after the open tag.
+        $edit = DocblockGap::blankLine($file, $above->span);
+        if ($edit === null) {
+            return;
+        }
+
+        $issue = Issue::new('Put a blank line above the declare statement.', $declare->span);
+        $context->report($issue->withEdit($edit));
+    }
+
+    /**
+     * The `declare` statement right after the first open tag, when it sets
+     * `strict_types=1`, or null. Slevomat checks only that one.
+     */
+    private static function firstDeclare(SourceFile $file, Node $program): ?Node
+    {
+        $open = false;
+        foreach ($file->getChildren($program) as $statement) {
+            $inner = $file->getChildren($statement)[0] ?? null;
+            if ($inner === null) {
+                return null;
+            }
+
+            if (!$open) {
+                $open = $inner->kind === NodeKind::OpeningTag;
+
+                continue;
+            }
+
+            $strict = preg_match('/\bstrict_types\s*=\s*1\b/', $file->getText($inner)) === 1;
+
+            return $inner->kind === NodeKind::Declare && $strict ? $inner : null;
+        }
+
+        return null;
     }
 
     /**
@@ -166,12 +255,17 @@ final class FileCommentRule implements Rule
     }
 
     /**
-     * Reports the issue unless Coder skips the file comment of the file.
+     * Reports the issue unless Coder skips the file comment of the file, and
+     * returns whether it did.
      */
-    private function report(LintContext $context, Issue $issue): void
+    private function report(LintContext $context, Issue $issue): bool
     {
-        if (!FileDocblock::isClassFile($context->file)) {
-            $context->report($issue);
+        if (FileDocblock::isClassFile($context->file)) {
+            return false;
         }
+
+        $context->report($issue);
+
+        return true;
     }
 }

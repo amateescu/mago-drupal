@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Has a comment on the line of the declare statement.
+ */
+
+/* Strict types. */
+
+declare(strict_types=1);
+
+function declare_same_line_help(): string {
+  return '';
+}

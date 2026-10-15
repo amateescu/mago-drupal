@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Has a line comment right above the declare statement.
+ */
+
+// Strict types for the helpers below.
+
+declare(strict_types=1);
+
+function declare_comment_help(): string {
+  return '';
+}

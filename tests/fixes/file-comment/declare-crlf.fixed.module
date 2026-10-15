@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * Has a comment above the declare statement, with CRLF line endings.
+ */
+
+// Strict types.
+
+declare(strict_types=1);

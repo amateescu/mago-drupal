@@ -703,13 +703,13 @@ A `@return` variable name is read from the tag's own line.
 ## drupal/file-comment
 
 - **Level:** error
-- **Fix:** safe for the `@file` tag and the blank line. Potentially unsafe for moving the tag, for
+- **Fix:** safe for the `@file` tag and the blank lines. Potentially unsafe for moving the tag, for
   deleting the docblock of a namespaced class file, and for the
   [comment style](#comment-style-fixes).
 - **Standard:** [@file](https://project.pages.drupalcode.org/coding_standards/php/documentation/#file-documenting-files)
 - **Ports:**
     - `Drupal.Commenting.FileComment`: `FileTag`, `NamespaceNoFileDoc`, `SpacingAfterComment`, `WrongStyle` (partly)
-    - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare` (partly)
+    - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare`
 
 > Files that comply with the PSR-4 standard SHOULD NOT have a @file documentation block.
 >
@@ -729,17 +729,23 @@ A `@return` variable name is read from the tag's own line.
 - a comment at the start of a file with a `namespace` statement and exactly one class, interface,
   trait or enum. This check runs on every file read by Mago, `.php` files included. The fix deletes
   a docblock at the start, with the whitespace after it. The text of the docblock is lost, so the
-  fix is potentially unsafe. A plain comment gets no fix.
+  fix is potentially unsafe. A plain comment gets no fix;
+- no blank line between a `declare(strict_types=1)` that is the first statement and the comment
+  right above it, as `SlevomatCodingStandard.TypeHints.DeclareStrictTypes` asks. Any comment counts
+  here, a directive such as `// @mago-expect` too, and the check runs on a class file too. The fix
+  adds the blank line.
 
 The comment is the first one after the first open tag, past any directive. A file that doesn't start
 with one is reported by [`drupal/missing-file-comment`](#drupalmissing-file-comment).
 
 **Not reported:**
 
-- a class file, which is skipped by the checks above, except the last one. Which files count as
+- a class file, which is skipped by the checks above, except the last two. Which files count as
   class files is in the entry of `drupal/missing-file-comment`;
 - a docblock at the start of a namespaced file with two or more classes, interfaces, traits or
-  enums.
+  enums;
+- no blank line above `declare` when the comment there already has a report above: a comment that
+  must go, a comment in the wrong style, or a file docblock with no blank line after it.
 
 ??? example "Example"
 

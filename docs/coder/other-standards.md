@@ -88,7 +88,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | `SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash` | [`drupal/use-leading-backslash`](../rules/naming-and-imports.md#drupaluse-leading-backslash) |  |
 | `SlevomatCodingStandard.Namespaces.UseFromSameNamespace` | Mago `no-redundant-use` | Mago also reports each name in a group import and each name after the first in a comma list. Coder skips those. |
 | `SlevomatCodingStandard.PHP.ShortList` | [`drupal/short-list`](../rules/statements.md#drupalshort-list) |  |
-| `SlevomatCodingStandard.TypeHints.DeclareStrictTypes` | `IncorrectStrictTypesFormat`, `IncorrectWhitespaceAfterDeclare`: `mago format`<br>`IncorrectWhitespaceBeforeDeclare`: `mago format`, [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment), partly |  |
+| `SlevomatCodingStandard.TypeHints.DeclareStrictTypes` | `IncorrectStrictTypesFormat`, `IncorrectWhitespaceAfterDeclare`: `mago format`<br>`IncorrectWhitespaceBeforeDeclare`: `mago format`, [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment) |  |
 | `SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue` | Mago `explicit-nullable-param` (PHP 8.4 and later) | Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on. |
 
 <!-- /docs-gen -->
