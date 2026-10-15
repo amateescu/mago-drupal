@@ -206,10 +206,10 @@ abstract class ParameterBlankLine {
    *   An array.
    * @param object $object
    *   An object.
-   * @param int $sum
-   *   A sum.
    * @param string $text
    *   A string.
+   * @param int $sum
+   *   A sum.
    */
   public function defaults(
     array $array = [

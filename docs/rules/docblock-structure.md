@@ -377,7 +377,7 @@ the end of the long description.
 - **Level:** error
 - **Fix:** none
 - **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions)
-- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`
+- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch`
 
 > Each parameter of a function must be documented with a `@param` tag (see exceptions below).
 
@@ -388,13 +388,22 @@ the end of the long description.
 - a `@return` with a type and no description on the lines below it. As in Coder, text on the tag's
   own line is part of the type, so `@return string The label.` and `@return array<int, string>`
   with nothing below are reported too, with the description asked for on the line below;
-- a method with `@param` tags for some parameters and none for a real parameter.
+- a `@param` with a type that repeats an earlier tag, or that comes after the tag of a later
+  parameter. As in Coder, the tags must follow the order of the parameters, and a parameter can be
+  left out;
+- a method with `@param` tags for some parameters and none for a real parameter. So in a method, a
+  repeated tag that takes the place of another parameter's tag gets two reports. In a function it
+  gets one, as in Coder.
 
 **Not reported:**
 
 - no description on `@return void`, `@return static` or `@return $this`;
 - a `@return` with a variable name after its type, which is reported by
-  [`drupal/doc-tag-layout`](#drupaldoc-tag-layout).
+  [`drupal/doc-tag-layout`](#drupaldoc-tag-layout);
+- the order of a `@param` with no type, which is reported by
+  [`drupal/doc-tag-types`](#drupaldoc-tag-types);
+- a `@param` that names no parameter, or a parameter in another case. `mago analyze` reports it as
+  `invalid-param-tag`.
 
 The standard lets a `@param` or `@return` description be left out when the type says it all, such
 as a single class type that can't be null, and asks for no `@return` when nothing is returned.
@@ -431,6 +440,14 @@ without one. Core's phpcs runs Coder 8, which reports it.
       return (string) $id;
     }
     ```
+
+??? note "Compared with Coder"
+
+    - Coder reports a repeated tag that sits past the number of parameters, such as the third
+      `@param int $a` of a function with one parameter, as `ExtraParamComment`. This rule reports it
+      as a repeated tag.
+    - Coder reports `@param int &$a` for a parameter that isn't a reference, and `...$a` for one
+      that isn't variadic, as a name that doesn't match. This rule leaves those alone.
 
 ---
 

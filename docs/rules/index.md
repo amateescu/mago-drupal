@@ -165,7 +165,7 @@ They don't check the types in a docblock against the real signature, which is do
 | [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Checks a docblock's opener, closer, blank lines and spaces, and @inheritdoc without braces. |
 | [`drupal/doc-see-tag`](docblock-structure.md#drupaldoc-see-tag) | error | Reports a @see tag with no reference, or with text or punctuation after the reference. |
 | [`drupal/doc-sentence`](docblock-structure.md#drupaldoc-sentence) | error | Checks the first letter and the end of a docblock summary and of its @param and @throws descriptions, the first letter of the long description, and a summary on one line. |
-| [`drupal/doc-tag-descriptions`](docblock-structure.md#drupaldoc-tag-descriptions) | error | Reports a @param or @return with no description, and a method parameter with no @param when others have one. |
+| [`drupal/doc-tag-descriptions`](docblock-structure.md#drupaldoc-tag-descriptions) | error | Reports a @param or @return with no description, a @param that repeats one or is out of order, and a method parameter with no @param when others have one. |
 | [`drupal/doc-tag-groups`](docblock-structure.md#drupaldoc-tag-groups) | error | Checks that the tags of one kind are in one group, @param first, and the blank lines around the groups. |
 | [`drupal/doc-tag-layout`](docblock-structure.md#drupaldoc-tag-layout) | error | Checks where the description of a @param, @return or @throws goes, its indent, and the spacing of the tag. |
 | [`drupal/doc-tag-types`](docblock-structure.md#drupaldoc-tag-types) | error | Reports a @param with no type or variable name, a @return with no type, and a second @return. |

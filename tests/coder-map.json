@@ -195,7 +195,7 @@
             {"code": "ParamMissingDefinition", "status": "report", "where": ["ext:drupal/doc-tag-descriptions"]},
             {"code": "ParamNameDot", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
-            {"code": "ParamNameNoMatch", "status": "partial", "where": ["analyze:invalid-param-tag"], "note": "The analyzer reports a `@param` tag that names no parameter. It doesn't report a duplicate tag or tags in a different order than the parameters, which Coder reports."},
+            {"code": "ParamNameNoMatch", "status": "report", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"]},
             {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnCommentIndentation", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
