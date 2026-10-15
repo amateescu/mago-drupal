@@ -266,12 +266,88 @@ namespace Drupal\Core\Entity {
         }
     }
 
+    /**
+     * Implements every method of the stubbed EntityInterface, as core's
+     * EntityBase does.
+     */
     abstract class EntityBase implements EntityInterface
     {
         public function id(): string|int|null
         {
             return null;
         }
+
+        public function uuid() { return null; }
+
+        public function language() { return new \stdClass(); }
+
+        public function isNew() { return false; }
+
+        public function enforceIsNew($value = true) { return $this; }
+
+        public function getEntityTypeId() { return ''; }
+
+        public function bundle() { return ''; }
+
+        public function label() { return null; }
+
+        public function toUrl($rel = null, array $options = []) { return new \stdClass(); }
+
+        public function toLink($text = null, $rel = 'canonical', array $options = []) { return new \stdClass(); }
+
+        public function hasLinkTemplate($key) { return false; }
+
+        public function uriRelationships() { return []; }
+
+        public static function load($id) { return null; }
+
+        public static function loadMultiple(?array $ids = null) { return []; }
+
+        public static function create(array $values = []) { return new static(); }
+
+        public function save() { return 1; }
+
+        public function delete() {}
+
+        public function preSave(EntityStorageInterface $storage) {}
+
+        public function postSave(EntityStorageInterface $storage, $update = true) {}
+
+        public static function preCreate(EntityStorageInterface $storage, array &$values) {}
+
+        public function postCreate(EntityStorageInterface $storage) {}
+
+        public static function preDelete(EntityStorageInterface $storage, array $entities) {}
+
+        public static function postDelete(EntityStorageInterface $storage, array $entities) {}
+
+        public static function postLoad(EntityStorageInterface $storage, array &$entities) {}
+
+        public function createDuplicate() { return clone $this; }
+
+        public function getEntityType() { return null; }
+
+        public function referencedEntities() { return []; }
+
+        public function getOriginalId() { return null; }
+
+        public function getCacheTagsToInvalidate() { return []; }
+
+        public function setOriginalId($id) { return $this; }
+
+        public function toArray() { return []; }
+
+        public function getTypedData() { return null; }
+
+        public function getConfigDependencyKey() { return ''; }
+
+        public function getConfigDependencyName() { return ''; }
+
+        public function getConfigTarget() { return ''; }
+
+        public function access($operation, ?object $account = null, $return_as_object = false) { return false; }
+
+        public function addCacheableDependency(mixed $other_object): static { return $this; }
 
         public function getOriginal(): ?static
         {
@@ -515,6 +591,14 @@ namespace Drupal\Core\Access {
     interface AccessResultInterface
     {
         public function onlyOnAccessResult(): void;
+    }
+
+    interface AccessibleInterface
+    {
+        /**
+         * @return bool|\Drupal\Core\Access\AccessResultInterface
+         */
+        public function access($operation, ?object $account = null, $return_as_object = false);
     }
 }
 

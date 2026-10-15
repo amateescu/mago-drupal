@@ -199,7 +199,7 @@ plugin does the same work, and the linked section says how.
 - `EntityAccessControlHandlerReturnTypeExtension`: [Entities: Access checks](../analyzer/entities.md#access-checks)
 - `EntityFieldMethodsViaMagicReflectionExtension`: [Entities: Magic entity fields](../analyzer/entities.md#magic-entity-fields)
 - `EntityFieldsViaMagicReflectionExtension`: [Entities: Magic entity fields](../analyzer/entities.md#magic-entity-fields)
-- `EntityIdNarrowedByNew`: nothing. `id()` isn't null once `isNew()` is false, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
+- `EntityIdNarrowedByNew`: nothing. `id()` isn't null once `isNew()` is false. A stub can't say it: Mago and PHPStan read a docblock assertion both ways, so `@psalm-assert-if-false` on `isNew()` would also make `id()` null when `isNew()` is true. A check on `id()` itself narrows the later calls, see [Stub files](../analyzer/core-types.md#stub-files) and [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal).
 - `EntityQueryAccessCheckDynamicReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `EntityQueryDynamicReturnTypeExtension`: [Entities: Entity queries](../analyzer/entities.md#entity-queries)
 - `EntityRepositoryReturnTypeExtension`: [Entities: Handlers and storage](../analyzer/entities.md#handlers-and-storage)

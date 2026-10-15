@@ -252,7 +252,7 @@
         {"extension": "EntityAccessControlHandlerReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#access-checks"]},
         {"extension": "EntityFieldMethodsViaMagicReflectionExtension", "status": "ported", "where": ["doc:analyzer/entities.md#magic-entity-fields"]},
         {"extension": "EntityFieldsViaMagicReflectionExtension", "status": "ported", "where": ["doc:analyzer/entities.md#magic-entity-fields"]},
-        {"extension": "EntityIdNarrowedByNew", "status": "gap", "where": ["none"], "note": "`id()` isn't null once `isNew()` is false, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal)."},
+        {"extension": "EntityIdNarrowedByNew", "status": "gap", "where": ["none"], "note": "`id()` isn't null once `isNew()` is false. A stub can't say it: Mago and PHPStan read a docblock assertion both ways, so `@psalm-assert-if-false` on `isNew()` would also make `id()` null when `isNew()` is true. A check on `id()` itself narrows the later calls, see [Stub files](../analyzer/core-types.md#stub-files) and [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal)."},
         {"extension": "EntityQueryAccessCheckDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
         {"extension": "EntityQueryDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
         {"extension": "EntityRepositoryReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
