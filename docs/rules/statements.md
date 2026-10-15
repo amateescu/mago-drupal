@@ -120,6 +120,60 @@ A case that runs on into the next one needs a comment there, so a reader can tel
 
 ---
 
+## drupal/case-label-line
+
+- **Level:** error
+- **Fix:** safe. It puts the label on the next line, at the indent of the comment's line.
+- **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
+- **Ports:** `Squiz.ControlStructures.SwitchDeclaration`: `ContentBeforeCase`, `ContentBeforeDefault`
+
+The standard has no sentence for this. Its switch example puts each `case` and `default` label at
+the start of its line.
+
+**Reports:**
+
+- a block comment or a docblock that ends on the line of a `case` or `default` label, before the
+  label. The rule reads both the brace and the colon syntax.
+
+??? example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    switch ($op) {
+      /* Read access. */ case 'view':
+        $access = TRUE;
+        break;
+
+      default:
+        $access = FALSE;
+    }
+
+    // Fine.
+    switch ($op) {
+      /* Read access. */
+      case 'view':
+        $access = TRUE;
+        break;
+
+      default:
+        $access = FALSE;
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder reports any code before a label too. `mago format` moves that code to a line of its
+      own, so the rule reports only a comment.
+    - When code or another comment comes before the comment on its line, the fix moves the comment
+      to a line of its own too. `mago format` puts the label back on the comment's line otherwise.
+      phpcbf only moves the label.
+    - Before a label that isn't the first one, `mago format` indents the comment as the case body
+      above it, and Coder reports that line as `Drupal.WhiteSpace.ScopeIndent.IncorrectExact`.
+
+---
+
 ## drupal/case-semicolon
 
 - **Level:** error

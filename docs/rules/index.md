@@ -115,6 +115,7 @@ and for how methods, properties and parameters are declared.
 | --- | --- | --- |
 | [`drupal/case-break-blank-line`](statements.md#drupalcase-break-blank-line) | error | Checks that one blank line follows the statement that ends a switch case. |
 | [`drupal/case-fall-through`](statements.md#drupalcase-fall-through) | error | Reports a non-empty switch case that falls through to the next case with no comment. |
+| [`drupal/case-label-line`](statements.md#drupalcase-label-line) | error | Reports a comment before a case or default label on the label's line. |
 | [`drupal/case-semicolon`](statements.md#drupalcase-semicolon) | error | Reports a case or default label that ends with a semicolon instead of a colon. |
 | [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between `yield` and `from`. |
 | [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |

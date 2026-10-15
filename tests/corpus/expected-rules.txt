@@ -2,6 +2,7 @@ drupal/author-tag
 drupal/byte-order-mark
 drupal/case-break-blank-line
 drupal/case-fall-through
+drupal/case-label-line
 drupal/case-semicolon
 drupal/class-comment
 drupal/class-name-acronym

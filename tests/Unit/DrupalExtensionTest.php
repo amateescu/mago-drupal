@@ -62,6 +62,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/byte-order-mark' => [Level::Error, true],
             'drupal/case-break-blank-line' => [Level::Error, true],
             'drupal/case-fall-through' => [Level::Error, true],
+            'drupal/case-label-line' => [Level::Error, true],
             'drupal/case-semicolon' => [Level::Error, true],
             'drupal/class-comment' => [Level::Error, true],
             'drupal/class-name-acronym' => [Level::Error, true],

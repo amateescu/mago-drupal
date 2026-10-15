@@ -448,3 +448,71 @@ function switch_named_arguments(int $x): int {
       return strlen(string: 'case 1:');
   }
 }
+
+// @mago-expect lint:drupal/missing-function-comment
+function switch_label_comments(int $x): int {
+  switch ($x) {
+    // @mago-expect lint:drupal/case-label-line
+    /* The small ones. */ case 1:
+      return 1;
+
+    case 3: /* A comment after the label. */
+      return 3;
+
+    default:
+      return 0;
+  }
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function switch_default_label_comment(int $x): int {
+  switch ($x) {
+    // @mago-expect lint:drupal/case-label-line
+    /* Everything else. */ default:
+      return 0;
+
+    case 1:
+      return 1;
+  }
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function switch_own_line_label_comment(int $x): int {
+  switch ($x) {
+    /* A comment on its own line. */
+    case 1:
+      return 1;
+
+    default:
+      return 0;
+  }
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function switch_alternative_label_comment(int $x): int {
+  switch ($x):
+    // @mago-expect lint:drupal/case-label-line
+    /* The small ones. */ case 1:
+      return 1;
+
+    default:
+      return 0;
+  endswitch;
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function switch_later_label_comment(int $x): int {
+  // @mago-format-ignore-start
+  switch ($x) {
+    case 1:
+      return 1;
+
+    // @mago-expect lint:drupal/case-label-line
+    /* One. */ /* Two. */ case 2:
+      return 2;
+
+    default:
+      return 0;
+  }
+  // @mago-format-ignore-end
+}

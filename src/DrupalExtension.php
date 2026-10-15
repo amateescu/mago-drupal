@@ -14,6 +14,7 @@ use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ByteOrderMarkRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseBreakBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseFallThroughRule;
+use amateescu\MagoDrupal\Linter\Rules\CaseLabelLineRule;
 use amateescu\MagoDrupal\Linter\Rules\CaseSemicolonRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassNameAcronymRule;
@@ -308,6 +309,7 @@ final class DrupalExtension
             new ByteOrderMarkRule(),
             new CaseBreakBlankLineRule(),
             new CaseFallThroughRule(),
+            new CaseLabelLineRule(),
             new CaseSemicolonRule(),
             new ClassCommentRule(),
             new ClassNameAcronymRule(),
