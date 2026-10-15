@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Drupal\corpus;
 
 use Drupal\Core\Config\Entity\ConfigEntityTypeInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
@@ -16,6 +17,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Entity\RevisionableStorageInterface;
 use Drupal\Core\Entity\TranslatableRevisionableInterface;
 use Drupal\corpus\Entity\CorpusLegacyStorage;
 use Drupal\corpus\Entity\CorpusSetting;
@@ -397,6 +399,32 @@ final class Entities {
   }
 
   /**
+   * A storage of an unknown entity type gives back the type it was handed.
+   */
+  public function revisionOfUnknownStorage(
+    RevisionableStorageInterface $storage,
+    CorpusThing $thing,
+    CorpusSetting $setting,
+  ): void {
+    $storage->createRevision($thing)->onlyOnThing();
+    // A config entity has no revisions, so the declared type stays.
+    // @mago-expect analysis:non-existent-method
+    $storage->createRevision($setting)->onlyOnSetting();
+  }
+
+  /**
+   * A foreach over a content entity gives its field item lists by name.
+   */
+  public function fieldsOf(ContentEntityInterface $entity): void {
+    foreach ($entity as $name => $items) {
+      $this->requireString($name);
+      $items->onlyOnFieldItemList();
+    }
+
+    $entity->getBundleEntity()?->label();
+  }
+
+  /**
    * Stands in for a consumer that needs a definition.
    */
   private function requireDefinition(EntityTypeInterface $definition): void {
@@ -406,6 +434,12 @@ final class Entities {
    * Takes a boolean, so a wider type shows up as an argument error.
    */
   private function requireBool(bool $allowed): void {
+  }
+
+  /**
+   * Takes a string, so a wider type shows up as an argument error.
+   */
+  private function requireString(string $value): void {
   }
 
   /**

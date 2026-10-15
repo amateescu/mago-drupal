@@ -1,0 +1,8 @@
+<?php
+
+// phpcs:disable Drupal.Commenting.FileComment
+declare(strict_types=1);
+
+function declare_directive_help(): string {
+  return '';
+}

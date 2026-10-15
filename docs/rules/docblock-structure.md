@@ -377,7 +377,7 @@ the end of the long description.
 - **Level:** error
 - **Fix:** none
 - **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions)
-- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`
+- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch`
 
 > Each parameter of a function must be documented with a `@param` tag (see exceptions below).
 
@@ -388,13 +388,22 @@ the end of the long description.
 - a `@return` with a type and no description on the lines below it. As in Coder, text on the tag's
   own line is part of the type, so `@return string The label.` and `@return array<int, string>`
   with nothing below are reported too, with the description asked for on the line below;
-- a method with `@param` tags for some parameters and none for a real parameter.
+- a `@param` with a type that repeats an earlier tag, or that comes after the tag of a later
+  parameter. As in Coder, the tags must follow the order of the parameters, and a parameter can be
+  left out;
+- a method with `@param` tags for some parameters and none for a real parameter. So in a method, a
+  repeated tag that takes the place of another parameter's tag gets two reports. In a function it
+  gets one, as in Coder.
 
 **Not reported:**
 
 - no description on `@return void`, `@return static` or `@return $this`;
 - a `@return` with a variable name after its type, which is reported by
-  [`drupal/doc-tag-layout`](#drupaldoc-tag-layout).
+  [`drupal/doc-tag-layout`](#drupaldoc-tag-layout);
+- the order of a `@param` with no type, which is reported by
+  [`drupal/doc-tag-types`](#drupaldoc-tag-types);
+- a `@param` that names no parameter, or a parameter in another case. `mago analyze` reports it as
+  `invalid-param-tag`.
 
 The standard lets a `@param` or `@return` description be left out when the type says it all, such
 as a single class type that can't be null, and asks for no `@return` when nothing is returned.
@@ -431,6 +440,14 @@ without one. Core's phpcs runs Coder 8, which reports it.
       return (string) $id;
     }
     ```
+
+??? note "Compared with Coder"
+
+    - Coder reports a repeated tag that sits past the number of parameters, such as the third
+      `@param int $a` of a function with one parameter, as `ExtraParamComment`. This rule reports it
+      as a repeated tag.
+    - Coder reports `@param int &$a` for a parameter that isn't a reference, and `...$a` for one
+      that isn't variadic, as a name that doesn't match. This rule leaves those alone.
 
 ---
 
@@ -632,7 +649,8 @@ A `@return` variable name is read from the tag's own line.
 ## drupal/doc-type-name
 
 - **Level:** error
-- **Fix:** safe. It writes the expected name, when the type starts the tag's line.
+- **Fix:** safe. It writes the expected name and drops the punctuation, when the type starts the
+  tag's line.
 - **Standard:** [Data types in documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#data-types-in-documentation)
 - **Ports:**
     - `Drupal.Commenting.FunctionComment`: `IncorrectParamVarName`, `InvalidReturn`
@@ -653,11 +671,13 @@ A `@return` variable name is read from the tag's own line.
 
 - a `@param` or `@return` type name of a function or method, and a `@var` type name of a property,
   spelled another way than the standard and Coder ask, such as `integer` for `int`, `Boolean` for
-  `bool` or `NULL` for `null`. Each member of a `|` union is checked.
+  `bool` or `NULL` for `null`. Each member of a `|` union is checked;
+- one of these types that ends in `.`, `;` or `!`, such as `@var string.` or `@return int;`.
 
 **Not reported:**
 
 - `stdClass`, which isn't checked by Coder either;
+- a type that ends in `,`, which Coder keeps, or in the `...` of a variadic parameter;
 - a `@param` type with a space in it, and a type inside a generic, such as `array<integer>`;
 - a `@var` tag with no type or one that starts with a variable name, which are reported by
   [`drupal/variable-comment`](#drupalvariable-comment), and a property docblock with
@@ -667,8 +687,10 @@ A `@return` variable name is read from the tag's own line.
 
     - Coder runs the whole `@var` line, description included, through its type check, and reports
       a line with a character outside its type alphabet, such as `.`, `;`, `!` or `=`. So a
-      description that contains `e.g.` or ends in a full stop is reported, and so is the type
-      `string.`. That check isn't ported.
+      description that contains `e.g.` or ends in a full stop is reported, and so is a float
+      literal type such as `1.5|2.5`. The rule only checks a `.`, `;` or `!` at the end of the type.
+    - Coder reads `@param int. $a` as a tag with no variable name, since its type stops at the
+      first `.`. The rule reports the type and its fix drops the `.`.
     - The rule reads the `@var` type apart from the description. It reports
       `@var integer Some description`, where Coder takes the whole text as the type and doesn't
       report it.
@@ -681,13 +703,13 @@ A `@return` variable name is read from the tag's own line.
 ## drupal/file-comment
 
 - **Level:** error
-- **Fix:** safe for the `@file` tag and the blank line. Potentially unsafe for moving the tag, for
+- **Fix:** safe for the `@file` tag and the blank lines. Potentially unsafe for moving the tag, for
   deleting the docblock of a namespaced class file, and for the
   [comment style](#comment-style-fixes).
 - **Standard:** [@file](https://project.pages.drupalcode.org/coding_standards/php/documentation/#file-documenting-files)
 - **Ports:**
     - `Drupal.Commenting.FileComment`: `FileTag`, `NamespaceNoFileDoc`, `SpacingAfterComment`, `WrongStyle` (partly)
-    - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare` (partly)
+    - `SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBeforeDeclare`
 
 > Files that comply with the PSR-4 standard SHOULD NOT have a @file documentation block.
 >
@@ -707,17 +729,23 @@ A `@return` variable name is read from the tag's own line.
 - a comment at the start of a file with a `namespace` statement and exactly one class, interface,
   trait or enum. This check runs on every file read by Mago, `.php` files included. The fix deletes
   a docblock at the start, with the whitespace after it. The text of the docblock is lost, so the
-  fix is potentially unsafe. A plain comment gets no fix.
+  fix is potentially unsafe. A plain comment gets no fix;
+- no blank line between a `declare(strict_types=1)` that is the first statement and the comment
+  right above it, as `SlevomatCodingStandard.TypeHints.DeclareStrictTypes` asks. Any comment counts
+  here, a directive such as `// @mago-expect` too, and the check runs on a class file too. The fix
+  adds the blank line.
 
 The comment is the first one after the first open tag, past any directive. A file that doesn't start
 with one is reported by [`drupal/missing-file-comment`](#drupalmissing-file-comment).
 
 **Not reported:**
 
-- a class file, which is skipped by the checks above, except the last one. Which files count as
+- a class file, which is skipped by the checks above, except the last two. Which files count as
   class files is in the entry of `drupal/missing-file-comment`;
 - a docblock at the start of a namespaced file with two or more classes, interfaces, traits or
-  enums.
+  enums;
+- no blank line above `declare` when the comment there already has a report above: a comment that
+  must go, a comment in the wrong style, or a file docblock with no blank line after it.
 
 ??? example "Example"
 

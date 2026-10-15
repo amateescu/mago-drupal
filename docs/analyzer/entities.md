@@ -77,7 +77,9 @@ The default handlers follow core's entity type classes:
 The storage methods:
 
 - the revisionable storage methods `loadRevision()`, `loadRevisionUnchanged()`,
-  `loadMultipleRevisions()` and `createRevision()` are typed as well;
+  `loadMultipleRevisions()` and `createRevision()` are typed as well. On a storage of no known
+  entity class, `createRevision()` returns the type of the entity that it's handed, when that's a
+  revisionable entity, since the new revision has the same class;
 - `loadMultiple()` and `loadByProperties()` key their result by entity id. That is `string` for a
   config entity, whose id is a machine name, as phpstan-drupal types it, and `int|string` for a
   content entity, where phpstan-drupal says `int`. A config entity with a numeric id such as `'1'`

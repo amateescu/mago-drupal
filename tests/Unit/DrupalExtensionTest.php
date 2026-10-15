@@ -118,6 +118,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/insecure-unserialize' => [Level::Error, true],
             'drupal/install-hook-location' => [Level::Error, true],
             'drupal/link-text-translatable' => [Level::Error, true],
+            'drupal/literal-constant-case' => [Level::Error, true],
             'drupal/long-description-punctuation' => [Level::Warning, true],
             'drupal/method-name-underscore' => [Level::Warning, true],
             'drupal/method-visibility' => [Level::Error, true],

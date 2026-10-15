@@ -102,6 +102,96 @@ function function_comment_missing_param_name($a): void {
 function function_comment_missing_param_comment($a): void {
 }
 
+// @mago-expect lint:drupal/doc-type-name(2)
+/**
+ * Types that end in punctuation, which Coder strips.
+ *
+ * @param string; $a
+ *   The first.
+ *
+ * @return string.
+ *   The result.
+ */
+function function_comment_type_end_punctuation(string $a): string {
+  return $a;
+}
+
+/**
+ * Coder keeps a comma at the end of a type.
+ *
+ * @param string, $a
+ *   The first.
+ */
+function function_comment_type_end_comma(string $a): void {
+}
+
+// A function gets no report for $b, which has no tag, as in Coder.
+// @mago-expect lint:drupal/doc-tag-descriptions
+/**
+ * Param tag that repeats an earlier one.
+ *
+ * @param string $a
+ *   The first.
+ * @param string $a
+ *   The first again.
+ */
+function function_comment_param_repeated(string $a, string $b): string {
+  return $a . $b;
+}
+
+// @mago-expect lint:drupal/doc-tag-descriptions
+/**
+ * Param tags in a different order than the parameters.
+ *
+ * @param string $b
+ *   The second.
+ * @param string $a
+ *   The first.
+ */
+function function_comment_param_out_of_order(string $a, string $b): string {
+  return $a . $b;
+}
+
+/**
+ * Reference and variadic tags in order, with a parameter left out.
+ *
+ * @param array &$items
+ *   The items.
+ * @param mixed ...$rest
+ *   The rest.
+ */
+function function_comment_param_forms_in_order(array &$items, string $skipped, mixed ...$rest): array {
+  return [$items, $skipped, $rest];
+}
+
+// A name that isn't a parameter is the analyzer's.
+// @mago-expect analysis:invalid-param-tag
+/**
+ * Param tag for an unknown name, then the tag for the parameter.
+ *
+ * @param string $x
+ *   Unknown.
+ * @param string $a
+ *   The first.
+ */
+function function_comment_param_unknown_name(string $a): string {
+  return $a;
+}
+
+// A tag without a type is drupal/doc-tag-types' report.
+// @mago-expect lint:drupal/doc-tag-types
+/**
+ * Untyped param tag out of order.
+ *
+ * @param $b
+ *   The second.
+ * @param string $a
+ *   The first.
+ */
+function function_comment_param_untyped_out_of_order(string $a, string $b): string {
+  return $a . $b;
+}
+
 // @mago-expect lint:drupal/doc-tag-layout
 /**
  * Param name dot.
@@ -342,6 +432,20 @@ class FunctionCommentFixture {
    *   The description.
    */
   public function missingParamCoverage(string $a, string $b): string {
+    return $a . $b;
+  }
+
+  // A method also gets the missing @param report for $b, as in Coder.
+  // @mago-expect lint:drupal/doc-tag-descriptions(2)
+  /**
+   * Param tag that repeats an earlier one.
+   *
+   * @param string $a
+   *   The first.
+   * @param string $a
+   *   The first again.
+   */
+  public function paramRepeated(string $a, string $b): string {
     return $a . $b;
   }
 

@@ -15,6 +15,8 @@ use function explode;
 use function implode;
 use function preg_match;
 use function preg_replace;
+use function rtrim;
+use function str_ends_with;
 use function strlen;
 
 /**
@@ -22,9 +24,10 @@ use function strlen;
  * wants written another way, such as `int` for `integer`.
  *
  * Coder checks each member of a `|` union. It also strips every character
- * outside a fixed set from the type. That part is not ported, because valid
- * types use some of those characters, such as the `.` of a float literal and
- * the `=` of an optional callable parameter.
+ * outside a fixed set from the type. Only a `.`, `;` or `!` at the end of
+ * the type is ported. Valid types use other characters outside the set,
+ * such as the `.` of a float literal and the `=` of an optional callable
+ * parameter.
  *
  * @internal
  */
@@ -100,11 +103,23 @@ final class TypeNames
     private static function names(string $type): array
     {
         $names = [];
-        foreach (explode('|', $type) as $member) {
+        foreach (explode('|', self::withoutEndPunctuation($type)) as $member) {
             $names[] = self::NAMES[$member] ?? $member;
         }
 
         return $names;
+    }
+
+    /**
+     * The type without the `.`, `;` and `!` at its end. Coder strips them,
+     * but keeps a `,`. The `...` of a variadic parameter stays, and so does a
+     * type that is nothing else.
+     */
+    private static function withoutEndPunctuation(string $type): string
+    {
+        $trimmed = rtrim($type, characters: '.;!');
+
+        return $trimmed === '' || str_ends_with($type, '...') ? $type : $trimmed;
     }
 
     /**

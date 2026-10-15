@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * @file
+ * Sits right above the declare statement and gets one blank line.
+ */
+
+declare(strict_types=1);
+
+function declare_docblock_help(): string {
+  return '';
+}
