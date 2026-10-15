@@ -38,8 +38,10 @@ use function trim;
  * the shape of a serialization test.
  *
  * The rule reads the calls from the file's target list, the same way that
- * `DeprecationMessageRule` does. That is why `FunctionCall` is a declared
- * target. The per-call dispatches do nothing.
+ * `DeprecationMessageRule` does. That is why `FunctionCall` and
+ * `FunctionPartialApplication` are declared targets. The per-call
+ * dispatches do nothing. A first-class callable, `unserialize(...)`, passes
+ * the call on with no options, so it is reported too.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -58,7 +60,7 @@ final class InsecureUnserializeRule implements Rule
             description: "Reports unserialize() calls that don't limit the allowed classes.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
-            targets: [NodeKind::Program, NodeKind::FunctionCall],
+            targets: [NodeKind::Program, NodeKind::FunctionCall, NodeKind::FunctionPartialApplication],
         );
     }
 
@@ -81,6 +83,21 @@ final class InsecureUnserializeRule implements Rule
             }
 
             $context->report(Issue::new($problem, $call->span)->withHelp(self::HELP));
+        }
+
+        $wanted = Calls::normalizeAll(['unserialize']);
+        foreach ($context->file->getTargetNodes() as $node) {
+            if (
+                $node->kind !== NodeKind::FunctionPartialApplication
+                || Calls::matchWanted($context->file, $node, $wanted) === null
+            ) {
+                continue;
+            }
+
+            $context->report(Issue::new(
+                'unserialize(...) passes the call on with no options, so it accepts every class.',
+                $node->span,
+            )->withHelp(self::HELP));
         }
     }
 
@@ -110,7 +127,14 @@ final class InsecureUnserializeRule implements Rule
             return 'The unserialize() options are not an array literal. The rule cannot check allowed_classes.';
         }
 
-        foreach ($file->getDescendants($options, NodeKind::KeyValueArrayElement) as $element) {
+        // Only a key of the options array itself counts. PHP reads no
+        // `allowed_classes` key of a nested array.
+        foreach ($file->getChildren($options) as $wrapper) {
+            $element = $wrapper->kind === NodeKind::ArrayElement ? $file->getChildren($wrapper)[0] ?? null : $wrapper;
+            if ($element === null || $element->kind !== NodeKind::KeyValueArrayElement) {
+                continue;
+            }
+
             $children = $file->getChildren($element);
             $key = $children[0] ?? null;
             $value = $children[1] ?? null;
@@ -122,13 +146,34 @@ final class InsecureUnserializeRule implements Rule
                 continue;
             }
 
-            // `\TRUE` names the same constant as `TRUE`.
-            return strtolower(ltrim(trim($file->getText($value)), characters: '\\')) === 'true'
+            // `\TRUE` names the same constant as `TRUE`, and `(TRUE)` is the
+            // same value.
+            $written = trim($file->getText(self::unparenthesize($file, $value)));
+
+            return strtolower(ltrim($written, characters: '\\')) === 'true'
                 ? 'allowed_classes is TRUE. That accepts every class in the payload.'
                 : null;
         }
 
         return 'The unserialize() options do not set allowed_classes.';
+    }
+
+    /**
+     * The value inside any parentheses around it.
+     */
+    private static function unparenthesize(SourceFile $file, Node $value): Node
+    {
+        $value = Values::unwrap($file, $value);
+        while ($value->kind === NodeKind::Parenthesized) {
+            $inner = $file->getChildren($value)[0] ?? null;
+            if ($inner === null) {
+                break;
+            }
+
+            $value = Values::unwrap($file, $inner);
+        }
+
+        return $value;
     }
 
     /**

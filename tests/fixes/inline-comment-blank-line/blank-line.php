@@ -8,6 +8,9 @@ function blank_line_below(array $items): array
     // Counts the items.
 
     $count = count($items);
+    # A hash comment, which drupal/inline-comment turns into `//`.
+
+    $count--;
     // The first paragraph.
 
     // The second paragraph.

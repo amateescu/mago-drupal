@@ -102,6 +102,12 @@ class Naming {
   }
 
   // @mago-expect lint:drupal/missing-function-comment
+  public function relativeName(): string {
+    // A name relative to the namespace has nothing to import.
+    return namespace\Nested\Thing::class;
+  }
+
+  // @mago-expect lint:drupal/missing-function-comment
   public function globalClassInline(): Exception {
     // A class with no namespace of its own stays written out.
     return new \Exception('boom');

@@ -45,7 +45,7 @@ final class Docblocks
      * Leading text that marks a comment as a tooling instruction and not as
      * documentation. The match starts after the comment markers.
      */
-    private const DIRECTIVE_PATTERN = '/\G[\/#* \t]*(?:@mago-|phpcs:|@codingStandardsIgnore|@phpstan-|@psalm-)/';
+    private const DIRECTIVE_PATTERN = '/\G[\/#* \t]*(?:@mago-|@?phpcs:|@codingStandardsIgnore|@phpstan-|@psalm-)/';
 
     /**
      * The characters of a tag name after its `@`.

@@ -36,8 +36,10 @@ excludes = [
 interface-name = { psr = true }
 # Report a trait name without the "Trait" suffix, as Coder 9 does.
 trait-name = { psr = true }
-# Report a file whose name differs from the class that it declares.
-file-name = { enabled = true }
+# Report a file whose name differs from the class that it declares. Coder skips the test classes
+# under a module's tests directory and the helper classes in their files, and so do both rules.
+file-name = { enabled = true, exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
+single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
 # drupal/function-name checks function names the way Coder does. Mago's rule wants snake case, so
 # it also reports a private helper such as _mymodule_helper(), which Coder accepts.
 function-name = { enabled = false }

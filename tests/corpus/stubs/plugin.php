@@ -138,6 +138,13 @@ namespace Drupal\Core\Plugin {
     }
 }
 
+namespace Drupal\Core\Plugin\Discovery {
+    interface ContainerDeriverInterface
+    {
+        public static function create(\Symfony\Component\DependencyInjection\ContainerInterface $container, $base_plugin_id);
+    }
+}
+
 namespace Drupal\Core\Block {
     interface BlockPluginInterface extends \Drupal\Component\Plugin\PluginInspectionInterface
     {

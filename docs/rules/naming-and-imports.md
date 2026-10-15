@@ -126,6 +126,7 @@ A name that fails several checks gets one issue for each.
 **Not reported:**
 
 - a name with no namespace of its own, such as `\Exception`;
+- a name relative to the current namespace, such as `namespace\Sub\Thing`;
 - a namespaced function call or first-class callable;
 - an `.api.php` file.
 

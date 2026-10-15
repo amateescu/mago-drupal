@@ -1042,7 +1042,7 @@ still want it.
 
 - a docblock outside a function body that has tags and no summary. The rule looks only at the
   first tag, or at the tag after a leading `@file`. The summary of a file docblock is the text after
-  its `@file` tag.
+  its `@file` tag, so a file docblock that holds only `@file` is reported.
 
 **Not reported:**
 
@@ -1051,13 +1051,11 @@ still want it.
   missing its braces;
 - a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`;
-- a file docblock that holds only `@file`;
 - with `--core`, no summary outside the `KernelTests`, `Unit` and `FunctionalJavascript`
   directories, where that check is run by core's `phpcs.xml.dist`.
 
 ??? note "Compared with Coder"
 
-    - A file docblock that holds only `@file` gets no report. Coder reports it as `MissingShort`.
     - A `phpcs:` line above the summary is skipped, and the line below it is the summary. Coder
       reports `MissingShort` there.
 

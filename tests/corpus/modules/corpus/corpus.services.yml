@@ -78,3 +78,5 @@ services:
     class: '%corpus.placeholder.class%'
   corpus.unknown_class:
     class: Drupal\corpus\NotScannedAnywhere
+  corpus.reach_service:
+    class: Drupal\corpus\Audit\ReachService

@@ -6,7 +6,7 @@
         "note": "The drupal preset writes the trailing comma, the indentation and the line breaks of a long array.",
         "codes": [
             {"code": "ArrayClosingIndentation", "status": "partial", "note": "An array that opens on a continuation line gets the indent of the statement's first line. Coder counts from the line the array opens on, and reports its items and closing bracket."},
-            {"code": "ArrayIndentation", "status": "partial", "note": "When the value after `=>` breaks over lines, such as a long condition, the formatter writes the next lines at the key's indent. Coder wants them one level deeper."},
+            {"code": "ArrayIndentation", "status": "partial", "note": "When the value after `=>` breaks over lines, such as a long condition, the formatter writes the next lines at the key's indent. Coder wants them one level deeper. The formatter also writes the broken `&&` or `||` condition of a ternary in an array element at the element's indent, and breaks an array at a block comment between its elements, and Coder reports both."},
             {"code": "CommaLastItem", "status": "format"},
             {"code": "LongLineDeclaration", "status": "format"}
         ]
@@ -110,7 +110,7 @@
             {"code": "InheritDocWithoutBraces", "status": "fix"},
             {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
             {"code": "LongNotCapital", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
-            {"code": "MissingShort", "status": "partial", "where": ["ext:drupal/missing-summary"], "note": "A file docblock that holds only `@file` isn't reported. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
+            {"code": "MissingShort", "status": "partial", "where": ["ext:drupal/missing-summary"], "note": "A `phpcs:` line above the summary is skipped, and the line below it counts as the summary. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`."},
             {"code": "ParamGroup", "status": "report", "where": ["ext:drupal/doc-tag-groups"]},
             {"code": "ParamNotFirst", "status": "report", "where": ["ext:drupal/doc-tag-groups"]},
             {"code": "ShortFullStop", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
@@ -242,7 +242,7 @@
             {"code": "NotCapital", "status": "fix"},
             {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"]},
             {"code": "SpacingAfterAtFunctionEnd", "status": "format", "where": ["format"]},
-            {"code": "SpacingBefore", "status": "partial"},
+            {"code": "SpacingBefore", "status": "fix"},
             {"code": "TabBefore", "status": "fix"},
             {"code": "WrongStyle", "status": "format", "where": ["format", "ext:drupal/inline-comment"]}
         ]
@@ -636,7 +636,7 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
-            {"code": "ClosingWhitespace", "status": "partial", "note": "The formatter writes `<?php }` for a closing brace after inline HTML, and Coder reports the space. Coder also reports the `match` with one arm that the formatter writes on one line."}
+            {"code": "ClosingWhitespace", "status": "partial", "note": "The formatter writes `<?php }` for a closing brace after inline HTML, and Coder reports the space. Coder also reports the `match` with one arm that the formatter writes on one line, and the space it writes before `)` in a parameter or argument list that holds only a comment, as in `f( /* $x */ )`."}
         ]
     },
     {
@@ -678,7 +678,7 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
-            {"code": "OpeningWhitespace", "status": "partial", "note": "The formatter keeps a space between an opening bracket and a comment that follows it, as in `foo( /* note */ $x)`, and Coder reports that space. Coder also reports the `match` with one arm that the formatter writes on one line."}
+            {"code": "OpeningWhitespace", "status": "partial", "note": "The formatter keeps a space between an opening bracket and a comment that follows it, as in `foo( /* note */ $x)`, and Coder reports that space. Coder also reports the `match` with one arm that the formatter writes on one line, and the space it writes after `(` in a parameter or argument list that holds only a comment, as in `f( /* $x */ )`."}
         ]
     },
     {
@@ -706,7 +706,7 @@
         "note": "The formatter writes the indentation.",
         "codes": [
             {"code": "Incorrect", "status": "format"},
-            {"code": "IncorrectExact", "status": "partial", "note": "The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it."}
+            {"code": "IncorrectExact", "status": "partial", "note": "The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it. The formatter also indents the body of an anonymous class with attributes one more level, and a `break` after a `return` in the same case, which the analyzer reports as `useless-control-flow`."}
         ]
     },
     {
@@ -885,7 +885,7 @@
         "where": ["format"],
         "codes": [
             {"code": "Incorrect", "status": "format"},
-            {"code": "IncorrectSingle", "status": "partial", "note": "The formatter can break a long expression right after `echo`, `print`, `include`, `include_once`, `require` or `require_once`, which Coder reports."},
+            {"code": "IncorrectSingle", "status": "partial", "note": "The formatter can break a long expression right after `echo`, `print`, `include`, `include_once`, `require` or `require_once`, which Coder reports. It also puts `new` alone on its line before an anonymous class with attributes."},
             {"code": "IncorrectYieldFrom", "status": "format"},
             {"code": "IncorrectYieldFromWithComment", "status": "report", "where": ["ext:drupal/comment-in-expression"]}
         ]
@@ -956,8 +956,8 @@
             {"code": "SpacingAfterCase", "status": "format"},
             {"code": "TerminatingComment", "status": "report", "where": ["ext:drupal/case-fall-through"]},
             {"code": "WrongOpener", "status": "report", "where": ["lint:no-redundant-block"], "note": "`case 1: {`. Mago reports the braces as a redundant block."},
-            {"code": "WrongOpenercase", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`case 1;`. Coder also reports `case 1 ?>`, which PHP accepts. Mago can't parse it and reports a parse error."},
-            {"code": "WrongOpenerdefault", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`default;`. Coder also reports `default ?>`, which PHP accepts. Mago can't parse it and reports a parse error."}
+            {"code": "WrongOpenercase", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`case 1;`. Coder also reports `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."},
+            {"code": "WrongOpenerdefault", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`default;`. Coder also reports `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."}
         ]
     },
     {
@@ -1108,7 +1108,7 @@
         "sniff": "Squiz.Classes.ClassFileName",
         "standard": "Drupal",
         "where": ["lint:file-name"],
-        "note": "With `file-name = { enabled = true }`. Coder's ruleset skips `*Test.php` and `*TestBase.php` files under `tests/<dir>/`. Mago's rule checks them too.",
+        "note": "With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` under `tests/<dir>/`, as the [configuration](../setup/configuration.md) does and Coder's ruleset does. Mago reports at warning level, Coder at error. Core's own config runs Coder 8, whose sniff checks only the first class-like of a `.php` file.",
         "codes": [
             {"code": "NoMatch", "status": "partial", "where": ["lint:file-name", "lint:single-class-per-file"], "note": "`file-name` checks only a file with one class-like declaration. In a file with several, `single-class-per-file` reports every declaration after the first, whatever its name."}
         ]
@@ -1157,8 +1157,8 @@
             {"code": "SpaceBeforeColonDefault", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `default: {`. Mago reports the braces as a redundant block."},
             {"code": "SpacingAfterBreak", "status": "fix", "where": ["ext:drupal/case-break-blank-line"]},
             {"code": "SpacingAfterDefault", "status": "format"},
-            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago can't parse it and reports a parse error."},
-            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago can't parse it and reports a parse error."}
+            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."},
+            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."}
         ]
     },
     {
@@ -1581,7 +1581,7 @@
         "sniff": "DrupalPractice.Objects.GlobalDrupal",
         "standard": "DrupalPractice",
         "where": ["check:drupal/global-drupal-call"],
-        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. The analyzer check needs `ContainerInjectionInterface` or `ContainerFactoryPluginInterface` among the class's interfaces, or a `#[Hook]` on the class or one of its methods, so it skips other services and a `BlockBase` plugin without `create()`. It also reports a hook class, which Coder skips.",
+        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.",
         "codes": [
             {"code": "GlobalDrupal", "status": "partial"}
         ]

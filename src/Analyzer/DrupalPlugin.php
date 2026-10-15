@@ -163,7 +163,7 @@ final class DrupalPlugin implements Plugin
         // Core's phpstan configuration ignores the rule's message, and core's
         // phpcs configuration doesn't run DrupalPractice's GlobalDrupal.
         if (!$this->core) {
-            $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook());
+            $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($this->indexes->services(...)));
         }
 
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());

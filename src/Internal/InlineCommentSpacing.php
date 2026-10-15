@@ -16,6 +16,7 @@ use function preg_match;
 use function preg_split;
 use function rtrim;
 use function str_repeat;
+use function str_starts_with;
 use function strlen;
 use function strpos;
 use function strrpos;
@@ -74,7 +75,8 @@ final class InlineCommentSpacing
         $contents = $context->file->contents;
         $previousEnd = null;
         // The text of the comment line above, or null for a `phpcs:` line,
-        // which phpcs does not count as a comment.
+        // which phpcs does not count as a comment. PHP_CodeSniffer 4 reads a
+        // `@codingStandardsIgnore*` line as a plain comment, so it counts.
         $previousText = null;
         // Whether walking up the comment lines from the previous one reaches
         // `// @code` before `// @endcode` or a line with no comment.
@@ -90,7 +92,7 @@ final class InlineCommentSpacing
             $text = rtrim($context->file->getText($trivia->span), characters: "\r");
             $adjacent = $previousText !== null && self::onNextLine($contents, (int) $previousEnd, $trivia);
             $example = $text === '// @code' || $adjacent && $inExample;
-            $directive = preg_match('/^[\s\/*#]*(?:@?phpcs:|@codingStandardsIgnore)/i', $text) === 1;
+            $directive = preg_match('/^[\s\/*#]*@?phpcs:/i', $text) === 1;
             $above = $adjacent ? $previousText : null;
             $inExample = match (true) {
                 $text === '// @code' => true,
@@ -99,8 +101,8 @@ final class InlineCommentSpacing
             };
             $previousEnd = $trivia->span->end;
             $previousText = $directive ? null : self::lastLine($text);
-            $isLine = $trivia->kind === TriviaKind::SingleLineComment && !$directive;
-            $hasText = trim(substr($text, offset: 2)) !== '';
+            $isLine = !$directive && self::countsAsLine($trivia->kind, $spaces);
+            $hasText = trim(substr($text, offset: str_starts_with($text, '#') ? 1 : 2)) !== '';
 
             $run = $run !== null && $isLine && self::continuesRun($contents, $run[0], $trivia, $text)
                 ? [$trivia, $run[1], $run[2] || $hasText]
@@ -116,6 +118,16 @@ final class InlineCommentSpacing
         }
 
         self::endRun($context, $run, $spaces);
+    }
+
+    /**
+     * Whether a comment of the kind is a line comment for the check. A `#`
+     * line counts for the blank line below it: drupal/inline-comment reports
+     * its style, and Coder fixes both in one run.
+     */
+    private static function countsAsLine(TriviaKind $kind, bool $spaces): bool
+    {
+        return $kind === TriviaKind::SingleLineComment || $kind === TriviaKind::HashComment && !$spaces;
     }
 
     /**

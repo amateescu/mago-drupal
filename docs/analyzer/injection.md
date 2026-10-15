@@ -22,9 +22,15 @@ for a form, a controller or a plugin.
 - a call to a method of `\Drupal` in an instance method of a class that implements
   `ContainerInjectionInterface` or `ContainerFactoryPluginInterface`. Examples are
   `\Drupal::service()` and `\Drupal::state()`;
+- the same call in an entity handler (`EntityHandlerInterface`) or a container deriver
+  (`ContainerDeriverInterface`), whose static factory gets the container;
+- the same call in a class that a services file registers as a service, by its `class:` key or by
+  an id that names the class, in any `*.services.yml` file under the Drupal root;
 - the same call in an instance method of a hook class, which is a class with a `#[Hook]` attribute
   on the class or on a method that it declares. Drupal registers a hook class as an autowired
   service;
+- the same call in a `BlockBase` plugin, which can take services once it implements
+  `ContainerFactoryPluginInterface` and adds `create()`;
 - a call on a subclass or an instance of `Drupal` in those methods.
 
 **Not reported:**
@@ -38,7 +44,7 @@ for a form, a controller or a plugin.
   its lookup until it is removed, and a callable for newer core can use a service that doesn't exist
   in older core;
 - a call inside an anonymous class;
-- any other class, such as a plain service;
+- any other class, such as a plain object built with `new`;
 - test code (any file under a `tests` directory).
 
 ??? example "Example"
@@ -81,8 +87,11 @@ for a form, a controller or a plugin.
 ??? note "Compared with phpstan-drupal"
 
     - phpstan-drupal checks every class except tests, entities, typed data, stream wrappers,
-      Nightwatch test setup classes, enums and traits. It also reports the services and other
+      Nightwatch test setup classes, enums and traits. It also reports the plugins and other
       classes left alone by the check.
+    - A service called on purpose through `\Drupal`, such as a lazy lookup that breaks a circular
+      dependency, is reported by both tools. Mark it with
+      `@mago-expect analysis:drupal/global-drupal-call`.
     - phpstan-drupal also reports the fallback in a constructor with a nullable parameter, a call in
       deprecated code or in a callable passed to `DeprecationHelper::backwardsCompatibleCall()`, and
       a call in an anonymous class.
