@@ -138,11 +138,15 @@ final class DrupalPlugin implements Plugin
         $traitRoots = new TraitRoots();
         DeprecationHooks::register($registry, $this->indexes, $this->deprecations);
 
-        $registry->registerIssueFilterHook(new FormResponseReturnFilter());
-        $registry->registerIssueFilterHook(new EntityMagicPropertyFilter());
-        $registry->registerIssueFilterHook(new EntityKeyGuardFilter());
-        $registry->registerIssueFilterHook(new PluginDefinitionArrayFilter());
-        $registry->registerIssueFilterHook(new TraitPropertyFilter($traitRoots));
+        foreach ([
+            new FormResponseReturnFilter(),
+            new EntityMagicPropertyFilter(),
+            new EntityKeyGuardFilter(),
+            new PluginDefinitionArrayFilter(),
+            new TraitPropertyFilter($traitRoots),
+        ] as $filter) {
+            $registry->registerIssueFilterHook($filter);
+        }
 
         $indexes = $this->indexes;
         $this->registerServiceHooks($registry);
@@ -165,7 +169,7 @@ final class DrupalPlugin implements Plugin
         // Core's phpstan configuration ignores the rule's message, and core's
         // phpcs configuration doesn't run DrupalPractice's GlobalDrupal.
         if (!$this->core) {
-            $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($this->indexes->services(...)));
+            $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...)));
         }
 
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
