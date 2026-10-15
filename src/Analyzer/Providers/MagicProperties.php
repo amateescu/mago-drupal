@@ -21,7 +21,8 @@ final class MagicProperties
      *
      * The host asks a provider about every property of a targeted class,
      * declared ones and `@property` tags included, and prefers the provider's
-     * answer over the real type. Only names nothing else resolves are magic.
+     * answer over the real type. Only names that aren't resolved by anything
+     * else are magic.
      */
     public static function declared(Codebase $codebase, PropertyAccess $access): bool
     {

@@ -72,7 +72,7 @@ final class DocTagDescriptionsRule implements Rule
         foreach ($params as [$tag, $param]) {
             $paramTags[] = $tag;
             if ($param !== null && $param->description === '') {
-                $context->report(Issue::new('The @param tag has no description.', $tag->contentSpan()));
+                $context->report(Issue::new('The @param tag doesn\'t have a description.', $tag->contentSpan()));
             }
         }
 
@@ -100,7 +100,7 @@ final class DocTagDescriptionsRule implements Rule
     /**
      * Whether a `@return` with a type needs a description. A variable name
      * after the type is `drupal/doc-tag-layout`'s, and `@return void`,
-     * `@return static` and `@return $this` need no description.
+     * `@return static` and `@return $this` don't need a description.
      */
     private static function needsDescription(ReturnTag $return): bool
     {
@@ -209,7 +209,7 @@ final class DocTagDescriptionsRule implements Rule
                 continue;
             }
 
-            $context->report(Issue::new("The docblock has no @param tag for {$name}.", $context->node->span));
+            $context->report(Issue::new("The docblock doesn't have a @param tag for {$name}.", $context->node->span));
         }
     }
 
@@ -229,10 +229,10 @@ final class DocTagDescriptionsRule implements Rule
             }
 
             // The rule reads the variables off the list's text, not its nodes.
-            // The nodes take several reads per parameter. A type, an
-            // attribute or a default value holds no variable. The only other
-            // places for a `$` are a quoted string or a comment. The rule
-            // blanks those first.
+            // The nodes take several reads per parameter. A type, an attribute
+            // or a default value doesn't hold a variable. The only other places
+            // for a `$` are a quoted string or a comment. The rule blanks those
+            // first.
             $text =
                 preg_replace(self::QUOTED_OR_COMMENT, replacement: '', subject: $context->file->getText($child)) ?? '';
             $matches = [];

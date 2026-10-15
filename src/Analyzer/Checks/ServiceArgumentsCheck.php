@@ -29,7 +29,7 @@ use function substr;
  * argument. Only a service whose arguments come from the services files
  * alone is counted, see ServiceWiring. Too few is an ArgumentCountError when
  * the container builds the service. Too many is a warning: PHP drops the
- * rest, and so does the container when the class has no constructor.
+ * rest, and so does the container when the class doesn't have a constructor.
  *
  * @internal
  *

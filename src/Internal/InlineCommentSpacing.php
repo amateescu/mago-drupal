@@ -168,11 +168,11 @@ final class InlineCommentSpacing
     }
 
     /**
-     * Reports a blank line below a run of comment lines, unless the run
-     * shares its first line with code, holds no text, or comes right before
-     * a docblock. A blank line before a closing bracket is the formatter's.
-     * It removes the line before most brackets and adds one before the
-     * closing brace of a class-like with members.
+     * Reports a blank line below a run of comment lines, unless the run shares
+     * its first line with code, doesn't hold any text, or comes right before a
+     * docblock. A blank line before a closing bracket is the formatter's. It
+     * removes the line before most brackets and adds one before the closing
+     * brace of a class-like with members.
      *
      * @param array{Trivia, bool, bool} $run
      */
@@ -272,10 +272,10 @@ final class InlineCommentSpacing
     }
 
     /**
-     * The spaces a comment line needs after `//`, given the comment line
-     * above: the ones it has when it is no deeper than that line, or that
-     * line has none, and the indent of the text of a list item or a `@todo`
-     * on that line. Null when the line goes deeper for no such reason.
+     * The spaces a comment line needs after `//`, given the comment line above:
+     * the ones it has when it is no deeper than that line, or that line doesn't
+     * have any, and the indent of the text of a list item or a `@todo` on that
+     * line. Null when the line goes deeper for no such reason.
      */
     private static function listIndent(string $above, int $spaces): ?int
     {

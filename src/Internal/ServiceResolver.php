@@ -81,7 +81,7 @@ final class ServiceResolver
 
     /**
      * Resolves every id of the graph to the service its aliases end at. Ids
-     * that reach no service are left out.
+     * that don't reach a service are left out.
      *
      * An id is private when its definition says `public: false`, itself, for
      * a service through `parent:`, or through its file's `_defaults`, or when
@@ -129,7 +129,7 @@ final class ServiceResolver
     /**
      * The definition of an id followed by the definitions up its `parent:`
      * chain, the way a child definition inherits from its parent. Null when
-     * the id is no definition, or a parent is missing or loops.
+     * the id isn't a definition, or a parent is missing or loops.
      *
      * @param non-empty-string $id
      * @param array<non-empty-string, Definition> $definitions
@@ -290,8 +290,9 @@ final class ServiceResolver
 
     /**
      * Reads the `deprecated` message of an id, inherited from its `parent:`
-     * chain when it has none of its own. Both `%service_id%` and `%alias_id%`
-     * name the id the caller asked for, as in `Definition` and `Alias`.
+     * chain when it doesn't have one of its own. Both `%service_id%` and
+     * `%alias_id%` name the id the caller asked for, as in `Definition` and
+     * `Alias`.
      *
      * @param non-empty-string $id
      * @param array<non-empty-string, Definition> $definitions
@@ -319,7 +320,7 @@ final class ServiceResolver
     /**
      * The first value the reader finds on the id's definition, or on the
      * definitions up its `parent:` chain, the way a child definition inherits
-     * from its parent. An alias has no parent, so only its own counts.
+     * from its parent. An alias doesn't have a parent, so only its own counts.
      *
      * @template T
      * @param non-empty-string $id

@@ -138,10 +138,10 @@ final class DeprecatedOverrideHook implements MethodCallAnalysisHook
     }
 
     /**
-     * The message: the method called, and the declaration that deprecates
-     * it when that is another one. A stub that restates a deprecated
-     * interface method without its docblock leaves Mago no flag, and then the
-     * two are the same.
+     * The message: the method called, and the declaration that deprecates it
+     * when that is another one. A stub that restates a deprecated interface
+     * method without its docblock doesn't leave Mago a flag, and then the two
+     * are the same.
      */
     private static function message(Codebase $codebase, string $declaring, string $deprecating, string $method): string
     {

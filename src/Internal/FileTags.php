@@ -26,11 +26,11 @@ final class FileTags
     private function __construct() {}
 
     /**
-     * Rewrites the docblock with its `@file` line moved right below the
-     * opener. The fix applies only when the opener is alone on its line and
-     * the tag has no text after it. A blank star line that the move leaves
-     * next to the closer or another blank star line goes with it. Moving
-     * text makes the edit potentially unsafe.
+     * Rewrites the docblock with its `@file` line moved right below the opener.
+     * The fix applies only when the opener is alone on its line and the tag
+     * doesn't have text after it. A blank star line that the move leaves next
+     * to the closer or another blank star line goes with it. Moving text makes
+     * the edit potentially unsafe.
      */
     public static function move(string $contents, Span $docblock, Span $tag): ?TextEdit
     {

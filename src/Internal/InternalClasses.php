@@ -24,7 +24,7 @@ use const PREG_SET_ORDER;
  * The internal-parent check needs these names before analysis starts, as the
  * ancestors of its class-like targets, and metadata is not available then.
  * Mago's own `@internal` flag confirms every hit at check time, so a stale
- * or over-eager match here costs nothing but a lookup.
+ * or over-eager match here doesn't cost anything but a lookup.
  *
  * @internal
  */

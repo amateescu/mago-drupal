@@ -76,7 +76,7 @@ use const PHP_OS_FAMILY;
  * `MAGO_DRUPAL_CACHE=0` turns the cache off; any other value is the directory
  * to use. The default sits under the system temporary directory, one per
  * user, and is only used while it belongs to that user (see trusted()). With
- * no way to tell the user's id, there is no default cache.
+ * no way to tell the user's id, there isn't a default cache.
  * `scoped()` gives each Drupal root its own subdirectory, so the
  * one-entry-per-kind sweep never crosses roots.
  *
@@ -110,7 +110,7 @@ final class DiskCache
     /**
      * A run entry is only read while it is this fresh, and is dropped once it
      * is older. Every worker of a run asks for an index within seconds of the
-     * others, and on a system that publishes no process start times this is
+     * others, and on a system that doesn't publish process start times this is
      * what keeps a run from reading an entry left by an older one whose host
      * had the same process id.
      */
@@ -170,7 +170,7 @@ final class DiskCache
         }
 
         // Windows gives every user a temporary directory of their own, and
-        // reports no file owner to check.
+        // doesn't report a file owner to check.
         if (PHP_OS_FAMILY === 'Windows') {
             return new self(sys_get_temp_dir() . '/mago-drupal');
         }

@@ -22,7 +22,7 @@ final class TraitDeclarations
 
     /**
      * The distinct declarations the root classes get the method from, or null
-     * when there are no roots or one of them lacks the method.
+     * when there aren't any roots or one of them lacks the method.
      *
      * A subclass of a root has the method too, and PHP keeps an override's
      * return type within the one it overrides, so the roots' declarations

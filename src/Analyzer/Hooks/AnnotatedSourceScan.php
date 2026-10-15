@@ -32,7 +32,7 @@ use function substr;
  * Mago sends every targeted file's whole syntax tree to every worker, so the
  * targets are the files annotated on disk when the worker starts, not every
  * plugin file: on core that is a tenth of them. An annotation added to a
- * file that had none is read once the file is saved.
+ * file that didn't have one is read once the file is saved.
  *
  * @internal
  */

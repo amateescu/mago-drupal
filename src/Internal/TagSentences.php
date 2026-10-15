@@ -77,8 +77,8 @@ final class TagSentences
 
     /**
      * Checks that a `@throws` description starts with a capital letter and
-     * ends with terminal punctuation. A type-only `@throws` needs no
-     * description.
+     * ends with terminal punctuation. A type-only `@throws` doesn't
+     * need a description.
      */
     public static function checkThrows(LintContext $context, DocblockTag $tag): void
     {

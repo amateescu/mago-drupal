@@ -18,7 +18,7 @@ use Mago\Sdk\Analyzer\PluginRegistry;
 
 /**
  * Registers the deprecation scope and target filters and the deprecation
- * checks Mago has none of.
+ * checks that Mago doesn't have.
  *
  * @internal
  */
@@ -30,7 +30,7 @@ final class DeprecationHooks
      * Registers the filters, `deprecated-original`, and the checks built on
      * the `@deprecated` symbols under the root. The symbols are read off
      * disk at registration, since the interface and method checks want their
-     * targets before the first request; a root without any needs none.
+     * targets before the first request; a root without any doesn't need one.
      */
     public static function register(PluginRegistry $registry, Indexes $indexes, DeprecationTarget $deprecations): void
     {

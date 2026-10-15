@@ -11,8 +11,8 @@ use PHPUnit\Framework\TestCase;
 use function strlen;
 
 /**
- * The corpus cannot hold these cases. An issue at the first byte has no line
- * above it for a `@mago-expect` comment.
+ * The corpus cannot hold these cases. An issue at the first byte doesn't have a
+ * line above it for a `@mago-expect` comment.
  */
 final class ByteOrderMarkRuleTest extends TestCase
 {

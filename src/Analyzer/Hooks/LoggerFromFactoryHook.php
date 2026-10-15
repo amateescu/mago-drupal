@@ -23,8 +23,8 @@ use function substr;
  * class using DependencySerializationTrait.
  *
  * Ports phpstan-drupal's LoggerFromFactoryPropertyAssignmentRule. The trait
- * serializes services by id, and a channel fetched from the factory has none,
- * so the property it lands in cannot be restored. A `get()` call in a
+ * serializes services by id, and a channel fetched from the factory doesn't
+ * have one, so the property it lands in cannot be restored. A `get()` call in a
  * constructor whose result is assigned to a property of `$this` is reported.
  *
  * @internal

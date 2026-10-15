@@ -19,10 +19,10 @@ use function strtolower;
  * Functional tests have to declare the theme they run with; runs on
  * BrowserTestBase descendants.
  *
- * Ports phpstan-drupal's BrowserTestBaseDefaultThemeRule with Drupal's own
- * rule for which profiles need it: those that ship no `system.theme` config.
- * `$profile` and `$defaultTheme` are read from the declaration the class
- * gets, so a base class or a trait can set them for the tests using it.
+ * Ports phpstan-drupal's BrowserTestBaseDefaultThemeRule with Drupal's own rule
+ * for which profiles need it: those that don't ship a `system.theme` config.
+ * `$profile` and `$defaultTheme` are read from the declaration the class gets,
+ * so a base class or a trait can set them for the tests using it.
  *
  * @internal
  */
@@ -45,8 +45,8 @@ final class BrowserTestThemeCheck implements MetadataCheck
     private const THEME_INSTALLER = 'drupal\core\test\functionaltestsetuptrait';
 
     /**
-     * Core's profiles that install no theme, for a profile the root does not
-     * have on disk.
+     * Core's profiles that don't install a theme, for a profile the root does
+     * not have on disk.
      */
     private const THEMELESS_PROFILES = [
         'testing',
@@ -94,10 +94,10 @@ final class BrowserTestThemeCheck implements MetadataCheck
             new MemberIdentifier($name, '$defaultTheme'),
         ]);
 
-        // A profile with a theme of its own needs no explicit default theme,
-        // and a NULL or FALSE one installs from existing configuration, whose
-        // theme the test then takes. A profile read from a constant cannot be
-        // checked, so it is left alone.
+        // A profile with a theme of its own doesn't need an explicit default
+        // theme, and a NULL or FALSE one installs from existing configuration,
+        // whose theme the test then takes. A profile read from a constant
+        // cannot be checked, so it is left alone.
         $profile = $profileProperty?->defaultType?->type;
         $profileName = $profile?->getLiteralString();
         if (
@@ -122,9 +122,9 @@ final class BrowserTestThemeCheck implements MetadataCheck
     }
 
     /**
-     * Whether the profile installs no theme: it ships no `system.theme`
-     * config, which is what Drupal checks, or, for a profile not on disk,
-     * it is one of core's themeless ones.
+     * Whether the profile doesn't install a theme: it doesn't ship a
+     * `system.theme` config, which is what Drupal checks, or, for a profile not
+     * on disk, it is one of core's themeless ones.
      */
     private function themeless(string $profile): bool
     {

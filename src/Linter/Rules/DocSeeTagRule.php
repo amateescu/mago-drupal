@@ -76,8 +76,9 @@ final class DocSeeTagRule implements Rule
 
     /**
      * Reports a `@see` tag with nothing after it on its line. Coder wants the
-     * reference on the tag's own line, and checks nothing else of a `@see`
-     * in a property docblock. The Program dispatch checks the references.
+     * reference on the tag's own line, and doesn't check anything else of a
+     * `@see` in a property docblock. The Program dispatch checks the
+     * references.
      */
     private static function checkProperty(LintContext $context): void
     {

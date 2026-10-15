@@ -59,9 +59,9 @@ final class ReturnTag
     }
 
     /**
-     * Whether the docblock's only `@return` has nothing on its own line.
-     * Coder reads the type from that line only, and checks nothing else of
-     * such a tag.
+     * Whether the docblock's only `@return` doesn't have anything on its own
+     * line. Coder reads the type from that line only, and doesn't check
+     * anything else of such a tag.
      */
     public function isBare(): bool
     {

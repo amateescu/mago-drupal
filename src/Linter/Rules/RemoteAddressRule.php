@@ -67,7 +67,7 @@ final class RemoteAddressRule implements Rule
 
         $file = $context->file;
 
-        // Almost no array access touches the superglobal. A text search of
+        // Most array accesses don't touch the superglobal. A text search of
         // the source is much cheaper than reading and unwrapping the children.
         if (!str_contains($file->getText($context->node), 'REMOTE_ADDR')) {
             return;

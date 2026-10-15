@@ -29,7 +29,7 @@ final class ServiceDefinitionsTest extends TestCase
             dirname(__DIR__) . '/fixtures/services/MissingServiceProvider.php',
         ]);
 
-        // An alias and a probe change no definition.
+        // An alias and a probe don't change any definition.
         self::assertSame(
             ['sample.plain', 'sample.chained', 'sample.defined', 'sample.altered', 'sample.removed'],
             array_keys($ids),

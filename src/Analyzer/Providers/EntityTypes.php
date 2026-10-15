@@ -52,7 +52,7 @@ final class EntityTypes
      *
      * Reads the id tag first, then falls back to a storage class that only one
      * entity type uses. Every object the receiver may be has to serve the same
-     * entity type; one that serves none, such as an untagged storage
+     * entity type; one that doesn't serve any, such as an untagged storage
      * interface, could load any entity.
      */
     public static function fromReceiver(EntityTypeIndex $index, ?Type $receiver): ?EntityTypeDefinition

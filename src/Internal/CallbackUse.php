@@ -23,7 +23,7 @@ enum CallbackUse
     /**
      * `doTrustedCallback()` on a PHP callable without the resolver, as the
      * date elements and the component element run theirs. It throws for an
-     * untrusted callback and trusts no extra interface.
+     * untrusted callback and doesn't trust any extra interface.
      */
     case TrustedCallable;
 
@@ -87,7 +87,7 @@ enum CallbackUse
     /**
      * Whether `'::method'` names a method of the form object. Only
      * `FormState::prepareCallback()` turns it into one; everywhere else it
-     * names no class.
+     * doesn't name a class.
      */
     public function hasFormObject(): bool
     {

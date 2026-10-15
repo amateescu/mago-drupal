@@ -45,7 +45,7 @@ final class ConfigSchemaTest extends TestCase
         self::assertNull($schema->definitionName('corpus.nothing'));
         self::assertNull($schema->definitionName('nodot'));
         self::assertNull($schema->definitionName(''));
-        // The malformed file contributes nothing.
+        // The malformed file doesn't contribute anything.
         self::assertNull($schema->definitionName('broken'));
         self::assertSame(13, $schema->count());
     }

@@ -18,8 +18,8 @@ use function trim;
 /**
  * One `@tag` entry inside a docblock, with its continuation lines.
  *
- * `$lines[0]` is the rest of the line that holds the tag name. It is empty
- * if the tag has nothing else on that line. `$lines[1...]` are the lines
+ * `$lines[0]` is the rest of the line that holds the tag name. It is empty if
+ * the tag doesn't have anything else on that line. `$lines[1...]` are the lines
  * below it, up to the next tag or the end of the docblock.
  *
  * @internal

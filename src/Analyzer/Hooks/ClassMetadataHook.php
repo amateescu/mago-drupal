@@ -31,7 +31,7 @@ use function in_array;
 use function strtolower;
 
 /**
- * Runs the class-level checks that need no ancestry on every class, from
+ * Runs the class-level checks that don't need the ancestry on every class, from
  * metadata alone.
  *
  * The hook asks for no subtree, so every class costs the host one node span.
@@ -144,7 +144,7 @@ final class ClassMetadataHook implements NodeAnalysisHook
     }
 
     /**
-     * An annotated config entity type carries no attribute to mention, so
+     * An annotated config entity type doesn't have an attribute to mention, so
      * the annotated classes read off disk say whether one of the candidates
      * is one.
      *

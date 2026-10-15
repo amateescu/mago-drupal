@@ -18,9 +18,9 @@ use function substr;
 /**
  * Reads Drupal's file-naming conventions from a source path.
  *
- * Several rules apply only inside `.module` or `.install` files. Some of
- * them must have the machine name of the extension that owns the file.
- * Drupal encodes both facts in the file name, so this class needs no index.
+ * Several rules apply only inside `.module` or `.install` files. Some of them
+ * must have the machine name of the extension that owns the file. Drupal
+ * encodes both facts in the file name, so this class doesn't need an index.
  *
  * @internal
  */

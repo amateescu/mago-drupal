@@ -27,7 +27,7 @@ final class MissingFileCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/missing-file-comment',
             name: 'Missing file comment',
-            description: "Reports a PHP file that isn't a class file and has no comment at its start.",
+            description: "Reports a PHP file that isn't a class file and doesn't have a comment at its start.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, ...FileDocblock::DECLARATIONS],

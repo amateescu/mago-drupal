@@ -60,7 +60,7 @@ final class ShortTernaryRule implements Rule
         $ternary = $context->node;
         $parts = Operands::expressions($file, $ternary);
 
-        // A short ternary has no middle part.
+        // A short ternary doesn't have a middle part.
         if (count($parts) !== 3) {
             return;
         }

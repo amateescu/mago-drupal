@@ -124,7 +124,7 @@ final class Calls
      * with `md5` in the source, but its callee is another call. This method
      * checks every hit from the scan against name(). That method walks the
      * real callee, so a match reported here is always exact. A miss
-     * needs no second check, because the scanned name covers every name
+     * doesn't need a second check, because the scanned name covers every name
      * that the walk can find.
      *
      * The result is memoized per node. Several call rules subscribe to the

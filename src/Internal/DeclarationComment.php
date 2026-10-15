@@ -53,7 +53,7 @@ final class DeclarationComment
     }
 
     /**
-     * The span of the docblock, or null when there is no comment or the
+     * The span of the docblock, or null when there isn't a comment or the
      * comment is not a docblock.
      */
     public function docblock(): ?Span

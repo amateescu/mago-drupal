@@ -33,7 +33,7 @@ use function substr_count;
 
 /**
  * Runs the rules for `.info.yml` and `.routing.yml` files on YAML text. A
- * YAML file has no PHP comments, so the corpus cannot hold `@mago-expect`
+ * YAML file doesn't have PHP comments, so the corpus cannot hold `@mago-expect`
  * pragmas for them.
  */
 final class YamlFileRulesTest extends TestCase

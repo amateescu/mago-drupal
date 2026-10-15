@@ -35,8 +35,8 @@ final class DocDoubleDot
      * Reports each description line that ends in two dots, with a fix that
      * removes one of them.
      *
-     * A docblock that starts with a tag has no description. A `phpcs:` line
-     * is not text, and the lines after it still count.
+     * A docblock that starts with a tag doesn't have a description. A `phpcs:`
+     * line is not text, and the lines after it still count.
      */
     public static function check(LintContext $context, Span $span): void
     {

@@ -38,7 +38,7 @@ final class DocCommentRule implements Rule
     public function getDefinition(): RuleDefinition
     {
         // Function and Method are targets for `OuterDocblocks::of()`. Their
-        // own dispatches do nothing.
+        // own dispatches don't do anything.
         return new RuleDefinition(
             code: 'drupal/doc-comment',
             name: 'Doc comment',

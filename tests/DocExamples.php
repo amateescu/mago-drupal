@@ -7,16 +7,16 @@
  * `???+ example` block with one `php` or `yaml` code block. A `// Fine.` line,
  * `# Fine.` in YAML, splits the code into a reported half and a fine half. A
  * `// Reported` or `# Reported` comment line at the top is not part of the
- * code. The reported half must get at least one
- * issue from the entry's rule, and the fine half none. When the block says
- * "The fix turns the reported code into the fine code.", `mago lint --fix`
- * must turn the reported half into the fine half.
+ * code. The reported half must get at least one issue from the entry's rule,
+ * and the fine half must not get any. When the block says "The fix turns the
+ * reported code into the fine code.", `mago lint --fix` must turn the reported
+ * half into the fine half.
  *
  * Each half runs as `example.module`, after a file docblock, in a temporary
  * workspace whose config loads this checkout's worker. A code block with a
- * `title` runs under that path instead. A `.php` title gets no file docblock,
- * and a YAML block, which needs a title such as `example.info.yml`, gets the
- * code alone.
+ * `title` runs under that path instead. A `.php` title doesn't get a file
+ * docblock, and a YAML block, which needs a title such as `example.info.yml`,
+ * gets the code alone.
  *
  * Usage: php tests/DocExamples.php <mago binary>
  */

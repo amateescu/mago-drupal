@@ -56,7 +56,7 @@ final class RequestSuperglobalRule implements Rule
     {
         $file = $context->file;
 
-        // Almost no file has one of the four names. A text search is much
+        // Most files don't have any of the four names. A text search is much
         // cheaper than a read of every variable.
         $this->gate ??= new FileGate(needles: ['$_GET', '$_POST', '$_FILES', '$_COOKIE']);
         if (!$this->gate->passes($file)) {

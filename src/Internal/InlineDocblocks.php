@@ -27,7 +27,7 @@ final class InlineDocblocks
     /**
      * What the next token may be for the docblock to belong to it. An
      * attribute opener, a declaration keyword, a modifier, an include, or an
-     * enum case. Coder's list has no `readonly` and no enum case, so it
+     * enum case. Coder's list doesn't have `readonly` or an enum case, so it
      * reports their docblocks, which PHP reads as declaration docblocks. A
      * `case` with a colon is a switch label and does not count.
      */

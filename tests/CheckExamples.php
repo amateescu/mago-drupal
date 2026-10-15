@@ -11,7 +11,7 @@
  * belongs to both halves, such as the services file that a lookup needs. At
  * least one block splits. The reported half must get at least one issue from
  * the entry's check, at a level that the entry's Level line names, and the
- * fine half none.
+ * fine half must not get any.
  *
  * Each half runs on its own, in a temporary workspace with the test corpus's
  * stand-ins for Drupal core (`tests/corpus/core` and `tests/corpus/stubs`)
@@ -90,7 +90,7 @@ const CONFIG = <<<'TOML'
 /**
  * Runs a command and returns its exit status, its standard output and its
  * error output. The worker builds its indexes from scratch, so a workspace
- * leaves nothing in the cache.
+ * doesn't leave anything in the cache.
  *
  * @param list<string> $command
  *

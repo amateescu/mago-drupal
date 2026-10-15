@@ -18,7 +18,8 @@ use function array_pop;
 use function in_array;
 
 /**
- * Reports top-level const constants in a procedural file that have no module prefix.
+ * Reports top-level const constants in a procedural file that don't have a
+ * module prefix.
  *
  * Ports Drupal.Semantics.ConstantName.ConstConstantStart. The test is the
  * one `drupal/constant-prefix` uses for define().
@@ -64,7 +65,8 @@ final class ConstPrefixRule implements Rule
     }
 
     /**
-     * Builds the issue for one const statement, if its first name has no prefix.
+     * Builds the issue for one const statement, if its first name doesn't have
+     * a prefix.
      */
     private function issue(SourceFile $file, Node $constant, string $expected): ?Issue
     {

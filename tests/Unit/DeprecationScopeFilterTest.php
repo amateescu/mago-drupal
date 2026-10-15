@@ -29,8 +29,8 @@ use function strpos;
 final class DeprecationScopeFilterTest extends TestCase
 {
     /**
-     * A function outside any class, so an issue outside the scope needs no
-     * codebase lookup for an overridden deprecated method.
+     * A function outside any class, so an issue outside the scope doesn't
+     * need a codebase lookup for an overridden deprecated method.
      */
     private const MARKED = <<<'PHP'
         <?php
@@ -59,8 +59,8 @@ final class DeprecationScopeFilterTest extends TestCase
     }
 
     /**
-     * The legacy group is a test runner convention, so it marks nothing in
-     * runtime code, even right after the same bytes did in a test.
+     * The legacy group is a test runner convention, so it doesn't mark
+     * anything in runtime code, even right after the same bytes did in a test.
      */
     public function testKeepsADeprecationUnderALegacyGroupOutsideTests(): void
     {

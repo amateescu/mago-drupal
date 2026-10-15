@@ -65,7 +65,7 @@ final class GlobalFunctionRule implements Rule
         // `FunctionCall` is a target so that Rust collects every call into
         // the file's target-node list. The class pass reads that list
         // instead of walking the class subtree in PHP. The per-call
-        // dispatches do nothing.
+        // dispatches don't do anything.
         return new RuleDefinition(
             code: 'drupal/global-function',
             name: 'Global function in a class',
@@ -85,7 +85,7 @@ final class GlobalFunctionRule implements Rule
         }
 
         // Scanning the source is much cheaper than a pass over the target
-        // list, and most classes call none of these functions.
+        // list, and most classes don't call any of these functions.
         if (preg_match(self::candidatePattern(), $context->file->getText($context->node)) !== 1) {
             return;
         }
@@ -103,8 +103,8 @@ final class GlobalFunctionRule implements Rule
                     continue;
                 }
 
-                // A static method has no `$this`. The trait and service
-                // replacements have nothing to bind to.
+                // A static method doesn't have `$this`. The trait and service
+                // replacements don't have anything to bind to.
                 if ($this->inStaticMethod($context->file, $call, $context->node)) {
                     continue;
                 }

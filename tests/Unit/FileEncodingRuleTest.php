@@ -10,9 +10,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The corpus cannot hold these cases. A file with invalid UTF-8 has no valid
- * line to write a `@mago-expect` comment on, and the issue is at the first
- * tag.
+ * The corpus cannot hold these cases. A file with invalid UTF-8 doesn't have a
+ * valid line to write a `@mago-expect` comment on, and the issue is at the
+ * first tag.
  */
 final class FileEncodingRuleTest extends TestCase
 {

@@ -129,8 +129,8 @@ final class DocblockRows
     }
 
     /**
-     * The edit that leaves one blank line between two lines of the docblock,
-     * or null when there is one already or the lower line has no star to
+     * The edit that leaves one blank line between two lines of the docblock, or
+     * null when there is one already or the lower line doesn't have a star to
      * copy for a new one.
      *
      * @param list<DocblockRow> $rows

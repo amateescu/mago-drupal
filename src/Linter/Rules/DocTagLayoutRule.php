@@ -214,8 +214,8 @@ final class DocTagLayoutRule implements Rule
      * no `*\/` after it.
      *
      * Coder counts the words on the tag's line and so also reports a type
-     * such as `\Foo2Bar` or `\A|\B` that has no text. Those have no
-     * description to move, and the rule leaves them out.
+     * such as `\Foo2Bar` or `\A|\B` that doesn't have any text. Those don't
+     * have a description to move, and the rule leaves them out.
      */
     private static function checkThrowsComment(LintContext $context, DocblockTag $tag): void
     {

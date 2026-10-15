@@ -32,7 +32,7 @@ use function substr_count;
  *
  * Ports the SpacingAfterBreak check of Squiz.ControlStructures.SwitchDeclaration.
  * A case ends with `break`, `continue`, `return`, `throw`, `exit`, `die` or
- * `goto`. The last case before the closing brace needs no blank line, and
+ * `goto`. The last case before the closing brace doesn't need a blank line, and
  * neither does a `default` case. `mago format` keeps one blank line or none
  * after the statement, in a brace body and in a `switch (): ... endswitch;`
  * body, so the fix stays.

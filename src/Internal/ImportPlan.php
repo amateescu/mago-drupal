@@ -127,8 +127,8 @@ final class ImportPlan
 
     /**
      * The reported names of each class, keyed by the lowercased class, in
-     * the order the classes first come up. A constant has no class to
-     * import and is left out.
+     * the order the classes first come up. A constant doesn't have a class
+     * to import and is left out.
      *
      * @param list<Node> $names
      * @return array<string, non-empty-list<array{Node, string}>>
@@ -256,7 +256,7 @@ final class ImportPlan
     /**
      * Where the added imports go: the namespace's name, the offset of the
      * insert, the line breaks before the first import and the line breaks
-     * after the last one. Null when the file gets no edits.
+     * after the last one. Null when the file doesn't get any edits.
      *
      * The import goes on its own line after the last import, or after the
      * namespace line, past any comment that ends that line. A file with no
@@ -411,7 +411,7 @@ final class ImportPlan
     /**
      * The edit for the batch's import statement: the new import, the new
      * import in place of the one the batch leaves unused, or the removal of
-     * that one when the class needs no import.
+     * that one when the class doesn't need an import.
      *
      * @return list<TextEdit>
      */

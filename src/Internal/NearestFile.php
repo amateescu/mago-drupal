@@ -50,7 +50,7 @@ final class NearestFile
     /**
      * The nearest file at or above $directory that matches one of $patterns,
      * such as `*.info.yml`. A later pattern counts only in a directory where
-     * the earlier ones match nothing.
+     * the earlier ones don't match anything.
      *
      * @param list<string> $patterns
      */

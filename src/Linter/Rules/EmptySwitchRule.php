@@ -13,11 +13,11 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 /**
- * Reports a switch that has no `case` label.
+ * Reports a switch that doesn't have a `case` label.
  *
  * Ports the MissingCase check of Squiz.ControlStructures.SwitchDeclaration.
  * A `default` label alone does not count. A person has to pick the labels, so
- * there is no fix.
+ * there isn't a fix.
  */
 final class EmptySwitchRule implements Rule
 {
@@ -26,7 +26,7 @@ final class EmptySwitchRule implements Rule
         return new RuleDefinition(
             code: 'drupal/empty-switch',
             name: 'Empty switch',
-            description: 'Reports a switch statement that has no case label.',
+            description: 'Reports a switch statement that doesn\'t have a case label.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Switch],

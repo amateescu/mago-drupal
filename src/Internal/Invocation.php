@@ -73,7 +73,7 @@ final class Invocation
     }
 
     /**
-     * Whether the call passes no arguments at all.
+     * Whether the call doesn't pass any arguments.
      *
      * Named and unpacked arguments count as present here. arguments() lists
      * only the positional ones.

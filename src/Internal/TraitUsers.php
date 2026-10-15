@@ -35,8 +35,8 @@ final class TraitUsers
     }
 
     /**
-     * The names of the classes using the trait, or none when it is no trait or
-     * declares no method to find them by.
+     * The names of the classes using the trait, or an empty list when it isn't
+     * a trait or doesn't declare a method to find them by.
      *
      * Mago counts a class that uses the trait, directly, through another
      * trait or through a parent, as a descendant of it, so a search among

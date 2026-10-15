@@ -23,7 +23,7 @@ use Mago\Sdk\Analyzer\Type\ObjectShapeType;
  * `stdClass`, the database one through `fetchObject()` and the memory one
  * with `new`, so the type says so too. Mago takes an object shape alone for
  * something that is never a `stdClass`, and `assertInstanceOf(\stdClass::class,
- * $item)` would then leave nothing of the item.
+ * $item)` would then not leave anything of the item.
  *
  * @internal
  */

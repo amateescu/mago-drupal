@@ -68,7 +68,8 @@ final class SwitchCases
      * Returns the case's last statement when it ends the case with `break`,
      * `continue`, `return`, `throw`, `exit`, `die` or `goto`, or null.
      *
-     * A case whose statements sit in a `{ }` block has no such statement.
+     * A case whose statements sit in a `{ }` block doesn't have such a
+     * statement.
      */
     public static function terminator(SourceFile $file, Node $case): ?Node
     {

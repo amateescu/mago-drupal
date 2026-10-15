@@ -28,8 +28,8 @@ use function strlen;
  * comment wrapped over several lines is one sentence. A run whose first
  * word starts with `@`, a digit or punctuation is exempt, and so is a run
  * with a `cspell:` or `spell-checker:` directive on any line. A last word
- * that holds a url or a function call, or starts with `@`, needs no
- * punctuation.
+ * that holds a url or a function call, or starts with `@`, doesn't
+ * need punctuation.
  *
  * The fix appends a full stop to the last line, as phpcbf does.
  */

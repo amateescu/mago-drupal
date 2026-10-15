@@ -26,8 +26,8 @@ use function trim;
  * Ports Generic.Formatting.SpaceAfterCast.CommentFound and
  * Generic.WhiteSpace.LanguageConstructSpacing.IncorrectYieldFromWithComment.
  * A comment of any kind counts, on the same line or a later one. A comment
- * before the cast, after the operand, or after `from` is fine. There is no
- * fix, since a comment cannot move without a decision about what it
+ * before the cast, after the operand, or after `from` is fine. There isn't
+ * a fix, since a comment cannot move without a decision about what it
  * describes.
  */
 final class CommentInExpressionRule implements Rule

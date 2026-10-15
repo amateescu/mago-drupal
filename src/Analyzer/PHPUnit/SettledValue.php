@@ -55,8 +55,8 @@ final class SettledValue
         $value = self::unwrap($context->source, $value);
         $node = self::withoutNegation($context->source, $value);
 
-        // The declared type of a negated property says nothing about the
-        // negation, so it cannot vouch for it.
+        // The declared type of a negated property doesn't say anything about
+        // the negation, so it cannot vouch for it.
         return match ($node->kind) {
             NodeKind::IssetConstruct, NodeKind::StaticPropertyAccess, NodeKind::ArrayAccess => false,
             NodeKind::PropertyAccess, NodeKind::NullSafePropertyAccess => $node->id === $value->id
@@ -96,9 +96,9 @@ final class SettledValue
     /**
      * Whether the property's native type passes.
      *
-     * Only `$this->name` is looked up, on the class around the call. The
-     * hook gets the types of the call's arguments, not of the expressions
-     * inside them, so any other receiver has no known class. In a trait the
+     * Only `$this->name` is looked up, on the class around the call. The hook
+     * gets the types of the call's arguments, not of the expressions inside
+     * them, so any other receiver doesn't have a known class. In a trait the
      * class around the call is the trait, which rarely declares the property.
      *
      * @param Closure(Type): bool $passes

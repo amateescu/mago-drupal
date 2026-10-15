@@ -56,7 +56,7 @@ final class FormAlterCommentRule implements Rule
     {
         $file = $context->file;
 
-        // Almost no file holds the hook line. A text search is cheaper than
+        // Most files don't hold the hook line. A text search is cheaper than
         // the checks below.
         $this->gate ??= new FileGate(needles: [self::HOOK_LINE]);
         if (!$this->gate->passes($file)) {

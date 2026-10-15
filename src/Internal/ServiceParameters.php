@@ -83,7 +83,7 @@ final class ServiceParameters
 
     /**
      * The type `getParameter()` returns for the name, or null when a file
-     * gives no kind the type can say, or no file defines the name.
+     * doesn't give a kind the type can say, or no file defines the name.
      */
     public function type(string $name): ?Type
     {
@@ -100,7 +100,7 @@ final class ServiceParameters
                 self::INT => Type::int(),
                 self::FLOAT => Type::float(),
                 // A site's file or a provider may add or drop keys, so the
-                // shape of the value in YAML says nothing about them.
+                // shape of the value in YAML doesn't say anything about them.
                 default => Type::array(Type::union(Type::int(), Type::string()), Type::mixed()),
             };
         }

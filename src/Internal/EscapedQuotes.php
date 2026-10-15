@@ -58,11 +58,11 @@ final class EscapedQuotes
 
     /**
      * Returns the quote character of a literal that backslash-escapes its
-     * own quote and holds no quote of the other kind. Returns null for
+     * own quote and doesn't hold a quote of the other kind. Returns null for
      * every other literal.
      *
-     * The text is scanned as escape pairs, so `'Path \\'` has no escaped
-     * quote. A literal that mixes both quotes needs the escape.
+     * The text is scanned as escape pairs, so `'Path \\'` doesn't have an
+     * escaped quote. A literal that mixes both quotes needs the escape.
      */
     public static function quote(string $raw): ?string
     {
@@ -83,8 +83,8 @@ final class EscapedQuotes
      * Returns the literal written with the other quote, or null when that
      * could change the value.
      *
-     * A single-quoted literal can move to double quotes when it has no `$`
-     * and no backslash except the one before an apostrophe. A double-quoted
+     * A single-quoted literal can move to double quotes when it doesn't have a
+     * `$` or a backslash except the one before an apostrophe. A double-quoted
      * literal can move to single quotes when its only backslashes are the
      * ones before a double quote.
      */

@@ -64,7 +64,7 @@ final class TestClassCheck
 
     /**
      * Whether the class text declares a public `$modules`. Most test classes
-     * do not, and cost no codebase request then.
+     * do not, and don't cost a codebase request then.
      */
     public static function mayReport(string $text): bool
     {

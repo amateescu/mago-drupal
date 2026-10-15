@@ -49,7 +49,7 @@ final class DeclaredClass
 
     /**
      * The metadata of the class-like declared by the node, or null when the
-     * codebase has none at that span.
+     * codebase doesn't have one at that span.
      *
      * @param list<non-empty-string>|null $candidates Precomputed by `names()`.
      */

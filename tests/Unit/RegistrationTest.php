@@ -74,7 +74,8 @@ final class RegistrationTest extends TestCase
 
     protected function setUp(): void
     {
-        // Registration reads the root's indexes, which need no disk cache here.
+        // Registration reads the root's indexes, which don't need a disk cache
+        // here.
         $this->cache = getenv('MAGO_DRUPAL_CACHE');
         putenv('MAGO_DRUPAL_CACHE=0');
     }

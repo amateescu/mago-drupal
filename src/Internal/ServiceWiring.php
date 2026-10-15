@@ -242,7 +242,7 @@ final class ServiceWiring
 
     /**
      * The arguments compiler passes add for the definition's own tags; a
-     * child takes no tags from its parent.
+     * child doesn't take any tags from its parent.
      *
      * @param array<array-key, mixed> $definition
      * @return int<0, max>

@@ -36,7 +36,7 @@ final class MissingPropertyCommentRule implements Rule
     public function lint(LintContext $context): void
     {
         if (DeclarationComment::of($context)->comment === null) {
-            $context->report(Issue::new('The property has no docblock.', $context->node->span));
+            $context->report(Issue::new('The property doesn\'t have a docblock.', $context->node->span));
         }
     }
 }

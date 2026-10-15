@@ -11,11 +11,10 @@ use Mago\Sdk\Span;
  * The tags of a function's or method's docblock, for the rules that check
  * them.
  *
- * Coder checks no tags of a function with no docblock, with a comment in
- * the wrong style, or with a docblock tagged `@file`, which belongs to the
- * file. Those get no tags here. The result is kept for the last lint
- * context, as in `DeclarationComment`, so the tags are read once per
- * function.
+ * Coder doesn't check the tags of a function with no docblock, with a comment
+ * in the wrong style, or with a docblock tagged `@file`, which belongs to the
+ * file. Those don't get any tags here. The result is kept for the last lint
+ * context, as in `DeclarationComment`, so the tags are read once per function.
  *
  * @internal
  */
@@ -77,7 +76,8 @@ final class FunctionTags
     }
 
     /**
-     * Each `@param` tag, with its reading, or null when it has no variable.
+     * Each `@param` tag, with its reading, or null when it doesn't have a
+     * variable.
      *
      * @return list<array{DocblockTag, ?ParamTag}>
      */

@@ -234,7 +234,7 @@ final class FileCommentRule implements Rule
     /**
      * Reports the comment at the start of a file with a namespace and one
      * class, interface, trait or enum. The fix deletes a docblock and the
-     * whitespace after it. Coder has no fix for a plain comment.
+     * whitespace after it. Coder doesn't have a fix for a plain comment.
      */
     private function reportNamespacedFileComment(LintContext $context, Trivia $first): void
     {

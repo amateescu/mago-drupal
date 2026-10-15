@@ -25,11 +25,11 @@ use function strlen;
 use function strpos;
 
 /**
- * Every check of `drupal/file-comment` and `drupal/missing-file-comment`
- * starts at the first trivia in the file, so a `@mago-expect` comment that
- * suppresses an issue becomes that trivia and changes the result. The corpus
- * can only make sure that a correct file gets no report. This test runs both
- * rules and covers the negative cases.
+ * Every check of `drupal/file-comment` and `drupal/missing-file-comment` starts
+ * at the first trivia in the file, so a `@mago-expect` comment that suppresses
+ * an issue becomes that trivia and changes the result. The corpus can only make
+ * sure that a correct file doesn't get a report. This test runs both rules and
+ * covers the negative cases.
  *
  * @mago-expect lint:too-many-methods
  */

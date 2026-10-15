@@ -69,19 +69,19 @@ final class MissingFunctionCommentRule implements Rule
 
         $comment = DeclarationComment::of($context);
         if ($comment->comment === null) {
-            // A constructor with nothing above it needs no docblock. One with
-            // a comment above it is checked like any other method.
+            // A constructor with nothing above it doesn't need a docblock. One
+            // with a comment above it is checked like any other method.
             if ($this->isConstructor($context)) {
                 return;
             }
 
-            $context->report(Issue::new('The function has no docblock.', $context->node->span));
+            $context->report(Issue::new('The function doesn\'t have a docblock.', $context->node->span));
 
             return;
         }
 
         if ($comment->hasFileTag($context->file)) {
-            $context->report(Issue::new('The function has no docblock.', $context->node->span));
+            $context->report(Issue::new('The function doesn\'t have a docblock.', $context->node->span));
         }
     }
 

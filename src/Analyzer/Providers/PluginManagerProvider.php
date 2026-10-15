@@ -52,10 +52,10 @@ final class PluginManagerProvider implements MethodReturnTypeProvider
 
         $index = ($this->index)($context->codebase);
         $class = $index->classOf($attribute, $id);
-        // A fallback manager hands out its fallback plugin for an id nothing
-        // declares, instead of throwing, so that is the type. An id two
-        // classes declare is a real plugin whose class is unknown, and so is
-        // a derivative id: its base may come from YAML or a module the index
+        // A fallback manager hands out its fallback plugin for an id that isn't
+        // declared anywhere, instead of throwing, so that is the type. An id
+        // two classes declare is a real plugin whose class is unknown, and so
+        // is a derivative id: its base may come from YAML or a module the index
         // does not read.
         $fallback = PluginManagers::FALLBACKS[$attribute] ?? null;
         if ($class === null && $fallback !== null && !str_contains($id, ':') && !$index->declares($attribute, $id)) {

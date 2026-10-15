@@ -149,7 +149,7 @@ final class FieldNamesTest extends TestCase
     }
 
     /**
-     * The field module's info file is no field config.
+     * The field module's info file isn't a field config.
      */
     public function testKeepsTheFieldModule(): void
     {

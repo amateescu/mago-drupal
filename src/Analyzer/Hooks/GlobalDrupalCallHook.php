@@ -211,7 +211,7 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
      * Whether the class implements a hook through `#[Hook]`, on the class or
      * on a method it declares. Drupal registers such a class as an autowired
      * service, so its constructor can take any service. A class whose text
-     * holds no attribute at all costs no method lookup.
+     * doesn't hold any attribute doesn't cost a method lookup.
      */
     private static function hookClass(
         FileMembers $members,

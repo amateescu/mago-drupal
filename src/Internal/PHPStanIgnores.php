@@ -43,7 +43,7 @@ final class PHPStanIgnores
     ) {}
 
     /**
-     * The comments of a file, or null when it has none.
+     * The comments of a file, or null when it doesn't have any.
      */
     public static function of(string $contents): ?self
     {

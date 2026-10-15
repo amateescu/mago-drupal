@@ -59,7 +59,7 @@ final class EntityTypeAttribute
     private function __construct() {}
 
     /**
-     * Returns the class's entity type, or null when it declares none.
+     * Returns the class's entity type, or null when it doesn't declare one.
      *
      * @param list<AttributeMetadata> $attributes
      */

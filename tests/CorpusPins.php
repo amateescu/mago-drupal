@@ -7,7 +7,7 @@
  * issue with the same code in the file. A fixture whose issue disappears can
  * then absorb an issue that appeared a few lines further down, and the corpus
  * run stays green. This script runs the corpus again on a copy where every
- * `@mago-expect` is renamed, so Mago applies none of them, and does the
+ * `@mago-expect` is renamed, so Mago doesn't apply any of them, and does the
  * matching itself with a stricter rule.
  *
  * A pragma covers the lines from itself to the end of the statement, or the
@@ -127,7 +127,7 @@ final class CorpusPins
             // on its root would never be read again.
             putenv('MAGO_DRUPAL_CACHE=0');
             // drupal/todo-current-issue compares links with the issue of a GitLab
-            // merge request, and reports nothing outside one.
+            // merge request, and doesn't report anything outside one.
             putenv('CI_MERGE_REQUEST_SOURCE_BRANCH_NAME=3456789-corpus');
             $found = [
                 ...self::issues([$mago, '--workspace', $copy, 'lint', '--only', $codes, ...self::JSON], 'lint'),
@@ -181,8 +181,8 @@ final class CorpusPins
 
     /**
      * Gives each issue to the closest pragma above it that covers it and has
-     * room left. Returns the issues no pragma took, and what each pragma
-     * still misses.
+     * room left. Returns the issues that weren't taken by a pragma, and what
+     * each pragma still misses.
      *
      * @param list<Pragma> $pragmas
      * @param list<Found> $found

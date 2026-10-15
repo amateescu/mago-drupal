@@ -19,7 +19,7 @@ use function str_ends_with;
  * call to `DeprecationHelper::backwardsCompatibleCall()`. The first three
  * apply to the class or the function they sit on, the last to the call's
  * arguments. Deprecated code may use other deprecated code. The legacy group
- * is a test runner convention, so it marks nothing outside the tests.
+ * is a test runner convention, so it doesn't mark anything outside the tests.
  *
  * @internal
  *

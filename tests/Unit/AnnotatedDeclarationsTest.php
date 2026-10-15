@@ -71,7 +71,7 @@ final class AnnotatedDeclarationsTest extends TestCase
     /**
      * An editor hands Mago text it has not saved. A renamed id has to
      * resolve under its new name only, and a file whose text dropped its
-     * annotation declares nothing, whatever the file says on disk.
+     * annotation doesn't declare anything, whatever the file says on disk.
      */
     public function testReadsAnalyzedFilesFromTheTextMagoAnalyzes(): void
     {

@@ -97,7 +97,7 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
             return;
         }
 
-        // Before Drupal 11.2 the property is the only API: there is no
+        // Before Drupal 11.2 the property is the only API: there isn't a
         // getOriginal() to call instead.
         $receiver = self::receiver($contents, $span, $length);
         if (
@@ -110,7 +110,7 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
 
         // Mago hands back the narrowed type of an access it has already
         // seen in the same scope without analyzing the receiver again, so a
-        // repeat has no receiver type and reuses the earlier answer.
+        // repeat doesn't have a receiver type and reuses the earlier answer.
         $source = $context->source;
         $object = $source->getText($receiver);
         $type = $context->analysis->getExpressionType($receiver);

@@ -91,7 +91,7 @@ final class Docblocks
 
     /**
      * Whether a docblock has text, and the first of it is not a tag, as in
-     * `/** @var int *\/`. An empty docblock has none.
+     * `/** @var int *\/`. An empty docblock doesn't have any.
      */
     public static function hasTextBeforeTags(SourceFile $file, Span $docblock): bool
     {
@@ -269,7 +269,7 @@ final class Docblocks
     /**
      * Whether a comment that is not a directive sits between the offsets. A
      * directive such as `// @mago-expect` or `// phpcs:ignore` tells a tool
-     * what to do and says nothing to the reader.
+     * what to do and doesn't say anything to the reader.
      */
     public static function hasNoteBetween(SourceFile $file, int $start, int $end): bool
     {
@@ -358,8 +358,8 @@ final class Docblocks
 
     /**
      * Splits the lines before the first `@tag` into the short description
-     * and the long description below it. The result has no blank lines
-     * between the two, and no leading or trailing blank lines.
+     * and the long description below it. The result doesn't have blank
+     * lines between the two, or leading or trailing blank lines.
      *
      * A file docblock writes its description after the `@file` tag, so a
      * docblock that starts with `@file` has its paragraphs there. Text on

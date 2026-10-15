@@ -21,8 +21,8 @@ use function in_array;
  *
  * An identifier drops only the Mago codes that report the same finding, so
  * `@phpstan-ignore return.type` keeps a missing method on the same line.
- * `@phpstan-ignore-line` and `@phpstan-ignore-next-line` drop every code in
- * the table. An identifier the table does not list drops nothing. The issue
+ * `@phpstan-ignore-line` and `@phpstan-ignore-next-line` drop every code in the
+ * table. An identifier the table does not list doesn't drop anything. The issue
  * counts as on the covered line when its first annotation starts there.
  *
  * @internal

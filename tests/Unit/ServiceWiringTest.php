@@ -95,7 +95,7 @@ final class ServiceWiringTest extends TestCase
                 'alias' => '@bare',
                 'provided_base' => ['class' => 'Drupal\foo\ProvidedBase'],
             ]),
-            // A service provider's definition has no services file.
+            // A service provider's definition doesn't have a services file.
             'provided' => ['class' => 'Drupal\foo\Provided'],
             'provided_parent' => ['abstract' => true],
             'provided_child' => [

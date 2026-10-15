@@ -139,7 +139,7 @@ final class SharedParameters
 
     /**
      * The one type every declaration gives, or null when they differ or one
-     * gives none.
+     * doesn't give any.
      *
      * @param list<Type|null> $types
      */

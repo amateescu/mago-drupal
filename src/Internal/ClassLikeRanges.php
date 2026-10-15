@@ -45,8 +45,8 @@ final class ClassLikeRanges
      */
     public static function classAt(Codebase $codebase, string $contents, Span $span): ?ClassLikeMetadata
     {
-        // Most procedural files declare nothing, and need no tokenizing to
-        // say so.
+        // Most procedural files don't declare anything, and don't need any
+        // tokenizing to say so.
         if (preg_match(self::DECLARES, $contents) !== 1) {
             return null;
         }

@@ -35,8 +35,8 @@ final class TraitRoots
     }
 
     /**
-     * The root classes by name, or none when the trait is no trait or no
-     * class uses it.
+     * The root classes by name, or an empty list when the trait isn't a
+     * trait or isn't used by any class.
      *
      * @return list<string>
      */

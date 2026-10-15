@@ -116,8 +116,8 @@ final class EscapedPlaceholderRule implements Rule
                 continue;
             }
 
-            // A call that comes after a `.` escapes part of a longer value,
-            // and Coder allows it. The first operand has no `.` before it.
+            // A call that comes after a `.` escapes part of a longer value, and
+            // Coder allows it. The first operand doesn't have a `.` before it.
             $call = Values::leftmost($file, $value);
             $callee = self::escapeCallee($file, $call);
             if ($callee === null) {
@@ -190,8 +190,8 @@ final class EscapedPlaceholderRule implements Rule
     /**
      * Replaces the escape call with its argument. The fix changes what users
      * see, so it is potentially unsafe. A call with another argument count, a
-     * named or spread argument, or a comment inside the parentheses gets no
-     * fix.
+     * named or spread argument, or a comment inside the parentheses doesn't
+     * get a fix.
      */
     private static function unwrap(SourceFile $file, Node $call): ?TextEdit
     {

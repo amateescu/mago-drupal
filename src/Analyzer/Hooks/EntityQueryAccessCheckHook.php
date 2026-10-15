@@ -16,10 +16,10 @@ use Mago\Sdk\Reporting\Level;
  * Reports an entity query executed without `accessCheck()`.
  *
  * Ports phpstan-drupal's EntityQueryHasAccessCheckRule. Since Drupal 10 an
- * entity query throws unless access checking was set explicitly. Config
- * entity queries have no access checking and are left alone. The receiver's
- * tags say what happened on the chain and what kind of entity type it is, so
- * the hook reads nothing else; a query of unknown kind is reported, since
+ * entity query throws unless access checking was set explicitly. Config entity
+ * queries don't have access checking and are left alone. The receiver's tags
+ * say what happened on the chain and what kind of entity type it is, so the
+ * hook doesn't read anything else; a query of unknown kind is reported, since
  * only a known config entity type is exempt.
  *
  * @internal

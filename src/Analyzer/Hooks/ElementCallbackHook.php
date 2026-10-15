@@ -239,7 +239,7 @@ final class ElementCallbackHook implements NodeAnalysisHook
     /**
      * `'::method'`, checked against the form class it is written in on a
      * form key. In any other class, a hook or a form alter, the form object
-     * is some other class. On any other key it names no class at all.
+     * is some other class. On any other key it doesn't name a class at all.
      */
     private function checkFormObject(NodeAnalysisContext $context, ElementCallback $callback): void
     {

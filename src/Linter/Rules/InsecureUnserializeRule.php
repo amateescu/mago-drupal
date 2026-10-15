@@ -127,8 +127,8 @@ final class InsecureUnserializeRule implements Rule
             return 'The unserialize() options are not an array literal. The rule cannot check allowed_classes.';
         }
 
-        // Only a key of the options array itself counts. PHP reads no
-        // `allowed_classes` key of a nested array.
+        // Only a key of the options array itself counts. PHP doesn't read
+        // an `allowed_classes` key of a nested array.
         foreach ($file->getChildren($options) as $wrapper) {
             $element = $wrapper->kind === NodeKind::ArrayElement ? $file->getChildren($wrapper)[0] ?? null : $wrapper;
             if ($element === null || $element->kind !== NodeKind::KeyValueArrayElement) {

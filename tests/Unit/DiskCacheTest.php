@@ -292,8 +292,8 @@ final class DiskCacheTest extends TestCase
 
     /**
      * A watch session writes an entry per analysis generation; the older ones
-     * of the same host go, another host's stay, and so does nothing older
-     * than a run can read.
+     * of the same host go, another host's stay, and anything older than a
+     * run can read goes too.
      */
     public function testDropsEarlierGenerationsAndStaleRunEntries(): void
     {

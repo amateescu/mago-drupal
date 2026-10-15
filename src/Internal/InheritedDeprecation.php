@@ -17,12 +17,12 @@ use function str_contains;
  * Whether the method around a span overrides a deprecated method.
  *
  * PHPStan counts such a method as deprecated itself, unless its docblock says
- * `@not-deprecated`, and its deprecation rules report nothing inside it. A
- * decorator forwarding the deprecated method it implements is the usual case.
+ * `@not-deprecated`, and its deprecation rules don't report anything inside it.
+ * A decorator forwarding the deprecated method it implements is the usual case.
  * Mago analyzes a trait once, on its own, so a trait method counts when every
  * class that gets it from the trait inherits a deprecated declaration of it.
- * Finding those classes is a search by method name across the codebase, so
- * only a trait pays for one. A trait among them has no ancestors, so it fails
+ * Finding those classes is a search by method name across the codebase, so only
+ * a trait pays for one. A trait among them doesn't have ancestors, so it fails
  * the check and keeps the issue.
  *
  * @internal

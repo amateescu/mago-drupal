@@ -37,7 +37,7 @@ final class FunctionNameRule implements Rule
             defaultEnabled: true,
             // The Program pass reads the functions from the target list. Only
             // its snapshot has the classes around a function. The Function
-            // dispatches do nothing.
+            // dispatches don't do anything.
             targets: [NodeKind::Program, NodeKind::Function],
         );
     }

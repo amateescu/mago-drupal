@@ -90,7 +90,7 @@ final class VariableCommentRule implements Rule
 
         if ($varTags === []) {
             if (!$this->hasNativeType($context)) {
-                $context->report(Issue::new('The property docblock has no @var tag.', $context->node->span));
+                $context->report(Issue::new('The property docblock doesn\'t have a @var tag.', $context->node->span));
             }
 
             return;
@@ -215,7 +215,7 @@ final class VariableCommentRule implements Rule
 
     /**
      * The variables the declaration declares, such as `$a` and `$b` in
-     * `public $a = 0, $b = 1;`. Default values hold no variables, and quoted
+     * `public $a = 0, $b = 1;`. Default values don't hold variables, and quoted
      * text is skipped.
      *
      * @return list<string>

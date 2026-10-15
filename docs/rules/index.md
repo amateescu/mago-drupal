@@ -93,7 +93,7 @@ Rules for the names of classes, constants, functions, methods, properties and va
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/class-name-acronym`](naming-and-imports.md#drupalclass-name-acronym) | error | Reports class-like names that start with three capitals and have no lower-case letter, such as HTTP. |
+| [`drupal/class-name-acronym`](naming-and-imports.md#drupalclass-name-acronym) | error | Reports class-like names that start with three capitals and don't have a lower-case letter, such as HTTP. |
 | [`drupal/define-name`](naming-and-imports.md#drupaldefine-name) | error | Reports define() constants whose name isn't upper case. |
 | [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports enum cases that don't use UpperCamelCase. |
 | [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports namespaced classes referenced in full instead of through a use statement. |
@@ -123,7 +123,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/case-semicolon`](statements.md#drupalcase-semicolon) | error | Reports a case or default label that ends with a semicolon instead of a colon. |
 | [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between `yield` and `from`. |
 | [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |
-| [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that has no case label. |
+| [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that doesn't have a case label. |
 | [`drupal/explicit-nullable-param`](statements.md#drupalexplicit-nullable-param) | error | Reports a typed parameter with a null default whose type doesn't allow null. |
 | [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Checks that a blank line separates a function declaration from the code or comment before it. |
 | [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports methods declared without an explicit visibility keyword. |
@@ -186,7 +186,7 @@ They don't check the types in a docblock against the real signature, which is do
 | [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Checks the "Implements hook_x()." docblock convention on a hook implementation. |
 | [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |
 | [`drupal/missing-class-comment`](docblock-structure.md#drupalmissing-class-comment) | error | Reports a class, interface, trait or enum with no docblock. |
-| [`drupal/missing-file-comment`](docblock-structure.md#drupalmissing-file-comment) | error | Reports a PHP file that isn't a class file and has no comment at its start. |
+| [`drupal/missing-file-comment`](docblock-structure.md#drupalmissing-file-comment) | error | Reports a PHP file that isn't a class file and doesn't have a comment at its start. |
 | [`drupal/missing-function-comment`](docblock-structure.md#drupalmissing-function-comment) | error | Reports a function or method with no docblock, a constructor excepted. |
 | [`drupal/missing-property-comment`](docblock-structure.md#drupalmissing-property-comment) | error | Reports a class property with no docblock. |
 | [`drupal/missing-summary`](docblock-structure.md#drupalmissing-summary) | error | Reports a docblock with tags and no short description. |

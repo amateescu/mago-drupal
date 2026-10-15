@@ -49,8 +49,8 @@ final class FileEncodingRule implements Rule
             return;
         }
 
-        // The message names no bytes. Mago stops the whole run on issue text
-        // that is not valid UTF-8.
+        // The message doesn't name any bytes. Mago stops the whole run on issue
+        // text that is not valid UTF-8.
         $context->report(Issue::new(
             'Save the file as UTF-8. It holds bytes that are not valid UTF-8.',
             new Span($start, $start),

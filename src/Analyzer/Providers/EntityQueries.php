@@ -25,7 +25,7 @@ use function strtolower;
  * `QueryInterface<'node', 'content', 'unchecked', 'ids'>`. They hold the
  * entity type id, its kind, whether `accessCheck()` was called, and whether
  * `count()` was called. Fluent methods return `$this`, so the tags survive a
- * whole chain, and a lifecycle hook reading them needs no index.
+ * whole chain, and a lifecycle hook reading them doesn't need an index.
  *
  * @internal
  *
@@ -57,7 +57,7 @@ final class EntityQueries
     public const CONTENT = 'content';
 
     /**
-     * Config entity queries have no access checking and return string ids.
+     * Config entity queries don't have access checking and return string ids.
      */
     public const CONFIG = 'config';
 
@@ -148,7 +148,7 @@ final class EntityQueries
 
     /**
      * The tags of every query object the receiver may be, or null when one of
-     * them carries none: an untagged query could be anything, so no answer
+     * them doesn't have any: an untagged query could be anything, so no answer
      * holds for the whole receiver. A call on null is reported on its own, so
      * a null member is skipped.
      *
@@ -201,7 +201,7 @@ final class EntityQueries
     }
 
     /**
-     * The tags of one query object, or null when it is no query or misses a
+     * The tags of one query object, or null when it isn't a query or misses a
      * tag.
      *
      * @return array{string, non-empty-string, non-empty-string, non-empty-string, non-empty-string}|null
