@@ -38,6 +38,7 @@ nav = [
     { "Config" = "analyzer/config.md" },
     { "Plugins" = "analyzer/plugins.md" },
     { "Render arrays and forms" = "analyzer/render-and-forms.md" },
+    { "Translation" = "analyzer/translation.md" },
     { "Hooks and modules" = "analyzer/hooks.md" },
     { "Deprecations" = "analyzer/deprecations.md" },
     { "Traits" = "analyzer/traits.md" },

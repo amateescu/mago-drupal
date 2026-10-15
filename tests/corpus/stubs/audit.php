@@ -244,7 +244,21 @@ namespace Drupal\KernelTests {
 }
 
 namespace Drupal\Core\Form {
-    interface FormStateInterface {}
+    interface FormStateInterface
+    {
+        /**
+         * @param string $name
+         * @param string|\Stringable $message
+         * @return $this
+         */
+        public function setErrorByName($name, $message = '');
+
+        /**
+         * @param string|\Stringable $message
+         * @return $this
+         */
+        public function setError(array &$element, $message = '');
+    }
 
     abstract class FormBase implements \Drupal\Core\DependencyInjection\ContainerInjectionInterface
     {
