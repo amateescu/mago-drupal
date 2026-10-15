@@ -649,7 +649,8 @@ A `@return` variable name is read from the tag's own line.
 ## drupal/doc-type-name
 
 - **Level:** error
-- **Fix:** safe. It writes the expected name, when the type starts the tag's line.
+- **Fix:** safe. It writes the expected name and drops the punctuation, when the type starts the
+  tag's line.
 - **Standard:** [Data types in documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#data-types-in-documentation)
 - **Ports:**
     - `Drupal.Commenting.FunctionComment`: `IncorrectParamVarName`, `InvalidReturn`
@@ -670,11 +671,13 @@ A `@return` variable name is read from the tag's own line.
 
 - a `@param` or `@return` type name of a function or method, and a `@var` type name of a property,
   spelled another way than the standard and Coder ask, such as `integer` for `int`, `Boolean` for
-  `bool` or `NULL` for `null`. Each member of a `|` union is checked.
+  `bool` or `NULL` for `null`. Each member of a `|` union is checked;
+- one of these types that ends in `.`, `;` or `!`, such as `@var string.` or `@return int;`.
 
 **Not reported:**
 
 - `stdClass`, which isn't checked by Coder either;
+- a type that ends in `,`, which Coder keeps, or in the `...` of a variadic parameter;
 - a `@param` type with a space in it, and a type inside a generic, such as `array<integer>`;
 - a `@var` tag with no type or one that starts with a variable name, which are reported by
   [`drupal/variable-comment`](#drupalvariable-comment), and a property docblock with
@@ -684,8 +687,10 @@ A `@return` variable name is read from the tag's own line.
 
     - Coder runs the whole `@var` line, description included, through its type check, and reports
       a line with a character outside its type alphabet, such as `.`, `;`, `!` or `=`. So a
-      description that contains `e.g.` or ends in a full stop is reported, and so is the type
-      `string.`. That check isn't ported.
+      description that contains `e.g.` or ends in a full stop is reported, and so is a float
+      literal type such as `1.5|2.5`. The rule only checks a `.`, `;` or `!` at the end of the type.
+    - Coder reads `@param int. $a` as a tag with no variable name, since its type stops at the
+      first `.`. The rule reports the type and its fix drops the `.`.
     - The rule reads the `@var` type apart from the description. It reports
       `@var integer Some description`, where Coder takes the whole text as the type and doesn't
       report it.

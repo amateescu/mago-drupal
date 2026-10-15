@@ -102,6 +102,29 @@ function function_comment_missing_param_name($a): void {
 function function_comment_missing_param_comment($a): void {
 }
 
+// @mago-expect lint:drupal/doc-type-name(2)
+/**
+ * Types that end in punctuation, which Coder strips.
+ *
+ * @param string; $a
+ *   The first.
+ *
+ * @return string.
+ *   The result.
+ */
+function function_comment_type_end_punctuation(string $a): string {
+  return $a;
+}
+
+/**
+ * Coder keeps a comma at the end of a type.
+ *
+ * @param string, $a
+ *   The first.
+ */
+function function_comment_type_end_comma(string $a): void {
+}
+
 // A function gets no report for $b, which has no tag, as in Coder.
 // @mago-expect lint:drupal/doc-tag-descriptions
 /**
