@@ -868,3 +868,69 @@ check. The [configuration](../setup/configuration.md) turns it off.
     - An assignment in a later element of an array that another assignment holds, as
       `$x = ['a' => 1, 'b' => $y = 2]`, counts as a read. Coder counts it as a read only in the first
       element.
+
+---
+
+## drupal/variable-redeclaration
+
+- **Level:** warning
+- **Fix:** none
+- **Source:** Coder's `DrupalPractice` standard
+- **Ports:** `VariableAnalysis.CodeAnalysis.VariableAnalysis.VariableRedeclaration`
+
+A function that declares a name a second time usually overwrites a value by mistake, such as a
+parameter that a `static` or `global` declaration replaces. PHP rejects some of these shapes: a
+repeated parameter, a closure's `use` variable that repeats a parameter, and, from PHP 8.3, a
+repeated `static` declaration. The rule compares the declarations of each name in source order, in
+the scopes of [`drupal/unused-variable`](#drupalunused-variable), so a declaration in another branch
+counts too.
+
+**Reports:**
+
+- a parameter declared again by `static`, `global`, a `catch` variable, a `= &` binding, a
+  closure's `use` list or another parameter;
+- a variable that the scope wrote before, then declared `global` or `static`;
+- a `global` or `static` declaration of a name that the scope already declared as `global` or
+  `static`;
+- a `catch` variable or a `= &` binding of a name declared as `global`, `static` or a closure's
+  `use` variable.
+
+A write is an assignment, a `foreach` variable or an element of a list that is assigned.
+
+**Not reported:**
+
+- a `catch` variable or a `= &` binding of a name that the scope only wrote, or bound before;
+- `static $x = 1;`, which Coder treats as an assignment, not as a declaration;
+- a name that the scope only read before the declaration;
+- a `*.tpl.php` file, which Coder's ruleset leaves out;
+- with `--core`, a `*.api.php` file and the transliteration tables in
+  `core/lib/Drupal/Component/Transliteration/data`, which core's `phpcs.xml.dist` leaves out.
+
+A rebinding on purpose, such as `$elements = &$form;` over a parameter, needs a
+`// @mago-expect lint:drupal/variable-redeclaration` comment above it. Mago reports a repeated
+parameter as a `semantics` error too.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    function example_counter(int $count): int {
+      static $count;
+      return $count ?? 0;
+    }
+
+    // Fine.
+    function example_counter(int $start): int {
+      static $count;
+      $count ??= $start;
+      return $count;
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder skips a closure's `use` variable that isn't defined before the closure, so it doesn't
+      report one that repeats a parameter of the closure then. The rule reports it.
+    - Coder counts a write through a by-reference argument, such as the `$matches` of
+      `preg_match()`, and `$items[] = ...` on a new variable as assignments, and reports a `global`
+      or `static` declaration of the name after them. The rule counts both as uses of the name.

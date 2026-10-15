@@ -136,6 +136,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/short-ternary`](statements.md#drupalshort-ternary) | error | Reports a ternary that repeats its condition, which "?:" replaces. |
 | [`drupal/short-list`](statements.md#drupalshort-list) | error | Reports a list(...) destructuring that can be written as [...]. |
 | [`drupal/unused-variable`](statements.md#drupalunused-variable) | warning | Reports a variable that is written and never read in its function, closure or file. |
+| [`drupal/variable-redeclaration`](statements.md#drupalvariable-redeclaration) | warning | Reports a variable that its function declares again, such as a parameter redeclared with static. |
 
 ## Comment text
 

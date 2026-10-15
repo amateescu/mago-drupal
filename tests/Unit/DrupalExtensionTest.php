@@ -168,6 +168,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/use-leading-backslash' => [Level::Error, true],
             'drupal/variable-comment' => [Level::Error, true],
             'drupal/variable-name' => [Level::Error, true],
+            'drupal/variable-redeclaration' => [Level::Warning, true],
             'drupal/watchdog-message' => [Level::Error, true],
             'drupal/weak-hash' => [Level::Warning, true],
         ];

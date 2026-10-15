@@ -110,6 +110,20 @@ final class VariableScopes
      */
     public static function of(SourceFile $file, int $program): array
     {
+        // drupal/unused-variable and drupal/variable-redeclaration read the
+        // same file in a row, so the walk runs once for both.
+        return LastFile::get(self::class, $file->contents, static fn(): array => self::collect($file, $program));
+    }
+
+    /**
+     * Walks the variables of the file into their scopes.
+     *
+     * @param non-negative-int $program
+     *
+     * @return array<int, array<string, ScopeVariable>>
+     */
+    private static function collect(SourceFile $file, int $program): array
+    {
         $scopes = new self($file, $program);
         foreach ($file->getNodes(NodeKind::DirectVariable) as $variable) {
             $scopes->variable($variable);
@@ -165,7 +179,7 @@ final class VariableScopes
 
         switch ($parent->kind) {
             case NodeKind::FunctionLikeParameter:
-                $this->find($variable, $name)?->allow();
+                $this->find($variable, $name)?->parameter($span);
 
                 return;
 
@@ -175,7 +189,7 @@ final class VariableScopes
                 return;
 
             case NodeKind::TryCatchClause:
-                $this->find($variable, $name)?->allow();
+                $this->find($variable, $name)?->catchVariable($span);
 
                 return;
 
@@ -210,7 +224,7 @@ final class VariableScopes
         $this->find($variable, $name, outside: true)?->read($span->start);
         $bound = $this->find($variable, $name);
         if ($this->file->contents[$binding->span->start] === '&') {
-            $bound?->read($span->start);
+            $bound?->bindByReference($span);
 
             return;
         }

@@ -1627,13 +1627,13 @@
         "sniff": "VariableAnalysis.CodeAnalysis.VariableAnalysis",
         "standard": "DrupalPractice",
         "where": ["ext:drupal/unused-variable", "analyze"],
-        "note": "Coder's ruleset skips `*.tpl.php` files, and so does `drupal/unused-variable`. `mago analyze` checks them.",
+        "note": "Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them.",
         "codes": [
             {"code": "SelfOutsideClass", "status": "report", "where": ["analyze:self-outside-class-scope"]},
             {"code": "StaticOutsideClass", "status": "report", "where": ["analyze:static-outside-class-scope"]},
             {"code": "UndefinedUnsetVariable", "status": "gap", "where": ["none"], "note": "An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`."},
             {"code": "UnusedVariable", "status": "report", "where": ["ext:drupal/unused-variable"]},
-            {"code": "VariableRedeclaration", "status": "gap", "where": ["none"], "note": "A variable declared twice, such as a parameter redeclared with `static`. Not ported: it needs flow analysis."}
+            {"code": "VariableRedeclaration", "status": "report", "where": ["ext:drupal/variable-redeclaration"]}
         ]
     }
 ]
