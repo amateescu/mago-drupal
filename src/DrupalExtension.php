@@ -76,6 +76,7 @@ use amateescu\MagoDrupal\Linter\Rules\InstallHookLocationRule;
 use amateescu\MagoDrupal\Linter\Rules\LinkTextTranslatableRule;
 use amateescu\MagoDrupal\Linter\Rules\LiteralConstantCaseRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
+use amateescu\MagoDrupal\Linter\Rules\MethodNameRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodNameUnderscoreRule;
 use amateescu\MagoDrupal\Linter\Rules\MethodVisibilityRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingClassCommentRule;
@@ -178,6 +179,7 @@ final class DrupalExtension
         'drupal/inline-comment-punctuation',
         'drupal/insecure-unserialize',
         'drupal/long-description-punctuation',
+        'drupal/method-name',
         'drupal/method-name-underscore',
         'drupal/request-superglobal',
         'drupal/routing-access',
@@ -378,6 +380,7 @@ final class DrupalExtension
             new LinkTextTranslatableRule(),
             new LiteralConstantCaseRule(),
             new LongDescriptionPunctuationRule(),
+            new MethodNameRule(),
             new MethodNameUnderscoreRule(),
             new MethodVisibilityRule(),
             new MissingClassCommentRule(),

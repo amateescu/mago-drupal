@@ -190,8 +190,7 @@ name, or a docblock that writes the short name in the same case.
 
 - a leading or doubled underscore, so a private helper such as `_mymodule_helper()` passes;
 - a function that starts with `hook_` in an `.api.php` file, since such a file documents hooks
-  with names such as `hook_ENTITY_TYPE_insert()`;
-- methods, which are left to Mago's `method-name`.
+  with names such as `hook_ENTITY_TYPE_insert()`.
 
 Mago's own `function-name` wants snake case, so it reports `_mymodule_helper()`, which is accepted
 by Coder. The [configuration](../setup/configuration.md) turns it off.
@@ -334,6 +333,73 @@ does.
 
     - phpcbf writes `\TRUE` and keeps the backslash. The fix writes `TRUE`, the form that the rest
       of Drupal's code uses.
+
+---
+
+## drupal/method-name
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Classes, methods and properties](https://project.pages.drupalcode.org/coding_standards/php/coding/#classes-methods-and-properties)
+- **Ports:** `Drupal.NamingConventions.ValidFunctionName`: `NotCamelCaps`, `ScopeNotCamelCaps`
+- **Off with `--core`**
+
+> Methods and class properties should use lowerCamel naming.
+>
+> If an acronym is used in a class or method name, make it CamelCase too (SampleXmlClass, not
+> SampleXMLClass).
+
+**Reports:**
+
+- a method name that doesn't start with a lower-case ASCII letter, holds a character other than an
+  ASCII letter or digit, or has two capitals in a row, such as `get_url()`, `GetUrl()`,
+  `getURL()` or `get2FA()`. A digit ends a run of capitals, so `getA2B()` passes. The rule checks
+  the methods of classes, interfaces, traits, enums and anonymous classes.
+
+**Not reported:**
+
+- the leading underscores, which the rule strips before the check. `drupal/method-name-underscore`
+  reports them;
+- a PHP magic method or a `SoapClient` method, the names that `drupal/method-name-underscore`
+  accepts;
+- a method named after its class, or after its class with one leading underscore, the PHP 4
+  constructor and destructor. The names are compared without regard to case.
+
+A rename breaks the callers and the overrides of a method, so the rule has no fix. A name that PHP
+or a parent class sets, such as the `stream_open()` method of a stream wrapper, needs a
+`@mago-expect lint:drupal/method-name` comment.
+
+Mago's own `method-name` accepts a run of capitals, as in `getURL()`, so it can't stand in for this
+rule.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    class Example {
+
+      public function getURL(): string {
+        return '';
+      }
+
+    }
+
+    // Fine.
+    class Example {
+
+      public function getUrl(): string {
+        return '';
+      }
+
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - The rule reports on the name. Coder 9 reports on the `function` keyword, so the lines differ
+      when an attribute or a line break comes between them.
+    - Coder reports the same check under two codes, `ScopeNotCamelCaps` for a method with a
+      visibility keyword and `NotCamelCaps` for one without. The rule gives one message for both.
 
 ---
 

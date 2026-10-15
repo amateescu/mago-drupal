@@ -478,13 +478,13 @@
         "sniff": "Drupal.NamingConventions.ValidFunctionName",
         "standard": "Drupal",
         "where": ["ext:drupal/function-name"],
-        "note": "Core doesn't run the sniff. Mago's `method-name` rule would cover the method codes, but it is off by default and the configuration in Setup doesn't turn it on. When on, it accepts a run of capitals, as in `getURL()`, which Coder reports.",
+        "note": "Core doesn't run the sniff.",
         "codes": [
             {"code": "InvalidName", "status": "report"},
             {"code": "InvalidPrefix", "status": "report", "where": ["ext:drupal/function-prefix"]},
             {"code": "MethodDoubleUnderscore", "status": "report", "where": ["ext:drupal/method-name-underscore"]},
-            {"code": "NotCamelCaps", "status": "gap", "where": ["lint:method-name"]},
-            {"code": "ScopeNotCamelCaps", "status": "gap", "where": ["lint:method-name"]}
+            {"code": "NotCamelCaps", "status": "report", "where": ["ext:drupal/method-name"]},
+            {"code": "ScopeNotCamelCaps", "status": "report", "where": ["ext:drupal/method-name"]}
         ]
     },
     {

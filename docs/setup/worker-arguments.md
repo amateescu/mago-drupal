@@ -9,7 +9,7 @@ Add `"--core"` to the command when you check Drupal core itself. It turns off th
 are turned off or not run by core's `phpcs.xml.dist`:
 
 - `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
-  `method-name-underscore` and `short-list`;
+  `method-name`, `method-name-underscore` and `short-list`;
 - `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
 - `unsilenced-deprecation`;
 - `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](../rules/drupal-practice.md)

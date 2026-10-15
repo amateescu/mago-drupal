@@ -64,6 +64,7 @@ drupal/install-hook-location
 drupal/link-text-translatable
 drupal/literal-constant-case
 drupal/long-description-punctuation
+drupal/method-name
 drupal/method-name-underscore
 drupal/method-visibility
 drupal/missing-class-comment

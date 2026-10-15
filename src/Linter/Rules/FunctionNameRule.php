@@ -23,7 +23,7 @@ use function strtolower;
  * Ports the InvalidName check of Drupal.NamingConventions.ValidFunctionName.
  * Coder wants only lower case, so a private helper such as
  * `_mymodule_helper()` is fine. Mago's `function-name` wants snake case and
- * reports it. Methods are left to Mago's `method-name`.
+ * reports it. drupal/method-name checks methods.
  */
 final class FunctionNameRule implements Rule
 {

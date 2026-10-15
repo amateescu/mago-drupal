@@ -141,7 +141,7 @@ class Practice {
   }
 
   // @mago-expect lint:drupal/missing-function-comment
-  public function globalInAClassMethod(): void {
+  public function globalInClassMethod(): void {
     // drupal/global-variable checks a class method too.
     // @mago-expect lint:drupal/global-variable
     global $corpus_unprefixed;

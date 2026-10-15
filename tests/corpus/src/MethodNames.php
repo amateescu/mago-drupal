@@ -27,6 +27,7 @@ class MethodNames {
    * An underscore inside the rest of the name.
    */
   // @mago-expect lint:drupal/method-name-underscore
+  // @mago-expect lint:drupal/method-name
   public function __call_static(): void {
   }
 
@@ -34,6 +35,7 @@ class MethodNames {
    * A digit after the underscores.
    */
   // @mago-expect lint:drupal/method-name-underscore
+  // @mago-expect lint:drupal/method-name
   public function __1abc(): void {
   }
 
@@ -99,14 +101,21 @@ class MethodNames {
   }
 
   /**
-   * Underscores inside or at the end of the name are fine.
+   * Underscores inside or at the end of the name.
+   *
+   * This rule doesn't check them. drupal/method-name reports them.
    */
+  // @mago-expect lint:drupal/method-name
   public function get__value(): void {
   }
 
   /**
-   * Only underscores are fine.
+   * Only underscores.
+   *
+   * This rule doesn't check them. drupal/method-name reports the empty rest
+   * of the name.
    */
+  // @mago-expect lint:drupal/method-name
   public function __(): void {
   }
 

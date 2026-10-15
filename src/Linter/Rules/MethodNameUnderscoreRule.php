@@ -32,9 +32,10 @@ final class MethodNameUnderscoreRule implements Rule
     /**
      * The names, lower case and without the two underscores, that Coder 9
      * accepts after a double underscore. The first 17 are PHP's magic methods.
-     * The rest are the methods of PHP's SoapClient.
+     * The rest are the methods of PHP's SoapClient. drupal/method-name skips
+     * them too.
      */
-    private const DOUBLE_UNDERSCORE_NAMES = [
+    public const DOUBLE_UNDERSCORE_NAMES = [
         'construct' => true,
         'destruct' => true,
         'call' => true,
