@@ -1218,7 +1218,7 @@
         "codes": [
             {"code": "After", "status": "format"},
             {"code": "AfterLast", "status": "partial", "note": "The formatter removes the blank line between a function and the end of a block, such as `if (!function_exists())` or a loop, which Coder reports."},
-            {"code": "Before", "status": "partial", "note": "The formatter adds no blank line between a statement and a function declared after it, such as a `define()` call followed by a function, or a statement followed by a nested function."},
+            {"code": "Before", "status": "partial", "where": ["format", "ext:drupal/function-blank-line"]},
             {"code": "BeforeFirst", "status": "partial", "note": "The formatter removes the blank line between the start of a block, such as `if (!function_exists())` or a loop, and a function, which Coder reports."}
         ]
     },

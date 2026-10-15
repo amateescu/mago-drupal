@@ -286,6 +286,78 @@ Coder asks every switch to have at least one `case` label.
 
 ---
 
+## drupal/function-blank-line
+
+- **Level:** error
+- **Fix:** safe. It adds a blank line above the function's docblock.
+- **Source:** Coder's `Drupal` standard
+- **Ports:** `Squiz.WhiteSpace.FunctionSpacing.Before` (partly)
+
+Coder asks for a blank line between a function and the code or comment before it. `mago format`
+writes that line after a `use`, `namespace` or `declare` statement, a class and another function,
+and keeps one that is there. It adds none after a plain statement, such as a `define()` call or the
+`}` of an `if`.
+
+**Reports:**
+
+- a function declared after a statement or a comment with no blank line between them. The line goes
+  above the function's docblock and attributes. As in Coder, only the nearest docblock counts, so a
+  second docblock above it needs the blank line too.
+
+**Not reported:**
+
+- a function that is first in a block, after the `{` or the `:` that opens it. `mago format` removes
+  a blank line there;
+- a function right below a `//`, `#` or `/* */` comment, as in Coder;
+- a function after another function, which `mago format` separates;
+- a function at the start of a PHP block that doesn't start the file, as in Coder;
+- a method, which `mago format` separates.
+
+The fix is left out when the function starts on the line of the code before it. `mago format` moves
+the function to a line of its own, and the next fix adds the blank line.
+
+???+ example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    define('EXAMPLE_LIMIT', 10);
+    /**
+     * Returns the limit.
+     */
+    function example_limit(): int {
+      return EXAMPLE_LIMIT;
+    }
+
+    // Fine.
+    define('EXAMPLE_LIMIT', 10);
+
+    /**
+     * Returns the limit.
+     */
+    function example_limit(): int {
+      return EXAMPLE_LIMIT;
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder counts the blank line from a `//` comment right above the docblock, and DrupalPractice's
+      `CommentEmptyLine.SpacingAfter` then reports a blank line below that comment. No layout
+      satisfies both. The rule follows `FunctionSpacing`, and
+      [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) allows
+      a blank line between a comment and a docblock.
+    - A run of comment lines right above the docblock that holds a tool comment, such as
+      `// @mago-expect` or `// phpcs:ignore`, counts with the docblock, so the fix keeps the tool
+      comment next to the function. Coder counts from the tool comment and reports the function
+      again.
+    - Coder also reports a function that is first in a `case` body or in a block of the alternative
+      syntax, such as `if ($a):`. `mago format` removes the blank line there, so the rule doesn't
+      report it.
+
+---
+
 ## drupal/method-visibility
 
 - **Level:** error

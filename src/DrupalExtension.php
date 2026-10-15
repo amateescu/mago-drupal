@@ -49,6 +49,7 @@ use amateescu\MagoDrupal\Linter\Rules\FileEncodingRule;
 use amateescu\MagoDrupal\Linter\Rules\FileStartWhitespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\FormAlterCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FullyQualifiedNameRule;
+use amateescu\MagoDrupal\Linter\Rules\FunctionBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionNameRule;
 use amateescu\MagoDrupal\Linter\Rules\FunctionPrefixRule;
@@ -345,6 +346,7 @@ final class DrupalExtension
             new FileStartWhitespaceRule(),
             new FormAlterCommentRule(),
             new FullyQualifiedNameRule(),
+            new FunctionBlankLineRule(),
             new FunctionCommentRule(),
             new FunctionNameRule(),
             new FunctionPrefixRule(),
