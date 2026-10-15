@@ -18,6 +18,7 @@ use function in_array;
 use function ltrim;
 use function max;
 use function str_contains;
+use function stripos;
 use function str_ends_with;
 use function strrpos;
 use function strtolower;
@@ -158,7 +159,13 @@ final class FullyQualifiedNameRule implements Rule
     {
         $written = ltrim(trim($file->getText($name)), characters: '\\');
 
-        return str_contains($written, '\\') && !$this->isExempt($file, $name);
+        // A name relative to the current namespace, such as `namespace\Foo`,
+        // has nothing to import, and Coder skips it.
+        return (
+            str_contains($written, '\\')
+            && stripos($written, 'namespace\\') !== 0
+            && !$this->isExempt($file, $name)
+        );
     }
 
     /**

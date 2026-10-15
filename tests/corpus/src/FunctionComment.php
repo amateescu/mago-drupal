@@ -622,3 +622,11 @@ class FunctionCommentConstructorStyle {
   public function __construct() {}
 
 }
+
+/**
+ * A directive between the docblock and the function, in the `@phpcs:` form.
+ */
+// @phpcs:disable Drupal.Commenting.FunctionComment.Missing
+function function_comment_at_phpcs_directive(): void {
+}
+// @phpcs:enable
