@@ -27,7 +27,8 @@ Coder also checks `.test` files, a Drupal 7 format. To check them too, add `test
 extensions.
 
 The same worker adds the [analyzer plugins](../analyzer/index.md) to `mago analyze`. They are on by
-default and need no configuration.
+default and need no configuration. To run other Mago extensions in the same worker, see
+[Your own worker file](worker-arguments.md#your-own-worker-file).
 
 Run Mago as `vendor/bin/mago`. The worker loads the PHP SDK from the same Composer package, and the
 analyzer plugins need the SDK and the Mago binary to speak the same protocol version. A Mago
