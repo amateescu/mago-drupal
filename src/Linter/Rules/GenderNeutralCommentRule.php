@@ -30,6 +30,13 @@ final class GenderNeutralCommentRule implements Rule
 {
     private const PATTERN = '/(^|\W)(he|her|hers|him|his|she)($|\W)/i';
 
+    /**
+     * Whether PATTERN matches, with lookarounds in place of the groups around
+     * the pronoun. Every match then starts with an `h` or an `s`, which PCRE
+     * looks for first, where PATTERN tries every offset of the text.
+     */
+    private const ANY = '/(?<!\w)(?:he|her|hers|him|his|she)(?!\w)/i';
+
     private ?FileGate $gate = null;
 
     public function getDefinition(): RuleDefinition
@@ -48,7 +55,7 @@ final class GenderNeutralCommentRule implements Rule
     {
         // Comments are part of the source text. One scan of the whole file
         // with the same pattern is enough to skip the per-comment scans.
-        $this->gate ??= new FileGate(pattern: self::PATTERN);
+        $this->gate ??= new FileGate(pattern: self::ANY);
         if (!$this->gate->passes($context->file)) {
             return;
         }
@@ -56,7 +63,7 @@ final class GenderNeutralCommentRule implements Rule
         foreach ($context->file->getTrivia() as $trivia) {
             // A comment with no match has no line with one, so one scan of
             // the whole comment skips most of them.
-            if (preg_match(self::PATTERN, $context->file->getText($trivia->span)) !== 1) {
+            if (preg_match(self::ANY, $context->file->getText($trivia->span)) !== 1) {
                 continue;
             }
 

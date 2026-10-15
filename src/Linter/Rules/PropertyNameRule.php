@@ -69,7 +69,9 @@ final class PropertyNameRule implements Rule
                 continue;
             }
 
-            $exempt = $this->allowsAnyCase($file, $property);
+            // The exemption walks up to the outermost class, so it is read
+            // only for a name that breaks the convention.
+            $exempt = null;
             // Only the declared items are property names. A hooked property
             // keeps its get and set bodies in the same subtree. A walk of
             // every descendant reports the local variables inside them. A
@@ -89,6 +91,7 @@ final class PropertyNameRule implements Rule
 
                 // PSR2.Classes.PropertyDeclaration.Underscore has no exempt
                 // classes, so a leading underscore is still reported there.
+                $exempt ??= $this->allowsAnyCase($file, $property);
                 if ($exempt && !str_starts_with($name, '_')) {
                     continue;
                 }

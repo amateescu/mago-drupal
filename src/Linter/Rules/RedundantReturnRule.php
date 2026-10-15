@@ -39,6 +39,13 @@ use function substr;
  */
 final class RedundantReturnRule implements Rule
 {
+    /**
+     * A `return` with nothing but comments before its `;` or `?>`. A function
+     * without one has nothing to report, and the text search costs far less
+     * than reading its statements.
+     */
+    private const BARE_RETURN = '/\breturn(?:\s++|\/\*.*?\*\/|(?:\/\/|#)(?:[^\r\n?]|\?(?!>))*+)*+(?:;|\?>)/is';
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -54,6 +61,10 @@ final class RedundantReturnRule implements Rule
     public function lint(LintContext $context): void
     {
         $file = $context->file;
+        if (preg_match(self::BARE_RETURN, $file->getText($context->node)) !== 1) {
+            return;
+        }
+
         $body = Nodes::body($file, $context->node);
         $return = $body === null ? null : self::lastReturn($file, $body);
         if ($return === null) {

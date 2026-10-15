@@ -13,6 +13,9 @@ use Mago\Sdk\Reporting\TextEdit;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function preg_match;
+use function strlen;
+
 /**
  * Reports an import whose first name starts with a backslash.
  *
@@ -24,6 +27,19 @@ use Mago\Sdk\Syntax\NodeKind;
  */
 final class UseLeadingBackslashRule implements Rule
 {
+    /**
+     * Whitespace and comments, which PHP skips between tokens. A `?>` ends a
+     * line comment.
+     */
+    private const TRIVIA = '(?:\\s++|\\/\\*.*?\\*\\/|(?:\\/\\/|#)(?:[^\\r\\n?]|\\?(?!>))*+)*+';
+
+    /**
+     * The `use` keyword and the type before a first name that starts with a
+     * backslash, up to and including that backslash.
+     */
+    private const LEADING_BACKSLASH =
+        '/\\Guse' . self::TRIVIA . '(?:(?:function|const)(?![\\w\\x80-\\xff])' . self::TRIVIA . ')?\\\\/is';
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -38,15 +54,20 @@ final class UseLeadingBackslashRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // The first identifier of the statement is its first name. A
-        // `function` or `const` type before it is a keyword, and comments are
-        // trivia, so neither gets in the way.
-        $name = $context->file->getFirstDescendant($context->node, NodeKind::Identifier);
-        if ($name === null || ($context->file->contents[$name->span->start] ?? '') !== '\\') {
+        // The first name of the statement comes after the `use` keyword and
+        // an optional `function` or `const` type, with only comments and
+        // whitespace around them. Reading the text costs less than walking
+        // the statement's nodes.
+        $found = [];
+        if (
+            preg_match(self::LEADING_BACKSLASH, $context->file->contents, $found, offset: $context->node->span->start)
+            !== 1
+        ) {
             return;
         }
 
-        $span = new Span($name->span->start, $name->span->start + 1);
+        $start = $context->node->span->start + strlen($found[0]) - 1;
+        $span = new Span($start, $start + 1);
         $context->report(Issue::new(
             'Do not start an imported name with a backslash.',
             $span,

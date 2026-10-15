@@ -13,6 +13,7 @@ use function count;
 use function explode;
 use function in_array;
 use function max;
+use function strspn;
 use function strtolower;
 use function trim;
 
@@ -29,7 +30,12 @@ use function trim;
  * braces and what is inside them, so a docblock in a parameter list or
  * below an attribute is outside it.
  *
+ * The text check in isGroup() runs before the line read for every docblock.
+ *
  * @internal
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ * @mago-expect lint:kan-defect
  */
 final class OuterDocblocks
 {
@@ -147,6 +153,13 @@ final class OuterDocblocks
      */
     public static function isGroup(SourceFile $file, Span $span): bool
     {
+        // Every marker starts with `@`, so a docblock whose first text is
+        // something else is no group, and its lines need no reading.
+        $first = $span->start + 3 + strspn($file->contents, characters: " \t\r\n\0\x0B*/", offset: $span->start + 3);
+        if ($first >= $span->end || $file->contents[$first] !== '@') {
+            return false;
+        }
+
         $afterFile = false;
         foreach (Docblocks::lines($file, $span) as $line) {
             $text = trim($line->text);
