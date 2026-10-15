@@ -10,6 +10,16 @@ declare(strict_types=1);
 namespace Drupal\Core\Entity {
     interface EntityInterface
     {
+        /**
+         * @return static|null
+         */
+        public static function load(int|string $id);
+
+        /**
+         * @return static[]
+         */
+        public static function loadMultiple(?array $ids = null);
+
         public function id(): string|int|null;
 
         public function label(): string|null;
@@ -272,6 +282,16 @@ namespace Drupal\Core\Entity {
      */
     abstract class EntityBase implements EntityInterface
     {
+        public static function load(int|string $id)
+        {
+            return null;
+        }
+
+        public static function loadMultiple(?array $ids = null)
+        {
+            return [];
+        }
+
         public function id(): string|int|null
         {
             return null;

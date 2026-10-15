@@ -5,7 +5,7 @@ worker adds three plugins to `mago analyze` that give the analyzer those types, 
 mistakes that are specific to Drupal and to PHPUnit.
 
 - `drupal`, on by default: the types of services, entities, config and plugins, and the checks that
-  port phpstan-drupal's Drupal-specific rules.
+  port phpstan-drupal's Drupal-specific rules and the DrupalPractice sniffs that need types.
 - `phpunit`, on by default: the types of PHPUnit assertions, mocks and Prophecy doubles, and the
   checks for docblocks that type a double wrong. It depends on nothing specific to Drupal. See
   [Tests](tests.md).
@@ -18,9 +18,10 @@ them.
 ## The topic pages
 
 Each topic page starts with the types for its topic, then has an entry for each check. An entry
-gives the check's level, where the check comes from, the phpstan-drupal rule ported by the check,
-what it reports and what it leaves alone, and a collapsed "Compared with phpstan-drupal" note. Every
-code starts with `drupal/` or `phpunit/`. The [table of checks](#checks) below lists them all.
+gives the check's level, where the check comes from, the phpstan-drupal rule or Coder sniff ported by
+the check, what it reports and what it leaves alone, and a collapsed note that compares it with
+phpstan-drupal or Coder. Every code starts with `drupal/` or `phpunit/`. The
+[table of checks](#checks) below lists them all.
 
 Two pages have types only:
 
@@ -78,6 +79,7 @@ the properties that `DependencySerializationTrait` can't restore.
 | Check | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/global-drupal-call`](injection.md#drupalglobal-drupal-call) | warning | A call to a method of `\Drupal` in an instance method of a class that implements `ContainerInjectionInterface` or `ContainerFactoryPluginInterface`. |
+| [`drupal/static-entity-load`](injection.md#drupalstatic-entity-load) | warning | A static `load()` or `loadMultiple()` call on an entity class, such as `Node::load()`, in an instance method of a class that can take services. |
 | [`drupal/entity-storage-injection`](injection.md#drupalentity-storage-injection) | warning | A constructor parameter typed as an entity storage. |
 | [`drupal/entity-storage-property`](injection.md#drupalentity-storage-property) | warning | A property whose declared type, or `@var` type, is an entity storage. |
 | [`drupal/logger-from-factory`](injection.md#drupallogger-from-factory) | error | A `get()` call on a `LoggerChannelFactoryInterface` whose result is assigned straight to a property of `$this`, in the constructor of a class that uses `DependencySerializationTrait`. |

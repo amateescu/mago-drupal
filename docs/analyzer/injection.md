@@ -102,6 +102,97 @@ for a form, a controller or a plugin.
 
 ---
 
+## drupal/static-entity-load
+
+- **Level:** warning
+- **Source:** Coder's `DrupalPractice` standard
+- **Ports:** `DrupalPractice.Objects.GlobalClass.GlobalClass` (partly)
+- **Off with `--core`**
+
+Coder reports a static `load()` or `loadMultiple()` call on an entity class in a class that can take
+its services through dependency injection. `Node::load()` gets the storage from `\Drupal`, so such a
+class takes the entity type manager instead, and loads through `getStorage()`.
+
+**Reports:**
+
+- a static `load()` or `loadMultiple()` call on an entity class, such as `Node::load()`, in an
+  instance method of a class that can take services. These are the classes that
+  [`drupal/global-drupal-call`](#drupalglobal-drupal-call) checks: a class that implements
+  `ContainerInjectionInterface` or `ContainerFactoryPluginInterface`, an entity handler, a container
+  deriver, a service, a hook class and a `BlockBase` plugin. An entity class is any class that
+  implements `EntityInterface`, from core, contrib or custom code;
+- the same call with the class name written in full, such as
+  `\Drupal\taxonomy\Entity\Term::loadMultiple()`.
+
+**Not reported:**
+
+- a static method, a constructor with a parameter that accepts null, a call in a
+  [deprecation scope](deprecations.md#deprecation-scopes), a call inside an anonymous class and test
+  code, as for `drupal/global-drupal-call`;
+- a call in an entity class, such as `static::load()`, since nothing injects services into an
+  entity;
+- a first-class callable, such as `Node::load(...)`;
+- a call on an object, such as `$this->storage->load()` under a docblock that types the property
+  as an entity class. PHP runs a static method called on an object too, but only the
+  `Node::load()` form is a static load;
+- any other class, such as a plain object built with `new`.
+
+??? example "Example"
+
+    ```php title="modules/example/src/Form/ExampleForm.php"
+    // Reported.
+    namespace Drupal\example\Form;
+
+    use Drupal\Core\Form\FormBase;
+    use Drupal\user\Entity\User;
+
+    class ExampleForm extends FormBase {
+
+      protected function accountName(int $uid): string {
+        return (string) User::load($uid)?->label();
+      }
+
+    }
+
+    // Fine.
+    namespace Drupal\example\Form;
+
+    use Drupal\Core\Entity\EntityTypeManagerInterface;
+    use Drupal\Core\Form\FormBase;
+
+    class ExampleForm extends FormBase {
+
+      public function __construct(
+        protected EntityTypeManagerInterface $entityTypeManager,
+      ) {}
+
+      protected function accountName(int $uid): string {
+        return (string) $this->entityTypeManager->getStorage('user')->load($uid)?->label();
+      }
+
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder knows 46 core entity classes, such as `Node`, `User` and `Term`, and the classes of its
+      `classes` setting. The check takes every entity class, so it also reports the entity classes
+      of contrib and custom modules.
+    - Coder reads a class name that a `use` statement imports, and misses a name written in full,
+      such as `\Drupal\taxonomy\Entity\Term::load()`.
+    - Coder checks a class whose `extends` names one of 12 base classes, such as `FormBase`, whose
+      own `implements` list names a container interface, or that the module's services file lists.
+      The check takes the same classes as `drupal/global-drupal-call`, which adds subclasses, entity
+      handlers, hook classes and the services of every services file.
+    - Coder stops reading the file at the first call in a class that can't take services, so it
+      misses a call in a later class of the same file.
+    - Coder also reports a first-class callable, a call in a constructor with a nullable parameter,
+      in deprecated code or in an anonymous class, and test code.
+    - A deliberate lookup, such as one that breaks a circular dependency, is reported by both
+      tools. Mark it with `@mago-expect analysis:drupal/static-entity-load`.
+
+---
+
 ## drupal/entity-storage-injection
 
 - **Level:** warning

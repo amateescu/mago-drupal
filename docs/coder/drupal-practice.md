@@ -3,7 +3,7 @@
 Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`,
 `NamespacedDependency` and part of `VariableAnalysis` from this standard. The worker's
 [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the rules and the
-analyzer check that port the other sniffs.
+analyzer checks that port the other sniffs.
 
 <!-- docs-gen:coder-practice -->
 
@@ -24,7 +24,7 @@ analyzer check that port the other sniffs.
 | `DrupalPractice.InfoFiles.CoreVersionRequirement` | [`drupal/info-core-version-requirement`](../rules/info-and-routing-files.md#drupalinfo-core-version-requirement) |  |
 | `DrupalPractice.InfoFiles.Description` | [`drupal/info-description`](../rules/info-and-routing-files.md#drupalinfo-description) |  |
 | `DrupalPractice.InfoFiles.NamespacedDependency` | [`drupal/info-namespaced-dependency`](../rules/info-and-routing-files.md#drupalinfo-namespaced-dependency) |  |
-| `DrupalPractice.Objects.GlobalClass` | Nothing | A static `Node::load()` style call in a class that can have the storage injected. Not ported: it needs the analyzer. |
+| `DrupalPractice.Objects.GlobalClass` | [`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load), partly | Coder reports a static `load()` or `loadMultiple()` call on one of 46 core entity classes, written with an imported name, in the same classes as its GlobalDrupal sniff. The analyzer check takes every entity class and a name written in full, and checks the classes of `drupal/global-drupal-call`. It skips a first-class callable, a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports. |
 | `DrupalPractice.Objects.GlobalDrupal` | [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call), partly | Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports. |
 | `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |  |
 | `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |  |

@@ -167,9 +167,13 @@ final class DrupalPlugin implements Plugin
 
         $this->registerClassChecks($registry, $traitRoots);
         // Core's phpstan configuration ignores the rule's message, and core's
-        // phpcs configuration doesn't run DrupalPractice's GlobalDrupal.
+        // phpcs configuration doesn't run DrupalPractice's GlobalDrupal or
+        // GlobalClass.
         if (!$this->core) {
             $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...)));
+            $registry->registerMethodCallAnalysisHook(
+                new GlobalDrupalCallHook($indexes->services(...), entityLoads: true),
+            );
         }
 
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());

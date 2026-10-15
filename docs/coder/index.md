@@ -47,6 +47,9 @@ parse errors.
 possible. The analyzer check
 [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call) ports it, and reads
 the services of every services file where Coder reads only the nearest one.
+`DrupalPractice.Objects.GlobalClass` reports a static `Node::load()` call in the same classes, and
+[`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load) ports it for every
+entity class.
 
 To keep the line length check of text files, run phpcs with that sniff on those files only:
 

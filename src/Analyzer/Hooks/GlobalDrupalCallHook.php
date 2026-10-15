@@ -20,13 +20,18 @@ use Mago\Sdk\Analyzer\MethodTarget;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Syntax\NodeKind;
 
 use function in_array;
+use function preg_replace;
 use function str_contains;
+use function strcspn;
 use function strtolower;
+use function substr;
 
 /**
- * Reports `\Drupal::…` calls inside classes that can have services injected.
+ * Reports `\Drupal::…` calls inside classes that can have services injected,
+ * or static `load()` and `loadMultiple()` calls on entity classes there.
  *
  * Ports phpstan-drupal's GlobalDrupalDependencyInjectionRule, narrowed to
  * classes that can take services: descendants of ContainerInjectionInterface
@@ -43,6 +48,10 @@ use function strtolower;
  * the `\Drupal::` calls themselves, subclasses and instances of `Drupal`
  * included; the enclosing class and method come from their locations.
  *
+ * The plugin registers a second instance for static entity loads, which
+ * ports DrupalPractice's GlobalClass sniff. `Node::load()` looks up the
+ * storage through `\Drupal` too, so the same classes and skips apply.
+ *
  * @internal
  *
  * @mago-expect lint:cyclomatic-complexity
@@ -50,6 +59,14 @@ use function strtolower;
 final class GlobalDrupalCallHook implements MethodCallAnalysisHook
 {
     public const CODE = 'global-drupal-call';
+
+    public const ENTITY_LOAD_CODE = 'static-entity-load';
+
+    /**
+     * Declares the static `load()` and `loadMultiple()`. A target on it
+     * matches every entity class.
+     */
+    private const ENTITY = 'Drupal\Core\Entity\EntityInterface';
 
     public const ANCESTORS = [
         'Drupal\Core\DependencyInjection\ContainerInjectionInterface',
@@ -66,14 +83,21 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
 
     /**
      * @param Closure(Codebase): ServiceIndex $services Returns the current index.
+     * @param bool $entityLoads Reports static entity loads instead of
+     *   `\Drupal` calls.
      */
     public function __construct(
         private readonly Closure $services,
+        private readonly bool $entityLoads = false,
     ) {}
 
     public function getTargets(): array
     {
-        return [MethodTarget::allMethods('Drupal')];
+        return (
+            $this->entityLoads
+                ? [MethodTarget::exact(self::ENTITY, 'load'), MethodTarget::exact(self::ENTITY, 'loadMultiple')]
+                : [MethodTarget::allMethods('Drupal')]
+        );
     }
 
     public function getRequirements(): array
@@ -87,8 +111,13 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
     {
         $file = $context->analysis->file;
         $contents = $context->source->contents;
+        // PHP also runs a static method called on an object, and the host
+        // hands those calls over too. A docblock that types a storage as its
+        // entity class turns `$this->storage->load()` into one, so only the
+        // `Node::load()` syntax counts as an entity load.
         if (
-            TestFiles::isTest($file)
+            $this->entityLoads && $context->node->kind !== NodeKind::StaticMethodCall
+            || TestFiles::isTest($file)
             || DeprecationScopes::marked($contents, $file)
             && DeprecationScopes::of($contents, $file)->covers($context->node->span)
         ) {
@@ -106,6 +135,12 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
             return;
         }
 
+        if ($this->entityLoads) {
+            $context->report(Level::Warning, self::ENTITY_LOAD_CODE, self::entityLoad($context));
+
+            return;
+        }
+
         $context->report(
             Level::Warning,
             self::CODE,
@@ -115,6 +150,21 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
             )->withHelp(
                 'Inject the service through the constructor, or through create() for forms, controllers and plugins.',
             ),
+        );
+    }
+
+    /**
+     * The issue for a static entity load, which names the call as written,
+     * such as `Node::load()`.
+     */
+    private static function entityLoad(NodeAnalysisContext $context): Issue
+    {
+        $text = $context->source->getText($context->node->span);
+        $callee = substr($text, offset: 0, length: strcspn($text, characters: '('));
+        $callee = (string) preg_replace('/\s+/', replacement: '', subject: $callee);
+
+        return Issue::new("{$callee}() inside a class bypasses dependency injection.", $context->node->span)->withHelp(
+            'Inject the entity type manager, and load the entity through its getStorage().',
         );
     }
 

@@ -24,8 +24,9 @@ It limits `missing-summary` and `missing-function-comment` to the directories wh
 transliteration tables, which that file leaves out. It also leaves out the leading underscore check
 of `property-name` in the classes whose properties may use any case.
 
-It also turns off the three analyzer checks that don't apply to core,
+It also turns off the four analyzer checks that don't apply to core,
 [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),
+[`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load),
 [`drupal/internal-class-extension`](../analyzer/hooks.md#drupalinternal-class-extension) and
 [`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability), and
 makes [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) check every service
