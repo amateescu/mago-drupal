@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * @file
+ * Passes escaped values to placeholders.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Html as Escaper;
+use Drupal\Core\StringTranslation\PluralTranslatableMarkup;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\StringTranslation\TranslationManager;
+
+/**
+ * Html::escape() under an @ placeholder of t().
+ */
+function escaped_placeholder_translated(string $label): string {
+  // @mago-expect lint:drupal/escaped-placeholder
+  return (string) t('@label tokens.', ['@label' => Html::escape($label)]);
+}
+
+/**
+ * The % and : placeholders escape too.
+ */
+function escaped_placeholder_markup(string $label): array {
+  return [
+    // @mago-expect lint:drupal/escaped-placeholder
+    new TranslatableMarkup('%label tokens.', ['%label' => Html::escape($label)]),
+    // @mago-expect lint:drupal/escaped-placeholder
+    new FormattableMarkup('<a href=":url">x</a>', [':url' => Html::escape($label)]),
+  ];
+}
+
+/**
+ * The methods of the translation service.
+ */
+function escaped_placeholder_service(TranslationManager $translation, string $label): array {
+  return [
+    // @mago-expect lint:drupal/escaped-placeholder
+    $translation->t('@label tokens.', ['@label' => Html::escape($label)]),
+    // @mago-expect lint:drupal/escaped-placeholder
+    $translation->formatPlural(2, '1 @label', '@count @label', ['@label' => Html::escape($label)]),
+  ];
+}
+
+/**
+ * The plural markup takes its placeholders fourth.
+ */
+function escaped_placeholder_plural(string $label): PluralTranslatableMarkup {
+  // @mago-expect lint:drupal/escaped-placeholder
+  return new PluralTranslatableMarkup(2, '1 @label', '@count @label', ['@label' => Html::escape($label)]);
+}
+
+/**
+ * An aliased import and a name written in full.
+ */
+function escaped_placeholder_names(string $label): array {
+  return [
+    // @mago-expect lint:drupal/escaped-placeholder
+    t('@label', ['@label' => Escaper::escape($label)]),
+    // @mago-expect lint:drupal/escaped-placeholder
+    // @mago-expect lint:drupal/fully-qualified-name
+    t('@label', ['@label' => \Drupal\Component\Utility\Html::escape($label)]),
+  ];
+}
+
+/**
+ * Drupal 7 code with check_plain(), in watchdog().
+ */
+function escaped_placeholder_legacy(string $label): void {
+  // @mago-expect lint:drupal/escaped-placeholder
+  watchdog('corpus', 'Saved @label.', array('@label' => check_plain($label)));
+  // A ! placeholder inserts the value as it is, so it needs the escape.
+  watchdog('corpus', 'Saved !label.', array('!label' => check_plain($label)));
+}
+
+/**
+ * The escape starts the value, and something follows it.
+ */
+function escaped_placeholder_leading(string $label): string {
+  // @mago-expect lint:drupal/escaped-placeholder
+  return (string) t('@label', ['@label' => Html::escape($label) . ' (draft)']);
+}
+
+/**
+ * Values that aren't escaped twice.
+ */
+function escaped_placeholder_fine(string $label): array {
+  return [
+    t('@label', ['@label' => $label]),
+    t('@label', ['@label' => 'Draft: ' . Html::escape($label)]),
+    strtr('@label', ['@label' => Html::escape($label)]),
+    t('label', ['label' => Html::escape($label)]),
+    Html::escape($label),
+  ];
+}

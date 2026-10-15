@@ -43,6 +43,7 @@ use amateescu\MagoDrupal\Linter\Rules\EmptyInstallHookRule;
 use amateescu\MagoDrupal\Linter\Rules\EmptyPhpTagsRule;
 use amateescu\MagoDrupal\Linter\Rules\EmptySwitchRule;
 use amateescu\MagoDrupal\Linter\Rules\EnumCaseNameRule;
+use amateescu\MagoDrupal\Linter\Rules\EscapedPlaceholderRule;
 use amateescu\MagoDrupal\Linter\Rules\ExpectedExceptionTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ExplicitNullableParamRule;
 use amateescu\MagoDrupal\Linter\Rules\FileCommentRule;
@@ -162,6 +163,7 @@ final class DrupalExtension
         'drupal/class-prefix',
         'drupal/const-prefix',
         'drupal/curl-ssl-verify',
+        'drupal/escaped-placeholder',
         'drupal/form-alter-comment',
         'drupal/function-name',
         'drupal/function-prefix',
@@ -341,6 +343,7 @@ final class DrupalExtension
             new EmptyInstallHookRule(),
             new EmptySwitchRule(),
             new EnumCaseNameRule(),
+            new EscapedPlaceholderRule(),
             new ExpectedExceptionTagRule(),
             new ExplicitNullableParamRule(),
             new FileCommentRule(),

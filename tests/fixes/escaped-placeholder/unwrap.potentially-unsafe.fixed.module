@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Escaped placeholder values.
+ */
+
+use Drupal\Component\Utility\Html;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Builds token labels.
+ */
+function example_labels(string $label, int $delta): array {
+  return [
+    t('@label tokens.', ['@label' => $label]),
+    new TranslatableMarkup('@type type with delta @delta', [
+      '@type' => $label,
+      '@delta' => $delta,
+    ]),
+    t('%label', array('%label' => $label->label())),
+  ];
+}

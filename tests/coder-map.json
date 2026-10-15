@@ -1402,11 +1402,9 @@
     {
         "sniff": "DrupalPractice.FunctionCalls.TCheckPlain",
         "standard": "DrupalPractice",
-        "drupal7": true,
-        "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
+        "where": ["ext:drupal/escaped-placeholder"],
         "codes": [
-            {"code": "CheckPlain", "status": "gap"}
+            {"code": "CheckPlain", "status": "report"}
         ]
     },
     {

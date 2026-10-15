@@ -16,6 +16,7 @@ analyzer checks that port the other sniffs.
 | `DrupalPractice.Constants.GlobalDefine` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |  |
 | `DrupalPractice.FunctionCalls.CurlSslVerifier` | [`drupal/curl-ssl-verify`](../rules/drupal-practice.md#drupalcurl-ssl-verify) |  |
 | `DrupalPractice.FunctionCalls.InsecureUnserialize` | [`drupal/insecure-unserialize`](../rules/bugs-and-security.md#drupalinsecure-unserialize), partly |  |
+| `DrupalPractice.FunctionCalls.TCheckPlain` | [`drupal/escaped-placeholder`](../rules/drupal-practice.md#drupalescaped-placeholder) |  |
 | `DrupalPractice.FunctionDefinitions.FormAlterDoc` | [`drupal/form-alter-comment`](../rules/drupal-practice.md#drupalform-alter-comment) |  |
 | `DrupalPractice.General.ClassName` | [`drupal/class-prefix`](../rules/drupal-practice.md#drupalclass-prefix) |  |
 | `DrupalPractice.General.DescriptionT` | Nothing | A `#description` value that starts with a string literal of more than three characters, not counting tags, as in `'#description' => 'Some text'`. Not ported. |
@@ -60,7 +61,6 @@ still runs them.
 | `DrupalPractice.FunctionCalls.FormErrorT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly |
 | `DrupalPractice.FunctionCalls.LCheckPlain` | Not ported |
 | `DrupalPractice.FunctionCalls.MessageT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly |
-| `DrupalPractice.FunctionCalls.TCheckPlain` | Not ported |
 | `DrupalPractice.FunctionCalls.Theme` | Not ported |
 | `DrupalPractice.FunctionCalls.VariableSetSanitize` | Not ported |
 | `DrupalPractice.FunctionDefinitions.AccessHookMenu` | Not ported |

@@ -197,6 +197,7 @@ the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-co
 | --- | --- | --- |
 | [`drupal/class-prefix`](drupal-practice.md#drupalclass-prefix) | warning | Reports a class or interface in the global namespace that doesn't start with the module name. |
 | [`drupal/curl-ssl-verify`](drupal-practice.md#drupalcurl-ssl-verify) | warning | Reports curl_setopt() calls that turn off CURLOPT_SSL_VERIFYPEER. |
+| [`drupal/escaped-placeholder`](drupal-practice.md#drupalescaped-placeholder) | warning | Reports check_plain() or Html::escape() as the value of an @, % or : placeholder, which escapes the value already. |
 | [`drupal/form-alter-comment`](drupal-practice.md#drupalform-alter-comment) | warning | Reports a function documented as hook_form_alter() that isn't named after the module. |
 | [`drupal/global-constant`](drupal-practice.md#drupalglobal-constant) | warning | Reports a top-level const statement or define() call, as DrupalPractice does. |
 | [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE or $_FILES. The request stack gives the same data. |
