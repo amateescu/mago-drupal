@@ -106,7 +106,8 @@ final class CoderTables
     }
 
     /**
-     * Renders the checks for the Drupal 7 API.
+     * Renders the checks for the Drupal 7 API. A sniff that a rule or an
+     * analyzer check handles names it, and the rest are not ported.
      */
     public function drupal7(): string
     {
@@ -116,11 +117,18 @@ final class CoderTables
                 continue;
             }
 
-            $ported = array_filter($sniff['where'], static fn(string $handler): bool => str_starts_with(
-                $handler,
-                'ext:',
-            ));
-            $by = $ported === [] ? 'Not ported' : $this->handledBy($sniff['where'], statuses: ['report']);
+            $ported = array_filter(
+                $sniff['where'],
+                static fn(string $handler): bool => (
+                    str_starts_with($handler, 'ext:') || str_starts_with($handler, 'check:')
+                ),
+            );
+            $partial = array_filter($sniff['codes'], static fn(array $code): bool => $code['status'] === 'partial');
+            $by = match (true) {
+                $ported === [] => 'Not ported',
+                $partial === [] => $this->handledBy($sniff['where'], statuses: ['report']),
+                default => $this->handledBy($sniff['where'], statuses: ['partial']) . ', partly',
+            };
             $rows .= "| `{$sniff['sniff']}` | {$by} |\n";
         }
 

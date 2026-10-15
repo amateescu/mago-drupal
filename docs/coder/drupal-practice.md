@@ -38,12 +38,16 @@ analyzer checks that port the other sniffs.
 ## Checks for the Drupal 7 API
 
 These checks look for Drupal 7 functions, hooks and arrays, such as `check_plain()`, `hook_menu()`
-or `$form_state['input']`, and Coder runs some of them only on a Drupal 7 module. They aren't
+or `$form_state['input']`, and Coder runs some of them only on a Drupal 7 module. Most aren't
 ported. On Drupal 8 and later most of those functions don't exist, and `mago analyze` reports a call
 to one as an unknown function. Nothing in Mago reports the `hook_menu()` checks or an `'und'` key.
 `mago analyze` reports `$form_state['input']` only when `$form_state` is typed as
-`FormStateInterface`, as an array access on an object. The Drupal 7 checks of the `Drupal` standard
-are on the [Drupal standard](drupal.md) page, since core's config still runs them.
+`FormStateInterface`, as an array access on an object. `FormErrorT` and `MessageT` report a literal
+message passed to `form_set_error()`, `form_error()` or `drupal_set_message()`, and
+[`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message) reports the
+same mistake in the form state and messenger methods that replace those functions. The Drupal 7
+checks of the `Drupal` standard are on the [Drupal standard](drupal.md) page, since core's config
+still runs them.
 
 <!-- docs-gen:coder-drupal7 -->
 
@@ -53,9 +57,9 @@ are on the [Drupal standard](drupal.md) page, since core's config still runs the
 | `DrupalPractice.FunctionCalls.DbQuery` | Not ported |
 | `DrupalPractice.FunctionCalls.DbSelectBraces` | Not ported |
 | `DrupalPractice.FunctionCalls.DefaultValueSanitize` | Not ported |
-| `DrupalPractice.FunctionCalls.FormErrorT` | Not ported |
+| `DrupalPractice.FunctionCalls.FormErrorT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly |
 | `DrupalPractice.FunctionCalls.LCheckPlain` | Not ported |
-| `DrupalPractice.FunctionCalls.MessageT` | Not ported |
+| `DrupalPractice.FunctionCalls.MessageT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly |
 | `DrupalPractice.FunctionCalls.TCheckPlain` | Not ported |
 | `DrupalPractice.FunctionCalls.Theme` | Not ported |
 | `DrupalPractice.FunctionCalls.VariableSetSanitize` | Not ported |

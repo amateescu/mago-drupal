@@ -1366,10 +1366,10 @@
         "sniff": "DrupalPractice.FunctionCalls.FormErrorT",
         "standard": "DrupalPractice",
         "drupal7": true,
-        "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
+        "where": ["check:drupal/untranslated-message"],
+        "note": "Coder checks only the Drupal 7 functions `form_set_error()` and `form_error()`, which don't exist on Drupal 8 and later, and mago analyze reports a call to one as unknown. The analyzer check reports the same mistake in the methods that replace them instead: `setErrorByName()` and `setError()` of `FormStateInterface`.",
         "codes": [
-            {"code": "ErrorMessage", "status": "gap"}
+            {"code": "ErrorMessage", "status": "partial"}
         ]
     },
     {
@@ -1394,10 +1394,10 @@
         "sniff": "DrupalPractice.FunctionCalls.MessageT",
         "standard": "DrupalPractice",
         "drupal7": true,
-        "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
+        "where": ["check:drupal/untranslated-message"],
+        "note": "Coder checks only the Drupal 7 function `drupal_set_message()`, which doesn't exist on Drupal 9 and later, and mago analyze reports a call to it as unknown. The analyzer check reports the same mistake in the methods that replace it instead: `addMessage()`, `addStatus()`, `addWarning()` and `addError()` of `MessengerInterface`.",
         "codes": [
-            {"code": "ErrorMessage", "status": "gap"}
+            {"code": "ErrorMessage", "status": "partial"}
         ]
     },
     {

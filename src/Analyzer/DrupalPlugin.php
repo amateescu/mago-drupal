@@ -46,6 +46,7 @@ use amateescu\MagoDrupal\Analyzer\Hooks\TraitStorageHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownEntityTypeHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownPluginHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\UnknownServiceHook;
+use amateescu\MagoDrupal\Analyzer\Hooks\UntranslatedMessageHook;
 use amateescu\MagoDrupal\Analyzer\Providers\ClassResolverProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigFactoryProvider;
 use amateescu\MagoDrupal\Analyzer\Providers\ConfigGetProvider;
@@ -166,14 +167,19 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodCallAnalysisHook(new UnknownPluginHook($indexes->plugins(...)));
 
         $this->registerClassChecks($registry, $traitRoots);
-        // Core's phpstan configuration ignores the rule's message, and core's
-        // phpcs configuration doesn't run DrupalPractice's GlobalDrupal or
-        // GlobalClass.
+        // Core's phpstan configuration ignores the message of phpstan-drupal's
+        // GlobalDrupalDependencyInjectionRule, and core's phpcs configuration
+        // doesn't run DrupalPractice's GlobalDrupal, GlobalClass, FormErrorT or
+        // MessageT.
         if (!$this->core) {
             $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...)));
             $registry->registerMethodCallAnalysisHook(
                 new GlobalDrupalCallHook($indexes->services(...), entityLoads: true),
             );
+            $registry->registerMethodCallAnalysisHook(
+                new UntranslatedMessageHook(UntranslatedMessageHook::FORM_ERRORS),
+            );
+            $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(UntranslatedMessageHook::MESSAGES));
         }
 
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());

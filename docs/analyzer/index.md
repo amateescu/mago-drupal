@@ -140,6 +140,15 @@ called, trusted or serialized by core, and cacheable dependencies that can't hav
 | [`drupal/trusted-callback-override`](render-and-forms.md#drupaltrusted-callback-override) | warning | A method that overrides one with `#[TrustedCallback]`, declared in a parent class or in a trait that a parent uses, when the override doesn't repeat the attribute. |
 | [`drupal/cacheable-dependency`](render-and-forms.md#drupalcacheable-dependency) | warning | An `addCacheableDependency()` call whose dependency is a scalar, an array, null, or a final class that doesn't implement `CacheableDependencyInterface`. |
 
+## Translation
+
+Checks for text that users see but that can't be translated, such as a literal form error or a
+status message.
+
+| Check | Level | What it reports |
+| --- | --- | --- |
+| [`drupal/untranslated-message`](translation.md#drupaluntranslated-message) | warning | A message that starts with a string literal, passed to `setErrorByName()` or `setError()` of `FormStateInterface`, or to `addMessage()`, `addStatus()`, `addWarning()` or `addError()` of `MessengerInterface`. |
+
 ## Hooks and modules
 
 Checks for hook implementations, for the files that a module loads with `loadInclude()`, and for
