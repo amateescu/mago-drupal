@@ -17,6 +17,8 @@ literal or a `Foo::class` constant, the analyzer types the result as the class o
 - `\Drupal::service()`;
 - `\Drupal::classResolver('id')` and `ClassResolverInterface::getInstanceFromDefinition('id')`.
   They try the argument as a service id first and as a class name second, as `ClassResolver` does;
+- `\Drupal::classResolver()` with no argument, as `ClassResolverInterface`, as phpstan-drupal types
+  it. Without that, Mago turns the declared `ClassResolverInterface|object` into `object`;
 - an id that no services file or provider defines, but that names a class. The container registers
   hook classes and other autowired services under their class name, with no line in a services
   file, and `get()` returns that service or throws.
@@ -26,11 +28,7 @@ literal or a `Foo::class` constant, the analyzer types the result as the class o
 - `get()` on a value typed only as PSR-11's `ContainerInterface`. Other libraries implement that
   interface for containers of their own;
 - `has()`. A services file on disk means that the module exists, not that it is installed, so
-  `if ($container->has('optional.service'))` has to stay a real branch;
-- `\Drupal::classResolver()` with no argument. Its declared return type is
-  `ClassResolverInterface|object`, which Mago turns into `object`, so a call on it is reported as
-  `ambiguous-object-method-access` and [`drupal/deprecated-service`](#drupaldeprecated-service)
-  doesn't check a lookup through it.
+  `if ($container->has('optional.service'))` has to stay a real branch.
 
 A literal second argument other than `ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE` keeps
 `null` in the type, because the container then returns null for a missing service. A computed

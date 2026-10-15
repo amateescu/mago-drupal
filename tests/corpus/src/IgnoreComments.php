@@ -128,3 +128,11 @@ final class IgnoreComments {
   }
 
 }
+
+/**
+ * Calls an instance method statically, which PHPStan names `method.staticCall`.
+ */
+function ignore_comments_static_call(): void {
+  // @phpstan-ignore method.staticCall
+  IgnoreComments::identifier();
+}

@@ -26,6 +26,7 @@ final class CorpusTraitUser {
    * The whole object is an array, and a named key argument works too.
    *
    * @return array<string, mixed>
+   *   The result.
    */
   public function everything(): array {
     $count = $this->config('corpus.settings')->get(key: 'count') ?? 0;

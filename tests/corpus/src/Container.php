@@ -113,6 +113,11 @@ final class Container {
     $resolver->getInstanceFromDefinition('corpus.thing')->missing();
     // @mago-expect analysis:ambiguous-object-method-access
     $resolver->getInstanceFromDefinition('corpus.not_defined')->missing();
+    // With no argument, the call returns the resolver itself.
+    // @mago-expect analysis:non-existent-method
+    \Drupal::classResolver()->getInstanceFromDefinition(Thing::class)->missing();
+    // @mago-expect analysis:drupal/deprecated-service
+    \Drupal::classResolver()->getInstanceFromDefinition('corpus.aliased');
   }
 
   /**

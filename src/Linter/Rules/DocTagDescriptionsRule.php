@@ -73,25 +73,31 @@ final class DocTagDescriptionsRule implements Rule
             $this->checkParamCoverage($context, $paramTags);
         }
 
+        // Coder takes the lines below the tag as the description. Text after
+        // the type on the tag's own line is part of the type for Coder.
         $return = $tags->returnTag();
-        if ($return !== null && self::lacksDescription($return)) {
-            $context->report(Issue::new('The @return tag has no description.', $return->tag->contentSpan()));
+        if ($return !== null && self::needsDescription($return) && $return->tag->textBelow() === '') {
+            $context->report(Issue::new(
+                $return->rest === ''
+                    ? 'The @return tag has no description.'
+                    : 'The @return description must be on the line below the tag.',
+                $return->tag->contentSpan(),
+            ));
         }
     }
 
     /**
-     * Whether a `@return` with a type has no description. A variable name
+     * Whether a `@return` with a type needs a description. A variable name
      * after the type is `drupal/doc-tag-layout`'s, and `@return void`,
      * `@return static` and `@return $this` need no description.
      */
-    private static function lacksDescription(ReturnTag $return): bool
+    private static function needsDescription(ReturnTag $return): bool
     {
         $type = $return->type;
 
         return (
             $type !== null
             && !$return->namesVariable()
-            && $return->rest === ''
             && !in_array($type, ['$this', 'static'], strict: true)
             && strtolower($type) !== 'void'
         );

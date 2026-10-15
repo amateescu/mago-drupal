@@ -160,7 +160,12 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodCallAnalysisHook(new UnknownPluginHook($indexes->plugins(...)));
 
         $this->registerClassChecks($registry, $traitRoots);
-        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook());
+        // Core's phpstan configuration ignores the rule's message, and core's
+        // phpcs configuration doesn't run DrupalPractice's GlobalDrupal.
+        if (!$this->core) {
+            $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook());
+        }
+
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
         $registry->registerMethodCallAnalysisHook(new ImplicitTransactionCommitHook());
         $registry->registerMethodCallAnalysisHook(new CacheableDependencyHook(CacheableDependencyHook::REFINABLE));

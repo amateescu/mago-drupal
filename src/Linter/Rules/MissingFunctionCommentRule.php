@@ -13,6 +13,7 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function preg_match;
 use function stripos;
 use function strtolower;
 
@@ -26,12 +27,27 @@ use function strtolower;
  */
 final class MissingFunctionCommentRule implements Rule
 {
+    /**
+     * The include patterns of `Missing` in core's `phpcs.xml.dist`.
+     */
+    private const CORE_DIRECTORIES =
+        '#(?:^|/)core/(?:.*/src/Plugin/|lib/|modules/system/tests/modules/HookOrder/)'
+            . '|/(?:Database|FunctionalJavascript|Kernel|KernelTests|Functional|Unit)/#';
+
     private string $mentionPath = '';
 
     /**
      * @var list<int>
      */
     private array $constructorMentions = [];
+
+    /**
+     * @param bool $core Reports a function only in the directories where
+     *   core's `phpcs.xml.dist` checks it.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
 
     public function getDefinition(): RuleDefinition
     {
@@ -47,6 +63,10 @@ final class MissingFunctionCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
+        if ($this->core && !self::checkedOnCore($context->file->path)) {
+            return;
+        }
+
         $comment = DeclarationComment::of($context);
         if ($comment->comment === null) {
             // A constructor with nothing above it needs no docblock. One with
@@ -63,6 +83,15 @@ final class MissingFunctionCommentRule implements Rule
         if ($comment->hasFileTag($context->file)) {
             $context->report(Issue::new('The function has no docblock.', $context->node->span));
         }
+    }
+
+    /**
+     * Whether core's `phpcs.xml.dist` checks the functions of the file at
+     * $path for a docblock.
+     */
+    public static function checkedOnCore(string $path): bool
+    {
+        return preg_match(self::CORE_DIRECTORIES, $path) === 1;
     }
 
     /**

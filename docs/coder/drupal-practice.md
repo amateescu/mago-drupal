@@ -2,9 +2,8 @@
 
 Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`,
 `NamespacedDependency` and part of `VariableAnalysis` from this standard. The worker's
-[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the linter rules
-that port the other sniffs. The analyzer check `drupal/global-drupal-call`, which ports
-`GlobalDrupal` in part, stays on.
+[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the rules and the
+analyzer check that port the other sniffs.
 
 <!-- docs-gen:coder-practice -->
 

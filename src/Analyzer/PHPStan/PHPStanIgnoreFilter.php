@@ -36,6 +36,14 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
     private const DEPRECATED_CLASS = ['deprecated-class', 'deprecated-trait'];
 
     /**
+     * PHPStan names a deprecated member of a deprecated class-like after the
+     * class-like, and Mago after the member.
+     */
+    private const DEPRECATED_CLASS_CONSTANT = ['deprecated-class', 'deprecated-trait', 'deprecated-class-constant'];
+
+    private const DEPRECATED_CLASS_METHOD = ['deprecated-class', 'deprecated-trait', 'deprecated-method'];
+
+    /**
      * Mago reports every unreachable statement, and `UnreachableIgnores`
      * finds the ones after a covered line.
      */
@@ -73,7 +81,9 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'class.implementsDeprecatedInterface' => self::DEPRECATED_CLASS,
         'class.notFound' => ['non-existent-class', 'non-existent-class-like'],
         'classConstant.deprecated' => ['deprecated-class-constant'],
-        'classConstant.deprecatedClass' => self::DEPRECATED_CLASS,
+        'classConstant.deprecatedClass' => self::DEPRECATED_CLASS_CONSTANT,
+        'classConstant.deprecatedEnum' => self::DEPRECATED_CLASS_CONSTANT,
+        'classConstant.deprecatedInterface' => self::DEPRECATED_CLASS_CONSTANT,
         'classConstant.notFound' => ['non-existent-class-constant'],
         'constant.deprecated' => ['deprecated-constant'],
         'constant.notFound' => ['non-existent-constant'],
@@ -86,8 +96,9 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'if.alwaysTrue' => self::CONDITION_ALWAYS_TRUE,
         'interface.extendsDeprecatedInterface' => self::DEPRECATED_CLASS,
         'method.deprecated' => ['deprecated-method'],
-        'method.deprecatedClass' => self::DEPRECATED_CLASS,
-        'method.deprecatedInterface' => self::DEPRECATED_CLASS,
+        'method.deprecatedClass' => self::DEPRECATED_CLASS_METHOD,
+        'method.deprecatedEnum' => self::DEPRECATED_CLASS_METHOD,
+        'method.deprecatedInterface' => self::DEPRECATED_CLASS_METHOD,
         'method.nonObject' => [
             'ambiguous-object-method-access',
             'invalid-method-access',
@@ -96,6 +107,7 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'possible-method-access-on-null',
         ],
         'method.notFound' => ['non-documented-method', 'non-existent-method', 'possibly-non-existent-method'],
+        'method.staticCall' => ['invalid-static-method-access'],
         'missingType.parameter' => ['missing-parameter-type'],
         'missingType.property' => ['missing-property-type'],
         'missingType.return' => ['missing-return-type'],
@@ -138,7 +150,9 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'nullable-return-statement',
         ],
         'staticMethod.deprecated' => ['deprecated-method'],
-        'staticMethod.deprecatedClass' => self::DEPRECATED_CLASS,
+        'staticMethod.deprecatedClass' => self::DEPRECATED_CLASS_METHOD,
+        'staticMethod.deprecatedEnum' => self::DEPRECATED_CLASS_METHOD,
+        'staticMethod.deprecatedInterface' => self::DEPRECATED_CLASS_METHOD,
         'staticMethod.notFound' => ['non-existent-method'],
         'staticProperty.deprecated' => ['deprecated-property'],
         'staticProperty.notFound' => ['non-existent-property'],

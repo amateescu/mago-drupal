@@ -11,6 +11,7 @@ are turned off or not run by core's `phpcs.xml.dist`:
 - `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
   `method-name-underscore` and `short-list`;
 - `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
+- `unsilenced-deprecation`;
 - `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](../rules/drupal-practice.md)
   `class-prefix`, `curl-ssl-verify`, `form-alter-comment`, `global-constant`,
   `request-superglobal`, `strict-config-schema` and `untranslated-options`, which all port
@@ -18,7 +19,12 @@ are turned off or not run by core's `phpcs.xml.dist`:
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`.
 
-It also turns off the two analyzer checks that don't apply to core,
+It limits `missing-summary` and `missing-function-comment` to the directories where core's
+`phpcs.xml.dist` runs them, and leaves out the leading underscore check of `property-name` in the
+classes whose properties may use any case.
+
+It also turns off the three analyzer checks that don't apply to core,
+[`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),
 [`drupal/internal-class-extension`](../analyzer/hooks.md#drupalinternal-class-extension) and
 [`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability), and
 makes [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) check every service

@@ -43,6 +43,16 @@ final class PropertyNameRule implements Rule
         NodeKind::AnonymousClass,
     ];
 
+    /**
+     * @param bool $core Leaves out the leading underscore in the classes that
+     *   may use any case. Core's `phpcs.xml.dist` turns off
+     *   `PSR2.Classes.PropertyDeclaration.Underscore`, which is the only
+     *   check there.
+     */
+    public function __construct(
+        private readonly bool $core = false,
+    ) {}
+
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -90,9 +100,10 @@ final class PropertyNameRule implements Rule
                 }
 
                 // PSR2.Classes.PropertyDeclaration.Underscore has no exempt
-                // classes, so a leading underscore is still reported there.
+                // classes, so a leading underscore is still reported there,
+                // except on core.
                 $exempt ??= $this->allowsAnyCase($file, $property);
-                if ($exempt && !str_starts_with($name, '_')) {
+                if ($exempt && ($this->core || !str_starts_with($name, '_'))) {
                     continue;
                 }
 

@@ -385,7 +385,9 @@ the end of the long description.
 
 - a `@param` with no description. On a tag with no type, a single word after the variable is the
   type and not a description, so the description is the lines below;
-- a `@return` with a type and no description;
+- a `@return` with a type and no description on the lines below it. As in Coder, text on the tag's
+  own line is part of the type, so `@return string The label.` and `@return array<int, string>`
+  with nothing below are reported too, with the description asked for on the line below;
 - a method with `@param` tags for some parameters and none for a real parameter.
 
 **Not reported:**
@@ -429,12 +431,6 @@ without one. Core's phpcs runs Coder 8, which reports it.
       return (string) $id;
     }
     ```
-
-??? note "Compared with Coder"
-
-    - A `@return` with more than one word on its line and nothing below, as in
-      `@return string The label.` or `@return array<int, string>`, isn't reported. Coder reports it
-      as `MissingReturnComment` and asks for the description on the next line.
 
 ---
 
@@ -988,7 +984,11 @@ inside a run of `//` lines.
 
 **Not reported:**
 
-- a constructor with nothing above it. A constructor with a docblock is checked by the other rules.
+- a constructor with nothing above it. A constructor with a docblock is checked by the other rules;
+- with `--core`, a function outside the directories where that check is run by core's
+  `phpcs.xml.dist`: `core/lib`, a module's `src/Plugin`, the `Database`, `Functional`,
+  `FunctionalJavascript`, `Kernel`, `KernelTests` and `Unit` directories, and the `HookOrder` test
+  module.
 
 ??? note "Compared with Coder"
 
