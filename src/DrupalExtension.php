@@ -118,6 +118,7 @@ use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
 use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\VariableNameRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\WeakHashRule;
 use Composer\InstalledVersions;
@@ -422,6 +423,7 @@ final class DrupalExtension
             new UnusedVariableRule(core: $core),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
+            new VariableNameRule(),
             new WatchdogMessageRule(),
             new WeakHashRule(),
         ];

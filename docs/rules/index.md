@@ -87,8 +87,8 @@ outside PHP tags, and these rules read the YAML in it.
 
 ## Naming and imports
 
-Rules for the names of classes, constants, functions, methods and properties, and for `use`
-statements. Mago's own naming rules cover the rest, see
+Rules for the names of classes, constants, functions, methods, properties and variables, and for
+`use` statements. Mago's own naming rules cover the rest, see
 [Configuration](../setup/configuration.md).
 
 | Rule | Level | What it reports |
@@ -107,6 +107,7 @@ statements. Mago's own naming rules cover the rest, see
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |
 | [`drupal/test-class-suffix`](naming-and-imports.md#drupaltest-class-suffix) | error | Reports a test class whose name doesn't end in Test, which PHPUnit never runs. |
 | [`drupal/use-leading-backslash`](naming-and-imports.md#drupaluse-leading-backslash) | error | Reports a use statement whose first name starts with a backslash. |
+| [`drupal/variable-name`](naming-and-imports.md#drupalvariable-name) | error | Reports variables whose name starts with a capital letter. |
 
 ## Statements and declarations
 

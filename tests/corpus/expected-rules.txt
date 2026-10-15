@@ -106,5 +106,6 @@ drupal/untranslated-options
 drupal/unused-variable
 drupal/use-leading-backslash
 drupal/variable-comment
+drupal/variable-name
 drupal/watchdog-message
 drupal/weak-hash

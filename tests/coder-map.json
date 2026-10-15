@@ -501,7 +501,7 @@
         "where": ["ext:drupal/property-name"],
         "codes": [
             {"code": "LowerCamelName", "status": "report"},
-            {"code": "LowerStart", "status": "gap", "where": ["lint:variable-name"], "note": "Mago's `variable-name` rule, off by default. The configuration in Setup doesn't turn it on. It reports a name that is neither camel case nor snake case, such as `$Foo`, and also `$foo_Bar`, which Coder accepts. It skips `foreach`, `catch`, `static` and `global` variables."}
+            {"code": "LowerStart", "status": "report", "where": ["ext:drupal/variable-name"]}
         ]
     },
     {

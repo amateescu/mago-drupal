@@ -1,7 +1,7 @@
 # Naming and imports
 
-Rules for the names of classes, constants, functions, methods and properties, and for `use`
-statements. Mago's own naming rules cover the rest, see
+Rules for the names of classes, constants, functions, methods, properties and variables, and for
+`use` statements. Mago's own naming rules cover the rest, see
 [Configuration](../setup/configuration.md).
 
 ---
@@ -632,3 +632,55 @@ nothing.
 
     - Coder reads `function` and `const` only in lower case, so it doesn't report
       `use FUNCTION \foo;`. The rule reads the keyword in any case, as PHP does.
+
+---
+
+## drupal/variable-name
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Functions and variables](https://project.pages.drupalcode.org/coding_standards/php/coding/#functions-and-variables)
+- **Ports:** `Drupal.NamingConventions.ValidVariableName.LowerStart`
+
+> Variables should be named using lowercase, and words should be separated either with uppercase
+> characters (example: $lowerCamelCase) or with an underscore (example: $snake_case).
+
+**Reports:**
+
+- a variable whose name starts with an ASCII capital, at each place it's written: parameters,
+  promoted constructor parameters included, assignments, reads, `foreach`, `catch`, `static`,
+  `global`, destructuring, a closure's `use` list, a dynamic property name such as
+  `$object->$Name`, and variables outside a function.
+
+**Not reported:**
+
+- `$GLOBALS`;
+- a property declaration, which `drupal/property-name` checks;
+- a static property or method name after `::`, such as `self::$Count`;
+- a variable inside a double-quoted string or a heredoc;
+- a name that starts with a capital outside ASCII, such as `$É`.
+
+A rename of a parameter breaks the callers that pass it by name, and a global or static variable is
+shared with other code, so the rule has no fix.
+
+Mago's own `variable-name` checks only assignments and parameters, and it also reports a name such
+as `$foo_Bar`, which Coder accepts.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    function example_total(array $Items): int {
+      return count($Items);
+    }
+
+    // Fine.
+    function example_total(array $items): int {
+      return count($items);
+    }
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder treats a variable inside a property hook as a property, and reports it as
+      `LowerCamelName`, an underscore included. The rule checks it as any other variable.

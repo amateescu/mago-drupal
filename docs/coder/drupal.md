@@ -95,7 +95,7 @@ on [Sniffs from other standards](other-standards.md).
 | `Drupal.NamingConventions.ValidEnumCase` | [`drupal/enum-case-name`](../rules/naming-and-imports.md#drupalenum-case-name) |  |
 | `Drupal.NamingConventions.ValidFunctionName` | `InvalidName`: [`drupal/function-name`](../rules/naming-and-imports.md#drupalfunction-name)<br>`InvalidPrefix`: [`drupal/function-prefix`](../rules/procedural-files.md#drupalfunction-prefix)<br>`MethodDoubleUnderscore`: [`drupal/method-name-underscore`](../rules/naming-and-imports.md#drupalmethod-name-underscore)<br>`NotCamelCaps`, `ScopeNotCamelCaps`: [`drupal/method-name`](../rules/naming-and-imports.md#drupalmethod-name) | Core doesn't run the sniff. |
 | `Drupal.NamingConventions.ValidGlobal` | [`drupal/global-variable`](../rules/procedural-files.md#drupalglobal-variable) |  |
-| `Drupal.NamingConventions.ValidVariableName` | `LowerCamelName`: [`drupal/property-name`](../rules/naming-and-imports.md#drupalproperty-name)<br>`LowerStart`: Mago `variable-name` (off by default) | `LowerStart`: Mago's `variable-name` rule, off by default. The configuration in Setup doesn't turn it on. It reports a name that is neither camel case nor snake case, such as `$Foo`, and also `$foo_Bar`, which Coder accepts. It skips `foreach`, `catch`, `static` and `global` variables. |
+| `Drupal.NamingConventions.ValidVariableName` | `LowerCamelName`: [`drupal/property-name`](../rules/naming-and-imports.md#drupalproperty-name)<br>`LowerStart`: [`drupal/variable-name`](../rules/naming-and-imports.md#drupalvariable-name) |  |
 
 ## Scope
 
