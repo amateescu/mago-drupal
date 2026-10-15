@@ -66,8 +66,11 @@ final class WellFormedTest extends TestCase {
 }
 
 /**
- * Exposes the modules list.
+ * Exposes the modules list, and has no Test suffix.
+ *
+ * The file is outside the test directories, which the linter rule reads.
  */
+// @mago-expect analysis:drupal/test-class-name
 final class BadlyNamed extends TestCase {
 
   /**

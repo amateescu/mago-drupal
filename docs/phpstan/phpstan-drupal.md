@@ -168,7 +168,7 @@ Off by default in phpstan-drupal.
 
 ### TestClassSuffixNameRule
 
-- `nonAbstractTestClass.NameNoSuffixTest`: [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix), partly
+- `nonAbstractTestClass.NameNoSuffixTest`: [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix), [`drupal/test-class-name`](../analyzer/tests.md#drupaltest-class-name)
 
 ### TodoCommentWithIssueUrlRule
 

@@ -44,9 +44,11 @@ Five ports of phpstan-drupal rules are linter rules, not analyzer checks, since 
 [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback),
 [`drupal/symfony-yaml-parse`](../rules/phpstan-drupal.md#drupalsymfony-yaml-parse),
 [`drupal/todo-current-issue`](../rules/phpstan-drupal.md#drupaltodo-current-issue) and
-[`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix). The
-[phpstan-drupal](../phpstan/phpstan-drupal.md) page maps every rule and extension of phpstan-drupal,
-including the parts that aren't ported.
+[`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix). The last one
+reads the parent's name, and the analyzer check
+[`drupal/test-class-name`](tests.md#drupaltest-class-name) reports the misnamed test classes that
+it can't see that way. The [phpstan-drupal](../phpstan/phpstan-drupal.md) page maps every rule and
+extension of phpstan-drupal, including the parts that aren't ported.
 
 ## Checks
 
@@ -184,5 +186,6 @@ The `drupal` plugin has the checks for Drupal's test classes.
 | [`drupal/test-modules-visibility`](tests.md#drupaltest-modules-visibility) | error | A public `$modules` property, static or not, typed or not, declared in a class that descends from PHPUnit's `TestCase`. |
 | [`drupal/browser-test-default-theme`](tests.md#drupalbrowser-test-default-theme) | error | A browser test on a themeless profile that sets no `$defaultTheme`. |
 | [`drupal/component-test-core-base`](tests.md#drupalcomponent-test-core-base) | error | A class in the `Drupal\Tests\Component` namespace that extends `UnitTestCase`, `KernelTestBase`, `BuildTestBase` or `BrowserTestBase`, directly or through its parents. |
+| [`drupal/test-class-name`](tests.md#drupaltest-class-name) | error | A concrete class that descends from PHPUnit's `TestCase`, whose name doesn't end in `Test`, and that `drupal/test-class-suffix` doesn't take for a test. |
 
 <!-- /docs-gen -->

@@ -495,11 +495,16 @@ names the class in the same case without a leading backslash, in a type, an anno
 **Not reported:**
 
 - a class outside the test directories below, where the parent's name says nothing: core's test
-  entity class is called `EntityTest`.
+  entity class is called `EntityTest`;
+- a class whose parent is declared in the same file without a parent whose name ends in `Test`,
+  `TestBase` or `TestCase`. Such a parent is a fixture, not a test base.
 
 The test directories are `Unit`, `Kernel`, `Functional`, `FunctionalJavascript` and `Build` under a
 module's `tests/src`, and `Tests`, `KernelTests`, `FunctionalTests`, `FunctionalJavascriptTests` and
 `BuildTests` under `core/tests/Drupal`.
+
+The analyzer check [`drupal/test-class-name`](../analyzer/tests.md#drupaltest-class-name) reads the
+class's ancestry, and reports the `TestCase` descendants that the rule doesn't take for tests.
 
 ??? example "Example"
 
@@ -525,7 +530,12 @@ module's `tests/src`, and `Tests`, `KernelTests`, `FunctionalTests`, `Functional
 ??? note "Compared with phpstan-drupal"
 
     - phpstan-drupal reports any concrete subclass of PHPUnit's `TestCase` whose name doesn't end
-      in `Test`, in any directory and whatever its parent is called.
+      in `Test`, in any directory and whatever its parent is called. The rule and
+      [`drupal/test-class-name`](../analyzer/tests.md#drupaltest-class-name) report those
+      together.
+    - The rule reads the parent's name, not its ancestry. So it reports a class in a test directory
+      whose parent's name ends in `Test` or `TestBase` but that isn't a `TestCase`, such as a helper
+      that extends core's `EntityTest` entity class in another file. phpstan-drupal doesn't.
 
 ---
 

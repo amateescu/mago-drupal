@@ -224,9 +224,9 @@
         },
         {
             "rule": "TestClassSuffixNameRule",
-            "where": ["ext:drupal/test-class-suffix"],
+            "where": ["ext:drupal/test-class-suffix", "check:drupal/test-class-name"],
             "identifiers": [
-                {"identifier": "nonAbstractTestClass.NameNoSuffixTest", "status": "partial"}
+                {"identifier": "nonAbstractTestClass.NameNoSuffixTest", "status": "ported"}
             ]
         },
         {
