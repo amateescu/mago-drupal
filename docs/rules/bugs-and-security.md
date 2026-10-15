@@ -17,7 +17,9 @@ payload decides which objects PHP builds, and their destructors run.
 
 **Reports:**
 
-- an `unserialize()` call that doesn't limit `allowed_classes`.
+- an `unserialize()` call that doesn't limit `allowed_classes`. Only a key of the options array
+  itself counts, and `(TRUE)` counts as `TRUE`;
+- `unserialize(...)`, which passes the call on with no options.
 
 **Not reported:**
 
@@ -40,8 +42,12 @@ payload decides which objects PHP builds, and their destructors run.
 ??? note "Compared with Coder"
 
     - Coder reports a payload built with `serialize()` and a call that spreads its arguments.
-    - The rule also reports `\unserialize()`, `UNSERIALIZE()` and a comment before `TRUE`, as in
-      `'allowed_classes' => /* safe */ TRUE`. Coder misses all three.
+    - Coder takes the second argument for the options, so it reports
+      `unserialize(options: ['allowed_classes' => FALSE], data: $d)`. The rule reads a named
+      argument by its name.
+    - The rule also reports `\unserialize()`, `UNSERIALIZE()`, `\unserialize(...)`, `(TRUE)`, a
+      comment before `TRUE`, as in `'allowed_classes' => /* safe */ TRUE`, and options whose only
+      `allowed_classes` key is in a nested array. Coder misses them.
 
 ---
 

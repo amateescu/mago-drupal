@@ -69,6 +69,15 @@ class Practice {
     unserialize($payload, ['allowed_classes' => \TRUE]);
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($payload, ['allowed_classes' => \true]);
+    // Parentheses don't change the value.
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, ['allowed_classes' => (TRUE)]);
+    // PHP reads only the options' own keys, not a nested array's.
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($payload, ['nested' => ['allowed_classes' => FALSE]]);
+    // A first-class callable passes the call on with no options.
+    // @mago-expect lint:drupal/insecure-unserialize
+    array_map(unserialize(...), [$payload]);
 
     unserialize($payload, ['allowed_classes' => FALSE]);
     unserialize($payload, array('allowed_classes' => FALSE));
