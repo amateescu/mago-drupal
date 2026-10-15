@@ -148,9 +148,9 @@ final class EntityQueries
 
     /**
      * The tags of every query object the receiver may be, or null when one of
-     * them doesn't have any: an untagged query could be anything, so no answer
-     * holds for the whole receiver. A call on null is reported on its own, so
-     * a null member is skipped.
+     * them doesn't have any: an untagged query could be anything, so an answer
+     * can't hold for the whole receiver. A call on null is reported on its own,
+     * so a null member is skipped.
      *
      * @return non-empty-list<array{string, non-empty-string, non-empty-string, non-empty-string, non-empty-string}>|null
      *   Class, entity type id, kind, access tag, result tag.

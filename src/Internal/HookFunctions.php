@@ -101,9 +101,9 @@ final class HookFunctions
     private readonly array $placeholders;
 
     /**
-     * One pattern for the deprecated names among the placeholders, or null
-     * when none is deprecated. Most names miss it, so the placeholders are
-     * only walked for a name that could be reported.
+     * One pattern for the deprecated names among the placeholders, or null when
+     * there aren't any deprecated ones. Most names miss it, so the placeholders
+     * are only walked for a name that could be reported.
      *
      * @var non-empty-string|null
      */
@@ -249,7 +249,7 @@ final class HookFunctions
 
     /**
      * How many parameters the documentation function of that exact name
-     * declares, or null when none is documented.
+     * declares, or null when that function isn't documented.
      */
     public function parameterCount(string $function): ?int
     {

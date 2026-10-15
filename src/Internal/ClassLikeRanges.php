@@ -15,8 +15,8 @@ use function preg_match;
 /**
  * The byte range and full name of each class-like in one file.
  *
- * An anonymous class has a range but no name, so a method inside one belongs
- * to no named class-like.
+ * An anonymous class has a range but no name, so a method inside one doesn't
+ * belong to a named class-like.
  *
  * @internal
  *
@@ -86,8 +86,8 @@ final class ClassLikeRanges
                 continue;
             }
 
-            // An attribute's arguments can name `class:`, which declares
-            // nothing.
+            // An attribute's arguments can name `class:`, which doesn't
+            // declare anything.
             if ($token->is(T_ATTRIBUTE)) {
                 $i = PhpTokens::closer($tokens, $i, '[', ']');
                 continue;

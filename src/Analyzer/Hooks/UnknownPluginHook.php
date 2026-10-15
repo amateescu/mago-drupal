@@ -85,7 +85,7 @@ final class UnknownPluginHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             Issue::new(
-                "No plugin with id \"{$id}\" carries #[{$attribute}].",
+                "The plugin \"{$id}\" isn't declared with #[{$attribute}].",
                 $context->node->span,
                 'unknown plugin id',
             )->withHelp($help),

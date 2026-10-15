@@ -17,7 +17,8 @@ use function preg_match;
  * Ports phpstan-drupal's EntityListBuilderOperationsCacheabilityRule. Core
  * 11.3 and 11.4 keep the parameter commented out in the interface and read it
  * through `func_get_args()`, so the check applies on that version window, read
- * off `Drupal::VERSION`, and nothing is reported without a core checkout.
+ * off `Drupal::VERSION`, and the check doesn't report anything without a core
+ * checkout.
  *
  * @internal
  */

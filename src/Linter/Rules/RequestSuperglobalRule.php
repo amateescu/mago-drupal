@@ -88,7 +88,7 @@ final class RequestSuperglobalRule implements Rule
 
     /**
      * Returns the source text of the first key that indexes the variable, or
-     * NULL when no key does, as in `$_GET`, `$_GET[]` and `foo($_GET)`.
+     * NULL when it isn't indexed, as in `$_GET`, `$_GET[]` and `foo($_GET)`.
      */
     private function indexedKey(SourceFile $file, Node $variable): ?string
     {

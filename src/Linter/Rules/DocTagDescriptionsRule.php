@@ -33,7 +33,7 @@ use const PREG_SET_ORDER;
  *
  * Ports `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`
  * and part of `ParamNameNoMatch` of Drupal.Commenting.FunctionComment. The last
- * two read the signature. Nothing else reports a method with partial `@param`
+ * two read the signature. Only this rule reports a method with partial `@param`
  * coverage that doesn't have an entry for a real parameter, or a `@param` tag
  * that repeats an earlier one or is out of order.
  *
@@ -120,9 +120,9 @@ final class DocTagDescriptionsRule implements Rule
      *
      * This is Coder's scan. Each tag looks for its parameter from the one after
      * the last match onward. A tag that doesn't find one is reported, and the
-     * scan goes back to the tag's own position. As in Coder, a tag with no type
-     * or no variable takes a position and is skipped, and a variable that ends
-     * in a period doesn't take one. A name that isn't a parameter is the
+     * scan goes back to the tag's own position. As in Coder, a tag without a
+     * type or a variable takes a position and is skipped, and a variable that
+     * ends in a period doesn't take one. A name that isn't a parameter is the
      * analyzer's `invalid-param-tag`.
      *
      * @param list<DocblockTag> $paramTags

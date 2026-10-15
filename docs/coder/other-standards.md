@@ -74,7 +74,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
-| `Zend.Files.ClosingTag` | `mago format`, Mago `no-closing-tag` | The formatter removes a closing tag at the end of the file. When the last statement doesn't have a `;`, the tag stays and nothing reports it. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too. |
+| `Zend.Files.ClosingTag` | `mago format`, Mago `no-closing-tag` | The formatter removes a closing tag at the end of the file. When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too. |
 
 ## Slevomat Coding Standard
 

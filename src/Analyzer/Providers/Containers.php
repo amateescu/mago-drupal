@@ -43,8 +43,8 @@ final class Containers
     private function __construct() {}
 
     /**
-     * The type behind a service id, or null when none of the candidates is
-     * in the codebase.
+     * The type behind a service id, or null when the codebase doesn't have
+     * any of the candidates.
      *
      * A decorator only replaces the service while the module that declares
      * it is enabled, and a site need not enable an optional module such as

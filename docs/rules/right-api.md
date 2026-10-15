@@ -83,7 +83,7 @@ inside the text doesn't.
     - Coder takes the nearest docblock before the call when it sits one nesting level above the
       call. A method with no docblock then takes the tag of the method above it, and a closure in a
       tagged method gets the relaxed wording. The rule uses the docblock of the enclosing function
-      or method, so a method with no docblock gets the relaxed wording, and a closure gets the
+      or method, so a method without a docblock gets the relaxed wording, and a closure gets the
       wording of the method around it.
     - The rule also checks the message of `TRIGGER_ERROR()` and any other spelling in another letter
       case. PHP calls the same function, but Coder matches the name exactly and skips them.
@@ -185,8 +185,8 @@ methods.
 
 - a string joined after the call that is empty, or one of `(`, `)`, `[`, `]`, `-`, `<`, `>`, `«`,
   `»` and `\n` once its quotes, HTML tags and spaces are gone;
-- a call with only unpacked or named arguments, such as `t(...$x)` or `t(string: 'x')`, which has
-  no positional first argument to read.
+- a call with only unpacked or named arguments, such as `t(...$x)` or `t(string: 'x')`, which
+  doesn't have a positional first argument to read.
 
 ??? example "Example"
 

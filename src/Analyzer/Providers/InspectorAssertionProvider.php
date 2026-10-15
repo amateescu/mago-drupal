@@ -124,8 +124,8 @@ final class InspectorAssertionProvider implements MethodAssertionProvider
     }
 
     /**
-     * The classes `assertAllObjects()` names, or any object when it names
-     * none or one of them is not a literal class name.
+     * The classes `assertAllObjects()` names, or any object when it doesn't
+     * name any or one of them is not a literal class name.
      */
     private static function objects(Invocation $invocation): Type
     {

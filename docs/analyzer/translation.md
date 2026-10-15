@@ -69,7 +69,7 @@ the same mistake there.
 ??? note "Compared with Coder"
 
     - Coder's sniffs check only the Drupal 7 functions `form_set_error()`, `form_error()` and
-      `drupal_set_message()`. None of them exists on Drupal 9 and later, and `mago analyze` reports
+      `drupal_set_message()`. They don't exist on Drupal 9 and later, and `mago analyze` reports
       a call to one as `non-existent-function`. The check reports the methods that replace them
       instead, and leaves the functions alone.
     - Coder also reports an empty message and a message that starts with `<`.

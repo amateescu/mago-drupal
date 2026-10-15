@@ -16,7 +16,7 @@ use Mago\Sdk\Analyzer\CodebaseScanHook;
  * Only files under `[source] paths` reach a scan hook; `includes` do not. So
  * a contrib workspace sees its own providers, and core's providers only when
  * core itself is being analyzed. A full analysis runs the scan every time,
- * even when no file matches; an incremental one only when a file it targets
+ * even without a matching file; an incremental one only when a file it targets
  * changed. So the first batch drops the registrations of the last scan, and
  * Indexes notices every other new analysis by its generation.
  *

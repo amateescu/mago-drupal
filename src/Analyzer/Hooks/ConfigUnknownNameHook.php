@@ -20,8 +20,7 @@ use function array_key_exists;
 use function explode;
 
 /**
- * Reports a config object asked for by a name that isn't described by any
- * schema.
+ * Reports a config object asked for by a name without a schema.
  *
  * A misspelt name hands back an empty config object without complaint, and
  * config without a schema fails Drupal's strict schema checks in tests. Only
@@ -97,7 +96,7 @@ final class ConfigUnknownNameHook implements MethodCallAnalysisHook
         $context->report(
             Level::Warning,
             self::CODE,
-            Issue::new("No config schema describes \"{$name}\".", $context->node->span, 'no schema')->withHelp(
+            Issue::new("The config \"{$name}\" doesn't have a schema.", $context->node->span, 'no schema')->withHelp(
                 "Check the name for a typo, or describe the config in the module's config/schema directory.",
             ),
         );

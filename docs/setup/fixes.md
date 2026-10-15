@@ -1,7 +1,7 @@
 # Fixes
 
-Many rules have a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe
-ones, and `mago fix` applies them until nothing changes. `--dry-run` shows the diff first. Two
+Many rules have a fix, the way phpcbf fixes Coder's sniffs. `mago lint --fix` applies the safe ones,
+and `mago fix` applies them until the code stops changing. `--dry-run` shows the diff first. Two
 flags add riskier fixes:
 
 - `--potentially-unsafe` adds the fixes that turn a comment into a docblock, which is then read by

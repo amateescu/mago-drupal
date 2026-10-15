@@ -78,7 +78,7 @@ final class NearestFile
 
     /**
      * The file with the shortest name in a directory that matches the first
-     * pattern with a match, or an empty string when none does.
+     * pattern with a match, or an empty string when there isn't one.
      *
      * @param list<string> $patterns
      */

@@ -133,8 +133,8 @@ Coder asks for `<?php echo` in place of the `<?=` short echo tag.
       ported.
     - Coder's fix keeps the whitespace after the tag as it is, such as two spaces, a tab or a line
       break. This fix turns spaces and tabs after the tag into one space.
-    - Mago stops parsing a file that ends right after a bare `<?=`, so no rule sees that file. Coder
-      reports it, and its fixer crashes on it.
+    - Mago stops parsing a file that ends right after a bare `<?=`, so the rules don't see that
+      file. Coder reports it, and its fixer crashes on it.
 
 ---
 

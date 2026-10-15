@@ -51,7 +51,7 @@ Drupal. Drupal trusts only closures, `service:method` strings and class methods.
     - the date callbacks `#date_date_callbacks` and `#date_time_callbacks`;
     - the component callbacks `#propsAlter` and `#slotsAlter`;
 - a value of those keys that isn't an array literal at all, such as `'#pre_render' => $callbacks`,
-  because nothing can be checked there.
+  because there isn't anything to check there.
 
 **Not reported:**
 

@@ -83,7 +83,8 @@ final class ServiceParameters
 
     /**
      * The type `getParameter()` returns for the name, or null when a file
-     * doesn't give a kind the type can say, or no file defines the name.
+     * doesn't give a kind the type can say, or the name isn't defined in any
+     * file.
      */
     public function type(string $name): ?Type
     {

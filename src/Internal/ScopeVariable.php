@@ -81,7 +81,7 @@ final class ScopeVariable
     /**
      * What the name was declared as, which VariableAnalysis calls its scope
      * type. A declaration sets it. A write sets it to a plain variable when
-     * nothing has. A read leaves it alone.
+     * it isn't set yet. A read leaves it alone.
      *
      * @var null|self::LOCAL|self::STATIC|self::GLOBAL|self::BOUND|self::PARAMETER
      */

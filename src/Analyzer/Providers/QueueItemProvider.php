@@ -17,7 +17,7 @@ use Mago\Sdk\Analyzer\Type\ObjectShapeType;
  *
  * Core documents `claimItem()` as `bool|object` and lists the properties in
  * the description: `data`, `item_id` and `created`. It returns FALSE when
- * nothing is left, never TRUE. The database queue reads `item_id` and
+ * the queue is empty, never TRUE. The database queue reads `item_id` and
  * `created` as strings, so both allow either; the shape stays open, since
  * queues add their own properties. Core's queues build the item as a
  * `stdClass`, the database one through `fetchObject()` and the memory one

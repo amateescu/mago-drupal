@@ -82,7 +82,7 @@ final class GlobalConstantRule implements Rule
      * call, or NULL for any other node.
      *
      * @param null|array<string, true> $wanted The names of the calls to
-     *   report, or NULL when no call counts.
+     *   report, or NULL when the calls aren't reported.
      */
     private function candidate(SourceFile $file, Node $node, ?array $wanted): ?Span
     {
@@ -103,7 +103,7 @@ final class GlobalConstantRule implements Rule
 
     /**
      * Whether the file has any text that can be a `define()` call. A
-     * `.module` file with no such text skips the walk over its calls.
+     * `.module` file without such text skips the walk over its calls.
      */
     private function hasDefine(SourceFile $file): bool
     {

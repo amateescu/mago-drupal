@@ -254,7 +254,7 @@ function check(string $mago, string $root, string $name, string $code, string $l
             fwrite(STDERR, "{$name}: the fine code gets " . count($levels) . " issue(s).\n");
             $failures++;
         } elseif ($kind === 'reported' && $levels === []) {
-            fwrite(STDERR, "{$name}: the reported code gets no issue.\n");
+            fwrite(STDERR, "{$name}: the reported code doesn't get an issue.\n");
             $failures++;
         }
 

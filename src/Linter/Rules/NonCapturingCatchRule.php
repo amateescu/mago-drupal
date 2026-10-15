@@ -20,7 +20,7 @@ use function in_array;
 use function preg_match;
 
 /**
- * Reports a `catch` variable that nothing reads, which PHP 8.0 lets the
+ * Reports a `catch` variable that's never read, which PHP 8.0 lets the
  * clause leave out.
  *
  * Ports SlevomatCodingStandard.Exceptions.RequireNonCapturingCatch, which
@@ -67,7 +67,7 @@ final class NonCapturingCatchRule implements Rule
         return new RuleDefinition(
             code: 'drupal/non-capturing-catch',
             name: 'Non-capturing catch',
-            description: 'Reports a catch variable that nothing reads, which the clause can leave out from PHP 8.0.',
+            description: 'Reports a catch variable that\'s never read, which the clause can leave out from PHP 8.0.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // Program gives the whole file, so the code after a `try` and
@@ -147,7 +147,7 @@ final class NonCapturingCatchRule implements Rule
         }
 
         $context->report(Issue::new(
-            "Nothing reads the catch variable {$name}. Leave it out.",
+            "The catch variable {$name} is never read. Leave it out.",
             $variable->span,
         )->withEdit(TextEdit::delete(new Span($hint->span->end, $variable->span->end))));
     }

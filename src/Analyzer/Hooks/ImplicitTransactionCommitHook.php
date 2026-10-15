@@ -31,8 +31,8 @@ use function trim;
  * returning it, passing it to a call, storing it elsewhere or capturing it in
  * a closure all let other code commit it. A later standalone `rollBack()` in
  * the same straight-line block ends the transaction too. Without
- * `commitOrRelease()` in the codebase there is nothing better to call, so
- * nothing is reported.
+ * `commitOrRelease()` in the codebase there isn't anything better to call,
+ * so the hook doesn't report anything.
  *
  * @internal
  *

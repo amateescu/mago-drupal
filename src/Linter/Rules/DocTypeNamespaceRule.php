@@ -318,7 +318,7 @@ final class DocTypeNamespaceRule implements Rule
         $names = [];
         // Keywords such as `int` and `class-string` come out as names too.
         // PHP reserves the type keywords and doesn't allow a hyphen in a class
-        // name, so no import matches them.
+        // name, so they never match an import.
         foreach ($found as [$name, $position]) {
             $import = $imports[$name] ?? null;
             if ($import === null) {

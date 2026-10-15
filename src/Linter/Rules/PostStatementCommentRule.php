@@ -194,10 +194,10 @@ final class PostStatementCommentRule implements Rule
 
     /**
      * Whether the line allows the move, judged from its text and its
-     * neighbours: nothing after the comment, no PHP tag, no block opened or
-     * construct closed on it, no comment above it that it would end up
-     * below, such as an `@phpstan-ignore` for the statement, and none below
-     * it that continues it.
+     * neighbours. The comment has to be last on the line, and the line can't
+     * hold a PHP tag, open a block or close a construct. A comment above it
+     * that it would end up below, such as an `@phpstan-ignore` for the
+     * statement, stops the move, and so does one below it that continues it.
      */
     private static function movable(SourceFile $file, Trivia $comment, int $lineStart, string $before): bool
     {

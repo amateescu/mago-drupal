@@ -34,7 +34,7 @@ use function trim;
  *
  * Ports Drupal.Files.LineLength. The sniff only measures lines that end in a
  * comment. `mago format` wraps code to the configured width but does not
- * change comment text, so nothing else covers this.
+ * change comment text, so this isn't covered by anything else.
  *
  * The work starts from the long lines, not from the comments. One regex over
  * the source finds every line past the limit in bytes. Each of those lines

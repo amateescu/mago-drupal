@@ -22,9 +22,9 @@ $blockManager->createInstance('no_such_block');          // Broken, and reported
   can hold a colon itself, as core's `entity:save_action` does. That is wrong for a deriver that
   sets a `class` per derivative.
 - On a fallback manager (blocks, entity reference selection and filters), an unknown plain id is
-  typed as the fallback plugin, since that is what runs. A derivative id whose base isn't declared
-  anywhere keeps the declared type, since the base may come from YAML or a deriver that the index
-  doesn't read.
+  typed as the fallback plugin, since that is what runs. A derivative id with an undeclared base
+  keeps the declared type, since the base may come from YAML or a deriver that the index doesn't
+  read.
 
 ## The plugin index
 
@@ -105,7 +105,7 @@ type with definition objects works with them through their methods. A plugin man
 - **Level:** warning
 - **Source:** Drupal's plugin managers
 
-A plugin manager throws a `PluginNotFoundException` for an id that no plugin declares. A fallback
+A plugin manager throws a `PluginNotFoundException` for an unknown plugin id. A fallback
 manager, such as the block manager, returns its fallback plugin instead, which doesn't do what the
 code expects either.
 

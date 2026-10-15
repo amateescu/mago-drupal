@@ -48,7 +48,7 @@ final class ConfigEntityExportCheck implements MetadataCheck
         }
 
         $reporter->error(self::CODE, Reporter::issue(
-            "Config entity type {$class->name()} defines no config_export.",
+            "Config entity type {$class->name()} doesn't define config_export.",
             $class->class->nameLocation ?? $class->class->location,
             'List the exported properties in the config_export key.',
             'https://www.drupal.org/node/2481909',

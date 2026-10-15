@@ -16,7 +16,7 @@ use Mago\Sdk\Analyzer\Type;
  * Types `$storage->read('name')` from the config schema.
  *
  * `StorageInterface::read()` returns the stored data of a config object, or
- * FALSE when nothing is stored under the name. The data has the shape of the
+ * FALSE when the storage doesn't have the name. The data has the shape of the
  * whole object. A storage for another collection, such as a language
  * override, holds only part of it, which the shape does not show.
  *

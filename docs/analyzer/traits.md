@@ -35,7 +35,7 @@ trait RedirectTrait {
 **Not typed:**
 
 - a call to a method that one of the classes lacks, which keeps the report;
-- a call in a trait that no class uses, or in one that doesn't declare a method of its own, since
+- a call in an unused trait, or in one that doesn't declare a method of its own, since
   the classes are found through one of its methods;
 - a call to a generic method, which returns `mixed`, and to one whose documented return type names
   something that can't be resolved by Mago, such as a stray `*` after the class name in a docblock.
@@ -99,8 +99,8 @@ call to an instance method only from outside the class (`invalid-static-method-a
 **Not reported:**
 
 - a call to a method that the trait declares itself;
-- the same call in a class, which nothing reports;
-- a call in a trait that no class uses.
+- the same call in a class, which isn't reported by Mago either;
+- a call in an unused trait.
 
 ??? example "Example"
 

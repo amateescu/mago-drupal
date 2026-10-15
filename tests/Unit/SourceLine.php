@@ -52,7 +52,7 @@ final class SourceLine
     }
 
     /**
-     * Returns the links of a Standard line. A line with no link gives
+     * Returns the links of a Standard line. A line without a link gives
      * "nothing", so it is reported.
      *
      * @return list<string>

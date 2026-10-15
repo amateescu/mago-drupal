@@ -24,8 +24,8 @@ final class ReturnTag
 
     /**
      * @param int $count How many `@return` tags the docblock has.
-     * @param ?string $type The type, or null when the tag is bare or has
-     *   none.
+     * @param ?string $type The type, or null when the tag is bare or
+     *   doesn't have one.
      * @param string $rest The text after the type.
      */
     private function __construct(

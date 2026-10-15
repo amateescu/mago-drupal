@@ -202,7 +202,7 @@ by Coder. The [configuration](../setup/configuration.md) turns it off.
 - **Level:** error
 - **Fix:** safe. It adds the backslash.
 - **Standard:** ["use"-ing classes](https://project.pages.drupalcode.org/coding_standards/php/namespaces/#use-ing-classes)
-- **Ports:** none. No such sniff exists in Coder.
+- **Ports:** none. Coder doesn't have such a sniff.
 - **Off with `--core`**
 
 > Classes and interfaces without a backslash `\` inside their fully-qualified name (for example, the
@@ -429,7 +429,7 @@ rule.
 
 The names are matched without regard to case. The two-underscore check accepts 29 names: the 17
 magic methods of PHP and the 12 methods of `SoapClient`. Mago's `method-name` rule doesn't report a
-name that starts with two underscores, so no other rule repeats this check.
+name that starts with two underscores, so this check isn't repeated by another rule.
 
 ??? note "Compared with Coder"
 

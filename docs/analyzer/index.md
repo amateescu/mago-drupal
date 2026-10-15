@@ -103,12 +103,12 @@ definitions and list builders that leave out what core asks for.
 ## Config
 
 The analyzer types config objects, and the values read from them by their config schema. The checks
-report config names that no schema describes, and keys that a fully validatable schema doesn't list.
+report config names without a schema, and keys that a fully validatable schema doesn't list.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/config-unknown-key`](config.md#drupalconfig-unknown-key) | error | A `get('key')` call on a config object with a known name, for a key that the fully validatable schema of that config doesn't list. |
-| [`drupal/config-unknown-name`](config.md#drupalconfig-unknown-name) | warning | A literal config name that no schema describes. |
+| [`drupal/config-unknown-name`](config.md#drupalconfig-unknown-name) | warning | A literal config name without a schema. |
 
 ## Plugins
 

@@ -69,7 +69,7 @@ values, and `app.root` and `site.path` are empty strings that the kernel replace
 
 - a name whose value is `null`, one `%name%` reference to another parameter, a `'@id'` service
   reference or a custom tag;
-- a name that no services file defines.
+- a name that isn't defined in any services file.
 
 ```php
 $container->getParameter('app.root');                   // string

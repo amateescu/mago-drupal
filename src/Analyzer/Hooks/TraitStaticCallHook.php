@@ -84,7 +84,7 @@ final class TraitStaticCallHook implements NodeAnalysisHook
                     $call->span,
                     'called from a static method of the trait',
                 )->withHelp(
-                    'A static method has no `$this`, so PHP throws here for every class that declares the method non-static.',
+                    'A static method doesn\'t have `$this`, so PHP throws here for every class that declares the method non-static.',
                 ),
             );
         }

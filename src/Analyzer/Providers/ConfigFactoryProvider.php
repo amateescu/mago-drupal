@@ -35,7 +35,7 @@ final class ConfigFactoryProvider implements MethodReturnTypeProvider
         // `getEditable()` hands out editable ones. A config form's `config()`
         // hands out an editable one for the names in
         // `getEditableConfigNames()` and an immutable one otherwise, so it gets
-        // `Config`, which both extend or are. No schema is needed, so every
+        // `Config`, which both extend or are. A schema isn't needed, so every
         // literal name gets tagged.
         $immutable =
             $invocation->declaringClass !== Configs::FORM_TRAIT && strtolower($invocation->name) !== 'geteditable';

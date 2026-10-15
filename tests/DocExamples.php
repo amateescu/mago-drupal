@@ -159,7 +159,7 @@ function check(string $name, string $rule, array $lint, string $workspace, strin
 
     $failures = 0;
     if ($found['reported'] === 0) {
-        fwrite(STDERR, "{$name}: the reported code gets no issue.\n");
+        fwrite(STDERR, "{$name}: the reported code doesn't get an issue.\n");
         $failures++;
     }
 

@@ -80,7 +80,7 @@ final class PHPStanIgnores
 
     /**
      * What the line holding the offset ignores: identifiers, true for all of
-     * them, or null when no comment covers the line.
+     * them, or null when a comment doesn't cover the line.
      *
      * @return list<string>|true|null
      */

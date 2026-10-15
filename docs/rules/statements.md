@@ -394,8 +394,8 @@ the function to a line of its own, and the next fix adds the blank line.
 ??? note "Compared with Coder"
 
     - Coder counts the blank line from a `//` comment right above the docblock, and DrupalPractice's
-      `CommentEmptyLine.SpacingAfter` then reports a blank line below that comment. No layout
-      satisfies both. The rule follows `FunctionSpacing`, and
+      `CommentEmptyLine.SpacingAfter` then reports a blank line below that comment. A layout
+      can't satisfy both. The rule follows `FunctionSpacing`, and
       [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) allows
       a blank line between a comment and a docblock.
     - A run of comment lines right above the docblock that holds a tool comment, such as
@@ -431,8 +431,8 @@ the function to a line of its own, and the next fix adds the blank line.
 - **Ports:** core's `SlevomatCodingStandard.Exceptions.RequireNonCapturingCatch`, which is left out
   of Coder's rulesets.
 
-From PHP 8.0, a `catch` clause can leave out its variable. A variable that nothing reads only looks
-like the code uses the exception.
+From PHP 8.0, a `catch` clause can leave out its variable. A variable that's never read only makes
+it look like the code uses the exception.
 
 **Reports:**
 
@@ -552,7 +552,7 @@ need parentheses after `??`. These are reported without a fix:
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.Functions.MultiLineFunctionDeclaration.EmptyLine`
 
-Coder asks for no blank lines in a parameter list that spans lines. The standard's format for such
+Coder doesn't allow blank lines in a parameter list that spans lines. The standard's format for such
 a list puts one parameter on each line, and doesn't mention blank lines.
 
 **Reports:**
@@ -813,7 +813,7 @@ as in `$a = $b = 1` and `example_save($id = 5)`.
 
 - a parameter, also one that the function assigns;
 - a `catch` variable, and other writes of its name in the same scope.
-  [`drupal/non-capturing-catch`](#drupalnon-capturing-catch) reports one that nothing reads;
+  [`drupal/non-capturing-catch`](#drupalnon-capturing-catch) reports one that's never read;
 - the value of a `$key => $value` foreach, and other writes of its name in the same scope;
 - `$this`, the superglobals, `$argv`, `$argc`, `$http_response_header` and `$HTTP_RAW_POST_DATA`;
 - a variable of a `use (&$x)` list;

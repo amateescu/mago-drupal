@@ -13,7 +13,7 @@ use function strspn;
 use function substr;
 
 /**
- * Finds docblocks that sit inside code, where nothing documents the next
+ * Finds docblocks that sit inside code, where they don't document the next
  * declaration.
  *
  * A docblock is fine in front of a declaration and in front of an include or

@@ -54,7 +54,7 @@ final class ServiceDefinitions
 
     /**
      * The ids registered in provider files on disk, as definitions without a
-     * class; a match by text, since no snapshot exists for an include.
+     * class; a match by text, since an include doesn't have a snapshot.
      *
      * @param list<string> $files
      * @return array<non-empty-string, Definition>

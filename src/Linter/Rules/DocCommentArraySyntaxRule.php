@@ -25,8 +25,8 @@ use function substr;
 /**
  * Reports `array()` syntax inside a docblock's `@code` example block.
  *
- * Ports Drupal.Commenting.DocCommentLongArraySyntax. `@code` content is
- * example source, not real code that Mago parses. Nothing else reports this.
+ * Ports Drupal.Commenting.DocCommentLongArraySyntax. `@code` content is example
+ * source, not real code that Mago parses. This isn't reported by anything else.
  */
 final class DocCommentArraySyntaxRule implements Rule
 {

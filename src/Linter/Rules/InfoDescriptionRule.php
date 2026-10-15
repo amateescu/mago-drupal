@@ -41,7 +41,7 @@ final class InfoDescriptionRule implements Rule
 
         if (($info['description'] ?? null) === null) {
             $context->report(Issue::new(
-                'The info file has no "description" key.',
+                'The info file doesn\'t have a "description" key.',
                 YamlFile::firstLine($context->file),
             ));
 

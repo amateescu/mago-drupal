@@ -23,12 +23,12 @@ use function trim;
  * PHPUnit runs only the files whose name ends in `Test.php`, and so do
  * `phpunit -c core` and run-tests.sh, so such a test never runs. A test class
  * is a concrete class in a PHPUnit test directory whose parent's name ends in
- * `Test`, `TestBase` or `TestCase`. Outside those directories the parent's
- * name doesn't say anything: core's test entity class is called `EntityTest`. A
+ * `Test`, `TestBase` or `TestCase`. Outside those directories the parent's name
+ * doesn't say anything: core's test entity class is called `EntityTest`. A
  * parent declared in the same file without such a parent of its own is a
  * fixture. TestClassSuffix holds these facts, and the analyzer check
- * `drupal/test-class-name` reports the other TestCase descendants. Coder has
- * no such sniff. Drupal's coding standards ask for the suffix.
+ * `drupal/test-class-name` reports the other TestCase descendants. Coder
+ * doesn't have such a sniff. Drupal's coding standards ask for the suffix.
  */
 final class TestClassSuffixRule implements Rule
 {

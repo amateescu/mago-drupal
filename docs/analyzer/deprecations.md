@@ -48,11 +48,12 @@ since it is about PHP language features, not about the Drupal API that a legacy 
     of the four markers is screened out by a substring test, and Mago batches the issues of a file
     into one request, so a marked file is tokenized once.
 
-    The override scope takes the codebase, so it runs only for an issue that no marker covers. The
-    tokens name the method and its class-like, and the class's ancestors say whether one of them
-    declares the method deprecated. Mago analyzes a trait once, on its own, so a trait method counts
-    when every class that gets it from the trait inherits a deprecated declaration. Finding those
-    classes is a search by method name across the codebase, and only a trait pays for it.
+    The override scope takes the codebase, so it runs only for an issue that isn't covered by a
+    marker. The tokens name the method and its class-like, and the class's ancestors say whether one
+    of them declares the method deprecated. Mago analyzes a trait once, on its own, so a trait
+    method counts when every class that gets it from the trait inherits a deprecated declaration.
+    Finding those classes is a search by method name across the codebase, and only a trait pays for
+    it.
 
 ??? note "Compared with phpstan-drupal"
 

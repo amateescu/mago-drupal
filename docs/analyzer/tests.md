@@ -9,8 +9,8 @@ The `drupal` plugin has the checks for Drupal's test classes.
 
 PHPUnit 11 puts `@phpstan-assert` on `assertTrue()`, `assertFalse()`, `assertNull()`,
 `assertNotNull()`, `assertInstanceOf()`, `assertSame()` and the `assertIs*()` family, and Mago reads
-it, so those assertions narrow the value on their own. `assertNotEmpty()` and `assertEmpty()` have
-no such tag, and Drupal's tests use those two a lot. A loaded entity then stays nullable for the
+it, so those assertions narrow the value on their own. `assertNotEmpty()` and `assertEmpty()` don't
+have such a tag, and Drupal's tests use those two a lot. A loaded entity then stays nullable for the
 rest of the test, and every call on it is reported.
 
 The `phpunit` plugin narrows the value for these two: after `assertNotEmpty()` it isn't empty, and

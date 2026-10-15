@@ -21,8 +21,8 @@ use function strpos;
 use function substr;
 
 /**
- * Reports container lookups of an id that isn't defined by any services file or
- * provider, or of a private one: the compiled container leaves both out.
+ * Reports container lookups of a service that isn't defined in a services file
+ * or provider, or of a private one: the compiled container leaves both out.
  *
  * Only a plain string id is checked. A `Foo::class` id may be a hook class or
  * another autowired service the container registers under its class name
@@ -112,7 +112,7 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             $service === null
-                ? Issue::new("No service with id \"{$id}\" is defined.", $span, 'unknown service id')->withHelp(
+                ? Issue::new("The service \"{$id}\" isn't defined.", $span, 'unknown service id')->withHelp(
                     'Check the id against the services files, or make sure the module defining it is under the Drupal root.',
                 )
                 : Issue::new(

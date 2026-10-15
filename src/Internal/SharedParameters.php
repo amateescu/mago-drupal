@@ -23,11 +23,11 @@ use const PHP_INT_MAX;
  *
  * As many as the shortest declaration without a variadic takes, or the
  * longest one when every declaration is variadic, optional only where every
- * declaration gives a default and nothing required follows, by reference
+ * declaration gives a default and only optional ones follow, by reference
  * where any declaration takes one, and typed only where every declaration
  * gives the same type. The SDK rejects a variadic with a
  * default, a name used twice and a required parameter after an optional one,
- * so none of those is built.
+ * so those aren't built.
  *
  * @internal
  *

@@ -391,7 +391,7 @@ final class Indexes
 
     /**
      * Classes marked `@internal` under the root, for the internal-parent
-     * check. Read once at registration, so nothing is kept here.
+     * check. Read once at registration, so it isn't kept here.
      */
     public function internalClasses(): InternalClasses
     {

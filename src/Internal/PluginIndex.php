@@ -124,8 +124,8 @@ final class PluginIndex
     }
 
     /**
-     * The class behind a plugin id. A `base:derivative` id that no attribute
-     * declares in full resolves through its base. The first id declared
+     * The class behind a plugin id. A `base:derivative` id that an attribute
+     * doesn't declare in full resolves through its base. The first id declared
      * decides, even one two classes claim.
      *
      * @return non-empty-string|null
@@ -144,7 +144,7 @@ final class PluginIndex
 
     /**
      * Whether some scanned class declares the id or one of its bases, even
-     * when two do and no class can be handed back for it.
+     * when two do and a class can't be handed back for it.
      */
     public function declares(string $attribute, string $id): bool
     {

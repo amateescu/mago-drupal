@@ -75,7 +75,7 @@ final class CallChains
 
     /**
      * Whether the value the chain from the call ends with is dropped, by a
-     * statement of its own, so no later code can call a method on it.
+     * statement of its own, so later code can't call a method on it.
      */
     public static function dropped(SourceFile $file, Node $call): bool
     {

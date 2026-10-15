@@ -18,7 +18,7 @@ final class ServiceDefinition
      * @param string|null $deprecation The `deprecated` message with its
      *   placeholders filled in, or null when the service is current.
      * @param non-empty-string|null $undecoratedClass The class the id had
-     *   before a decorator took it over, or null when nothing decorates it.
+     *   before a decorator took it over, or null when it isn't decorated.
      * @param bool $public False when the compiled container leaves the id
      *   out, so `get()` cannot hand it back: a `public: false` definition, or
      *   the `.inner` id of a decorator.

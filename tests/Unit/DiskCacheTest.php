@@ -137,7 +137,7 @@ final class DiskCacheTest extends TestCase
         self::assertNotSame($before, DiskCache::fingerprint([$file]));
 
         // A file written within the last seconds may still be changing, so
-        // nothing is keyed on it.
+        // the cache doesn't key anything on it.
         touch($file);
         self::assertNull(DiskCache::fingerprint([$file]));
     }

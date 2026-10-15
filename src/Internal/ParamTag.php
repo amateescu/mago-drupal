@@ -21,7 +21,7 @@ final class ParamTag
 {
     /**
      * The type and the variable of a `@param` line. The type is everything
-     * before the first `$`, `.` or `&$`. A line with no variable gives an
+     * before the first `$`, `.` or `&$`. A line without a variable gives an
      * empty second group.
      */
     public const LINE = '/((?:(?![$.]|&(?=\$)).)*)(?:((?:\.\.\.)?(?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/';

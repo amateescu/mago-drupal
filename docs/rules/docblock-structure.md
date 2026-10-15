@@ -13,7 +13,7 @@ of the description. An indented `@code`, `@endcode`, `@link` or `@endlink` stays
 around it. Coder reads both as tags. Only the tags at the column of the first one form the groups
 looked at by the blank-line checks.
 
-A declaration with no docblock gets the report of its `missing-*` rule, and one with a comment in
+A declaration without a docblock gets the report of its `missing-*` rule, and one with a comment in
 the wrong style the report of `drupal/class-comment`, `drupal/file-comment`,
 `drupal/function-comment` or `drupal/variable-comment`. The rules that check the tags, their
 wording and their layout skip such a declaration, as in Coder. They also skip the tags of a
@@ -317,8 +317,8 @@ description of a file docblock are the lines after `@file`, checked like any oth
 In the tags:
 
 - a `@param` description whose first line doesn't have an upper-case letter anywhere. That line is
-  the first one below the tag, or the text on the tag's line when nothing is below it. So
-  `lower Case.` passes and `_lower.` is reported;
+  the first one below the tag, or the text on the tag's line when the tag doesn't have text below
+  it. So `lower Case.` passes and `_lower.` is reported;
 - a `@param` description with no full stop, unless it ends in an `@code` example. The fix adds the
   full stop unless the description ends in a url, a tag, or `:`, `,` or `;`;
 - a `@throws` description that starts with a lower-case ASCII letter, or doesn't have a full stop.
@@ -387,7 +387,7 @@ the end of the long description.
   type and not a description, so the description is the lines below;
 - a `@return` with a type and no description on the lines below it. As in Coder, text on the tag's
   own line is part of the type, so `@return string The label.` and `@return array<int, string>`
-  with nothing below are reported too, with the description asked for on the line below;
+  without text below are reported too, with the description asked for on the line below;
 - a `@param` with a type that repeats an earlier tag, or that comes after the tag of a later
   parameter. As in Coder, the tags must follow the order of the parameters, and a parameter can be
   left out;
@@ -405,10 +405,10 @@ the end of the long description.
 - a `@param` that doesn't name a parameter, or a parameter in another case. `mago analyze` reports
   it as `invalid-param-tag`.
 
-The standard lets a `@param` or `@return` description be left out when the type says it all, such
-as a single class type that can't be null, and asks for no `@return` when nothing is returned.
-Coder, core and this rule still want the description. Coder 9 and this rule accept `@return void`
-without one. Core's phpcs runs Coder 8, which reports it.
+The standard lets a `@param` or `@return` description be left out when the type says it all, such as
+a single class type that can't be null, and asks to leave out `@return` when the function doesn't
+return anything. Coder, core and this rule still want the description. Coder 9 and this rule accept
+`@return void` without one. Core's phpcs runs Coder 8, which reports it.
 
 ??? example "Example"
 
@@ -597,7 +597,7 @@ A `@return` variable name is read from the tag's own line.
       `@return`. A non-breaking space isn't whitespace to Coder or to this rule.
     - A `@return` variable name is a type and one variable on the line, as in Coder, so
       `callable(int $a): int` isn't one.
-    - For `@throws` text on the tag's line with nothing below, Coder counts the words on the line.
+    - For `@throws` text on the tag's line without text below, Coder counts the words on the line.
       It reports a type such as `\Foo2Bar` or `\A|\B` that doesn't have any text, and stops at the
       first `@throws` with no text below it. This rule reports only text after the type, and checks
       every `@throws`. A fix for that text or for the `@throws` indent doesn't exist in Coder. The

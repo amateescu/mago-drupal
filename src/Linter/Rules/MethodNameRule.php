@@ -83,7 +83,7 @@ final class MethodNameRule implements Rule
 
     /**
      * Coder's `Common::isCamelCaps()` in strict mode: a lower-case ASCII
-     * letter, then only ASCII letters and digits, with no two capitals in a
+     * letter, then only ASCII letters and digits, without two capitals in a
      * row. A digit ends a run of capitals.
      */
     private static function isCamelCaps(string $name): bool

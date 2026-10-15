@@ -117,7 +117,7 @@ final class CacheableDependencyHook implements MethodCallAnalysisHook
             Level::Warning,
             self::CODE,
             Issue::new(
-                "A dependency of type `{$dependency}` carries no cacheability, so adding it turns caching off.",
+                "A dependency of type `{$dependency}` doesn't have any cacheability, so adding it turns caching off.",
                 $context->node->span,
                 'not a CacheableDependencyInterface',
             )->withHelp(

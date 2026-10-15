@@ -159,7 +159,7 @@ final class PHPStanPages
             }
         }
 
-        throw new RuntimeException("docs/{$page} has no heading for #{$anchor}.");
+        throw new RuntimeException("docs/{$page} doesn't have a heading for #{$anchor}.");
     }
 
     private static function slug(string $heading): string

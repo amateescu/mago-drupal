@@ -181,7 +181,7 @@ final class CorpusPins
 
     /**
      * Gives each issue to the closest pragma above it that covers it and has
-     * room left. Returns the issues that weren't taken by a pragma, and what
+     * room left. Returns the issues left without a pragma, and what
      * each pragma still misses.
      *
      * @param list<Pragma> $pragmas

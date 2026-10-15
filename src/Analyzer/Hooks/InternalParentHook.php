@@ -90,7 +90,7 @@ final class InternalParentHook implements ClassLikeAnalysisHook
      * module.
      *
      * @param string|null $owner The module owning the class, as owner() names
-     *   it, or null when no module owns it.
+     *   it, or null when it doesn't belong to a module.
      */
     public static function report(
         NodeAnalysisContext $context,

@@ -35,7 +35,7 @@ final class SourceText
 
     /**
      * Returns the offset after the comment that starts at $offset, or null
-     * when no comment starts there. A `//` or `#` comment ends before its
+     * when a comment doesn't start there. A `//` or `#` comment ends before its
      * line break.
      */
     public static function commentEnd(string $contents, int $offset): ?int
@@ -125,8 +125,8 @@ final class SourceText
     }
 
     /**
-     * Returns the offset after the quoted string that starts at $start, or
-     * null when no string starts there or the string holds a variable. PHP
+     * Returns the offset after the quoted string that starts at $start, or null
+     * when a string doesn't start there or the string holds a variable. PHP
      * reads such a string as one constant token.
      */
     public static function constantStringEnd(string $contents, int $start): ?int

@@ -87,8 +87,8 @@ abstract class CallRule implements Rule
      * import. The second branch keeps that case in, because it passes every
      * file with a function import. The anchor on the parenthesis lets a
      * one-letter name such as `l` gate its files. A comment between the
-     * callee and its parenthesis defeats the anchor, but nothing writes
-     * that.
+     * callee and its parenthesis defeats the anchor, but real code doesn't
+     * write that.
      *
      * @param list<string> $names
      */

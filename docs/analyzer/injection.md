@@ -315,7 +315,7 @@ as [`drupal/entity-storage-injection`](#drupalentity-storage-injection).
 
     - phpstan-drupal reports an assignment of a storage to a property of `$this`. So it also reports
       an untyped property with no `@var` tag that a storage is assigned to, and not a typed property
-      that nothing assigns. The check reads the type of the property.
+      that's never assigned. The check reads the type of the property.
     - phpstan-drupal leaves alone a property declared by a parent class whose constructor takes a
       storage, such as `EntityListBuilder::$storage`. The check leaves alone an entity handler's own
       `$storage`.

@@ -41,7 +41,7 @@ use function trim;
  * mean something else in the file: another import, a class of that name, a
  * name that already resolves elsewhere, or a docblock that writes the short
  * name in the same case. Only a file with one namespace, declared without
- * braces, or with none, gets edits. A file with no namespace gets the
+ * braces, or without one, gets edits. A file without a namespace gets the
  * import below its open tag, its `@file` docblock and its `declare`
  * statements.
  *
@@ -259,7 +259,7 @@ final class ImportPlan
      * after the last one. Null when the file doesn't get any edits.
      *
      * The import goes on its own line after the last import, or after the
-     * namespace line, past any comment that ends that line. A file with no
+     * namespace line, past any comment that ends that line. A file without a
      * namespace gets it below the open tag and what must stay above it.
      *
      * @param list<Node> $namespaces
@@ -299,9 +299,9 @@ final class ImportPlan
 
     /**
      * A line break when the line after the offset's line is not blank. The
-     * first import of a file with no namespace goes between the open tag,
+     * first import of a file without a namespace goes between the open tag,
      * the docblock or the `declare` and the next line, so a blank line goes
-     * below it when none is there.
+     * below it when there isn't one.
      */
     private static function blankBelow(string $contents, int $offset, string $eol): string
     {
@@ -434,8 +434,8 @@ final class ImportPlan
     /**
      * The import that the batch leaves unused, or null. That is the import
      * a reported name is written through, as `use GuzzleHttp\Psr7;` for
-     * `Psr7\Utils`, when no other name in the file goes through it and no
-     * docblock writes it in the same case.
+     * `Psr7\Utils`, when no other name in the file goes through it and a
+     * docblock doesn't write it in the same case.
      *
      * @param list<Node> $uses
      * @param array<string, Node> $statements
@@ -483,7 +483,8 @@ final class ImportPlan
     }
 
     /**
-     * Removes a use statement, with its line when nothing else is on it.
+     * Removes a use statement, with its line when the line doesn't hold
+     * anything else.
      */
     public static function deleteStatement(SourceFile $file, Node $use): TextEdit
     {

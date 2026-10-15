@@ -73,7 +73,8 @@ final class FileTags
     /**
      * Where `@file` goes, at the end of the opener line, or null when it
      * cannot go on a line of its own: the opener line holds text, the
-     * docblock is a group's, or no blank line parts it from the code below.
+     * docblock is a group's, or it isn't separated from the code below
+     * by a blank line.
      * A docblock right on a function is that function's, which `@file`
      * would steal.
      */

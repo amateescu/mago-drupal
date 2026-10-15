@@ -90,7 +90,7 @@ Core runs the callbacks in a render or form array in four ways, and each one fai
   turns `'::method'` into a method of the form object, and then through the callable resolver,
   which throws for anything that it can't call.
 - `#value_callback` runs only when `is_callable()` accepts it. Otherwise the element's default value
-  callback runs, and nothing says so.
+  callback runs, without a warning.
 - The machine name element passes the `exists` of `#machine_name` to `call_user_func()`, and the
   managed file element calls each of `#file_value_callbacks` as it is. Neither resolves or trusts
   anything, and both throw for anything that PHP can't call.
@@ -293,7 +293,7 @@ skipped on `#value_callback`.
 
 Core calls every callback from its own classes: the callable resolver, `is_callable()` in the form
 builder, a `callable` parameter of the date and component elements, or the machine name and managed
-file elements. None of them can reach a protected or private method, so such a callback throws, or
+file elements. They can't reach a protected or private method, so such a callback throws, or
 is skipped on `#value_callback`.
 
 **Reports:**

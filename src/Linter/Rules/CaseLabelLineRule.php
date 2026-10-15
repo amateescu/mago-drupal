@@ -113,8 +113,8 @@ final class CaseLabelLineRule implements Rule
     }
 
     /**
-     * The offset where the comment that ends at $end starts, or null when no
-     * comment ends there.
+     * The offset where the comment that ends at $end starts, or null when a
+     * comment doesn't end there.
      */
     private static function commentStart(SourceFile $file, int $end): ?int
     {

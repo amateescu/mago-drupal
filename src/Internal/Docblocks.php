@@ -327,7 +327,8 @@ final class Docblocks
             return false;
         }
 
-        // The match starts at the comment's offset, so no substring is copied.
+        // The match starts at the comment's offset, so the contents aren't
+        // copied.
         return preg_match(self::DIRECTIVE_PATTERN, $file->contents, offset: $trivia->span->start) === 1;
     }
 

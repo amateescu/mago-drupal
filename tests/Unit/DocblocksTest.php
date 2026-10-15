@@ -345,7 +345,7 @@ final class DocblocksTest extends TestCase
 
     /**
      * The lower edge of the boundary search. Every trivia entry ends after
-     * the declaration starts, so no candidate exists.
+     * the declaration starts, so there aren't any candidates.
      */
     public function testClosestReturnsNullWhenAllTriviaFollowTheDeclaration(): void
     {

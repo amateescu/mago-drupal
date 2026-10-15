@@ -149,8 +149,8 @@ final class EntityTypeIndex
     }
 
     /**
-     * Whether some class declares the id, even when two do and no definition
-     * can be handed back for it.
+     * Whether some class declares the id, even when two do and a definition
+     * can't be handed back for it.
      */
     public function declares(string $id): bool
     {

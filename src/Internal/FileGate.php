@@ -27,7 +27,7 @@ final class FileGate
 
     /**
      * @param list<string> $needles Case-insensitive substrings. One hit passes.
-     * @param null|string $pattern A regex that is tried if no needle hits.
+     * @param null|string $pattern A regex that is tried when the needles miss.
      */
     public function __construct(
         private readonly array $needles = [],

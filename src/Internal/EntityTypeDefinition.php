@@ -45,7 +45,8 @@ final class EntityTypeDefinition
 
     /**
      * The entity type definition interface `getDefinition()` narrows to, or
-     * null for a bare `#[EntityType]`, which has no more specific interface.
+     * null for a bare `#[EntityType]`, which doesn't have a more specific
+     * interface.
      *
      * @return non-empty-string|null
      */

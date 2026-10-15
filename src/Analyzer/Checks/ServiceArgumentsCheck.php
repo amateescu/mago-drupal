@@ -140,7 +140,7 @@ final class ServiceArgumentsCheck implements MetadataCheck
 
             $reporter->warning(self::CODE, Reporter::issue(
                 $constructor === null
-                    ? "{$passes}, but {$class->name()} has no constructor."
+                    ? "{$passes}, but {$class->name()} doesn't have a constructor."
                     : "{$passes} to {$class->name()}::__construct(), which takes {$maximum}.",
                 $location,
                 'PHP drops the extra arguments silently. Remove them from the service definition.',

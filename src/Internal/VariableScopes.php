@@ -51,9 +51,9 @@ final class VariableScopes
     ];
 
     /**
-     * A variable followed by one of these is read: a property or method
-     * access, an index or a call. No write has one right after the name, so
-     * the variable's parents aren't needed.
+     * A variable followed by one of these is read: a property or method access,
+     * an index or a call. A write never has one right after the name, so the
+     * variable's parents aren't needed.
      */
     private const READ_AFTER = '/\G(?:->|\?->|::|[\[(])/';
 
