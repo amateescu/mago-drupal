@@ -43,12 +43,13 @@ single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*
 # drupal/function-name checks function names the way Coder does. Mago's rule wants snake case, so
 # it also reports a private helper such as _mymodule_helper(), which Coder accepts.
 function-name = { enabled = false }
-# Report a variable that is assigned and never read. That is the part of
-# DrupalPractice.CodeAnalysis.VariableAnalysis that core enables.
-no-redundant-variable = { enabled = true }
-# Report a variable in a closure's `use` list that the closure never reads, the other part of that
-# check.
-no-unused-closure-capture = { enabled = true }
+# drupal/unused-variable reports a variable that its function never reads, and a variable in a
+# closure's `use` list that the closure never reads, as Coder does. no-redundant-variable is a
+# different check. It reports a value that no later line reads, and also a catch variable, the value
+# of a `$key => $value` foreach and a write through a reference, which Coder allows.
+# no-unused-closure-capture repeats the `use` list check.
+no-redundant-variable = { enabled = false }
+no-unused-closure-capture = { enabled = false }
 
 [analyzer]
 # Report a PHP function that is called with the wrong case. That is Drupal's

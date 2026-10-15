@@ -13,6 +13,7 @@ use amateescu\MagoDrupal\Linter\Rules\InlineCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingFunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
+use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use Closure;
 use InvalidArgumentException;
 use Mago\Sdk\CancellationTokenInterface;
@@ -163,6 +164,20 @@ final class RuleSwitchesTest extends TestCase
         self::assertTrue(MissingFunctionCommentRule::checkedOnCore(
             'core/modules/system/tests/modules/HookOrder/hook_order.module',
         ));
+    }
+
+    public function testCoreLeavesOutTheFilesCoreSkipsForUnusedVariables(): void
+    {
+        self::assertFalse(UnusedVariableRule::checkedOnCore('core/modules/node/node.api.php'));
+        self::assertFalse(UnusedVariableRule::checkedOnCore('core/lib/Drupal/Component/Transliteration/data/x00.php'));
+        self::assertFalse(UnusedVariableRule::checkedOnCore(
+            'web/core/lib/Drupal/Component/Transliteration/data/x00.php',
+        ));
+        self::assertTrue(UnusedVariableRule::checkedOnCore(
+            'core/lib/Drupal/Component/Transliteration/PhpTransliteration.php',
+        ));
+        self::assertTrue(UnusedVariableRule::checkedOnCore('core/modules/node/node.module'));
+        self::assertTrue(UnusedVariableRule::checkedOnCore('core/modules/node/src/NodeForm.php'));
     }
 
     public function testDisableTurnsOffTheNamedRules(): void

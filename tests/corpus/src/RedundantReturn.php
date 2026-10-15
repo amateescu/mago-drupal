@@ -218,6 +218,7 @@ class RedundantReturn {
       return;
     }
 
+    // @mago-expect lint:drupal/unused-variable
     foreach ([1, 2] as $item) {
       return;
     }

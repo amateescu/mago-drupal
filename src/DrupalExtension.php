@@ -79,6 +79,7 @@ use amateescu\MagoDrupal\Linter\Rules\MissingFileCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingFunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingPropertyCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
+use amateescu\MagoDrupal\Linter\Rules\NonCapturingCatchRule;
 use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
@@ -107,6 +108,7 @@ use amateescu\MagoDrupal\Linter\Rules\TranslationInHookMenuRule;
 use amateescu\MagoDrupal\Linter\Rules\TranslationInHookSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\UnsilencedDeprecationRule;
 use amateescu\MagoDrupal\Linter\Rules\UntranslatedOptionsRule;
+use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\UseLeadingBackslashRule;
 use amateescu\MagoDrupal\Linter\Rules\VariableCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\WatchdogMessageRule;
@@ -371,6 +373,7 @@ final class DrupalExtension
             new MissingFunctionCommentRule(core: $core),
             new MissingPropertyCommentRule(),
             new MissingSummaryRule(core: $core),
+            new NonCapturingCatchRule(),
             new NullCoalesceRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
@@ -399,6 +402,7 @@ final class DrupalExtension
             new TranslationInHookSchemaRule(),
             new UnsilencedDeprecationRule(),
             new UntranslatedOptionsRule(),
+            new UnusedVariableRule(core: $core),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
             new WatchdogMessageRule(),

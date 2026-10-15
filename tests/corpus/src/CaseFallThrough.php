@@ -458,6 +458,7 @@ class CaseFallThrough {
 
         // @mago-expect lint:drupal/case-fall-through
       case 3:
+        // @mago-expect lint:drupal/unused-variable
         foreach ([1, 2] as $item) {
           return;
         }
@@ -466,6 +467,7 @@ class CaseFallThrough {
 
         // @mago-expect lint:drupal/case-fall-through
       case 5:
+        // @mago-expect lint:drupal/unused-variable
         $callback = function (): int {
           return 3;
         };
@@ -474,6 +476,7 @@ class CaseFallThrough {
 
         // @mago-expect lint:drupal/case-fall-through
       case 7:
+        // @mago-expect lint:drupal/unused-variable
         $callback = fn (): int => 4;
       case 8:
         break;
@@ -496,6 +499,7 @@ class CaseFallThrough {
     switch ($value) {
       // @mago-expect lint:drupal/case-fall-through
       case 1:
+        // @mago-expect lint:drupal/unused-variable
         $result = $this->pick() ?: throw new \RuntimeException('one');
       case 2:
         break;
