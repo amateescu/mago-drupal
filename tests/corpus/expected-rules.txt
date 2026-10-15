@@ -89,6 +89,7 @@ drupal/strict-config-schema
 drupal/symfony-yaml-parse
 drupal/t-in-hook-menu
 drupal/t-in-hook-schema
+drupal/tab-character
 drupal/test-class-suffix
 drupal/todo-comment
 drupal/todo-current-issue

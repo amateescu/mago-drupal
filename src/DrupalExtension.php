@@ -99,6 +99,7 @@ use amateescu\MagoDrupal\Linter\Rules\ShortListRule;
 use amateescu\MagoDrupal\Linter\Rules\ShortTernaryRule;
 use amateescu\MagoDrupal\Linter\Rules\StrictConfigSchemaRule;
 use amateescu\MagoDrupal\Linter\Rules\SymfonyYamlParseRule;
+use amateescu\MagoDrupal\Linter\Rules\TabCharacterRule;
 use amateescu\MagoDrupal\Linter\Rules\TestClassSuffixRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\TodoCurrentIssueRule;
@@ -394,6 +395,7 @@ final class DrupalExtension
             new ShortTernaryRule(),
             new StrictConfigSchemaRule(),
             new SymfonyYamlParseRule(),
+            new TabCharacterRule(),
             new TestClassSuffixRule(),
             new TodoCommentRule(),
             new TodoCurrentIssueRule(),

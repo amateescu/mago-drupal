@@ -27,6 +27,7 @@ function doc_star_tag_with_two_spaces(): int {
 }
 
 // @mago-expect lint:drupal/doc-comment
+// @mago-expect lint:drupal/tab-character
 /**
  * Has a tag with a tab after its star.
  *

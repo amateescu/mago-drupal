@@ -872,10 +872,10 @@
     {
         "sniff": "Generic.WhiteSpace.DisallowTabIndent",
         "standard": "Drupal",
-        "where": ["format"],
+        "where": ["format", "ext:drupal/tab-character"],
         "codes": [
-            {"code": "NonIndentTabsUsed", "status": "partial", "note": "The formatter keeps comment text as written, so a tab inside a comment stays."},
-            {"code": "TabsUsed", "status": "partial", "note": "The formatter doesn't change the indent of HTML outside the PHP tags."}
+            {"code": "NonIndentTabsUsed", "status": "fix"},
+            {"code": "TabsUsed", "status": "fix"}
         ]
     },
     {

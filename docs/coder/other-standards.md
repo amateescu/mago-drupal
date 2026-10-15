@@ -28,7 +28,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | `Generic.PHP.LowerCaseKeyword` | `mago format`, Mago `lowercase-keyword` | The formatter lowercases keywords. `lowercase-keyword` fixes `AND`, `OR`, `XOR` and `INSTANCEOF`, which the formatter keeps. |
 | `Generic.PHP.UpperCaseConstant` | `mago format`, [`drupal/literal-constant-case`](../rules/naming-and-imports.md#drupalliteral-constant-case) |  |
 | `Generic.Strings.UnnecessaryStringConcat` | Mago `no-redundant-string-concat` |  |
-| `Generic.WhiteSpace.DisallowTabIndent` | `mago format`, partly | `NonIndentTabsUsed`: The formatter keeps comment text as written, so a tab inside a comment stays. `TabsUsed`: The formatter doesn't change the indent of HTML outside the PHP tags. |
+| `Generic.WhiteSpace.DisallowTabIndent` | `mago format`, [`drupal/tab-character`](../rules/files-and-tags.md#drupaltab-character) |  |
 | `Generic.WhiteSpace.LanguageConstructSpacing` | `Incorrect`, `IncorrectYieldFrom`: `mago format`<br>`IncorrectSingle`: `mago format`, partly<br>`IncorrectYieldFromWithComment`: [`drupal/comment-in-expression`](../rules/statements.md#drupalcomment-in-expression) | `IncorrectSingle`: The formatter can break a long expression right after `echo`, `print`, `include`, `include_once`, `require` or `require_once`, which Coder reports. It also puts `new` alone on its line before an anonymous class with attributes. |
 
 ## PEAR

@@ -149,6 +149,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/symfony-yaml-parse' => [Level::Warning, true],
             'drupal/t-in-hook-menu' => [Level::Error, true],
             'drupal/t-in-hook-schema' => [Level::Error, true],
+            'drupal/tab-character' => [Level::Error, true],
             'drupal/test-class-suffix' => [Level::Error, true],
             'drupal/todo-comment' => [Level::Warning, true],
             'drupal/todo-current-issue' => [Level::Error, true],

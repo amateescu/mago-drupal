@@ -68,6 +68,7 @@ Rules for the bytes of a file and for its open and close tags.
 | [`drupal/file-encoding`](files-and-tags.md#drupalfile-encoding) | warning | Reports a file whose bytes aren't valid UTF-8. |
 | [`drupal/file-start-whitespace`](files-and-tags.md#drupalfile-start-whitespace) | error | Reports whitespace before the first PHP open tag of a file. |
 | [`drupal/short-echo-tag`](files-and-tags.md#drupalshort-echo-tag) | error | Reports the <?= echo tag. Drupal writes <?php echo. |
+| [`drupal/tab-character`](files-and-tags.md#drupaltab-character) | error | Reports a tab in a comment or in the HTML outside the PHP tags. |
 
 ## Info and routing files
 
