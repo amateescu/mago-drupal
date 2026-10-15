@@ -23,6 +23,11 @@ namespace {
 
     function watchdog(string $type, string|\Stringable $message, array $variables = [], int $severity = 5): void {}
 
+    function check_plain(string $text): string
+    {
+        return $text;
+    }
+
     function format_date(int $timestamp, string $type = 'medium'): string
     {
         return (string) $timestamp;
@@ -125,6 +130,22 @@ namespace Drupal\Core\StringTranslation {
         }
     }
 
+    class PluralTranslatableMarkup implements \Drupal\Component\Render\MarkupInterface
+    {
+        public function __construct(
+            protected int $count,
+            protected string $singular,
+            protected string $plural,
+            protected array $args = [],
+            protected array $options = [],
+        ) {}
+
+        public function __toString(): string
+        {
+            return $this->count === 1 ? $this->singular : $this->plural;
+        }
+    }
+
     class TranslationManager
     {
         public function t(string $string, array $args = [], array $options = []): string
@@ -135,6 +156,31 @@ namespace Drupal\Core\StringTranslation {
         public function formatPlural(int $count, string $singular, string $plural, array $args = []): string
         {
             return $count === 1 ? $singular : $plural;
+        }
+    }
+}
+
+namespace Drupal\Component\Render {
+    class FormattableMarkup implements MarkupInterface
+    {
+        public function __construct(
+            protected string $string,
+            protected array $arguments,
+        ) {}
+
+        public function __toString(): string
+        {
+            return $this->string;
+        }
+    }
+}
+
+namespace Drupal\Component\Utility {
+    class Html
+    {
+        public static function escape(string $text): string
+        {
+            return $text;
         }
     }
 }

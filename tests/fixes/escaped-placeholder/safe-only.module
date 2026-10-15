@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * The fix changes the output, so a plain --fix doesn't apply it.
+ */
+
+use Drupal\Component\Utility\Html;
+
+/**
+ * Builds a token label.
+ */
+function example_label(string $label): string {
+  return (string) t('@label tokens.', ['@label' => Html::escape($label)]);
+}

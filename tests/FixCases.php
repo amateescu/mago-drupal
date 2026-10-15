@@ -12,8 +12,13 @@
  * `--fix` applies shows up as a difference. A case with no change to make
  * has a `.fixed.php` equal to itself.
  *
- * The cases of one rule and safety level run together, in a temporary
- * workspace whose config loads this checkout's worker.
+ * The cases run with `php-version` 8.1. A case named `<case>.php-8.4.php`
+ * runs with that version instead, for a rule whose fix or report depends on
+ * it. The version goes before the safety level, as in
+ * `<case>.php-8.2.unsafe.php`.
+ *
+ * The cases of one rule, safety level and PHP version run together, in a
+ * temporary workspace whose config loads this checkout's worker.
  *
  * Usage: php tests/FixCases.php <mago binary> [--update]
  *
@@ -105,7 +110,8 @@ foreach (scandir($root . '/tests/fixes') ?: [] as $rule) {
             str_ends_with($parts[1], '.unsafe') => '--unsafe',
             default => '',
         };
-        $groups[$rule . "\0" . $flag][] = $directory . '/' . $file;
+        $version = preg_match('/\.php-(\d+\.\d+)(?:\.|$)/', $parts[1], $match) === 1 ? $match[1] : '8.1';
+        $groups[$rule . "\0" . $flag . "\0" . $version][] = $directory . '/' . $file;
     }
 }
 
@@ -114,11 +120,12 @@ ksort($groups);
 $failures = 0;
 $count = 0;
 foreach ($groups as $key => $cases) {
-    [$rule, $flag] = explode("\0", $key);
-    $workspace = sys_get_temp_dir() . '/mago-drupal-fixes-' . getmypid() . '-' . $rule . ($flag === '' ? '' : '-' . substr($flag, 2));
+    [$rule, $flag, $version] = explode("\0", $key);
+    $workspace = sys_get_temp_dir() . '/mago-drupal-fixes-' . getmypid() . '-' . $rule . ($flag === '' ? '' : '-' . substr($flag, 2)) . '-' . $version;
     mkdir($workspace, recursive: true);
     file_put_contents($workspace . '/mago.toml', sprintf(
-        "version = \"1\"\nphp-version = \"8.1\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"-d\", \"xdebug.mode=off\", \"-d\", \"pcov.enabled=0\", \"%s\"]\n",
+        "version = \"1\"\nphp-version = \"%s\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"-d\", \"xdebug.mode=off\", \"-d\", \"pcov.enabled=0\", \"%s\"]\n",
+        $version,
         $worker,
     ));
     foreach ($cases as $case) {

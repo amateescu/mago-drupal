@@ -121,6 +121,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between `yield` and `from`. |
 | [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |
 | [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that has no case label. |
+| [`drupal/explicit-nullable-param`](statements.md#drupalexplicit-nullable-param) | error | Reports a typed parameter with a null default whose type doesn't allow null. |
 | [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Checks that a blank line separates a function declaration from the code or comment before it. |
 | [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports methods declared without an explicit visibility keyword. |
 | [`drupal/non-capturing-catch`](statements.md#drupalnon-capturing-catch) | error | Reports a catch variable that nothing reads, which the clause can leave out from PHP 8.0. |
@@ -196,10 +197,12 @@ the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-co
 | --- | --- | --- |
 | [`drupal/class-prefix`](drupal-practice.md#drupalclass-prefix) | warning | Reports a class or interface in the global namespace that doesn't start with the module name. |
 | [`drupal/curl-ssl-verify`](drupal-practice.md#drupalcurl-ssl-verify) | warning | Reports curl_setopt() calls that turn off CURLOPT_SSL_VERIFYPEER. |
+| [`drupal/escaped-placeholder`](drupal-practice.md#drupalescaped-placeholder) | warning | Reports check_plain() or Html::escape() as the value of an @, % or : placeholder, which escapes the value already. |
 | [`drupal/form-alter-comment`](drupal-practice.md#drupalform-alter-comment) | warning | Reports a function documented as hook_form_alter() that isn't named after the module. |
 | [`drupal/global-constant`](drupal-practice.md#drupalglobal-constant) | warning | Reports a top-level const statement or define() call, as DrupalPractice does. |
 | [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE or $_FILES. The request stack gives the same data. |
 | [`drupal/strict-config-schema`](drupal-practice.md#drupalstrict-config-schema) | error | Reports a test class that turns off strict config schema checking. |
+| [`drupal/untranslated-description`](drupal-practice.md#drupaluntranslated-description) | warning | Reports a plain string as the #description of a form element or render array. |
 | [`drupal/untranslated-options`](drupal-practice.md#drupaluntranslated-options) | warning | Reports a plain string in the #options of a checkboxes, radios, select or tableselect element. |
 
 ## Drupal 7 era

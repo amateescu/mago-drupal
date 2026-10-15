@@ -31,7 +31,9 @@ drupal/empty-install-hook
 drupal/empty-php-tags
 drupal/empty-switch
 drupal/enum-case-name
+drupal/escaped-placeholder
 drupal/expected-exception-tag
+drupal/explicit-nullable-param
 drupal/file-comment
 drupal/file-encoding
 drupal/file-start-whitespace
@@ -98,6 +100,7 @@ drupal/translatable-literal
 drupal/translatable-string
 drupal/translated-exception
 drupal/unsilenced-deprecation
+drupal/untranslated-description
 drupal/untranslated-options
 drupal/unused-variable
 drupal/use-leading-backslash

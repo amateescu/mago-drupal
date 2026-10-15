@@ -1068,11 +1068,10 @@
     {
         "sniff": "SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue",
         "standard": "Drupal",
-        "where": ["lint:explicit-nullable-param"],
-        "gate": "PHP 8.4 and later",
-        "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on.",
+        "where": ["ext:drupal/explicit-nullable-param", "lint:explicit-nullable-param"],
+        "gate": {"ext:drupal/explicit-nullable-param": "below PHP 8.4", "lint:explicit-nullable-param": "PHP 8.4 and later"},
         "codes": [
-            {"code": "NullabilityTypeMissing", "status": "gap"}
+            {"code": "NullabilityTypeMissing", "status": "fix"}
         ]
     },
     {
@@ -1403,11 +1402,9 @@
     {
         "sniff": "DrupalPractice.FunctionCalls.TCheckPlain",
         "standard": "DrupalPractice",
-        "drupal7": true,
-        "where": ["none"],
-        "note": "A Drupal 7 API. Not ported. On Drupal 8 and later the function or constant doesn't exist, and mago analyze reports it as unknown.",
+        "where": ["ext:drupal/escaped-placeholder"],
         "codes": [
-            {"code": "CheckPlain", "status": "gap"}
+            {"code": "CheckPlain", "status": "report"}
         ]
     },
     {
@@ -1490,10 +1487,9 @@
     {
         "sniff": "DrupalPractice.General.DescriptionT",
         "standard": "DrupalPractice",
-        "where": ["none"],
-        "note": "A `#description` value that starts with a string literal of more than three characters, not counting tags, as in `'#description' => 'Some text'`. Not ported.",
+        "where": ["ext:drupal/untranslated-description"],
         "codes": [
-            {"code": "DescriptionT", "status": "gap"}
+            {"code": "DescriptionT", "status": "report"}
         ]
     },
     {

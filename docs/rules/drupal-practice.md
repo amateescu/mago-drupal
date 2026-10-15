@@ -90,6 +90,60 @@ DrupalPractice asks not to turn off curl's check of the server's SSL certificate
 
 ---
 
+## drupal/escaped-placeholder
+
+- **Level:** warning
+- **Fix:** potentially unsafe. It replaces the call with its argument, which changes the text that
+  users see.
+- **Source:** Coder's `DrupalPractice` standard
+- **Ports:** `DrupalPractice.FunctionCalls.TCheckPlain.CheckPlain`
+- **Off with `--core`**
+
+The `@`, `%` and `:` placeholders escape their value. A value passed through `Html::escape()`, or
+through `check_plain()` in Drupal 7, is then escaped twice, and a label such as `Q&A` shows as
+`Q&amp;A`.
+
+**Reports:**
+
+- `Html::escape()` or `check_plain()` as the value of an `@`, `%` or `:` placeholder, in the
+  placeholder array of `t()`, `$this->t()`, `formatPlural()`, `watchdog()`,
+  `new TranslatableMarkup()`, `new PluralTranslatableMarkup()`, `new TranslationWrapper()` or
+  `new FormattableMarkup()`. Either array syntax counts. `Html` must resolve to
+  `Drupal\Component\Utility\Html`, through an import under any name or written in full;
+- an escape call that starts a longer value, as in `Html::escape($label) . ' (draft)'`.
+
+**Not reported:**
+
+- an escape call after a `.`, as in `'Draft: ' . Html::escape($label)`, which escapes only a part
+  of the value;
+- the value of a `!` placeholder, which Drupal 7 inserts as it is.
+
+The fix applies only when the escape call is the whole value and has one argument, with no comment
+inside its parentheses.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    use Drupal\Component\Utility\Html;
+
+    $text = t('@label tokens.', ['@label' => Html::escape($label)]);
+
+    // Fine.
+    $text = t('@label tokens.', ['@label' => $label]);
+    ```
+
+??? note "Compared with Coder"
+
+    - Coder reads only `check_plain()`, the Drupal 7 function, in `t()` and `watchdog()` with an
+      `array()` of placeholders. The rule also reads `Html::escape()`, the other calls listed above,
+      a short array, `\t()` and `\check_plain()`.
+    - Coder reports a `!` placeholder too, where the escape is needed.
+    - Coder reports a `check_plain()` anywhere in the array that has no `.` right before it, such
+      as one inside another call. The rule reads only the value of each placeholder.
+
+---
+
 ## drupal/form-alter-comment
 
 - **Level:** warning
@@ -261,6 +315,56 @@ rule uses the nearest named class or trait.
       a test class.
     - For a property of an anonymous class, Coder uses the outermost scope, and reads the first
       name after its `class` keyword, such as `FooTest` in `new class extends FooTest`.
+
+---
+
+## drupal/untranslated-description
+
+- **Level:** warning
+- **Fix:** none
+- **Source:** Coder's `DrupalPractice` standard
+- **Ports:** `DrupalPractice.General.DescriptionT.DescriptionT`
+- **Off with `--core`**
+
+DrupalPractice asks for a `#description` text that runs through `t()`. Users read the description
+under a form element, so it must be translatable. There's no fix, because a class takes
+`$this->t()` where a function takes `t()`.
+
+**Reports:**
+
+- a plain string as the value of a `#description` key, in an array of either syntax, or assigned
+  to the key, as in `$form['name']['#description'] = 'Some text'`. A string counts when it has
+  more than three characters once its HTML tags are gone. The first string of a concatenation
+  counts, as in `'Some text ' . $more`.
+
+**Not reported:**
+
+- a string in double quotes that holds a variable, and a heredoc;
+- a value that starts with something other than a string, such as `t()`, a variable, a ternary or
+  a nested array;
+- a string added with `.=`.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    $form['name'] = [
+      '#type' => 'textfield',
+      '#description' => 'The name shown on your profile.',
+    ];
+
+    // Fine.
+    $form['name'] = [
+      '#type' => 'textfield',
+      '#description' => t('The name shown on your profile.'),
+    ];
+    ```
+
+??? note "Compared with Coder"
+
+    - For a `#description` string in double quotes that holds a variable, Coder reports the next
+      plain string of the statement instead, which can be the value of another key. The rule skips
+      that string.
 
 ---
 
