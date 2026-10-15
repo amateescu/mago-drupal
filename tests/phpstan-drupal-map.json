@@ -240,6 +240,7 @@
     ],
     "extensions": [
         {"extension": "AccessCheckTypeSpecifyingExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
+        {"extension": "BootstrapResultCacheMetaExtension", "status": "gap", "where": ["none"], "note": "It invalidates PHPStan's result cache when an extension's info file, a services file, a config schema file or the Drupal version changes. The analyzer keys its own index cache by the modification times and sizes of its files, see [Index cache](../setup/install.md#index-cache)."},
         {"extension": "ConfigGetDynamicReturnTypeExtension", "default": "off", "status": "ported", "where": ["doc:analyzer/config.md#config-objects"]},
         {"extension": "ContainerDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/services.md#container-lookups"]},
         {"extension": "DeprecationHelperScope", "status": "ported", "where": ["doc:analyzer/deprecations.md#deprecation-scopes"]},
@@ -256,7 +257,7 @@
         {"extension": "EntityQueryDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#entity-queries"]},
         {"extension": "EntityRepositoryReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
         {"extension": "EntityStorageDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},
-        {"extension": "EntityTypeIdTypeNodeResolverExtension", "status": "gap", "where": ["none"], "note": "The `entity-type-id` docblock type."},
+        {"extension": "EntityTypeIdTypeNodeResolverExtension", "status": "gap", "where": ["none"], "note": "The `entity-type-id` docblock type. Mago reports it as an unknown class, so write `string` instead."},
         {"extension": "EntityTypeKeyByExistence", "status": "partial", "where": ["doc:analyzer/entities.md#entity-type-keys"], "note": "`getKey()` is a string for the keys that every entity type has. It isn't narrowed by a `hasKey()` call for the same key."},
         {"extension": "EntityTypeLinkTemplateByExistence", "status": "gap", "where": ["none"], "note": "`getLinkTemplate()` isn't false once `hasLinkTemplate()` is true for the same template, see [Not ported from phpstan-drupal](../analyzer/core-types.md#not-ported-from-phpstan-drupal)."},
         {"extension": "EntityTypeManagerGetStorageDynamicReturnTypeExtension", "status": "ported", "where": ["doc:analyzer/entities.md#handlers-and-storage"]},

@@ -169,4 +169,5 @@ instance method only from outside the class (`invalid-static-method-access`).
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal doesn't check this.
+    phpstan-drupal has no rule for this. PHPStan reports the call as `method.staticCall`, since it
+    checks the body of a trait in each class that uses it.

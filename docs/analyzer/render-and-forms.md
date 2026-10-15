@@ -215,7 +215,7 @@ skipped without a word on `#value_callback`.
     - phpstan-drupal resolves a `service:method` string through the service map and checks the
       service's class. The check leaves it alone, since the container may hand back a decorator or a
       lazy proxy.
-    - phpstan-drupal also reports in test code and in `*.api.php` files.
+    - phpstan-drupal also reports in test code.
 
 ---
 
@@ -461,7 +461,7 @@ case-sensitively, and so does the check.
       `array_unshift()`, `array_push()` or `array_merge()`.
     - phpstan-drupal resolves a `service:method` string through the service map and checks the
       service's class. The check leaves it alone.
-    - phpstan-drupal also reports in test code and in `*.api.php` files.
+    - phpstan-drupal also reports in test code.
 
 ---
 

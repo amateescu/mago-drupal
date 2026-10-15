@@ -25,8 +25,7 @@ ends each case.
 
 - the last case before the closing brace, and a `default` case;
 - a case that falls through from a `default`;
-- a `switch (): ... endswitch;` body, because `mago format` removes the blank lines between its
-  cases.
+- a `switch (): ... endswitch;` body.
 
 ???+ example "Example"
 
@@ -60,6 +59,10 @@ ends each case.
         $access = NULL;
     }
     ```
+
+??? note "Compared with Coder"
+
+    - Coder reports a missing blank line after a `break` in a `switch (): ... endswitch;` body.
 
 ---
 
@@ -128,7 +131,7 @@ A case that runs on into the next one needs a comment there, so a reader can tel
 - **Fix:** safe. It writes the colon, and removes the blank space in front of the semicolon. A
   comment in front of it stays.
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
-- **Ports:** `PSR2.ControlStructures.SwitchDeclaration`: `WrongOpenercase`, `WrongOpenerdefault`
+- **Ports:** `PSR2.ControlStructures.SwitchDeclaration`: `WrongOpenercase` (partly), `WrongOpenerdefault` (partly)
 
 The standard has no sentence for this. Its switch example ends each `case` and `default` label with
 a colon.
@@ -144,8 +147,10 @@ a colon.
       `--core`.
     - Mago's parser doesn't accept a label that ends with a close tag, as in `case 1 ?>`, which PHP
       accepts. Coder reports those. The rule can't, because Mago reports a parse error for the file.
-    - The fix removes the blank space in front of the colon. phpcbf leaves `case 1 :` for another
-      sniff to move.
+    - The fix writes the colon and removes the blank space in front of it in one pass. phpcbf
+      needs a second pass for the space, which the sniff's `SpaceBeforeColonCASE` or
+      `Squiz.ControlStructures.SwitchDeclaration.SpaceBeforeColonCase` removes. The result is the
+      same.
 
 ---
 
@@ -188,6 +193,10 @@ Coder doesn't allow a comment inside a cast expression or between `yield` and `f
 **Not reported:**
 
 - a braced `else { if ... }`.
+
+??? note "Compared with Coder"
+
+    - Coder reports `else if` as a warning. The rule reports it as an error.
 
 ---
 
@@ -289,9 +298,10 @@ need parentheses after `??`. These are reported without a fix:
 
     - The rule also reports a ternary after `and`, `or` and `xor`. The formatter adds parentheses
       there, and the sniff then reports it.
-    - It also reports a parenthesized condition or operand, operands that differ only in quotes or
-      spacing, and an `isset` whose key holds a call with a comma, such as `isset($a[max(1, 2)])`.
-      The sniff skips those on any comma.
+    - It also reports a parenthesized condition or operand, operands that differ only in quotes,
+      and an `isset` whose key holds a call with a comma, such as `isset($a[max(1, 2)])`. The sniff
+      skips all of these. It ignores spacing and comments in the operands, but not quotes or
+      parentheses, and it skips an `isset` with any comma.
     - It doesn't report `!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or
       `$b + $a === null ? '' : $a`. The compared operand is `!$a`, `(string) $a` or `$b + $a`, and a
       fix would change the result.
@@ -407,6 +417,8 @@ between the names.
 
     - A `var` property is reported once. Coder 9 also reports the missing visibility.
     - A fix for a property declared without a visibility doesn't exist in phpcbf.
+    - Coder reports a missing visibility on `$this` or a `$value` parameter inside a property hook.
+      The rule reads only the declared names, so it doesn't.
 
 ---
 
@@ -504,7 +516,7 @@ off.
 ??? note "Compared with the sniff"
 
     - The sniff compares the source text, so it skips `($a) ? $a : $b`, operands that differ in
-      quotes or comments, and `(!$a) ? $b : $a`.
+      quotes, spacing or comments, and `(!$a) ? $b : $a`.
 
 ---
 

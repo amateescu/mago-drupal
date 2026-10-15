@@ -47,7 +47,8 @@ statements. Mago's own naming rules cover the rest, see
 
 - a `define()` constant name that isn't upper case. The rule reads the first argument, a string
   literal or literals joined with `.`, and checks the part after the last backslash. Only ASCII
-  letters count. It reports in every scanned file type and at any depth.
+  letters count. It reports in every scanned file type and at any depth. It matches `define` in any
+  letter case, with or without a leading backslash, as Coder does.
 
 **Not reported:**
 
@@ -57,7 +58,6 @@ Mago's `constant-name` covers `const`, the other half of the sniff.
 
 ??? note "Compared with Coder"
 
-    - The rule matches `define` without regard to case, with or without a leading backslash.
     - A name built from literals joined with `.` is checked as a whole. Coder 9 checks only the
       first literal.
     - Coder 9 reports a name that has a variable in it, such as `'mymod_' . $x`.
@@ -472,6 +472,11 @@ module's `tests/src`, and `Tests`, `KernelTests`, `FunctionalTests`, `Functional
     final class ExampleChecksTest extends UnitTestCase {
     }
     ```
+
+??? note "Compared with phpstan-drupal"
+
+    - phpstan-drupal reports any concrete subclass of PHPUnit's `TestCase` whose name doesn't end
+      in `Test`, in any directory and whatever its parent is called.
 
 ---
 

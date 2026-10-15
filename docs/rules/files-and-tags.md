@@ -52,8 +52,8 @@ Coder asks for no empty pair of PHP tags.
 
     - The sniff has a second code, for a stray `;`. It stays with Mago's `no-noop`, which reports
       the same spot.
-    - The rule also reports a pair at the end of a file, where the `?>` is reported by
-      `no-closing-tag` too.
+    - A pair at the end of a file is reported as in Coder. There Mago's `no-closing-tag` also
+      reports the `?>`, as `Zend.Files.ClosingTag` does in Coder.
 
 ---
 
@@ -131,7 +131,7 @@ Coder asks for `<?php echo` in place of the `<?=` short echo tag.
 
     - Mago's `no-short-opening-tag` covers the `<?` tag, so the other two codes of the sniff aren't
       ported.
-    - Coder's fix leaves a tab or a line break after `echo`. This fix turns spaces and tabs after
-      the tag into one space.
+    - Coder's fix keeps the whitespace after the tag as it is, such as two spaces, a tab or a line
+      break. This fix turns spaces and tabs after the tag into one space.
     - Mago stops parsing a file that ends right after a bare `<?=`, so no rule sees that file. Coder
       reports it, and its fixer crashes on it.

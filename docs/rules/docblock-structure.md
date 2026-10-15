@@ -7,9 +7,11 @@ They don't check the types in a docblock against the real signature, which is do
 `mago analyze`, see
 [Docblock types and the analyzer](../coder/index.md#docblock-types-and-the-analyzer).
 
-The rules read a docblock the way Coder does. A tag is any line that starts with `@`, at any
-indent, and only the tags at the column of the first one form the groups looked at by the blank-line
-checks.
+The rules read a docblock the way Coder does. A tag is a line that starts with `@`. Two kinds of
+`@` lines stay text. An `@` line below another tag, indented like that tag's description, stays part
+of the description. An indented `@code`, `@endcode`, `@link` or `@endlink` stays part of the text
+around it. Coder reads both as tags. Only the tags at the column of the first one form the groups
+looked at by the blank-line checks.
 
 A declaration with no docblock gets the report of its `missing-*` rule, and one with a comment in
 the wrong style the report of `drupal/class-comment`, `drupal/file-comment`,
@@ -79,6 +81,8 @@ A docblock above or below the attributes counts. A docblock tagged `@file` is th
 ??? note "Compared with Coder"
 
     - Coder matches the repeated name with case, so it doesn't report `bar.` above `class Bar`.
+    - Coder reports a summary that repeats the name as a warning. The rule reports it at error
+      level.
 
 ---
 
@@ -143,6 +147,11 @@ Other layouts are reported without a fix.
       return '';
     }
     ```
+
+??? note "Compared with Coder"
+
+    - Coder reports a missing `@see`, punctuation after the url, a wrong layout and missing extra
+      info as errors. The rule reports every check at warning level.
 
 ---
 
@@ -226,9 +235,11 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
       checked.
     - The space before the summary is checked in every docblock outside a function body, as
       `ShortStartSpace`, and that includes two spaces or a tab.
-    - A fix for a closer doesn't exist in phpcbf. Its two-dot fix also takes the space after the
-      opening `/**` or the star, and deletes a docblock that has nothing else in it. The rule turns
-      the two dots and the spaces before them into one full stop, and leaves the docblock.
+    - A fix for a closer doesn't exist in phpcbf. Its two-dot fix removes both dots. Later passes
+      put a full stop back on a summary and on the last line of a long description, so a middle
+      line of a long description loses its full stop, and a docblock with nothing but the dots ends
+      up empty. The rule turns the two dots and the spaces before them into one full stop, and
+      leaves the docblock.
     - Coder reports an empty docblock as `DocComment.Empty`, at error level.
     - The pattern in core's phpcs config that forbids `@inheritDoc` anywhere in a docblock line
       isn't ported.
@@ -385,7 +396,8 @@ the end of the long description.
 
 The standard lets a `@param` or `@return` description be left out when the type says it all, such
 as a single class type that can't be null, and asks for no `@return` when nothing is returned.
-Coder, core and this rule still want the description, and accept `@return void`.
+Coder, core and this rule still want the description. Coder 9 and this rule accept `@return void`
+without one. Core's phpcs runs Coder 8, which reports it.
 
 ??? example "Example"
 
@@ -417,6 +429,12 @@ Coder, core and this rule still want the description, and accept `@return void`.
       return (string) $id;
     }
     ```
+
+??? note "Compared with Coder"
+
+    - A `@return` with more than one word on its line and nothing below, as in
+      `@return string The label.` or `@return array<int, string>`, isn't reported. Coder reports it
+      as `MissingReturnComment` and asks for the description on the next line.
 
 ---
 
@@ -658,6 +676,9 @@ A `@return` variable name is read from the tag's own line.
     - The rule reads the `@var` type apart from the description. It reports
       `@var integer Some description`, where Coder takes the whole text as the type and doesn't
       report it.
+    - In a `@param` or `@return` type, Coder drops every character outside its type alphabet, such
+      as a non-breaking space between `int` and `string`, reports the type as `intstring`, and
+      phpcbf writes that. The rule doesn't report it.
 
 ---
 
@@ -844,6 +865,8 @@ the function name starts with the file's machine name and an underscore.
     - Trailing whitespace after the full stop doesn't hide a repeat. Coder misses it.
     - phpcbf takes the machine name up to the first underscore of the function name, so it writes
       `hook_mod_help` for `my_mod_help` in `my_mod.module`, where the rule writes `hook_help`.
+    - Coder reports a description that repeats the function name as an error. The rule reports it
+      at warning level.
 
 ---
 

@@ -26,7 +26,11 @@ literal or a `Foo::class` constant, the analyzer types the result as the class o
 - `get()` on a value typed only as PSR-11's `ContainerInterface`. Other libraries implement that
   interface for containers of their own;
 - `has()`. A services file on disk means that the module exists, not that it is installed, so
-  `if ($container->has('optional.service'))` has to stay a real branch.
+  `if ($container->has('optional.service'))` has to stay a real branch;
+- `\Drupal::classResolver()` with no argument. Its declared return type is
+  `ClassResolverInterface|object`, which Mago turns into `object`, so a call on it is reported as
+  `ambiguous-object-method-access` and [`drupal/deprecated-service`](#drupaldeprecated-service)
+  doesn't check a lookup through it.
 
 A literal second argument other than `ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE` keeps
 `null` in the type, because the container then returns null for a missing service. A computed
@@ -226,11 +230,12 @@ has the message of the definition, which names the replacement.
 ??? note "Compared with phpstan-drupal"
 
     - phpstan-drupal checks `get()` only where the method it finds is declared by Symfony's
-      `ContainerInterface`. A call on a value typed as a class that declares `get()` itself, such as
-      Drupal's `ContainerBuilder`, isn't checked there. The check covers every container.
+      `ContainerInterface`. A call on a value typed as a container class, such as Drupal's
+      `Container` or `ContainerBuilder`, isn't checked there, since that class or its Symfony parent
+      declares `get()`. The check covers every container.
     - phpstan-drupal doesn't check the class resolver.
     - phpstan-drupal checks a string literal id. The check also takes a `Foo::class` id.
-    - phpstan-drupal also reports in test code and in `*.api.php` files.
+    - phpstan-drupal also reports in test code.
 
 ---
 

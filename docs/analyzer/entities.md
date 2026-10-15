@@ -80,8 +80,8 @@ The storage methods:
   `loadMultipleRevisions()` and `createRevision()` are typed as well;
 - `loadMultiple()` and `loadByProperties()` key their result by entity id. That is `string` for a
   config entity, whose id is a machine name, as phpstan-drupal types it, and `int|string` for a
-  content entity. A config entity with a numeric id such as `'1'` ends up under an integer key at
-  runtime, which this doesn't cover;
+  content entity, where phpstan-drupal says `int`. A config entity with a numeric id such as `'1'`
+  ends up under an integer key at runtime, which this doesn't cover;
 - the `EntityRepositoryInterface` lookups are typed by their entity type id argument, and
   `getTranslationFromContext($entity)` returns the class that it was handed.
 
@@ -229,10 +229,11 @@ property in favor of `getOriginal()` and `setOriginal()`, and its use is reporte
 
 ### Referenced entities
 
-`referencedEntities()` is accepted on any field item list, as phpstan-drupal does, and returns
-what `EntityReferenceFieldItemListInterface` declares. Only a reference field's list has the method,
-but `$node->field_tags` and `$node->get('field_tags')` give the plain `FieldItemListInterface`. On a
-list of another field type the call throws, which the types can't tell apart.
+`referencedEntities()` is accepted on any field item list, as phpstan-drupal does. phpstan-drupal
+types its result as `mixed`, and the analyzer returns what `EntityReferenceFieldItemListInterface`
+declares. Only a reference field's list has the method, but `$node->field_tags` and
+`$node->get('field_tags')` give the plain `FieldItemListInterface`. On a list of another field type
+the call throws, which the types can't tell apart.
 
 ### Entity interfaces
 
@@ -400,7 +401,10 @@ Drupal 11.2 deprecates the magic `original` property of an entity in favor of `g
 
 ??? note "Compared with phpstan-drupal"
 
-    phpstan-drupal doesn't report the `original` property.
+    - phpstan-drupal doesn't report the `original` property as deprecated.
+    - phpstan-drupal types `original` as a non-null `ContentEntityInterface` on a content entity, so
+      PHPStan reports `?->` on it as `nullsafe.neverNull`. On a plain `EntityInterface`, PHPStan
+      reports the property as `property.notFound`.
 
 ---
 
@@ -410,8 +414,9 @@ Drupal 11.2 deprecates the magic `original` property of an entity in favor of `g
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `ConfigEntityConfigExportRule`
 
-phpstan-drupal reports a config entity type without a `config_export` key. Without the key, the
-entity's properties are exported by reflection, which was deprecated in Drupal.
+phpstan-drupal reports a config entity type without a `config_export` key. Without the key,
+`ConfigEntityBase::toArray()` throws a `SchemaIncompleteException`, so Drupal can't export the
+entity.
 
 **Reports:**
 

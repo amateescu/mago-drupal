@@ -233,16 +233,19 @@ that leaves the call to its parent isn't reported.
 
 ??? note "Compared with phpstan-drupal"
 
+    - phpstan-drupal's rule is off by default. It runs with `pluginManagerInspectionRule: true`
+      under `parameters.drupal.rules`. The check is on by default.
     - phpstan-drupal checks every class that implements `PluginManagerInterface` and extends
       another class, abstract classes included. The check takes `DefaultPluginManager` subclasses
       that aren't abstract.
     - phpstan-drupal looks for the call in the constructor alone. The check also follows
       `parent::__construct()` and reads the `calls:` of the manager's services.
-    - phpstan-drupal skips a class whose name contains "test". The check skips the files under a
-      `tests` directory.
-    - phpstan-drupal also reports a manager with YAML discovery that calls `parent::__construct()`.
-      The check doesn't port that half: it reports core's own `LayoutPluginManager` and
-      `CKEditor5PluginManager`.
+    - phpstan-drupal skips a class whose fully qualified name contains "test", in upper or lower
+      case, so a manager in a `Drupal\contest` namespace is skipped too. The check skips the files
+      under a `tests` directory.
+    - phpstan-drupal also reports a manager that calls `parent::__construct()` when the first
+      assignment in its `getDiscovery()` is a `new YamlDiscovery()`. The check doesn't port that
+      half.
 
 ---
 
