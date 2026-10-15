@@ -438,6 +438,58 @@ that starts with two underscores, so no other rule repeats this check.
 
 ---
 
+## drupal/old-style-constructor
+
+- **Level:** error
+- **Fix:** none
+- **Source:** Coder's `Drupal` standard
+- **Ports:** `Generic.NamingConventions.ConstructorName.OldStyle`
+
+PHP 4 ran a method named after its class as the constructor. PHP 8 doesn't, and in a namespaced
+class PHP never did. Such a method is an ordinary method, and its name suggests that it sets up the
+object.
+
+**Reports:**
+
+- a method of a class whose name is the name of the class, compared without regard to case, when
+  the class declares no `__construct()`. Abstract and static methods count.
+
+**Not reported:**
+
+- a class that declares `__construct()`, in any case;
+- a method of an interface, a trait, an enum or an anonymous class.
+
+A `__construct()` in an anonymous class inside a method doesn't count. A constructor that the class
+takes from a trait doesn't count either, since the rule reads only the class's own declarations.
+
+There is no fix. A rename to `__construct()` changes what `new` runs, and any rename breaks the
+callers of the method.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    class ExampleWidget {
+
+      public function exampleWidget(): void {
+      }
+
+    }
+
+    // Fine.
+    class ExampleWidget {
+
+      public function __construct() {
+      }
+
+    }
+    ```
+
+The analyzer reports a call such as `parent::ExampleWidget()` when the parent has no method of that
+name, as `non-existent-method`. That is the other code of the sniff, `OldStyleCall`.
+
+---
+
 ## drupal/property-name
 
 - **Level:** error

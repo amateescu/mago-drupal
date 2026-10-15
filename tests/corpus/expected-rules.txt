@@ -74,6 +74,7 @@ drupal/missing-property-comment
 drupal/missing-summary
 drupal/non-capturing-catch
 drupal/null-coalesce
+drupal/old-style-constructor
 drupal/parameter-blank-line
 drupal/post-statement-comment
 drupal/preg-security

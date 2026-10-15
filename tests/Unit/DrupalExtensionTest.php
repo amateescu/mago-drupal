@@ -134,6 +134,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/missing-summary' => [Level::Error, true],
             'drupal/non-capturing-catch' => [Level::Error, true],
             'drupal/null-coalesce' => [Level::Error, true],
+            'drupal/old-style-constructor' => [Level::Error, true],
             'drupal/parameter-blank-line' => [Level::Error, true],
             'drupal/post-statement-comment' => [Level::Warning, true],
             'drupal/preg-security' => [Level::Error, true],

@@ -103,6 +103,7 @@ Rules for the names of classes, constants, functions, methods, properties and va
 | [`drupal/literal-constant-case`](naming-and-imports.md#drupalliteral-constant-case) | error | Reports a fully qualified \true, \false or \null that is not written in upper case. |
 | [`drupal/method-name`](naming-and-imports.md#drupalmethod-name) | error | Reports method names that don't use lowerCamelCase. |
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
+| [`drupal/old-style-constructor`](naming-and-imports.md#drupalold-style-constructor) | error | Reports a method named after its class in a class without __construct(). |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that don't use lowerCamelCase. |
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |
 | [`drupal/test-class-suffix`](naming-and-imports.md#drupaltest-class-suffix) | error | Reports a test class whose name doesn't end in Test, which PHPUnit never runs. |

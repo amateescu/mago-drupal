@@ -86,6 +86,7 @@ use amateescu\MagoDrupal\Linter\Rules\MissingPropertyCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
 use amateescu\MagoDrupal\Linter\Rules\NonCapturingCatchRule;
 use amateescu\MagoDrupal\Linter\Rules\NullCoalesceRule;
+use amateescu\MagoDrupal\Linter\Rules\OldStyleConstructorRule;
 use amateescu\MagoDrupal\Linter\Rules\ParameterBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\PostStatementCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
@@ -391,6 +392,7 @@ final class DrupalExtension
             new MissingSummaryRule(core: $core),
             new NonCapturingCatchRule(),
             new NullCoalesceRule(),
+            new OldStyleConstructorRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
             new PregSecurityRule(),

@@ -791,11 +791,10 @@
     {
         "sniff": "Generic.NamingConventions.ConstructorName",
         "standard": "Drupal",
-        "where": ["none"],
-        "note": "A PHP 4 constructor named after its class. Not ported. Since PHP 8 such a method is an ordinary method.",
+        "where": ["ext:drupal/old-style-constructor"],
         "codes": [
-            {"code": "OldStyle", "status": "gap"},
-            {"code": "OldStyleCall", "status": "gap", "note": "A call to such a constructor through `parent::`. Not ported."}
+            {"code": "OldStyle", "status": "report"},
+            {"code": "OldStyleCall", "status": "partial", "where": ["analyze:non-existent-method"], "note": "A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent has no method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared. A parent class outside the scanned paths gives no report."}
         ]
     },
     {
