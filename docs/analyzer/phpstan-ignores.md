@@ -38,8 +38,9 @@ An identifier drops only the Mago codes listed for it by the plugin, so
 forms drop every listed code, and an identifier not listed by the plugin drops nothing.
 
 The list covers PHPStan's identifiers for argument, return and property types, argument counts,
-undefined symbols, deprecations, always-true and always-false conditions, unreachable code, missing
-types and offset access, and the deprecation identifiers of phpstan-deprecation-rules.
+undefined symbols, static calls to instance methods, deprecations, always-true and always-false
+conditions, unreachable code, missing types and offset access, and the deprecation identifiers of
+phpstan-deprecation-rules.
 [PHPStan identifiers](../phpstan/identifiers.md) lists each identifier with its Mago codes.
 
 **Not dropped:**

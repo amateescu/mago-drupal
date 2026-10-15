@@ -11,6 +11,7 @@ the properties that `DependencySerializationTrait` can't restore.
 - **Level:** warning
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `GlobalDrupalDependencyInjectionRule` (partly)
+- **Off with `--core`**
 
 phpstan-drupal reports a `\Drupal::` call in a class that can take its services through
 dependency injection. Such a class gets a service through its constructor, or through `create()`

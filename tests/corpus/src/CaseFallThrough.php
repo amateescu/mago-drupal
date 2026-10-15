@@ -559,6 +559,7 @@ class CaseFallThrough {
         $this->step();
       case 2:
         $this->step();
+        // @mago-expect lint:drupal/case-break-blank-line
         break;
       default:
         $this->step();

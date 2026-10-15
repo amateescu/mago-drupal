@@ -177,7 +177,7 @@ final class CoderTables
                 static fn(array $code): string => $code['status'],
                 $codes,
             )));
-            $by = $this->handledBy($handlers, $statuses);
+            $by = $this->handledBy($handlers, $statuses, $sniff['gate'] ?? null);
             if (in_array('partial', $statuses, strict: true)) {
                 $by .= ', partly';
             }
@@ -227,12 +227,13 @@ final class CoderTables
     }
 
     /**
-     * Names what handles a check.
+     * Names what handles a check. A Mago rule that handles only gaps is off
+     * by default, unless $gate names what else it needs.
      *
      * @param list<string> $handlers
      * @param list<string> $statuses
      */
-    private function handledBy(array $handlers, array $statuses): string
+    private function handledBy(array $handlers, array $statuses, ?string $gate = null): string
     {
         $names = [];
         foreach ($handlers as $handler) {
@@ -241,7 +242,11 @@ final class CoderTables
             $name = $parts[1] ?? '';
             $names[] = match ($tool) {
                 'ext', 'check' => $this->ruleLink($name),
-                'lint' => "Mago `{$name}`" . ($statuses === ['gap'] ? ' (off by default)' : ''),
+                'lint' => "Mago `{$name}`" . match (true) {
+                    $gate !== null => " ({$gate})",
+                    $statuses === ['gap'] => ' (off by default)',
+                    default => '',
+                },
                 'format' => '`mago format`',
                 'analyze' => $name === '' ? '`mago analyze`' : "`mago analyze` (`{$name}`)",
                 'branch' => 'The analyzer (not released)',

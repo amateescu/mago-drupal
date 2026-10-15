@@ -1070,6 +1070,7 @@
         "sniff": "SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue",
         "standard": "Drupal",
         "where": ["lint:explicit-nullable-param"],
+        "gate": "PHP 8.4 and later",
         "note": "Mago's rule, with the same fix, runs only when `php-version` is 8.4 or later, where PHP deprecates the implicit nullable type. On an 8.3 target nothing reports it, even with the rule switched on.",
         "codes": [
             {"code": "NullabilityTypeMissing", "status": "gap"}
@@ -1154,7 +1155,7 @@
             {"code": "MissingCase", "status": "report", "where": ["ext:drupal/empty-switch"]},
             {"code": "SpaceBeforeColonCase", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `case 1: {`. Mago reports the braces as a redundant block."},
             {"code": "SpaceBeforeColonDefault", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `default: {`. Mago reports the braces as a redundant block."},
-            {"code": "SpacingAfterBreak", "status": "partial", "where": ["ext:drupal/case-break-blank-line"]},
+            {"code": "SpacingAfterBreak", "status": "fix", "where": ["ext:drupal/case-break-blank-line"]},
             {"code": "SpacingAfterDefault", "status": "format"},
             {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago can't parse it and reports a parse error."},
             {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago can't parse it and reports a parse error."}

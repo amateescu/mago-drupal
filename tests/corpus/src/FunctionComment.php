@@ -176,6 +176,26 @@ function function_comment_duplicate_return(): string {
 
 // @mago-expect lint:drupal/doc-tag-descriptions
 /**
+ * Return description on the tag's own line.
+ *
+ * @return string The label.
+ */
+function function_comment_return_comment_on_tag_line(): string {
+  return 'x';
+}
+
+// @mago-expect lint:drupal/doc-tag-descriptions
+/**
+ * Return type with a space and nothing below.
+ *
+ * @return array<int, string>
+ */
+function function_comment_return_type_with_space(): array {
+  return [];
+}
+
+// @mago-expect lint:drupal/doc-tag-descriptions
+/**
  * Missing return comment.
  *
  * @return string
@@ -433,6 +453,8 @@ function function_comment_return_type_spaces(): int {
   return 1;
 }
 
+// Coder reads the whole line as the type, and wants the description below.
+// @mago-expect lint:drupal/doc-tag-descriptions
 /**
  * Return type with a space and no description below is not this report.
  *

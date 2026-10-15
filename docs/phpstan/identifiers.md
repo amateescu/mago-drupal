@@ -26,7 +26,9 @@ ones matched by the plugin. The identifiers of phpstan-drupal are on the
 - `class.implementsDeprecatedInterface`: `deprecated-class`, `deprecated-trait`
 - `class.notFound`: `non-existent-class`, `non-existent-class-like`
 - `classConstant.deprecated`: `deprecated-class-constant`
-- `classConstant.deprecatedClass`: `deprecated-class`, `deprecated-trait`
+- `classConstant.deprecatedClass`: `deprecated-class`, `deprecated-trait`, `deprecated-class-constant`
+- `classConstant.deprecatedEnum`: `deprecated-class`, `deprecated-trait`, `deprecated-class-constant`
+- `classConstant.deprecatedInterface`: `deprecated-class`, `deprecated-trait`, `deprecated-class-constant`
 - `classConstant.notFound`: `non-existent-class-constant`
 - `constant.deprecated`: `deprecated-constant`
 - `constant.notFound`: `non-existent-constant`
@@ -39,10 +41,12 @@ ones matched by the plugin. The identifiers of phpstan-drupal are on the
 - `if.alwaysTrue`: `redundant-condition`
 - `interface.extendsDeprecatedInterface`: `deprecated-class`, `deprecated-trait`
 - `method.deprecated`: `deprecated-method`
-- `method.deprecatedClass`: `deprecated-class`, `deprecated-trait`
-- `method.deprecatedInterface`: `deprecated-class`, `deprecated-trait`
+- `method.deprecatedClass`: `deprecated-class`, `deprecated-trait`, `deprecated-method`
+- `method.deprecatedEnum`: `deprecated-class`, `deprecated-trait`, `deprecated-method`
+- `method.deprecatedInterface`: `deprecated-class`, `deprecated-trait`, `deprecated-method`
 - `method.nonObject`: `ambiguous-object-method-access`, `invalid-method-access`, `method-access-on-null`, `mixed-method-access`, `possible-method-access-on-null`
 - `method.notFound`: `non-documented-method`, `non-existent-method`, `possibly-non-existent-method`
+- `method.staticCall`: `invalid-static-method-access`
 - `missingType.parameter`: `missing-parameter-type`
 - `missingType.property`: `missing-property-type`
 - `missingType.return`: `missing-return-type`
@@ -58,7 +62,9 @@ ones matched by the plugin. The identifiers of phpstan-drupal are on the
 - `return.missing`: `missing-return-statement`
 - `return.type`: `falsable-return-statement`, `invalid-return-statement`, `less-specific-nested-return-statement`, `less-specific-return-statement`, `mixed-return-statement`, `nullable-return-statement`
 - `staticMethod.deprecated`: `deprecated-method`
-- `staticMethod.deprecatedClass`: `deprecated-class`, `deprecated-trait`
+- `staticMethod.deprecatedClass`: `deprecated-class`, `deprecated-trait`, `deprecated-method`
+- `staticMethod.deprecatedEnum`: `deprecated-class`, `deprecated-trait`, `deprecated-method`
+- `staticMethod.deprecatedInterface`: `deprecated-class`, `deprecated-trait`, `deprecated-method`
 - `staticMethod.notFound`: `non-existent-method`
 - `staticProperty.deprecated`: `deprecated-property`
 - `staticProperty.notFound`: `non-existent-property`

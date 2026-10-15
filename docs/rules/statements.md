@@ -10,7 +10,7 @@ are declared.
 - **Level:** error
 - **Fix:** safe. It adds the line, or removes the extra ones.
 - **Standard:** [Control structures](https://project.pages.drupalcode.org/coding_standards/php/coding/#control-structures)
-- **Ports:** `Squiz.ControlStructures.SwitchDeclaration.SpacingAfterBreak` (partly)
+- **Ports:** `Squiz.ControlStructures.SwitchDeclaration.SpacingAfterBreak`
 
 The standard has no sentence for this. Its switch example puts a blank line after the `break` that
 ends each case.
@@ -23,9 +23,8 @@ ends each case.
 
 **Not reported:**
 
-- the last case before the closing brace, and a `default` case;
-- a case that falls through from a `default`;
-- a `switch (): ... endswitch;` body.
+- the last case before the closing brace or `endswitch`, and a `default` case;
+- a case that falls through from a `default`.
 
 ???+ example "Example"
 
@@ -59,10 +58,6 @@ ends each case.
         $access = NULL;
     }
     ```
-
-??? note "Compared with Coder"
-
-    - Coder reports a missing blank line after a `break` in a `switch (): ... endswitch;` body.
 
 ---
 

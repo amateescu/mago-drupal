@@ -11,6 +11,7 @@ use amateescu\MagoDrupal\Linter\Rules\InlineCommentBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentPunctuationRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\LongDescriptionPunctuationRule;
+use amateescu\MagoDrupal\Linter\Rules\MissingFunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
 use Closure;
 use InvalidArgumentException;
@@ -104,6 +105,7 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/routing-access',
                 'drupal/short-list',
                 'drupal/strict-config-schema',
+                'drupal/unsilenced-deprecation',
                 'drupal/untranslated-options',
             ],
             self::offCodes(DrupalExtension::fromArguments(['--core'])->linterRules),
@@ -136,6 +138,31 @@ final class RuleSwitchesTest extends TestCase
         self::assertSame([], self::messages($core, $contents, 'core/lib/Drupal/Core'));
         self::assertSame($missing, self::messages($core, $contents, 'core/tests/Drupal/KernelTests/Core'));
         self::assertSame($missing, self::messages($core, $contents, 'core/modules/node/tests/src/Unit'));
+    }
+
+    public function testCoreChecksTheMissingFunctionCommentInCoreDirectoriesOnly(): void
+    {
+        $contents = "<?php\n\nfunction rule_switches(): int\n{\n    return 0;\n}\n";
+
+        self::assertSame(
+            [],
+            self::messages(new MissingFunctionCommentRule(core: true), $contents, 'core/modules/node'),
+        );
+        self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/modules/node/node.module'));
+        self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/modules/node/tests/src/Traits/T.php'));
+        self::assertFalse(MissingFunctionCommentRule::checkedOnCore('modules/custom/src/Plugin/Block/B.php'));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore('core/lib/Drupal/Core/Url.php'));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore('web/core/lib/Drupal/Core/Url.php'));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore('core/modules/node/src/Plugin/Action/A.php'));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore('core/modules/node/tests/src/Kernel/K.php'));
+        self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/tests/Drupal/FunctionalTests/F.php'));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore('core/modules/node/tests/src/Functional/F.php'));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore(
+            'core/modules/mysql/src/Driver/Database/mysql/C.php',
+        ));
+        self::assertTrue(MissingFunctionCommentRule::checkedOnCore(
+            'core/modules/system/tests/modules/HookOrder/hook_order.module',
+        ));
     }
 
     public function testDisableTurnsOffTheNamedRules(): void

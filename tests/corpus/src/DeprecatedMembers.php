@@ -125,6 +125,20 @@ final class LegacyMemberUser extends ApiWithLegacyMembers {
   }
 
   /**
+   * PHPStan names a member of a deprecated class-like after the class-like.
+   *
+   * It does so also when the member is deprecated itself.
+   */
+  public function phpstanIgnoredClassLike(): array {
+    return [
+      // @phpstan-ignore classConstant.deprecatedInterface
+      LegacyApiInterface::OLD_LEVEL,
+      // @phpstan-ignore staticMethod.deprecatedClass
+      LegacyFactory::makeOld(),
+    ];
+  }
+
+  /**
    * A deprecated property a parent declares.
    */
   public function cache(): array {

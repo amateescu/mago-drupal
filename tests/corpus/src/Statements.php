@@ -181,6 +181,7 @@ class PropertyHolder {
    * Reads the properties.
    *
    * @return array<int, mixed>
+   *   The result.
    */
   public function all(): array {
     return [
@@ -288,6 +289,7 @@ function switch_alternative_syntax(int $x): int {
   switch ($x):
     // @mago-expect lint:drupal/case-semicolon
     case 1;
+      // @mago-expect lint:drupal/case-break-blank-line
       return 1;
     default:
       return 0;

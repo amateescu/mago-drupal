@@ -79,14 +79,11 @@ standard, and doesn't run some sniffs at all:
 - it runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`, `NamespacedDependency` and part
   of `VariableAnalysis` from the DrupalPractice standard.
 
-The linter rules that port those checks are on by default for contrib and custom code, and the
-worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns most of them
-off. Three stay on with `--core`: `drupal/unsilenced-deprecation`, `drupal/property-name` for a
-name that starts with an underscore, and `drupal/missing-function-comment` outside the directories
-where core checks it. The analyzer check `drupal/global-drupal-call` stays on as well. `--core`
-doesn't change Mago's own rules, such as `trait-name`, which `mago.toml` sets. A project
-that turns other sub-codes off in its phpcs config can turn off the matching rules with
-[`--disable`](../setup/worker-arguments.md#turning-rules-off).
+The rules that port those checks are on by default for contrib and custom code, and the worker's
+[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off, or limits
+them to the directories where core runs them. `--core` doesn't change Mago's own rules, such as
+`trait-name`, which `mago.toml` sets. A project that turns other sub-codes off in its phpcs config
+can turn off the matching rules with [`--disable`](../setup/worker-arguments.md#turning-rules-off).
 
 **File types.** Mago reads only the file extensions in its `[source]` block. phpcs reads the
 extensions in its `--extensions` option, `php` and `inc` when none is given. With the usual Coder

@@ -20,10 +20,11 @@ use const JSON_THROW_ON_ERROR;
  * `ext:<rule code>`, `check:<analyzer check code>`, `lint:<rule>`,
  * `branch:<name>`, `phpcs` or `none`. A note is kept only where no rule of
  * this extension ports the check, because a rule's docs entry describes how
- * it differs from Coder.
+ * it differs from Coder. A sniff's `gate` names what a `lint:` rule needs to
+ * run when that isn't its switch, such as a PHP version.
  *
  * @phpstan-type Code array{code: string, status: string, where?: list<string>, note?: string}
- * @phpstan-type Sniff array{sniff: string, standard: string, drupal7?: bool, where: list<string>, note?: string, codes: list<Code>}
+ * @phpstan-type Sniff array{sniff: string, standard: string, drupal7?: bool, where: list<string>, gate?: string, note?: string, codes: list<Code>}
  */
 final class CoderMap
 {

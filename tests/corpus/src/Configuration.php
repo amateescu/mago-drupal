@@ -51,6 +51,7 @@ final class Configuration {
    * A sequence becomes an array of its element type.
    *
    * @return array<int|string, string>
+   *   The result.
    */
   public function tags(): array {
     return \Drupal::config('corpus.settings')->get('tags') ?? [];

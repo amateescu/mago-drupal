@@ -17,6 +17,8 @@ use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function array_filter;
+use function array_values;
 use function count;
 use function strpos;
 use function strrev;
@@ -32,7 +34,8 @@ use function substr_count;
  * A case ends with `break`, `continue`, `return`, `throw`, `exit`, `die` or
  * `goto`. The last case before the closing brace needs no blank line, and
  * neither does a `default` case. `mago format` keeps one blank line or none
- * after the statement in a brace body, so the fix stays.
+ * after the statement, in a brace body and in a `switch (): ... endswitch;`
+ * body, so the fix stays.
  */
 final class CaseBreakBlankLineRule implements Rule
 {
@@ -56,16 +59,21 @@ final class CaseBreakBlankLineRule implements Rule
         $children = $file->getChildren($context->node);
         $body = $file->getChildren($children[count($children) - 1] ?? $context->node)[0] ?? null;
 
-        // `mago format` removes the blank lines between the cases of a
-        // `switch (): ... endswitch;` body, so a fix there would not stay.
-        if ($body === null || $body->kind !== NodeKind::SwitchBraceDelimitedBody) {
+        if (
+            $body === null
+            || $body->kind !== NodeKind::SwitchBraceDelimitedBody && $body->kind !== NodeKind::SwitchColonDelimitedBody
+        ) {
             return;
         }
 
         // Cases that fall through share the statement that ends the last of
         // them. Coder checks that statement for the first case of the run,
-        // so a run that starts with `default` is not checked.
-        $cases = $file->getChildren($body);
+        // so a run that starts with `default` is not checked. A colon body
+        // also holds its `endswitch;`, which isn't a case.
+        $cases = array_values(array_filter(
+            $file->getChildren($body),
+            static fn(Node $child): bool => $child->kind === NodeKind::SwitchCase,
+        ));
         $owner = null;
         foreach ($cases as $index => $case) {
             $case = $file->getChildren($case)[0] ?? $case;

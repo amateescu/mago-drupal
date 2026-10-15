@@ -22,6 +22,7 @@ final class Queries {
    * A checked query returns ids keyed by entity or revision id.
    *
    * @return array<int|string, string>
+   *   The result.
    */
   public function checked(): array {
     return $this->entityTypeManager
@@ -36,6 +37,7 @@ final class Queries {
    * The static helper carries the same tags, and a count is never negative.
    *
    * @return int<0, max>
+   *   The result.
    */
   public function counted(): int {
     return \Drupal::entityQuery('corpus_thing')->accessCheck()->count()->execute();
@@ -52,6 +54,7 @@ final class Queries {
    * Bypassing access on purpose is allowed.
    *
    * @return array<int|string, string>
+   *   The result.
    */
   public function bypassed(): array {
     return \Drupal::entityQuery('corpus_thing')->accessCheck(FALSE)->execute();
@@ -118,6 +121,7 @@ final class Queries {
    * Condition groups return to the query without losing its tags.
    *
    * @return array<int|string, string>
+   *   The result.
    */
   public function grouped(): array {
     $query = $this->entityTypeManager->getStorage('corpus_thing')->getQuery();
@@ -132,6 +136,7 @@ final class Queries {
    * Their ids come back as strings keyed by strings.
    *
    * @return array<string, string>
+   *   The result.
    */
   public function config(): array {
     return \Drupal::entityQuery('corpus_setting')->execute();
@@ -141,6 +146,7 @@ final class Queries {
    * Aggregates return grouped rows from either entry point.
    *
    * @return list<array<string, mixed>>
+   *   The result.
    */
   public function aggregate(): array {
     $rows = \Drupal::entityQueryAggregate('corpus_thing')->accessCheck()->groupBy('type')->execute();
