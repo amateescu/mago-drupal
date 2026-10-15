@@ -14,6 +14,7 @@ use function implode;
 use function in_array;
 use function str_replace;
 use function str_starts_with;
+use function strtolower;
 
 /**
  * Renders the tables of the Coming from Coder pages from the parity map.
@@ -66,7 +67,7 @@ final class CoderTables
 
         $sections = [];
         foreach ($categories as $category => $members) {
-            $sections[] = "## {$category}\n\n" . $this->table($members);
+            $sections[] = "## {$category}\n\n" . $this->table($members, heading: '###');
         }
 
         return implode("\n", $sections);
@@ -88,21 +89,23 @@ final class CoderTables
                 continue;
             }
 
-            $sections[] = "## {$title}\n\n" . $this->table($members);
+            $sections[] = "## {$title}\n\n" . $this->table($members, heading: '###');
         }
 
         return implode("\n", $sections);
     }
 
     /**
-     * Renders the sniffs of the `DrupalPractice` standard.
+     * Renders the sniffs of the `DrupalPractice` standard. The table sits
+     * right under the page title, so a sniff's own section has a level 2
+     * heading.
      */
     public function drupalPractice(): string
     {
-        return $this->table(array_filter(
-            $this->current(),
-            static fn(array $sniff): bool => $sniff['standard'] === 'DrupalPractice',
-        ));
+        return $this->table(
+            array_filter($this->current(), static fn(array $sniff): bool => $sniff['standard'] === 'DrupalPractice'),
+            heading: '##',
+        );
     }
 
     /**
@@ -147,67 +150,142 @@ final class CoderTables
     }
 
     /**
-     * Renders a table with one row for each sniff.
+     * Renders a table with one row for each sniff. A sniff whose codes go to
+     * different places also gets a section below the table, under a heading
+     * of the given level.
      *
      * @param array<int, Sniff> $sniffs
      */
-    private function table(array $sniffs): string
+    private function table(array $sniffs, string $heading): string
     {
         $rows = "| Sniff | Handled by | Notes |\n| --- | --- | --- |\n";
+        $sections = [];
         foreach ($sniffs as $sniff) {
-            $rows .= $this->row($sniff);
+            $groups = self::groups($sniff);
+            if (count($groups) === 1) {
+                $rows .= $this->row($sniff, $groups[0]);
+
+                continue;
+            }
+
+            $rows .= $this->splitRow($sniff, $groups);
+            $sections[] = $this->codesSection($sniff, $groups, $heading);
         }
 
-        return $rows;
+        return $sections === [] ? $rows : $rows . "\n" . implode("\n", $sections);
     }
 
     /**
-     * Renders the row of a sniff. When its codes go to different places, the
-     * row lists the codes for each.
+     * Renders the row of a sniff whose codes all go to the same place.
      *
      * @param Sniff $sniff
+     * @param array{handlers: list<string>, codes: list<Code>} $group
      */
-    private function row(array $sniff): string
+    private function row(array $sniff, array $group): string
     {
-        /** @var array<string, array{handlers: list<string>, codes: list<Code>}> $groups */
+        return (
+            "| `{$sniff['sniff']}` | "
+            . self::cell($this->groupHandledBy($sniff, $group))
+            . ' | '
+            . self::cell(self::notes($sniff))
+            . " |\n"
+        );
+    }
+
+    /**
+     * Renders the row of a sniff whose codes go to different places: every
+     * handler, and a link to the sniff's section.
+     *
+     * @param Sniff $sniff
+     * @param list<array{handlers: list<string>, codes: list<Code>}> $groups
+     */
+    private function splitRow(array $sniff, array $groups): string
+    {
+        $handlers = [];
+        $codes = [];
+        foreach ($groups as $group) {
+            $handlers = [...$handlers, ...$group['handlers']];
+            $codes = [...$codes, ...$group['codes']];
+        }
+
+        $by = $this->groupHandledBy($sniff, ['handlers' => array_values(array_unique($handlers)), 'codes' => $codes]);
+        $anchor = strtolower(str_replace(search: '.', replace: '', subject: $sniff['sniff']));
+        $note = $sniff['note'] ?? '';
+
+        return (
+            "| `{$sniff['sniff']}` | "
+            . self::cell($by)
+            . " | [By code](#{$anchor})"
+            . ($note === '' ? '' : ' ' . self::cell($note))
+            . " |\n"
+        );
+    }
+
+    /**
+     * Renders the section of a sniff whose codes go to different places: a
+     * row for each group of codes, then the notes of the codes.
+     *
+     * @param Sniff $sniff
+     * @param list<array{handlers: list<string>, codes: list<Code>}> $groups
+     */
+    private function codesSection(array $sniff, array $groups, string $heading): string
+    {
+        $rows = "| Codes | Handled by |\n| --- | --- |\n";
+        $notes = [];
+        foreach ($groups as $group) {
+            $names = implode(', ', array_map(static fn(array $code): string => "`{$code['code']}`", $group['codes']));
+            $rows .= "| {$names} | " . self::cell($this->groupHandledBy($sniff, $group)) . " |\n";
+            foreach ($group['codes'] as $code) {
+                $note = $code['note'] ?? '';
+                if ($note !== '') {
+                    $notes[] = "- `{$code['code']}`: " . str_replace(search: "\n", replace: ' ', subject: $note);
+                }
+            }
+        }
+
+        $section = "{$heading} `{$sniff['sniff']}`\n\n" . $rows;
+
+        return $notes === [] ? $section : $section . "\n" . implode("\n", $notes) . "\n";
+    }
+
+    /**
+     * Names what handles a group of codes, with "partly" when one of them is
+     * handled only in part.
+     *
+     * @param Sniff $sniff
+     * @param array{handlers: list<string>, codes: list<Code>} $group
+     */
+    private function groupHandledBy(array $sniff, array $group): string
+    {
+        $statuses = array_values(array_unique(array_map(
+            static fn(array $code): string => $code['status'],
+            $group['codes'],
+        )));
+        $by = $this->handledBy($group['handlers'], $statuses, $sniff['gate'] ?? []);
+
+        return in_array('partial', $statuses, strict: true) ? $by . ', partly' : $by;
+    }
+
+    /**
+     * The codes of a sniff, grouped by what handles them. A partial code goes
+     * in a group of its own, so that "partly" names only the codes it applies
+     * to.
+     *
+     * @param Sniff $sniff
+     *
+     * @return list<array{handlers: list<string>, codes: list<Code>}>
+     */
+    private static function groups(array $sniff): array
+    {
         $groups = [];
         foreach ($sniff['codes'] as $code) {
             $handlers = CoderMap::where($sniff, $code);
-            // A partial code goes in a group of its own, so that "partly"
-            // names only the codes it applies to.
             $key = implode("\n", $handlers) . ($code['status'] === 'partial' ? "\npartial" : '');
             $groups[$key] ??= ['handlers' => $handlers, 'codes' => []];
             $groups[$key]['codes'][] = $code;
         }
 
-        $lines = [];
-        foreach ($groups as ['handlers' => $handlers, 'codes' => $codes]) {
-            $statuses = array_values(array_unique(array_map(
-                static fn(array $code): string => $code['status'],
-                $codes,
-            )));
-            $by = $this->handledBy($handlers, $statuses, $sniff['gate'] ?? []);
-            if (in_array('partial', $statuses, strict: true)) {
-                $by .= ', partly';
-            }
-
-            if (count($groups) === 1) {
-                $lines[] = $by;
-
-                continue;
-            }
-
-            $names = implode(', ', array_map(static fn(array $code): string => "`{$code['code']}`", $codes));
-            $lines[] = "{$names}: {$by}";
-        }
-
-        return (
-            "| `{$sniff['sniff']}` | "
-            . self::cell(implode('<br>', $lines))
-            . ' | '
-            . self::cell(self::notes($sniff))
-            . " |\n"
-        );
+        return array_values($groups);
     }
 
     /**

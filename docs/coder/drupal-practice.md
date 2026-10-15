@@ -32,7 +32,19 @@ analyzer checks that port the other sniffs.
 | `DrupalPractice.Objects.UnusedPrivateMethod` | `mago analyze` (`unused-method`) | The analyzer also reports an unused private static method, an unused private method of an enum, and a private method that is called only from its own body, which Coder skips. Coder reports a private `__destruct()` and a private method that is called only as `$other->helper()`, `self::helper()`, `static::helper()` or `[self::class, 'helper']`; the analyzer doesn't report any of them. |
 | `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |  |
 | `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |  |
-| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `SelfOutsideClass`: `mago analyze` (`self-outside-class-scope`)<br>`StaticOutsideClass`: `mago analyze` (`static-outside-class-scope`)<br>`UndefinedUnsetVariable`: Nothing<br>`UnusedVariable`: [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable)<br>`VariableRedeclaration`: [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) | Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them. `UndefinedUnsetVariable`: An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. Coder doesn't count an element write such as `$x['k'] = 1` as setting `$x`, so it also reports `unset($x['k'])` after one. `mago analyze` reports such a variable as `undefined-variable` at its first element write. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`. |
+| `VariableAnalysis.CodeAnalysis.VariableAnalysis` | `mago analyze` (`self-outside-class-scope`), `mago analyze` (`static-outside-class-scope`), Nothing, [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable), [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) | [By code](#variableanalysiscodeanalysisvariableanalysis) Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and `drupal/variable-redeclaration`. `mago analyze` checks them. |
+
+## `VariableAnalysis.CodeAnalysis.VariableAnalysis`
+
+| Codes | Handled by |
+| --- | --- |
+| `SelfOutsideClass` | `mago analyze` (`self-outside-class-scope`) |
+| `StaticOutsideClass` | `mago analyze` (`static-outside-class-scope`) |
+| `UndefinedUnsetVariable` | Nothing |
+| `UnusedVariable` | [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable) |
+| `VariableRedeclaration` | [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
+
+- `UndefinedUnsetVariable`: An `unset()` of a variable that was never set. Not ported. Core's `phpcs.xml.dist` turns this code off. Coder doesn't count an element write such as `$x['k'] = 1` as setting `$x`, so it also reports `unset($x['k'])` after one. `mago analyze` reports such a variable as `undefined-variable` at its first element write. A read after `unset()` is `UndefinedVariable`, which Coder's ruleset turns off, and `mago analyze` reports it as `possibly-undefined-variable`.
 
 <!-- /docs-gen -->
 
