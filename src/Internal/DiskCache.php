@@ -589,10 +589,10 @@ final class DiskCache
 
             $gone = $liveness && !is_dir('/proc/' . $host[1]);
             $old = (int) self::quietly(static fn(): int|false => filemtime($entry)) < $stale;
-            $superseded =
-                $older !== null
-                && preg_match($older, $name, $generation) === 1
-                && (int) $generation[1] < (int) $current[2];
+            $superseded = false;
+            if ($older !== null && preg_match($older, $name, $generation) === 1) {
+                $superseded = (int) $generation[1] < (int) $current[2];
+            }
             if ($gone || $old || $superseded) {
                 self::quietly(static fn(): bool => unlink($entry));
             }

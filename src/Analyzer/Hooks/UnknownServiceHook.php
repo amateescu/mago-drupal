@@ -87,8 +87,12 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
         // an int behaviour, so a call naming them out of order puts the int
         // first and the literal string test below drops it.
         $type = $context->argumentTypes[0] ?? null;
-        $id = $type?->getLiteralString();
-        if ($id === null || $id === '' || $type?->getLiteralClassString() !== null) {
+        if ($type === null) {
+            return;
+        }
+
+        $id = $type->getLiteralString();
+        if ($id === null || $id === '' || $type->getLiteralClassString() !== null) {
             return;
         }
 
