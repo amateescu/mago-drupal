@@ -9,7 +9,7 @@ Drupal project. The parity target is
 
 ## Quick start
 
-PHP 8.1 or later and Mago 1.57 or later are required.
+PHP 8.1 or later and Mago 1.58 or later are required.
 
 ```shell
 composer require --dev carthage-software/mago amateescu/mago-drupal
