@@ -17,7 +17,8 @@ are turned off or not run by core's `phpcs.xml.dist`:
   `global-constant`, `request-superglobal`, `strict-config-schema`, `untranslated-description` and
   `untranslated-options`, which all port DrupalPractice sniffs;
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
-  `info-dependencies-array`, `info-description` and `routing-access`.
+  `info-dependencies-array`, `info-description` and `routing-access`;
+- `global-class-backslash`, whose check isn't done by any Coder sniff.
 
 `enabled = true` under `[linter.rules]` turns one of these rules back on, see
 [Turning rules off](configuration.md#turning-rules-off).
@@ -35,6 +36,48 @@ It also turns off the five analyzer checks that don't apply to core,
 [`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability), and
 makes [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) check every service
 id, since core looks up only its own services.
+
+A project that starts from core's `phpcs.xml.dist` but isn't core itself can leave `--core` off,
+which keeps those analyzer checks, and turn off the same rules in `mago.toml`:
+
+<!-- docs-gen:core-rules -->
+
+```toml
+[linter.rules]
+"drupal/author-tag" = { enabled = false }
+"drupal/case-fall-through" = { enabled = false }
+"drupal/class-prefix" = { enabled = false }
+"drupal/const-prefix" = { enabled = false }
+"drupal/curl-ssl-verify" = { enabled = false }
+"drupal/escaped-placeholder" = { enabled = false }
+"drupal/form-alter-comment" = { enabled = false }
+"drupal/function-name" = { enabled = false }
+"drupal/function-prefix" = { enabled = false }
+"drupal/global-class-backslash" = { enabled = false }
+"drupal/global-constant" = { enabled = false }
+"drupal/hook-attribute-name" = { enabled = false }
+"drupal/info-core-version-requirement" = { enabled = false }
+"drupal/info-dependencies-array" = { enabled = false }
+"drupal/info-description" = { enabled = false }
+"drupal/inline-comment-blank-line" = { enabled = false }
+"drupal/inline-comment-punctuation" = { enabled = false }
+"drupal/insecure-unserialize" = { enabled = false }
+"drupal/long-description-punctuation" = { enabled = false }
+"drupal/method-name" = { enabled = false }
+"drupal/method-name-underscore" = { enabled = false }
+"drupal/request-superglobal" = { enabled = false }
+"drupal/routing-access" = { enabled = false }
+"drupal/short-list" = { enabled = false }
+"drupal/strict-config-schema" = { enabled = false }
+"drupal/unsilenced-deprecation" = { enabled = false }
+"drupal/untranslated-description" = { enabled = false }
+"drupal/untranslated-options" = { enabled = false }
+```
+<!-- /docs-gen -->
+
+The block doesn't limit `missing-summary`, `missing-function-comment`, `unused-variable` and
+`property-name` the way `--core` does. Add an `exclude` to a rule for the paths where the project
+doesn't want it, see [Turning rules off](configuration.md#turning-rules-off).
 
 ## Finding the Drupal root
 
