@@ -15,7 +15,6 @@ use amateescu\MagoDrupal\Linter\Rules\MissingFunctionCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\MissingSummaryRule;
 use amateescu\MagoDrupal\Linter\Rules\UnusedVariableRule;
 use Closure;
-use InvalidArgumentException;
 use Mago\Sdk\CancellationTokenInterface;
 use Mago\Sdk\Internal\Syntax\NodeStore;
 use Mago\Sdk\Internal\Syntax\ResolvedNameStore;
@@ -38,9 +37,9 @@ use function strpos;
 
 /**
  * The three checks that core's `phpcs.xml.dist` turns off are rules of their
- * own, so `--core` and `--disable` can turn them off by default. Core runs
- * the missing short description check in some test directories only, so
- * `--core` scopes `drupal/missing-summary` to them.
+ * own, so `--core` can turn them off by default. Core runs the missing short
+ * description check in some test directories only, so `--core` scopes
+ * `drupal/missing-summary` to them.
  */
 final class RuleSwitchesTest extends TestCase
 {
@@ -181,26 +180,6 @@ final class RuleSwitchesTest extends TestCase
         ));
         self::assertTrue(UnusedVariableRule::checkedOnCore('core/modules/node/node.module'));
         self::assertTrue(UnusedVariableRule::checkedOnCore('core/modules/node/src/NodeForm.php'));
-    }
-
-    public function testDisableTurnsOffTheNamedRules(): void
-    {
-        $rules = DrupalExtension::fromArguments([
-            '--disable=drupal/author-tag, drupal/else-if',
-            '--disable=drupal/weak-hash,',
-        ])->linterRules;
-
-        self::assertSame(['drupal/author-tag', 'drupal/else-if', 'drupal/weak-hash'], self::offCodes($rules));
-    }
-
-    public function testDisableRejectsAnUnknownCode(): void
-    {
-        try {
-            DrupalExtension::fromArguments(['--disable=drupal/no-such-rule']);
-            self::fail('An unknown code must fail.');
-        } catch (InvalidArgumentException $exception) {
-            self::assertStringContainsString('drupal/no-such-rule', $exception->getMessage());
-        }
     }
 
     public function testARuleThatIsOffStillLints(): void

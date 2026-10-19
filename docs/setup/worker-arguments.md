@@ -19,6 +19,9 @@ are turned off or not run by core's `phpcs.xml.dist`:
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`.
 
+`enabled = true` under `[linter.rules]` turns one of these rules back on, see
+[Turning rules off](configuration.md#turning-rules-off).
+
 It limits `missing-summary` and `missing-function-comment` to the directories where core's
 `phpcs.xml.dist` runs them, and keeps `unused-variable` out of the `*.api.php` files and the
 transliteration tables, which that file leaves out. It also leaves out the leading underscore check
@@ -62,33 +65,6 @@ working-directory = "/path/to/project"
 Add `"--deprecations=12"` to report only the Drupal deprecations that are removed in Drupal 12 or
 earlier. See [Deprecation target](../analyzer/deprecations.md#deprecation-target).
 
-## Turning rules off
-
-Mago doesn't take this extension's rule codes under `[linter.rules]`. To turn rules off, add
-`"--disable=<code>,<code>"` to the command:
-
-```toml
-[extension-hosts.drupal]
-command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
-```
-
-A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an
-error when a code doesn't name a rule.
-
-A project that turns phpcs sub-codes off in its `phpcs.xml` can turn off the matching rules this
-way. [Coming from Coder](../coder/index.md) says which rule ports each sub-code.
-
-`--disable` takes only linter rules. To turn off an [analyzer check](../analyzer/index.md#checks),
-use Mago's own `[analyzer] ignore`, for the whole project or for some paths:
-
-```toml
-[analyzer]
-ignore = [
-    "drupal/global-drupal-call",
-    { code = "drupal/entity-storage-injection", in = "src/Legacy/" },
-]
-```
-
 ## Your own worker file
 
 `worker.php` turns its arguments into a call to `DrupalExtension::create()`. A project can make that
@@ -131,7 +107,6 @@ Each worker argument has a named argument of `create()`:
 | `--core` | `core: true` |
 | `--root=PATH` | `root: 'PATH'` |
 | `--deprecations=12` | `deprecations: 12` |
-| `--disable=<code>,<code>` | `disabled: ['<code>', '<code>']` |
 
 For example, `DrupalExtension::create(core: true, deprecations: 12)` does the same as
 `"--core", "--deprecations=12"`.

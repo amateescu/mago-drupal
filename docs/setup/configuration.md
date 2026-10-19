@@ -117,3 +117,37 @@ too-many-methods = { enabled = false }
 # disable this rule.
 strict-types = { enabled = false }
 ```
+
+## Turning rules off
+
+Mago takes this extension's rule codes under `[linter.rules]`, with the same `enabled`, `level` and
+`exclude` settings as its own rules. Quote the code, because it holds a `/`:
+
+```toml
+[linter.rules]
+"drupal/inline-comment-punctuation" = { enabled = false }
+"drupal/missing-function-comment" = { exclude = ["tests/"] }
+"drupal/else-if" = { level = "warning" }
+```
+
+`enabled = false` turns a rule off. `exclude` leaves the rule out of the matching paths, which take
+the same globs and directory prefixes as the excludes of Mago's own rules. `level` sets the level of
+every issue that the rule reports. `enabled = true` turns on a rule that the worker's
+[`--core` argument](worker-arguments.md#checking-drupal-core) turns off.
+
+A rule that is turned off still runs when `mago lint --only` names it, and `mago lint --pedantic`
+doesn't read these settings. Mago warns about a code that doesn't name a rule, and the run goes on.
+
+A project that turns phpcs sub-codes off in its `phpcs.xml` can turn off the matching rules this
+way. [Coming from Coder](../coder/index.md) says which rule ports each sub-code.
+
+`[linter.rules]` takes only linter rules. To turn off an [analyzer check](../analyzer/index.md#checks),
+use Mago's own `[analyzer] ignore`, for the whole project or for some paths:
+
+```toml
+[analyzer]
+ignore = [
+    "drupal/global-drupal-call",
+    { code = "drupal/entity-storage-injection", in = "src/Legacy/" },
+]
+```

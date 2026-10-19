@@ -21,8 +21,8 @@
  * `docroot/`, `html/`, `public/`, the Composer scaffold's `web-root` or
  * `vendor/drupal` when Composer installed core there as a package. Add
  * `--deprecations=12` to report only the Drupal deprecations removed in
- * Drupal 12 or earlier. Add `--disable=<code>,<code>` to turn rules off.
- * Mago does not take this extension's rule codes under `[linter.rules]`.
+ * Drupal 12 or earlier. Rules are turned on and off under `[linter.rules]`
+ * by their `drupal/` code.
  */
 
 declare(strict_types=1);
