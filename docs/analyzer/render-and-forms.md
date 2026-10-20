@@ -96,7 +96,7 @@ Core runs the callbacks in a render or form array in four ways, and each one fai
   anything, and both throw for anything that PHP can't call.
 
 The callback checks below report an error where core throws, and a warning on `#value_callback`,
-where core skips the callback without a word. They read the callbacks written under those keys:
+where core silently skips the callback. They read the callbacks written under those keys:
 
 - in an array literal, as in `'#submit' => ['::save']`;
 - in an assignment or an append, as in `$form['actions']['submit']['#submit'][] = '::save'`;
@@ -123,20 +123,20 @@ that names one class, such as a parameter declared `class-string<Helper>`, count
 subclass.
 
 `Foo::class`, `self::class` and a string name that exact class. `static::class`,
-`get_class($this)`, `$this` and an object may be a subclass at run time, so the class and every
+`get_class($this)`, `$this` and an object may be a subclass at runtime, so the class and every
 descendant in the codebase are asked, and one that has the method, or trusts it, keeps the callback
 quiet.
 
 **Not checked:**
 
-- a `service:method` string, since the container may hand back a decorator or a lazy proxy;
+- a `service:method` string, since the container may return a decorator or a lazy proxy;
 - closures, first-class callables, variables and anything computed. A closure in a form is
   [`drupal/form-closure-callback`](#drupalform-closure-callback), and a value whose type can never
   be called is [`drupal/invalid-callback`](#drupalinvalid-callback);
 - a class not scanned by Mago, or one whose hierarchy couldn't be resolved;
 - the `form_submit` of a batch set. `_batch_next_set()` checks it with a plain `is_callable()`
   before it resolves it, so a `'::method'` or a `'Class::method'` that names an instance method is
-  skipped there without a word;
+  silently skipped there;
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
   Tests build broken callbacks on purpose to exercise core's errors.
 
@@ -152,7 +152,7 @@ plain function name under the render, date and component keys that is written in
 - **Ports:** phpstan-drupal's `RenderCallbackRule` (partly)
 
 A callback that names a method or a function that doesn't exist throws when core runs it, or is
-skipped without a word on `#value_callback`.
+silently skipped on `#value_callback`.
 
 **Reports:**
 
@@ -214,7 +214,7 @@ skipped without a word on `#value_callback`.
     - phpstan-drupal reads a callback only from an array literal, not from an assignment, an append,
       `array_unshift()`, `array_push()` or `array_merge()`.
     - phpstan-drupal resolves a `service:method` string through the service map and checks the
-      service's class. The check leaves it alone, since the container may hand back a decorator or a
+      service's class. The check leaves it alone, since the container may return a decorator or a
       lazy proxy.
     - phpstan-drupal also reports in test code.
 
@@ -569,13 +569,13 @@ cached between requests, as for an AJAX rebuild, and PHP can't serialize a closu
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `RenderCallbackRule`, the check of the value's type
 
-phpstan-drupal reports a value under a render callback key whose type isn't surely callable. Core
+phpstan-drupal reports a value under a render callback key whose type may not be callable. Core
 hands such a value to `doTrustedCallback()`, which throws for anything that PHP can't call.
 
 **Reports:**
 
 - a value under a render, date or component key whose type PHP can never call: an int, a float, a
-  bool, NULL, an array that can't be a two-element pair, or an object without `__invoke()`. Every
+  bool, null, an array that can't be a two-element pair, or an object without `__invoke()`. Every
   member of a union must be one of them, as in `?int`.
 
 The keys are `#pre_render`, `#post_render`, the first element of `#lazy_builder`,
@@ -614,7 +614,7 @@ codebase has it either, unless the class is final.
 
 ??? note "Compared with phpstan-drupal"
 
-    - phpstan-drupal reports any value that isn't surely callable, so it also reports a `string`, a
+    - phpstan-drupal reports any value that may not be callable, so it also reports a `string`, a
       `?string`, `mixed` and an array such as `array<int, string>`. Core runs a string from config
       or from a parameter when it names a trusted callback, so the check leaves those alone.
     - phpstan-drupal reports `[$class, 'method']` with a `string $class` as not callable. The check
@@ -649,9 +649,10 @@ isn't trusted as a render callback.
   callbacks;
 - a class whose `trustedCallbacks()` lists the method, or can't be read.
 
-The classes and traits that declare a method with the attribute are read from the PHP files under
-the Drupal root before the analysis starts, as the `@internal` classes are. The descendants of those
-classes are checked, and for a trait, the descendants of the classes that use it.
+The classes and traits that declare a method with the attribute are read from the PHP files of
+`core/lib`, `core/tests` and the `src` directory of every module, profile and theme before the
+analysis starts. The descendants of those classes are checked, and for a trait, the descendants of
+the classes that use it.
 
 ??? example "Example"
 

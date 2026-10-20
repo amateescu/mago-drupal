@@ -39,7 +39,7 @@ final class SymfonyYamlParseRule implements Rule
         return new RuleDefinition(
             code: 'drupal/symfony-yaml-parse',
             name: 'Symfony Yaml::parse()',
-            description: 'Reports a Symfony\Component\Yaml\Yaml::parse() call. It bypasses Drupal\Component\Serialization\Yaml::decode().',
+            description: 'Reports a Symfony\Component\Yaml\Yaml::parse() call, which bypasses Drupal\Component\Serialization\Yaml::decode().',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::StaticMethodCall],

@@ -166,8 +166,6 @@ name, or a docblock that writes the short name in the same case.
     - There isn't a fix when the short name is taken by an interface, a trait, an enum, an import
       that differs in case only, or a class whose name has a comment before it. Coder reports a
       fixable error there, and its fix writes code that PHP rejects.
-    - The rule also reports a namespace-relative name such as `namespace\Sub\Bar`. Coder never
-      checks that form.
 
 ---
 
@@ -603,7 +601,7 @@ names the class in the same case without a leading backslash, in a type, an anno
 
 - a concrete class in a PHPUnit test directory whose parent's name ends in `Test`, `TestBase` or
   `TestCase`, and whose own name doesn't end in `Test`. PHPUnit runs only the files named
-  `*Test.php`, and so do `phpunit -c core` and run-tests.sh, so such a test never runs.
+  `*Test.php`, and so do `phpunit -c core` and `run-tests.sh`, so such a test never runs.
 
 **Not reported:**
 

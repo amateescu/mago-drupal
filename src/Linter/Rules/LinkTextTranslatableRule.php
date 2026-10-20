@@ -30,7 +30,7 @@ final class LinkTextTranslatableRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/link-text-translatable',
             name: 'Translatable link text',
-            description: 'Reports literal link text passed to l() without a t() wrapper.',
+            description: 'Reports an l() call whose link text is a literal without a t() wrapper.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],

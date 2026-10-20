@@ -1,7 +1,7 @@
 # Entities
 
 The analyzer reads the entity types of the codebase, and types what the entity type manager, entity
-handlers, entity queries and entity fields hand back. The checks report unknown entity type ids,
+handlers, entity queries and entity fields return. The checks report unknown entity type ids,
 entity queries without an access check, uses of the deprecated `original` property, and entity type
 definitions and list builders that leave out what core asks for.
 
@@ -93,8 +93,9 @@ The storage methods:
 `langcode`, `default_langcode` and `revision_translation_affected`, the analyzer types it as
 `string`:
 
-- the `EntityType` constructor fills in the last five, with an empty string for the first three,
-  and `getKey()` returns what is set, so an absent `revision` key is `''`, not `FALSE`;
+- the `EntityType` constructor fills in the last five, with an empty string for `revision`,
+  `bundle` and `langcode`, and `getKey()` returns what is set, so an absent `revision` key is `''`,
+  not `FALSE`;
 - core requires an `id` key of every entity type that can be saved, so `id` is typed as always
   there. A check such as `getKey('id') === FALSE` for an entity type without one, like core's test
   type `entity_test_no_id`, is reported as impossible.
@@ -177,9 +178,9 @@ analyzer keys them by `string`:
   `getFieldStorageDefinitions()`.
 
 The keys are entity type ids and field names. A field name matches `/^[_a-z]+[_a-z0-9]*$/`, and no
-entity type id is numeric, so PHP never turns one into an integer key, and `array_keys()` or a
-`foreach` key hands the name on to a method that takes a string. phpstan-drupal's stubs type the
-entity's field methods the same way. The values keep the type documented by core.
+entity type id is numeric, so PHP never turns one into an integer key, and a key from
+`array_keys()` or `foreach` can be passed to a method that takes a string. phpstan-drupal's stubs
+type the entity's field methods the same way. The values keep the type documented by core.
 
 `getTranslationLanguages()` and the language manager's `getLanguages()` are keyed by language code,
 as `string`, where core documents `LanguageInterface[]`. A language code matches
@@ -189,12 +190,12 @@ an integer key, and `array_keys($entity->getTranslationLanguages())` hands a lan
 
 ## List builder operations
 
-Core 11.3 up to 12.0 keeps the `$cacheability` parameter of the list builder's `getOperations()` and
-`getDefaultOperations()` commented out, and reads it through `func_get_args()`. Its own list
-builders pass it on with `parent::getOperations($entity, $cacheability)`. The analyzer declares the
-parameter for those calls, so they aren't reported as `too-many-arguments`. A named `cacheability:`
-argument fails at runtime on those versions, so that call keeps the declared signature. A list
-builder that leaves the parameter out is reported as
+Core 11.3 and later 11.x releases keep the `$cacheability` parameter of the list builder's
+`getOperations()` and `getDefaultOperations()` commented out, and read it through `func_get_args()`.
+Its own list builders pass it on with `parent::getOperations($entity, $cacheability)`. The analyzer
+declares the parameter for those calls, so they aren't reported as `too-many-arguments`. A named
+`cacheability:` argument fails at runtime on those versions, so that call keeps the declared
+signature. A list builder that leaves the parameter out is reported as
 [`drupal/list-builder-cacheability`](#drupallist-builder-cacheability).
 
 ## Entity queries
@@ -216,7 +217,7 @@ tracked. A query that runs without `accessCheck()` is reported as
 
 ## Magic entity fields
 
-`ContentEntityBase::__get()` hands back a field item list for any field name, so an undeclared
+`ContentEntityBase::__get()` returns a field item list for any field name, so an undeclared
 property on a `FieldableEntityInterface` descendant is typed as
 `Drupal\Core\Field\FieldItemListInterface`. `FieldItemList::__get()` forwards to the first item,
 and `FieldItemBase::__get()` reads the properties that the field type defines, so an undeclared
@@ -300,7 +301,7 @@ analyzer drops that report:
 A concrete class without the magic method keeps the report, and so does a `@property` tag on any
 other interface.
 
-## Not modelled
+## Not modeled
 
 These keep the types that the entity type attribute gives:
 
@@ -422,14 +423,14 @@ Drupal 11.2 deprecates the magic `original` property of an entity in favor of `g
 
 **Reports:**
 
-- a read, a write, an `isset()` and an `unset()` of `original` on an entity.
+- a read, a write, an `isset()` or an `unset()` of `original` on an entity.
 
 **Not reported:**
 
 - an entity class that declares `$original` itself;
 - code in a [deprecation scope](deprecations.md#deprecation-scopes), as for Mago's own deprecation
   codes;
-- any use while `EntityInterface::getOriginal()` doesn't exist in core, it was added in Drupal 11.2;
+- any use while core doesn't have `EntityInterface::getOriginal()`, which Drupal 11.2 added;
 - test code (any file under a `tests` directory) and hook documentation (`*.api.php` files).
 
 ??? example "Example"
@@ -502,7 +503,7 @@ entity.
 
 ??? note "Compared with phpstan-drupal"
 
-    - phpstan-drupal checks the `@ConfigEntityType` annotation. The check also checks the
+    - phpstan-drupal checks the `@ConfigEntityType` annotation. The check also reads the
       `#[ConfigEntityType]` attribute.
     - phpstan-drupal looks for `config_export = {` in the text of the docblock. The check reads the
       parsed annotation.
@@ -516,14 +517,14 @@ entity.
 - **Ports:** phpstan-drupal's `EntityListBuilderOperationsCacheabilityRule`
 
 phpstan-drupal reports a list builder's operation method that leaves out the `CacheableMetadata`
-parameter added in Drupal 11.3. Core 11.3 up to 12.0 keeps the parameter commented out in the
-interface and reads it through `func_get_args()`.
+parameter added in Drupal 11.3. Core 11.3 and later 11.x releases keep the parameter commented out
+in the interface and read it through `func_get_args()`.
 
 **Reports:**
 
 - a list builder's `getOperations()` or `getDefaultOperations()` method without a second parameter
-  typed as `CacheableMetadata`, on core 11.3 up to 12.0. The method is one declared on a class that
-  implements `EntityListBuilderInterface`.
+  typed as `CacheableMetadata`, on core 11.3 and later 11.x releases. The method is one declared on
+  a class that implements `EntityListBuilderInterface`.
 
 **Not reported:**
 

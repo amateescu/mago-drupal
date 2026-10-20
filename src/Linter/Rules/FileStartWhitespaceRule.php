@@ -30,7 +30,7 @@ final class FileStartWhitespaceRule implements Rule
         return new RuleDefinition(
             code: 'drupal/file-start-whitespace',
             name: 'File start whitespace',
-            description: 'Reports whitespace before the first PHP open tag of a file.',
+            description: 'Reports a file with whitespace before its first PHP open tag.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program],

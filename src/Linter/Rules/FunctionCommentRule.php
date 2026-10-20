@@ -35,7 +35,7 @@ final class FunctionCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/function-comment',
             name: 'Function comment',
-            description: 'Checks the comment style above a function or method, and that its docblock isn\'t followed by a blank line.',
+            description: 'Reports a comment of the wrong style above a function or method, and a blank line below its docblock.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function, NodeKind::Method],

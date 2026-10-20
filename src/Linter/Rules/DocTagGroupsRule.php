@@ -39,7 +39,7 @@ final class DocTagGroupsRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-tag-groups',
             name: 'Doc tag groups',
-            description: 'Checks that the tags of one kind are in one group, @param first, and the blank lines around the groups.',
+            description: "Reports a docblock whose tags of one kind aren't in one group with @param first, or whose tag groups don't have the right blank lines around them.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Function, NodeKind::Method],

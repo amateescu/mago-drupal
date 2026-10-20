@@ -195,7 +195,7 @@
             {"code": "ParamMissingDefinition", "status": "report", "where": ["ext:drupal/doc-tag-descriptions"]},
             {"code": "ParamNameDot", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
-            {"code": "ParamNameNoMatch", "status": "report", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"]},
+            {"code": "ParamNameNoMatch", "status": "partial", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"]},
             {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnCommentIndentation", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
@@ -1334,7 +1334,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and `mago analyze` reports it as unknown.",
         "codes": [
             {"code": "DbQuery", "status": "gap"}
         ]
@@ -1344,7 +1344,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["none"],
-        "note": "A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and mago analyze reports it as unknown.",
+        "note": "A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and `mago analyze` reports it as unknown.",
         "codes": [
             {"code": "DbSelectBrace", "status": "gap"}
         ]
@@ -1364,7 +1364,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["check:drupal/untranslated-message"],
-        "note": "Coder checks only the Drupal 7 functions `form_set_error()` and `form_error()`, which don't exist on Drupal 8 and later, and mago analyze reports a call to one as unknown. The analyzer check reports the same mistake in the methods that replace them instead: `setErrorByName()` and `setError()` of `FormStateInterface`.",
+        "note": "Coder checks only the Drupal 7 functions `form_set_error()` and `form_error()`, which don't exist on Drupal 8 and later, and `mago analyze` reports a call to one as unknown. The analyzer check reports the same mistake in the methods that replace them instead: `setErrorByName()` and `setError()` of `FormStateInterface`.",
         "codes": [
             {"code": "ErrorMessage", "status": "partial"}
         ]
@@ -1391,7 +1391,7 @@
         "standard": "DrupalPractice",
         "drupal7": true,
         "where": ["check:drupal/untranslated-message"],
-        "note": "Coder checks only the Drupal 7 function `drupal_set_message()`, which doesn't exist on Drupal 9 and later, and mago analyze reports a call to it as unknown. The analyzer check reports the same mistake in the methods that replace it instead: `addMessage()`, `addStatus()`, `addWarning()` and `addError()` of `MessengerInterface`.",
+        "note": "Coder checks only the Drupal 7 function `drupal_set_message()`, which doesn't exist on Drupal 9 and later, and `mago analyze` reports a call to it as unknown. The analyzer check reports the same mistake in the methods that replace it instead: `addMessage()`, `addStatus()`, `addWarning()` and `addError()` of `MessengerInterface`.",
         "codes": [
             {"code": "ErrorMessage", "status": "partial"}
         ]

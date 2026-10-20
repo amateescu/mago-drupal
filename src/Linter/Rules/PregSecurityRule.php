@@ -33,7 +33,7 @@ final class PregSecurityRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/preg-security',
             name: 'Insecure preg modifier',
-            description: 'Reports a preg pattern with the `e` modifier. The modifier evaluates the replacement as PHP.',
+            description: 'Reports a preg pattern with the e modifier, which evaluates the replacement as PHP.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],

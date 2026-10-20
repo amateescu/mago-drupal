@@ -132,8 +132,8 @@ behind a reverse proxy, and a read of the key ignores the proxy settings.
 
 - **Level:** warning
 - **Fix:** unsafe. It writes `hash('xxh64', ...)`, which changes the digest.
-- **Source:** the disallowed calls in core's `phpstan.neon.dist`
-- **Ports:** the disallowed calls in core's `phpstan.neon.dist`
+- **Source:** core's `phpstan.neon.dist`
+- **Ports:** its disallowed calls of `md5()`, `sha1()`, `crc32()` and `hash()`
 
 Core's PHPStan configuration disallows the weak hash functions. See the
 [change record](https://www.drupal.org/node/3581605).
@@ -143,5 +143,5 @@ Core's PHPStan configuration disallows the weak hash functions. See the
 - an `md5()`, `sha1()` or `crc32()` call, and a `hash()` call with `md5`, `sha1`, `crc32` or
   `crc32b`.
 
-The fix needs `--unsafe`, because a stored digest must be migrated and not only computed again. A
-`md5()`, `sha1()` or `crc32()` call with a second argument doesn't have a fix.
+The fix needs `--unsafe`, because a stored digest must be migrated and not only computed again. An
+`md5()` or `sha1()` call with a second argument doesn't have a fix.

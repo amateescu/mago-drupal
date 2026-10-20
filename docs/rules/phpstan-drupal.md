@@ -42,7 +42,8 @@ Coder 9 also lists `eval`, which is reported by Mago's own `no-eval` rule.
 - **Ports:** phpstan-drupal's `RenderCallbackRule`, the part that needs only the syntax
 
 phpstan-drupal reports a [render callback](https://www.drupal.org/node/2966725) not trusted by
-Drupal. Drupal trusts only closures, `service:method` strings and class methods.
+Drupal. Drupal trusts only closures, `service:method` strings and class methods that their class
+marks as trusted.
 
 **Reports:**
 
@@ -75,8 +76,10 @@ Drupal. Drupal trusts only closures, `service:method` strings and class methods.
     ```
 
 Whether Drupal trusts the class method that a callback names is the analyzer's
-`drupal/untrusted-callback`, and a closure under these keys in a form is its
-`drupal/form-closure-callback`. See [Render and form callbacks](../analyzer/render-and-forms.md#render-and-form-callbacks).
+[`drupal/untrusted-callback`](../analyzer/render-and-forms.md#drupaluntrusted-callback), and a
+closure under these keys in a form is its
+[`drupal/form-closure-callback`](../analyzer/render-and-forms.md#drupalform-closure-callback). See
+[Render and form callbacks](../analyzer/render-and-forms.md#render-and-form-callbacks).
 
 ??? note "Compared with phpstan-drupal"
 
@@ -136,8 +139,10 @@ request. A merge request should resolve its own to-dos rather than land them.
 - anything outside a GitLab merge request pipeline. The issue number comes from the variables set by
   GitLab CI there: the digits at the start of `CI_MERGE_REQUEST_SOURCE_BRANCH_NAME`, as in
   `3456789-fix-thing`, or at the end of `CI_MERGE_REQUEST_SOURCE_PROJECT_PATH`, as in
-  `issue/mymodule-3456789`. Without them, the rule doesn't have anything to compare, so it is on by
-  default, where phpstan-drupal's rule has to be added by hand.
+  `issue/mymodule-3456789`.
+
+Outside such a pipeline the rule has nothing to compare and stays silent, so it is on by default.
+phpstan-drupal's rule has to be added by hand.
 
 ??? note "Compared with phpstan-drupal"
 

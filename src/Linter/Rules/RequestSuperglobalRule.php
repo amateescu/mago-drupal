@@ -44,7 +44,7 @@ final class RequestSuperglobalRule implements Rule
         return new RuleDefinition(
             code: 'drupal/request-superglobal',
             name: 'Request superglobal',
-            description: 'Reports a use of $_GET, $_POST, $_COOKIE or $_FILES. The request stack gives the same data.',
+            description: 'Reports a use of $_GET, $_POST, $_COOKIE or $_FILES, where the request stack gives the same data.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // Program has the parent chain of each variable in the snapshot.

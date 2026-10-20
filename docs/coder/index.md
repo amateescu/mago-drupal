@@ -127,7 +127,7 @@ groups looked at by the blank-line checks.
 `Drupal.Commenting.FunctionComment` compares a docblock against a function's real parameter list
 and return type. Most of those checks are redundant with `mago analyze`. The analyzer reads
 `@param`, `@return`, `@var` and `@throws` as authoritative types when there is no native hint, the
-same way phpstan and psalm do. It already reports an `@return void` on a function that returns a
+same way PHPStan and Psalm do. It already reports an `@return void` on a function that returns a
 value, a function with no `return` at all, an `@param` that names an unknown parameter, and a type
 name that doesn't resolve as a class, such as `Boolean`. It reads `integer` and `boolean` as `int`
 and `bool` without a report, so the rules check Coder's type names themselves.

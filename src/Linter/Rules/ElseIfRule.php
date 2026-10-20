@@ -30,7 +30,7 @@ final class ElseIfRule implements Rule
         return new RuleDefinition(
             code: 'drupal/else-if',
             name: 'Else if',
-            description: 'Reports "else if" where Drupal writes "elseif".',
+            description: 'Reports an "else if" where Drupal writes "elseif".',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::IfStatementBodyElseClause],

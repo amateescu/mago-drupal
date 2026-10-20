@@ -178,10 +178,10 @@ class takes the entity type manager instead, and loads through `getStorage()`.
       of contrib and custom modules.
     - Coder reads a class name that a `use` statement imports, and misses a name written in full,
       such as `\Drupal\taxonomy\Entity\Term::load()`.
-    - Coder checks a class whose `extends` names one of 12 base classes, such as `FormBase`, whose
-      own `implements` list names a container interface, or that the module's services file lists.
-      The check takes the same classes as `drupal/global-drupal-call`, which adds subclasses, entity
-      handlers, hook classes and the services of every services file.
+    - Coder checks a class whose `extends` names one of 12 base classes, such as `FormBase`, a
+      class whose own `implements` list names a container interface, and a class that the module's
+      services file lists. The check takes the same classes as `drupal/global-drupal-call`, which
+      adds subclasses, entity handlers, hook classes and the services of every services file.
     - Coder stops reading the file at the first call in a class that can't take services, so it
       misses a call in a later class of the same file.
     - Coder also reports a first-class callable, a call in a constructor with a nullable parameter,
@@ -209,10 +209,10 @@ uses it.
 
 **Not reported:**
 
-- an entity handler's own storage. The entity type manager hands a handler its storage, so a
-  `$storage` parameter, or `$storage_controller` as in core's views data, of a class that
-  implements `EntityHandlerInterface` is left alone. Any other storage that the handler takes is
-  reported;
+- an entity handler's own storage. A handler's `createInstance()` gets its storage from the entity
+  type manager, so a `$storage` parameter, or `$storage_controller` as in core's views data, of a
+  class that implements `EntityHandlerInterface` is left alone. Any other storage that the handler
+  takes is reported;
 - as many storage parameters as the parent's constructor takes, under any name, since the class
   has to pass them on;
 - a type whose name doesn't end in `Storage` or `StorageInterface`, even when it extends

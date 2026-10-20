@@ -31,7 +31,7 @@ checks that port the other sniffs are [off in Drupal core](../setup/configuratio
 | [`DrupalPractice.Objects.UnusedPrivateMethod`](#drupalpracticeobjectsunusedprivatemethod) | `mago analyze` (`unused-method`) |
 | `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |
 | `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |
-| [`VariableAnalysis.CodeAnalysis.VariableAnalysis`](#variableanalysiscodeanalysisvariableanalysis) | `mago analyze` (`self-outside-class-scope`), `mago analyze` (`static-outside-class-scope`), Nothing, [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable), [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
+| [`VariableAnalysis.CodeAnalysis.VariableAnalysis`](#variableanalysiscodeanalysisvariableanalysis) | `mago analyze` (`self-outside-class-scope`), `mago analyze` (`static-outside-class-scope`), nothing, [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable), [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
 
 ## `DrupalPractice.Objects.GlobalClass`
 
@@ -53,7 +53,7 @@ Coder's ruleset skips `*.tpl.php` files, and so do `drupal/unused-variable` and 
 | --- | --- |
 | `SelfOutsideClass` | `mago analyze` (`self-outside-class-scope`) |
 | `StaticOutsideClass` | `mago analyze` (`static-outside-class-scope`) |
-| `UndefinedUnsetVariable` | Nothing |
+| `UndefinedUnsetVariable` | nothing |
 | `UnusedVariable` | [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable) |
 | `VariableRedeclaration` | [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
 
@@ -74,21 +74,21 @@ since core's config still runs them.
 
 | Sniff | Handled by | Notes |
 | --- | --- | --- |
-| `DrupalPractice.FunctionCalls.CheckPlain` | Not ported |  |
-| `DrupalPractice.FunctionCalls.DbQuery` | Not ported | A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and mago analyze reports it as unknown. |
-| `DrupalPractice.FunctionCalls.DbSelectBraces` | Not ported | A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and mago analyze reports it as unknown. |
-| `DrupalPractice.FunctionCalls.DefaultValueSanitize` | Not ported | Reports a `'#default_value'` set to the result of `check_plain()`, `check_markup()`, `check_url()`, `filter_xss()` or `filter_xss_admin()`. Of these, only `check_markup()` exists on Drupal 11, and it is deprecated in 11.4. |
-| `DrupalPractice.FunctionCalls.FormErrorT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly | Coder checks only the Drupal 7 functions `form_set_error()` and `form_error()`, which don't exist on Drupal 8 and later, and mago analyze reports a call to one as unknown. The analyzer check reports the same mistake in the methods that replace them instead: `setErrorByName()` and `setError()` of `FormStateInterface`. |
-| `DrupalPractice.FunctionCalls.LCheckPlain` | Not ported |  |
-| `DrupalPractice.FunctionCalls.MessageT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly | Coder checks only the Drupal 7 function `drupal_set_message()`, which doesn't exist on Drupal 9 and later, and mago analyze reports a call to it as unknown. The analyzer check reports the same mistake in the methods that replace it instead: `addMessage()`, `addStatus()`, `addWarning()` and `addError()` of `MessengerInterface`. |
-| `DrupalPractice.FunctionCalls.Theme` | Not ported | Coder also reports a call to `theme_settings_convert_to_config()`, which still exists on Drupal 11. That report is wrong: the function isn't a theme function, and the call is the right API. Mago doesn't report it. |
-| `DrupalPractice.FunctionCalls.VariableSetSanitize` | Not ported |  |
-| `DrupalPractice.FunctionDefinitions.AccessHookMenu` | Not ported | Reports an `'access callback' => TRUE` with no comment above it in `hook_menu()`, a Drupal 7 API. Mago doesn't report it. The routing file form, an open route with `_access: 'TRUE'` and no comment above it, is reported by `drupal/routing-access`. |
-| `DrupalPractice.FunctionDefinitions.HookInitCss` | Not ported |  |
-| `DrupalPractice.FunctionDefinitions.InstallT` | Not ported | Coder runs it only on a Drupal 7 module, for `t()` and `st()` in `hook_install()` and `hook_requirements()`. |
-| `DrupalPractice.General.AccessAdminPages` | Not ported | Reports the `access administration pages` permission in `hook_menu()`, a Drupal 7 API. Mago doesn't report it. The routing file form, `_permission: 'access administration pages'`, is reported by `drupal/routing-access`. |
-| `DrupalPractice.General.FormStateInput` | Not ported | Reports `$form_state['input']`, a read of the Drupal 7 form state array. When `$form_state` is typed as `FormStateInterface`, `mago analyze` reports any array access on it as `invalid-array-access`. Without the type, Mago doesn't report the key. |
-| `DrupalPractice.General.LanguageNone` | Not ported | Reports `['und']` written without spaces, as an index or as an array with one item, where Drupal 7 field code uses `LANGUAGE_NONE`. Mago doesn't report the key. On Drupal 8 and later `LANGUAGE_NONE` doesn't exist, and `mago analyze` reports it as `non-existent-constant`. |
-| `DrupalPractice.General.VariableName` | Not ported | A Drupal 7 `variable_get()` name without the module prefix, as the value of a `'#default_value'` key. |
+| `DrupalPractice.FunctionCalls.CheckPlain` | nothing |  |
+| `DrupalPractice.FunctionCalls.DbQuery` | nothing | A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and `mago analyze` reports it as unknown. |
+| `DrupalPractice.FunctionCalls.DbSelectBraces` | nothing | A Drupal 7 API, deprecated in Drupal 8. On Drupal 9 and later the function doesn't exist, and `mago analyze` reports it as unknown. |
+| `DrupalPractice.FunctionCalls.DefaultValueSanitize` | nothing | Reports a `'#default_value'` set to the result of `check_plain()`, `check_markup()`, `check_url()`, `filter_xss()` or `filter_xss_admin()`. Of these, only `check_markup()` exists on Drupal 11, and it is deprecated in 11.4. |
+| `DrupalPractice.FunctionCalls.FormErrorT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly | Coder checks only the Drupal 7 functions `form_set_error()` and `form_error()`, which don't exist on Drupal 8 and later, and `mago analyze` reports a call to one as unknown. The analyzer check reports the same mistake in the methods that replace them instead: `setErrorByName()` and `setError()` of `FormStateInterface`. |
+| `DrupalPractice.FunctionCalls.LCheckPlain` | nothing |  |
+| `DrupalPractice.FunctionCalls.MessageT` | [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message), partly | Coder checks only the Drupal 7 function `drupal_set_message()`, which doesn't exist on Drupal 9 and later, and `mago analyze` reports a call to it as unknown. The analyzer check reports the same mistake in the methods that replace it instead: `addMessage()`, `addStatus()`, `addWarning()` and `addError()` of `MessengerInterface`. |
+| `DrupalPractice.FunctionCalls.Theme` | nothing | Coder also reports a call to `theme_settings_convert_to_config()`, which still exists on Drupal 11. That report is wrong: the function isn't a theme function, and the call is the right API. Mago doesn't report it. |
+| `DrupalPractice.FunctionCalls.VariableSetSanitize` | nothing |  |
+| `DrupalPractice.FunctionDefinitions.AccessHookMenu` | nothing | Reports an `'access callback' => TRUE` with no comment above it in `hook_menu()`, a Drupal 7 API. Mago doesn't report it. The routing file form, an open route with `_access: 'TRUE'` and no comment above it, is reported by `drupal/routing-access`. |
+| `DrupalPractice.FunctionDefinitions.HookInitCss` | nothing |  |
+| `DrupalPractice.FunctionDefinitions.InstallT` | nothing | Coder runs it only on a Drupal 7 module, for `t()` and `st()` in `hook_install()` and `hook_requirements()`. |
+| `DrupalPractice.General.AccessAdminPages` | nothing | Reports the `access administration pages` permission in `hook_menu()`, a Drupal 7 API. Mago doesn't report it. The routing file form, `_permission: 'access administration pages'`, is reported by `drupal/routing-access`. |
+| `DrupalPractice.General.FormStateInput` | nothing | Reports `$form_state['input']`, a read of the Drupal 7 form state array. When `$form_state` is typed as `FormStateInterface`, `mago analyze` reports any array access on it as `invalid-array-access`. Without the type, Mago doesn't report the key. |
+| `DrupalPractice.General.LanguageNone` | nothing | Reports `['und']` written without spaces, as an index or as an array with one item, where Drupal 7 field code uses `LANGUAGE_NONE`. Mago doesn't report the key. On Drupal 8 and later `LANGUAGE_NONE` doesn't exist, and `mago analyze` reports it as `non-existent-constant`. |
+| `DrupalPractice.General.VariableName` | nothing | A Drupal 7 `variable_get()` name without the module prefix, as the value of a `'#default_value'` key. |
 
 <!-- /docs-gen -->

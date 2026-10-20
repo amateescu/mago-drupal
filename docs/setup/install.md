@@ -33,8 +33,10 @@ command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "../../vendor
 The two `-d` options keep Xdebug and pcov from slowing the worker down, see
 [Xdebug and pcov](#xdebug-and-pcov).
 
-The same worker adds the [analyzer plugins](../analyzer/index.md) to `mago analyze`. They are on by
-default and don't need any configuration. To run other Mago extensions in the same worker, see
+The same worker adds the [analyzer plugins](../analyzer/index.md) to `mago analyze`. The `drupal`
+and `phpunit` plugins are on by default and don't need any configuration. The `phpstan-ignores`
+plugin is off until you turn it on, see [PHPStan ignores](../analyzer/phpstan-ignores.md). To run
+other Mago extensions in the same worker, see
 [Your own worker file](worker-arguments.md#your-own-worker-file).
 
 Run Mago as `vendor/bin/mago`. The worker loads the PHP SDK from the same Composer package, and the

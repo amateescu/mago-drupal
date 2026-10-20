@@ -38,7 +38,7 @@ final class FunctionPrefixRule implements Rule
         return new RuleDefinition(
             code: 'drupal/function-prefix',
             name: 'Function prefix',
-            description: "Reports functions in a .module file whose name doesn't start with the module name.",
+            description: "Reports a function in a .module file whose name doesn't start with the module name.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // The Program pass reads the functions from the target list. Only

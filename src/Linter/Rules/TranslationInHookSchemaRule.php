@@ -21,7 +21,7 @@ final class TranslationInHookSchemaRule extends HookTranslationRule
         return new RuleDefinition(
             code: 'drupal/t-in-hook-schema',
             name: 'Translation in hook_schema()',
-            description: 'Reports a t() call inside hook_schema(). Drupal never shows those strings to users.',
+            description: 'Reports a t() call inside hook_schema(), whose strings Drupal never shows to users.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function],

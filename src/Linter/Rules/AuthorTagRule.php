@@ -28,7 +28,7 @@ final class AuthorTagRule implements Rule
         return new RuleDefinition(
             code: 'drupal/author-tag',
             name: 'Author tag',
-            description: 'Reports @author tags in docblocks.',
+            description: 'Reports an @author tag in a docblock.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

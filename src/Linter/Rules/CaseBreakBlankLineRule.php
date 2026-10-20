@@ -44,7 +44,7 @@ final class CaseBreakBlankLineRule implements Rule
         return new RuleDefinition(
             code: 'drupal/case-break-blank-line',
             name: 'Case break blank line',
-            description: 'Checks that one blank line follows the statement that ends a switch case.',
+            description: "Reports a statement that ends a switch case and isn't followed by exactly one blank line.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Switch],

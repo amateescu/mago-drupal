@@ -72,7 +72,7 @@ final class CommentLineLengthRule implements Rule
         return new RuleDefinition(
             code: 'drupal/comment-line-length',
             name: 'Comment line length',
-            description: 'Reports comment lines longer than 80 characters.',
+            description: 'Reports a comment line longer than 80 characters.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

@@ -28,7 +28,7 @@ final class ClassNameAcronymRule implements Rule
         return new RuleDefinition(
             code: 'drupal/class-name-acronym',
             name: 'Class name acronym',
-            description: 'Reports class-like names that start with three capitals and don\'t have a lower-case letter, such as HTTP.',
+            description: "Reports a class-like name that starts with three capitals and doesn't have a lower-case letter, such as HTTP.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum],

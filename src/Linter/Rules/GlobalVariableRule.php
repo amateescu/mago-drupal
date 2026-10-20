@@ -81,7 +81,7 @@ final class GlobalVariableRule implements Rule
         return new RuleDefinition(
             code: 'drupal/global-variable',
             name: 'Global variable name',
-            description: "Reports global variables that don't start with an underscore.",
+            description: "Reports a global variable that doesn't start with an underscore.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Global],

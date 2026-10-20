@@ -4,8 +4,9 @@ PHP alone doesn't tell Mago what a Drupal service, entity storage, config object
 worker adds three plugins to `mago analyze` that give the analyzer those types, and add checks for
 mistakes that are specific to Drupal and to PHPUnit.
 
-- `drupal`, on by default: the types of services, entities, config and plugins, and the checks that
-  port phpstan-drupal's Drupal-specific rules and the DrupalPractice sniffs that need types.
+- `drupal`, on by default: the types of services, entities, config and plugins, and the Drupal
+  checks, among them the ports of phpstan-drupal's rules and of the DrupalPractice sniffs that need
+  types.
 - `phpunit`, on by default: the types of PHPUnit assertions, mocks and Prophecy doubles, and the
   checks for docblocks that type a double wrong. It depends on nothing specific to Drupal. See
   [Tests](tests.md).
@@ -59,7 +60,7 @@ Every check, by page.
 
 ## Services
 
-The analyzer types what the service container hands back, so a lookup such as
+The analyzer types what the service container returns, so a lookup such as
 `\Drupal::service('entity_type.manager')` gets the class of its service. The checks report lookups
 of unknown, private and deprecated services, and service definitions with the wrong number of
 arguments.
@@ -88,7 +89,7 @@ the properties that `DependencySerializationTrait` can't restore.
 ## Entities
 
 The analyzer reads the entity types of the codebase, and types what the entity type manager, entity
-handlers, entity queries and entity fields hand back. The checks report unknown entity type ids,
+handlers, entity queries and entity fields return. The checks report unknown entity type ids,
 entity queries without an access check, uses of the deprecated `original` property, and entity type
 definitions and list builders that leave out what core asks for.
 
@@ -96,9 +97,9 @@ definitions and list builders that leave out what core asks for.
 | --- | --- | --- |
 | [`drupal/unknown-entity-type`](entities.md#drupalunknown-entity-type) | warning | A literal entity type id that no indexed entity type declares, passed to a getter of the entity type manager. |
 | [`drupal/entity-query-access-check`](entities.md#drupalentity-query-access-check) | error | `execute()` on an entity query whose chain doesn't have an `accessCheck()` call, unless the entity type is a known config entity type. |
-| [`drupal/deprecated-original`](entities.md#drupaldeprecated-original) | warning | A read, a write, an `isset()` and an `unset()` of `original` on an entity. |
+| [`drupal/deprecated-original`](entities.md#drupaldeprecated-original) | warning | A read, a write, an `isset()` or an `unset()` of `original` on an entity. |
 | [`drupal/config-entity-export`](entities.md#drupalconfig-entity-export) | error | A config entity type in the entity type index without `config_export`. |
-| [`drupal/list-builder-cacheability`](entities.md#drupallist-builder-cacheability) | error | A list builder's `getOperations()` or `getDefaultOperations()` method without a second parameter typed as `CacheableMetadata`, on core 11.3 up to 12.0. |
+| [`drupal/list-builder-cacheability`](entities.md#drupallist-builder-cacheability) | error | A list builder's `getOperations()` or `getDefaultOperations()` method without a second parameter typed as `CacheableMetadata`, on core 11.3 and later 11.x releases. |
 
 ## Config
 
@@ -114,7 +115,8 @@ report config names without a schema, and keys that a fully validatable schema d
 
 The analyzer types the plugins created by core's plugin managers and the definitions read by
 plugins. The checks report unknown plugin ids, plugin managers that never call `alterInfo()` or
-`setCacheBackend()`, and plugin annotations with the `context` key removed in Drupal 9.
+`setCacheBackend()`, and plugin annotations that still use the `context` key, which Drupal 9
+removed.
 
 | Check | Level | What it reports |
 | --- | --- | --- |
@@ -136,7 +138,7 @@ called, trusted or serialized by core, and cacheable dependencies that can't hav
 | [`drupal/non-public-callback`](render-and-forms.md#drupalnon-public-callback) | error, or warning on `#value_callback` | A callback that names a protected or private method, a `'::method'` of a form included. |
 | [`drupal/untrusted-callback`](render-and-forms.md#drupaluntrusted-callback) | error | A callback under a render, date or component key that names a class method not trusted by core. |
 | [`drupal/form-closure-callback`](render-and-forms.md#drupalform-closure-callback) | error | A closure, an arrow function or a first-class callable under a render or date key, written in a class that implements `FormInterface`. |
-| [`drupal/invalid-callback`](render-and-forms.md#drupalinvalid-callback) | error | A value under a render, date or component key whose type PHP can never call: an int, a float, a bool, NULL, an array that can't be a two-element pair, or an object without `__invoke()`. |
+| [`drupal/invalid-callback`](render-and-forms.md#drupalinvalid-callback) | error | A value under a render, date or component key whose type PHP can never call: an int, a float, a bool, null, an array that can't be a two-element pair, or an object without `__invoke()`. |
 | [`drupal/trusted-callback-override`](render-and-forms.md#drupaltrusted-callback-override) | warning | A method that overrides one with `#[TrustedCallback]`, declared in a parent class or in a trait that a parent uses, when the override doesn't repeat the attribute. |
 | [`drupal/cacheable-dependency`](render-and-forms.md#drupalcacheable-dependency) | warning | An `addCacheableDependency()` call whose dependency is a scalar, an array, null, or a final class that doesn't implement `CacheableDependencyInterface`. |
 

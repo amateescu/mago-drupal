@@ -43,7 +43,7 @@ final class ExpectedExceptionTagRule implements Rule
         return new RuleDefinition(
             code: 'drupal/expected-exception-tag',
             name: 'Legacy expectedException tag',
-            description: 'Reports the legacy PHPUnit @expectedException* docblock tags.',
+            description: 'Reports a legacy PHPUnit @expectedException* docblock tag.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

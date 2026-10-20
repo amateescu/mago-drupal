@@ -27,7 +27,7 @@ final class InlineCommentBlankLineRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-comment-blank-line',
             name: 'Inline comment blank line',
-            description: 'Checks that a `//` comment on its own line isn\'t followed by a blank line.',
+            description: 'Reports a // comment on its own line that a blank line follows.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

@@ -72,7 +72,7 @@ final class MethodNameUnderscoreRule implements Rule
         return new RuleDefinition(
             code: 'drupal/method-name-underscore',
             name: 'Method name underscore',
-            description: 'Reports method names that start with an underscore, other than PHP magic methods.',
+            description: 'Reports a method name that starts with an underscore, other than a PHP magic method.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Method],

@@ -1,7 +1,7 @@
 # Using the right API
 
-Rules for calls that have a Drupal API in their place, and for the strings read by Drupal's tools
-from the source.
+Rules for calls that a Drupal API replaces, and for strings that Drupal's tools read from the
+source.
 
 ---
 
@@ -217,7 +217,7 @@ methods.
 ## drupal/translatable-string
 
 - **Level:** warning
-- **Fix:** safe. It writes a string that escapes its own quote with the other quote, when the value
+- **Fix:** safe. It rewrites a string that escapes its own quote in the other quote, when the value
   stays the same.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.Semantics.FunctionT`: `BackslashDoubleQuote`, `BackslashSingleQuote`, `Concat`, `EmptyString`, `EmptyT`, `WhiteSpace`
@@ -242,7 +242,7 @@ methods.
 - the padding of the later literals of a string built with `.`;
 - an escaped quote in the strings of `formatPlural()`.
 
-The fix applies only when the other quote keeps the value: no `"` and `$` in a single-quoted
+The fix applies only when the other quote keeps the value: no `"` or `$` in a single-quoted
 string and no backslash but the one before the quote, and the same for a double-quoted string
 without `'`.
 
@@ -324,7 +324,8 @@ handler turns an unsilenced notice into a test failure in every test that runs t
 
 **Reports:**
 
-- a `trigger_error()` deprecation notice without the `@` prefix.
+- a `trigger_error()` deprecation notice without an `@` right before it, which includes
+  `@ trigger_error()`.
 
 ??? note "Compared with Coder"
 

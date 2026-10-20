@@ -64,7 +64,7 @@ final class DeprecatedTagRule implements Rule
         return new RuleDefinition(
             code: 'drupal/deprecated-tag',
             name: 'Deprecated tag',
-            description: 'Checks the wording of a @deprecated docblock tag and the @see tag that must follow it.',
+            description: 'Reports a @deprecated docblock tag whose wording breaks the documented grammar, and a missing or malformed @see tag after it.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

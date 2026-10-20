@@ -51,7 +51,7 @@ final class RedundantReturnRule implements Rule
         return new RuleDefinition(
             code: 'drupal/redundant-return',
             name: 'Redundant return',
-            description: 'Reports a `return;` that is the last statement of a function body.',
+            description: 'Reports a bare return; that is the last statement of a function body.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Function, NodeKind::Method, NodeKind::Closure],

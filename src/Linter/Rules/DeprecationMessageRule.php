@@ -73,7 +73,7 @@ final class DeprecationMessageRule implements Rule
         return new RuleDefinition(
             code: 'drupal/deprecation-message',
             name: 'Deprecation message format',
-            description: 'Checks that E_USER_DEPRECATED messages follow the documented deprecation grammar.',
+            description: 'Reports an E_USER_DEPRECATED message that breaks the documented deprecation grammar.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::FunctionCall],

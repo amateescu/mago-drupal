@@ -159,7 +159,7 @@ of a comment and the HTML outside the PHP tags as written, so the rule reports t
 
 - a tab in the whitespace at the start of a comment's line, which `mago format` replaces;
 - a tab in a string or a heredoc, as in Coder;
-- a `.yml` file, which Mago parses as HTML. Coder doesn't report tabs there.
+- a `.yml` file, which Mago reads as text outside PHP tags. Coder doesn't report tabs there.
 
 The fix in HTML is potentially unsafe, because the tabs are part of the page output, as in a
 `<pre>` element or a plain-text mail body.

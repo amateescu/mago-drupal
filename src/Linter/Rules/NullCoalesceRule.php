@@ -58,7 +58,7 @@ final class NullCoalesceRule implements Rule
         return new RuleDefinition(
             code: 'drupal/null-coalesce',
             name: 'Null coalesce',
-            description: 'Reports isset() and strict null checks in a ternary that "??" replaces.',
+            description: 'Reports an isset() or strict null check in a ternary that "??" replaces.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Conditional],

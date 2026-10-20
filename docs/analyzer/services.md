@@ -1,6 +1,6 @@
 # Services
 
-The analyzer types what the service container hands back, so a lookup such as
+The analyzer types what the service container returns, so a lookup such as
 `\Drupal::service('entity_type.manager')` gets the class of its service. The checks report lookups
 of unknown, private and deprecated services, and service definitions with the wrong number of
 arguments.

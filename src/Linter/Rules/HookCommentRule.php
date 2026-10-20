@@ -65,7 +65,7 @@ final class HookCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/hook-comment',
             name: 'Hook comment',
-            description: 'Checks the "Implements hook_x()." docblock convention on a hook implementation.',
+            description: 'Reports a hook implementation whose docblock doesn\'t follow the "Implements hook_x()." convention.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Method, NodeKind::Function],

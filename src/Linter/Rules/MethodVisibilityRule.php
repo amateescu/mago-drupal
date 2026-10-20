@@ -42,7 +42,7 @@ final class MethodVisibilityRule implements Rule
         return new RuleDefinition(
             code: 'drupal/method-visibility',
             name: 'Method visibility',
-            description: 'Reports methods declared without an explicit visibility keyword.',
+            description: 'Reports a method declared without an explicit visibility keyword.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Method],

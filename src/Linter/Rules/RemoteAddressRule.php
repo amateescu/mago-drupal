@@ -52,7 +52,7 @@ final class RemoteAddressRule implements Rule
         return new RuleDefinition(
             code: 'drupal/remote-address',
             name: 'Raw remote address',
-            description: "Reports a read of \$_SERVER['REMOTE_ADDR']. The read ignores Drupal's reverse-proxy settings.",
+            description: 'Reports a read of $_SERVER[\'REMOTE_ADDR\'], which ignores Drupal\'s reverse-proxy settings.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::ArrayAccess, NodeKind::Program],

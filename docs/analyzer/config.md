@@ -5,7 +5,7 @@ report config names without a schema, and keys that a fully validatable schema d
 
 ## Config objects
 
-These calls hand back a config object:
+These calls return a config object:
 
 - `\Drupal::config('name')`;
 - a config factory's `get('name')` and `getEditable('name')`;
@@ -14,7 +14,7 @@ These calls hand back a config object:
 
 For a literal name, the analyzer tags the object with the name, as in
 `ImmutableConfig<'system.maintenance'>`. The `config()` method of a controller or of a plain form
-hands out an immutable object, whatever `ControllerBase` documents.
+returns an immutable object, whatever `ControllerBase` documents.
 
 `get('key')` on a tagged object is typed from the config schema. The schema is read from
 `core/config/schema/` and from the `config/schema/` directory of every module, profile and theme
@@ -136,7 +136,7 @@ every key, so a key that it doesn't list is a mistake.
 - **Level:** warning
 - **Source:** Drupal's config schema
 
-Drupal hands back an empty config object for a name that doesn't exist, with no warning. Config
+Drupal returns an empty config object for a name that doesn't exist, with no warning. Config
 without a schema also fails Drupal's strict schema checks in tests.
 
 **Reports:**
@@ -144,7 +144,7 @@ without a schema also fails Drupal's strict schema checks in tests.
 - a literal config name without a schema. The check reads the name passed to
   `\Drupal::config()`, a config factory's `get()` or `getEditable()`, or the `config()` method of a
   class that uses `ConfigFormBaseTrait` or extends `ControllerBase` or `FormBase`. A name that a
-  wildcard definition such as `user.role.*` covers is described.
+  wildcard definition such as `user.role.*` covers counts as having a schema.
 
 **Not reported:**
 

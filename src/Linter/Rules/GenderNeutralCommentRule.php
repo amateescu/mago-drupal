@@ -44,7 +44,7 @@ final class GenderNeutralCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/gender-neutral-comment',
             name: 'Gender neutral comment',
-            description: 'Reports gendered pronouns in comments.',
+            description: 'Reports a gendered pronoun in a comment.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

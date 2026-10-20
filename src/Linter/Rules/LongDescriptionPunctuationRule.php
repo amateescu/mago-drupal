@@ -41,7 +41,7 @@ final class LongDescriptionPunctuationRule implements Rule
         return new RuleDefinition(
             code: 'drupal/long-description-punctuation',
             name: 'Long description punctuation',
-            description: "Checks that a docblock's long description doesn't end with a letter.",
+            description: 'Reports a docblock long description that ends with a letter.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Function, NodeKind::Method],

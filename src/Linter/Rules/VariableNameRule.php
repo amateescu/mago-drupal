@@ -43,7 +43,7 @@ final class VariableNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/variable-name',
             name: 'Variable name',
-            description: 'Reports variables whose name starts with a capital letter.',
+            description: 'Reports a variable whose name starts with a capital letter.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // The Program snapshot has the whole file, so the walk up from a

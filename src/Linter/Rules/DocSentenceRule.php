@@ -30,7 +30,7 @@ final class DocSentenceRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-sentence',
             name: 'Doc sentence',
-            description: 'Checks the first letter and the end of a docblock summary and of its @param and @throws descriptions, the first letter of the long description, and a summary on one line.',
+            description: 'Reports a docblock summary, @param or @throws description with a wrong first letter or ending, a long description that starts with a lower-case letter, and a summary on more than one line.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Function, NodeKind::Method],

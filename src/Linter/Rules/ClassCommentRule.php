@@ -37,7 +37,7 @@ final class ClassCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/class-comment',
             name: 'Class comment',
-            description: 'Checks the comment style above a class, interface, trait or enum, the blank line below its docblock, and a summary that repeats the name.',
+            description: 'Reports a comment of the wrong style above a class, interface, trait or enum, a blank line below its docblock, and a summary that repeats the name.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Class_, NodeKind::Interface, NodeKind::Trait, NodeKind::Enum],
