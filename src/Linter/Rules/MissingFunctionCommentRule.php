@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\DeclarationComment;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
@@ -41,14 +42,6 @@ final class MissingFunctionCommentRule implements Rule
      */
     private array $constructorMentions = [];
 
-    /**
-     * @param bool $core Reports a function only in the directories where
-     *   core's `phpcs.xml.dist` checks it.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -63,7 +56,7 @@ final class MissingFunctionCommentRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        if ($this->core && !self::checkedOnCore($context->file->path)) {
+        if (!self::checkedOnCore($context->file->path) && CoreFiles::contains($context->file->path)) {
             return;
         }
 

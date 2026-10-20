@@ -32,14 +32,6 @@ use function trim;
  */
 final class DocSeeTagRule implements Rule
 {
-    /**
-     * @param bool $core Checks only the tags of functions and methods and
-     *   the empty `@see` tags of properties, as core's phpcs does.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -55,9 +47,7 @@ final class DocSeeTagRule implements Rule
     public function lint(LintContext $context): void
     {
         if ($context->node->kind === NodeKind::Program) {
-            if (!$this->core) {
-                self::checkOtherDocblocks($context);
-            }
+            self::checkOtherDocblocks($context);
 
             return;
         }

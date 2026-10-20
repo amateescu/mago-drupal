@@ -129,7 +129,7 @@ $permissions->getPermissions()[$name]['title']; // TranslatableMarkup|string
   across `save()`.
 
 A stub only wins where core is a dependency. When core itself is the analyzed code, Mago keeps
-core's own declaration, so `--core` runs don't see a change.
+core's own declaration, so a run on core doesn't see a change.
 
 ### How a stub replaces a class
 

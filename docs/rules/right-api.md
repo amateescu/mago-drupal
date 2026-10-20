@@ -318,7 +318,6 @@ exception text in logs, and a translation hides the original text.
 - **Fix:** safe. It adds the `@`.
 - **Source:** Drupal's [How to deprecate](https://www.drupal.org/about/core/policies/core-change-policies/how-to-deprecate#how-trigger-error) page
 - **Ports:** `Drupal.Semantics.UnsilencedDeprecation.UnsilencedDeprecation`
-- **Off with `--core`**
 
 Drupal's How to deprecate page writes a deprecation notice as `@trigger_error()`. Drupal's error
 handler turns an unsilenced notice into a test failure in every test that runs the code.

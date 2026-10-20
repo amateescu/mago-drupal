@@ -11,7 +11,6 @@ the properties that `DependencySerializationTrait` can't restore.
 - **Level:** warning
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `GlobalDrupalDependencyInjectionRule` (partly)
-- **Off with `--core`**
 
 phpstan-drupal reports a `\Drupal::` call in a class that can take its services through
 dependency injection. Such a class gets a service through its constructor, or through `create()`
@@ -107,7 +106,6 @@ for a form, a controller or a plugin.
 - **Level:** warning
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Objects.GlobalClass.GlobalClass` (partly)
-- **Off with `--core`**
 
 Coder reports a static `load()` or `loadMultiple()` call on an entity class in a class that can take
 its services through dependency injection. `Node::load()` gets the storage from `\Drupal`, so such a

@@ -89,7 +89,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `ParamGroup`, `ParamNotFirst`, `SpacingAfterTagGroup`, `SpacingBeforeTags`, `TagGroupSpacing`, `TagsNotGrouped` | [`drupal/doc-tag-groups`](../rules/docblock-structure.md#drupaldoc-tag-groups) |
 
 - `Empty`: Mago's rule, at note level.
-- `MissingShort`: A `phpcs:` line above the summary is skipped, and the line below it counts as the summary. Coder reports it. With `--core`, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`.
+- `MissingShort`: A `phpcs:` line above the summary is skipped, and the line below it counts as the summary. Coder reports it. In Drupal core, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`.
 
 ### `Drupal.Commenting.DocCommentAlignment`
 

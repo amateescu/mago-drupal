@@ -40,7 +40,7 @@ final class CheckEntry
 
     /**
      * Returns how the facts list breaks the rules for an analyzer entry: a
-     * Level line, one Source line, and no Fix line, since checks don't have a
+     * Level line, one Source line, no Fix line, since checks don't have a
      * fix.
      *
      * @return list<string>

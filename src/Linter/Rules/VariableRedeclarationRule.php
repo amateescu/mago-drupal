@@ -24,14 +24,6 @@ use function str_ends_with;
  */
 final class VariableRedeclarationRule implements Rule
 {
-    /**
-     * @param bool $core Skips the files that core's `phpcs.xml.dist` leaves
-     *   out of VariableAnalysis.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -49,14 +41,8 @@ final class VariableRedeclarationRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $path = $context->file->path;
-
         // Coder's ruleset skips templates.
-        if (
-            $context->node->kind !== NodeKind::Program
-            || str_ends_with($path, '.tpl.php')
-            || $this->core && !UnusedVariableRule::checkedOnCore($path)
-        ) {
+        if ($context->node->kind !== NodeKind::Program || str_ends_with($context->file->path, '.tpl.php')) {
             return;
         }
 

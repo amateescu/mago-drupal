@@ -45,8 +45,7 @@ use function strlen;
  * predates OOP hooks: it asks a hook implementation for an "Implements
  * hook_x()." summary and does not mention methods. Core writes that summary on
  * its `#[Hook]` methods, so the rule asks for it. A method's docblock may sit
- * above the attributes. Core's `phpcs.xml.dist` doesn't have such a check, so
- * `--core` leaves methods out.
+ * above the attributes.
  *
  * Functions and hook methods together need many branches.
  *
@@ -56,13 +55,6 @@ use function strlen;
 final class HookCommentRule implements Rule
 {
     private const HOOK_CLASS = 'Drupal\Core\Hook\Attribute\Hook';
-
-    /**
-     * @param bool $core Leaves `#[Hook]` methods out, as core's phpcs does.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
 
     private const IMPLEMENTS_HOOK = '/^Implement[^\n]+?hook_[^\n]+/i';
 
@@ -83,9 +75,7 @@ final class HookCommentRule implements Rule
     public function lint(LintContext $context): void
     {
         if ($context->node->kind === NodeKind::Method) {
-            if (!$this->core) {
-                $this->checkMethod($context, $context->node);
-            }
+            $this->checkMethod($context, $context->node);
 
             return;
         }

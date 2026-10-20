@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Providers\Containers;
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\ServiceIndex;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use Closure;
@@ -31,7 +32,7 @@ use function substr;
  * the codebase or start a known id belongs to a module the site may not have,
  * as `persistent_login.token_manager` behind a `hasService()` check, so it is
  * left alone, as `config-unknown-name` leaves such a config name. Core looks up
- * only its own services, so with `--core` every id is checked.
+ * only its own services, so in core's own files every id is checked.
  *
  * @internal
  *
@@ -56,12 +57,10 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
      * @param Closure(Codebase): ServiceIndex $services Returns the current index.
      * @param Closure(Codebase): array<string, string> $modules Module machine
      *   name to directory.
-     * @param bool $core Whether the run checks Drupal core itself.
      */
     public function __construct(
         private readonly Closure $services,
         private readonly Closure $modules,
-        private readonly bool $core = false,
     ) {}
 
     public function getTargets(): array
@@ -106,7 +105,9 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
         if (
             !$services->has(self::SENTINEL)
             || $service !== null && $service->public
-            || $service === null && $this->optional($context->codebase, $services, $id)
+            || $service === null
+            && !CoreFiles::contains($context->analysis->file)
+            && $this->optional($context->codebase, $services, $id)
         ) {
             return;
         }
@@ -135,7 +136,7 @@ final class UnknownServiceHook implements MethodCallAnalysisHook
     private function optional(Codebase $codebase, ServiceIndex $services, string $id): bool
     {
         $dot = strpos($id, needle: '.');
-        if ($this->core || $dot === false || $dot === 0) {
+        if ($dot === false || $dot === 0) {
             return false;
         }
 

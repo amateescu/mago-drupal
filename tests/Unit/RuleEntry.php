@@ -32,18 +32,15 @@ final class RuleEntry
     /**
      * Returns how the facts list differs from the rule and the parity map.
      *
-     * @param RuleDefinition $withCore The rule's definition when the worker
-     *   runs with `--core`.
      * @param array<string, bool> $ports The codes that the map says the rule
      *   ports, each mapped to whether the port is partial.
      *
      * @return list<string>
      */
-    public function problems(RuleDefinition $rule, RuleDefinition $withCore, array $ports): array
+    public function problems(RuleDefinition $rule, array $ports): array
     {
         $facts = $this->facts();
         $problems = [];
-        $offWithCore = !$withCore->defaultEnabled;
 
         $level = strtolower($rule->defaultLevel->name);
         $match = [];
@@ -53,12 +50,6 @@ final class RuleEntry
 
         if (preg_match('/^- \*\*Fix:\*\* \S/m', $facts) !== 1) {
             $problems[] = "{$this->code}: the entry doesn't have a Fix line.";
-        }
-
-        if (str_contains($facts, '- **Off with `--core`**') !== $offWithCore) {
-            $problems[] = $offWithCore
-                ? "{$this->code}: --core turns the rule off."
-                : "{$this->code}: --core does not turn the rule off.";
         }
 
         $listed = $this->ports();

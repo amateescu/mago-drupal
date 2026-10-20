@@ -30,25 +30,23 @@ You need PHP 8.1 or later and Mago 1.58 or later.
 composer require --dev carthage-software/mago amateescu/mago-drupal
 ```
 
-Register the worker in `mago.toml`, and add Drupal's file extensions:
+Then create `mago.toml` next to `vendor/`:
 
 ```toml
-[source]
-extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
-
-[extension-hosts.drupal]
-command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]
+extends = "vendor/amateescu/mago-drupal/drupal.mago.toml"
+# The lowest PHP version that the project supports.
+php-version = "8.3"
 ```
 
-Then run the linter and the analyzer:
+For a Drupal core checkout, extend `drupal-core.mago.toml` instead. Then run the linter and the
+analyzer:
 
 ```shell
 vendor/bin/mago lint
 vendor/bin/mago analyze
 ```
 
-The next pages have the rest: the [configuration](setup/configuration.md) that matches Drupal's
-standard, with the formatter and analyzer excludes that `yml` needs, the
+The next pages have the rest: what the [config files](setup/configuration.md) set, the
 [worker's arguments](setup/worker-arguments.md) and the [fix levels](setup/fixes.md).
 
 ## Acknowledgements

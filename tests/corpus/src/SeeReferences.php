@@ -6,7 +6,7 @@ namespace Drupal\corpus;
 
 // @mago-expect lint:drupal/doc-see-tag
 /**
- * Coder reads the @see tags of function docblocks only.
+ * Coder reads the @see tags of function and property docblocks only.
  *
  * @see \Drupal\corpus\SeeReferences::limit().
  */

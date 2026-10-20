@@ -42,7 +42,6 @@ final class DocsPages
         CheckPages::INDEX,
         'phpstan/phpstan-drupal.md',
         'phpstan/identifiers.md',
-        'setup/worker-arguments.md',
     ];
 
     private const REGION = '/(<!-- docs-gen:([a-z0-9-]+) -->\n).*?(<!-- \/docs-gen -->)/s';
@@ -157,7 +156,6 @@ final class DocsPages
             'phpstan-drupal-rules' => $phpstan->rules(),
             'phpstan-drupal-extensions' => $phpstan->extensions(),
             'phpstan-identifiers' => $phpstan->identifiers(),
-            'core-rules' => SetupPages::coreRules(),
             default => throw new RuntimeException("No generated part is named {$name}."),
         };
     }

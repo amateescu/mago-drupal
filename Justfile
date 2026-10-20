@@ -68,6 +68,18 @@ test-examples:
     php tests/DocExamples.php {{mago}}
     php tests/CheckExamples.php {{mago}}
 
+# Loads the config files that projects extend. Mago fails on a setting or a
+# rule name that it doesn't know.
+test-presets:
+    {{mago}} --config drupal.mago.toml config > /dev/null
+    {{mago}} --config drupal-core.mago.toml config > /dev/null
+
+# Compares the files that drupal-core.mago.toml leaves out with what a core
+# checkout's phpcs skips, such as `just check-core-excludes ../drupal`. Not
+# part of check-all, since CI doesn't have a core checkout.
+check-core-excludes checkout:
+    php tests/CoreExcludes.php {{mago}} {{checkout}}
+
 # Rewrites the generated parts of the docs pages from the registered rules
 # and tests/coder-map.json. DocsTest fails when they are out of date.
 docs-gen:
@@ -87,4 +99,4 @@ docs-env:
 
 check: validate format-check test lint analyze
 
-check-all: check test-corpus test-fixes test-examples
+check-all: check test-presets test-corpus test-fixes test-examples

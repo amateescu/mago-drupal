@@ -6,25 +6,32 @@ Install Mago and the extension with Composer:
 composer require --dev carthage-software/mago amateescu/mago-drupal
 ```
 
-Then register the package's worker in `mago.toml`, and add Drupal's file extensions:
+Then create `mago.toml` in the project's top directory, next to `vendor/`:
 
 ```toml
-[source]
-extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
+extends = "vendor/amateescu/mago-drupal/drupal.mago.toml"
+# The lowest PHP version that the project supports.
+php-version = "8.3"
+```
+
+`drupal.mago.toml` adds Drupal's file extensions, registers the package's worker and sets Mago up
+for Drupal's standard, see [Configuration](configuration.md). For a Drupal core checkout, extend
+`vendor/amateescu/mago-drupal/drupal-core.mago.toml` instead.
+
+The `extends` path and the worker path in the file are relative to the directory of `mago.toml`.
+When `vendor/` is somewhere else, as for a `mago.toml` in a module's directory inside a site, change
+both:
+
+```toml
+extends = "../../vendor/amateescu/mago-drupal/drupal.mago.toml"
+php-version = "8.3"
 
 [extension-hosts.drupal]
-command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "../../vendor/amateescu/mago-drupal/resources/worker.php"]
 ```
 
 The two `-d` options keep Xdebug and pcov from slowing the worker down, see
 [Xdebug and pcov](#xdebug-and-pcov).
-
-`yml` lets the rules for [info and routing files](../rules/info-and-routing-files.md) read
-`.info.yml` and `.routing.yml` files. Mago reads a file without a PHP open tag as text outside PHP,
-so the [configuration](configuration.md) keeps the formatter and the analyzer out of YAML files.
-
-Coder also checks `.test` files, a Drupal 7 format. To check them too, add `test` to the
-extensions.
 
 The same worker adds the [analyzer plugins](../analyzer/index.md) to `mago analyze`. They are on by
 default and don't need any configuration. To run other Mago extensions in the same worker, see

@@ -71,11 +71,6 @@ final class DocsTest extends TestCase
 
     public function testEntriesMatchTheRules(): void
     {
-        $rules = [];
-        foreach (DrupalExtension::fromArguments(['--core'])->linterRules as $rule) {
-            $rules[$rule->getDefinition()->code] = $rule->getDefinition();
-        }
-
         $default = [];
         foreach (DrupalExtension::create()->linterRules as $rule) {
             $default[$rule->getDefinition()->code] = $rule->getDefinition();
@@ -85,13 +80,12 @@ final class DocsTest extends TestCase
         $problems = [];
         foreach ($pages->rulePages() as $page) {
             foreach ($page['entries'] as $entry) {
-                $core = $rules[$entry->code] ?? null;
                 $rule = $default[$entry->code] ?? null;
-                if ($core === null || $rule === null) {
+                if ($rule === null) {
                     continue;
                 }
 
-                $problems = array_merge($problems, $entry->problems($rule, $core, $pages->map()->ports($entry->code)));
+                $problems = array_merge($problems, $entry->problems($rule, $pages->map()->ports($entry->code)));
             }
         }
 

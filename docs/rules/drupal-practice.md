@@ -1,7 +1,7 @@
 # DrupalPractice checks
 
 These rules port sniffs of Coder's `DrupalPractice` standard not run by core's `phpcs.xml.dist`, so
-the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off.
+they're [off in Drupal core](../setup/configuration.md#checking-drupal-core).
 
 Coder's `Project` class reads the nearest `*.info.yml` or `*.info` file, to find the module name of
 a file that isn't named after it and to skip a Drupal 7 module. The rules read the same file, from
@@ -20,7 +20,6 @@ the worker's directory, which is the directory of the Mago config file:
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.General.ClassName.ClassPrefix`
-- **Off with `--core`**
 
 DrupalPractice asks a class or interface outside a namespace to start with the module name.
 
@@ -64,7 +63,6 @@ directory or one above.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.FunctionCalls.CurlSslVerifier.SslPeerVerificationDisabled`
-- **Off with `--core`**
 
 DrupalPractice asks not to turn off curl's check of the server's SSL certificate.
 
@@ -97,7 +95,6 @@ DrupalPractice asks not to turn off curl's check of the server's SSL certificate
   users see.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.FunctionCalls.TCheckPlain.CheckPlain`
-- **Off with `--core`**
 
 The `@`, `%` and `:` placeholders escape their value. A value passed through `Html::escape()`, or
 through `check_plain()` in Drupal 7, is then escaped twice, and a label such as `Q&A` shows as
@@ -150,7 +147,6 @@ inside its parentheses.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.FunctionDefinitions.FormAlterDoc.Different`
-- **Off with `--core`**
 
 DrupalPractice asks that only the module's own `hook_form_alter()` be documented as
 `Implements hook_form_alter().`.
@@ -200,7 +196,6 @@ DrupalPractice asks that only the module's own `hook_form_alter()` be documented
 - **Ports:**
     - `DrupalPractice.Constants.GlobalConstant.GlobalConstant`
     - `DrupalPractice.Constants.GlobalDefine.GlobalConstant`
-- **Off with `--core`**
 
 DrupalPractice asks for constants on a class or interface, not in the global namespace.
 
@@ -252,7 +247,6 @@ Drupal's standard allows a global constant whose name starts with the module nam
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Variables.GetRequestData`: `SuperglobalAccessed`, `SuperglobalAccessedWithVar`
-- **Off with `--core`**
 
 DrupalPractice asks for the request object in place of the `$_GET`, `$_POST`, `$_COOKIE`, `$_FILES`
 and `$_REQUEST` superglobals.
@@ -292,7 +286,6 @@ The message names the matching property of the request, and gives the source tex
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Objects.StrictSchemaDisabled.StrictConfigSchema`
-- **Off with `--core`**
 
 DrupalPractice asks test classes to keep the strict check of the config schema on.
 
@@ -324,7 +317,6 @@ rule uses the nearest named class or trait.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.General.DescriptionT.DescriptionT`
-- **Off with `--core`**
 
 DrupalPractice asks for a `#description` text that runs through `t()`. Users read the description
 under a form element, so it must be translatable. There isn't a fix, because a class takes
@@ -374,7 +366,6 @@ under a form element, so it must be translatable. There isn't a fix, because a c
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.General.OptionsT.OptionsValue`
-- **Off with `--core`**
 
 DrupalPractice asks for `#options` labels that run through `t()`.
 

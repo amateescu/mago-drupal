@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockSummary;
 use amateescu\MagoDrupal\Internal\OuterDocblocks;
@@ -31,14 +32,6 @@ final class MissingSummaryRule implements Rule
      */
     private const CORE_SUMMARY_DIRECTORIES = '#/(?:KernelTests|Unit|FunctionalJavascript)/#';
 
-    /**
-     * @param bool $core Reports a docblock with no short description only in
-     *   the test directories where core's `phpcs.xml.dist` checks it.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         // Function and Method are targets for `OuterDocblocks::of()`. Their
@@ -57,7 +50,8 @@ final class MissingSummaryRule implements Rule
     {
         if (
             $context->node->kind !== NodeKind::Program
-            || $this->core && preg_match(self::CORE_SUMMARY_DIRECTORIES, $context->file->path) !== 1
+            || preg_match(self::CORE_SUMMARY_DIRECTORIES, $context->file->path) !== 1
+            && CoreFiles::contains($context->file->path)
         ) {
             return;
         }

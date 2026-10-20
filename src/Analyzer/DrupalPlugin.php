@@ -107,18 +107,13 @@ final class DrupalPlugin implements Plugin
     private readonly DeprecationTarget $deprecations;
 
     /**
-     * @param bool $core Turns off the checks that do not apply to Drupal core
-     *   itself.
      * @param string|null $root Drupal document root, absolute or relative to
      *   the worker's cwd. Discovered from the cwd when null.
      * @param DeprecationTarget|null $deprecations The Drupal major whose
      *   removals are reported; every deprecation when null.
      */
-    public function __construct(
-        private readonly bool $core = false,
-        ?string $root = null,
-        ?DeprecationTarget $deprecations = null,
-    ) {
+    public function __construct(?string $root = null, ?DeprecationTarget $deprecations = null)
+    {
         $this->indexes = new Indexes($root, DiskCache::fromEnvironment());
         $this->deprecations = $deprecations ?? DeprecationTarget::all();
     }
@@ -167,20 +162,10 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodCallAnalysisHook(new UnknownPluginHook($indexes->plugins(...)));
 
         $this->registerClassChecks($registry, $traitRoots);
-        // Core's phpstan configuration ignores the message of phpstan-drupal's
-        // GlobalDrupalDependencyInjectionRule, and core's phpcs configuration
-        // doesn't run DrupalPractice's GlobalDrupal, GlobalClass, FormErrorT or
-        // MessageT.
-        if (!$this->core) {
-            $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...)));
-            $registry->registerMethodCallAnalysisHook(
-                new GlobalDrupalCallHook($indexes->services(...), entityLoads: true),
-            );
-            $registry->registerMethodCallAnalysisHook(
-                new UntranslatedMessageHook(UntranslatedMessageHook::FORM_ERRORS),
-            );
-            $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(UntranslatedMessageHook::MESSAGES));
-        }
+        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...)));
+        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...), entityLoads: true));
+        $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(UntranslatedMessageHook::FORM_ERRORS));
+        $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(UntranslatedMessageHook::MESSAGES));
 
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
         $registry->registerMethodCallAnalysisHook(new ImplicitTransactionCommitHook());
@@ -233,16 +218,12 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(
             new ListBuilderOperationsProvider($this->indexes->coreVersion(...)),
         );
-        // Core keeps the parameter commented out in its own list builders, so
-        // the check is for contrib.
-        if (!$this->core) {
-            $registry->registerClassLikeAnalysisHook(
-                new DescendantMetadataHook(
-                    ListBuilderCacheabilityCheck::ANCESTORS,
-                    new ListBuilderCacheabilityCheck($this->indexes->coreVersion(...)),
-                ),
-            );
-        }
+        $registry->registerClassLikeAnalysisHook(
+            new DescendantMetadataHook(
+                ListBuilderCacheabilityCheck::ANCESTORS,
+                new ListBuilderCacheabilityCheck($this->indexes->coreVersion(...)),
+            ),
+        );
 
         $this->registerDescendantCheck($registry, $serialization->bases(), $serialization);
         $overridden = $this->indexes->trustedCallbackClasses();
@@ -279,9 +260,7 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new ContainerParameterProvider($indexes->parameters(...)));
         $registry->registerMethodReturnTypeProvider(new ClassResolverProvider($services));
         $registry->registerMethodCallAnalysisHook(new DeprecatedServiceHook($services, $this->deprecations));
-        $registry->registerMethodCallAnalysisHook(
-            new UnknownServiceHook($services, $this->indexes->modules(...), $this->core),
-        );
+        $registry->registerMethodCallAnalysisHook(new UnknownServiceHook($services, $this->indexes->modules(...)));
     }
 
     /**
@@ -365,12 +344,11 @@ final class DrupalPlugin implements Plugin
     /**
      * The internal classes are read off the disk at registration, since the
      * host wants the ancestors before the first request; a workspace without
-     * any doesn't need the hook at all. Core's own phpstan configuration
-     * ignores the rule, so `--core` leaves it out too.
+     * any doesn't need the hook at all.
      */
     private function registerInternalParentHook(PluginRegistry $registry): void
     {
-        $internal = ClassTargets::accepted($this->core ? [] : $this->indexes->internalClasses()->names());
+        $internal = ClassTargets::accepted($this->indexes->internalClasses()->names());
         if ($internal === []) {
             return;
         }
@@ -382,13 +360,5 @@ final class DrupalPlugin implements Plugin
         }
 
         $registry->registerNodeAnalysisHook(new AnonymousInternalParentHook($lowercased));
-    }
-
-    /**
-     * Whether the plugin runs in `--core` mode.
-     */
-    public function isCore(): bool
-    {
-        return $this->core;
     }
 }

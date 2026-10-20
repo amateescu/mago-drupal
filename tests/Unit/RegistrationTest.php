@@ -68,7 +68,7 @@ final class RegistrationTest extends TestCase
      * The classes the walk records and looks into: the analyzer and linter
      * classes, and the wrappers that the extension puts around each rule.
      */
-    private const WALKED = '/^amateescu\\\\MagoDrupal\\\\(?:Analyzer\\\\|Linter\\\\|Internal\\\\(?:Utf8IssueRule|DefaultOffRule)$)/';
+    private const WALKED = '/^amateescu\\\\MagoDrupal\\\\(?:Analyzer\\\\|Linter\\\\|Internal\\\\Utf8IssueRule$)/';
 
     private string|false $cache = false;
 
@@ -102,8 +102,8 @@ final class RegistrationTest extends TestCase
     }
 
     /**
-     * The classes the registration reaches, over both settings that decide
-     * what gets registered: `--core` and a deprecation target. The corpus
+     * The classes the registration reaches with a deprecation target, the
+     * setting that decides what gets registered. The corpus
      * root has the `@deprecated` and `@internal` symbols the conditional
      * hooks need.
      *
@@ -117,10 +117,7 @@ final class RegistrationTest extends TestCase
         // reused.
         /** @var SplObjectStorage<object, null> $seen */
         $seen = new SplObjectStorage();
-        foreach ([
-            DrupalExtension::create(root: $root, deprecations: 12),
-            DrupalExtension::create(core: true, root: $root),
-        ] as $extension) {
+        foreach ([DrupalExtension::create(root: $root, deprecations: 12)] as $extension) {
             self::reach(
                 [
                     $extension->linterRules,

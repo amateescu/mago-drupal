@@ -15,18 +15,16 @@ PHP 8.1 or later and Mago 1.58 or later are required.
 composer require --dev carthage-software/mago amateescu/mago-drupal
 ```
 
-Register the worker in `mago.toml`, and add Drupal's file extensions:
+Then create `mago.toml` next to `vendor/`:
 
 ```toml
-[source]
-extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
-
-[extension-hosts.drupal]
-command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]
+extends = "vendor/amateescu/mago-drupal/drupal.mago.toml"
+# The lowest PHP version that the project supports.
+php-version = "8.3"
 ```
 
-[Configuration](docs/setup/configuration.md) has the formatter and analyzer excludes that go with
-`yml`. Then run the linter and the analyzer:
+For a Drupal core checkout, extend `drupal-core.mago.toml` instead. Then run the linter and the
+analyzer:
 
 ```shell
 vendor/bin/mago lint
@@ -35,8 +33,8 @@ vendor/bin/mago analyze
 
 ## Documentation
 
-- [Setup](docs/setup/install.md): the install, the worker's arguments, the rest of the
-  configuration that matches Drupal's standard, and the fix levels.
+- [Setup](docs/setup/install.md): the install, what the config files set, the worker's arguments
+  and the fix levels.
 - [Linter rules](docs/rules/index.md): every rule, with what it reports, what its fix does, the
   section of Drupal's coding standards or the source checked by the rule, and the Coder checks
   ported by the rule.

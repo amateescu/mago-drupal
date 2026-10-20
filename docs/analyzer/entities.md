@@ -514,7 +514,6 @@ entity.
 - **Level:** error
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `EntityListBuilderOperationsCacheabilityRule`
-- **Off with `--core`**
 
 phpstan-drupal reports a list builder's operation method that leaves out the `CacheableMetadata`
 parameter added in Drupal 11.3. Core 11.3 up to 12.0 keeps the parameter commented out in the
