@@ -12,13 +12,11 @@ use amateescu\MagoDrupal\Internal\SeeTags;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
-use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
 use function array_key_exists;
-use function trim;
 
 /**
  * Checks that each `@see` tag holds one reference on its own line, with no
@@ -72,13 +70,7 @@ final class DocSeeTagRule implements Rule
      */
     private static function checkProperty(LintContext $context): void
     {
-        foreach (PropertyTags::of($context) ?? [] as $tag) {
-            if ($tag->name !== 'see' || trim($tag->lines[0]->text) !== '') {
-                continue;
-            }
-
-            $context->report(Issue::new('The @see tag must have content.', $tag->nameSpan));
-        }
+        SeeTags::checkEmpty($context, PropertyTags::of($context) ?? []);
     }
 
     /**
