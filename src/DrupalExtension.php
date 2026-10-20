@@ -8,6 +8,9 @@ use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
+use amateescu\MagoDrupal\Internal\IgnoredIssueRule;
+use amateescu\MagoDrupal\Internal\PhpcsCommentFilter;
+use amateescu\MagoDrupal\Internal\PHPStanCommentFilter;
 use amateescu\MagoDrupal\Internal\Utf8IssueRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ByteOrderMarkRule;
@@ -128,6 +131,7 @@ use Mago\Sdk\Extension;
 use Mago\Sdk\Linter\Rule;
 
 use function array_filter;
+use function in_array;
 use function is_string;
 use function preg_match;
 use function str_starts_with;
@@ -150,8 +154,11 @@ final class DrupalExtension
 
     /**
      * Builds the extension from the worker's arguments: `--root=PATH` for the
-     * Drupal document root, and `--deprecations=N` for the Drupal major whose
-     * removals to report.
+     * Drupal document root, `--deprecations=N` for the Drupal major whose
+     * removals to report, `--phpcs-ignores` to let phpcs comments drop the
+     * issues of the checks they ignore, and `--phpstan-ignores` to let
+     * `@phpstan-ignore` comments drop the issues of the linter rules that
+     * port a PHPStan check.
      * The last one of a repeated argument wins, matching how repeated CLI
      * flags behave.
      *
@@ -174,6 +181,8 @@ final class DrupalExtension
         return self::create(
             root: self::option($strings, 'root'),
             deprecations: $deprecations === null ? null : (int) $deprecations,
+            phpcsIgnores: in_array('--phpcs-ignores', $strings, strict: true),
+            phpstanIgnores: in_array('--phpstan-ignores', $strings, strict: true),
         );
     }
 
@@ -183,14 +192,33 @@ final class DrupalExtension
      * @param int|null $deprecations Reports only the Drupal deprecations
      *   removed in this major or earlier, such as 12; every deprecation when
      *   null.
+     * @param bool $phpcsIgnores Lets a phpcs suppression comment drop the
+     *   issues of the rules and checks that port the Coder codes it ignores.
+     * @param bool $phpstanIgnores Lets a `@phpstan-ignore` comment drop the
+     *   issues of the linter rules that port the PHPStan checks it ignores.
      *
      * @throws InvalidArgumentException When $deprecations is not a positive
      *   number.
+     *
+     * @mago-expect lint:no-boolean-flag-parameter(2)
      */
-    public static function create(?string $root = null, ?int $deprecations = null): Extension
-    {
+    public static function create(
+        ?string $root = null,
+        ?int $deprecations = null,
+        bool $phpcsIgnores = false,
+        bool $phpstanIgnores = false,
+    ): Extension {
         $rules = [];
         foreach (self::linterRules() as $rule) {
+            // A rule is wrapped only when a comment kind is read, so the
+            // options cost nothing while they're off.
+            $code = $rule->getDefinition()->code;
+            $phpcs = $phpcsIgnores ? PhpcsCommentFilter::for($code) : null;
+            $phpstan = $phpstanIgnores ? PHPStanCommentFilter::for($code) : null;
+            if ($phpcs !== null || $phpstan !== null) {
+                $rule = new IgnoredIssueRule($rule, $phpcs, $phpstan);
+            }
+
             $rules[] = new Utf8IssueRule($rule);
         }
 
@@ -200,7 +228,11 @@ final class DrupalExtension
             version: self::version(),
             linterRules: $rules,
             analyzerPlugins: [
-                new DrupalPlugin($root, $deprecations === null ? null : DeprecationTarget::major($deprecations)),
+                new DrupalPlugin(
+                    $root,
+                    $deprecations === null ? null : DeprecationTarget::major($deprecations),
+                    $phpcsIgnores,
+                ),
                 new PHPUnitPlugin(),
                 new PHPStanIgnoresPlugin(),
             ],

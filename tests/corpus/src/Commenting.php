@@ -283,3 +283,15 @@ function comment_line_length_trailing(): string {
 
   return $reference . $url;
 }
+
+/**
+ * Holds comments that end in a closer, which the length check measures.
+ */
+function comment_line_length_closer(): void {
+  /* See https://www.drupal.org/project/drupal/issues/1234567-a-long-issue-title-slug */
+  /*
+   * See https://www.drupal.org/project/drupal/issues/1234567-a-long-issue-title-slug */
+  /* @see \Drupal\layout_builder\Plugin\Block\ExtraFieldBlock::preRenderBlockLongName */
+  // @mago-expect lint:drupal/comment-line-length
+  /* This commented-out text has words short enough to wrap, so it is reported. */
+}

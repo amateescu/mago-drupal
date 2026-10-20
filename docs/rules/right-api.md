@@ -87,6 +87,9 @@ inside the text doesn't.
       wording of the method around it.
     - The rule also checks the message of `TRIGGER_ERROR()` and any other spelling in another letter
       case. PHP calls the same function, but Coder matches the name exactly and skips them.
+    - The rule also checks a call whose level is written `\E_USER_DEPRECATED`. Coder compares the
+      first token of the level with `E_USER_DEPRECATED`, and the backslash is a token of its own, so
+      it skips the call.
 
 ---
 
@@ -229,8 +232,10 @@ methods.
 
 **Reports:**
 
-- a string built with `.`. [`drupal/translatable-literal`](#drupaltranslatable-literal) reports
-  another string that isn't a literal;
+- a string built with `.`. The issue sits on the `.` after the first literal, as in Coder, so a
+  `phpcs:ignore` comment written for Coder covers it.
+  [`drupal/translatable-literal`](#drupaltranslatable-literal) reports another string that isn't a
+  literal;
 - a string padded with whitespace, and an empty one. For a string built with `.`, the padding of
   the first literal is reported too;
 - a call with no arguments, such as `t()`;
@@ -239,7 +244,11 @@ methods.
 
 **Not reported:**
 
+- the padding of a literal that spans more than one line, alone or as the first literal of a string
+  built with `.`;
 - the padding of the later literals of a string built with `.`;
+- a `formatPlural()` call with no arguments. `StringTranslationTrait::formatPlural()` needs three,
+  so such a call goes to another method;
 - an escaped quote in the strings of `formatPlural()`.
 
 The fix applies only when the other quote keeps the value: no `"` or `$` in a single-quoted
@@ -263,9 +272,11 @@ without `'`.
     - The rule reads the escapes in a string literal, where Coder looks for the two characters `\'`
       or `\"` in its text. A string such as `'Path \\'` ends in an escaped backslash, so it doesn't
       hold an escaped quote and isn't reported.
-    - The whitespace check reads the value that PHP builds from the string. An escape such as `\n`
-      or `\t` at either end of a double-quoted string counts as whitespace. Coder reads the two
-      characters as written and doesn't report it.
+    - The whitespace check reads the value that PHP builds from a literal on one line. An escape
+      such as `\n` or `\t` at either end of a double-quoted string counts as whitespace. Coder reads
+      the two characters as written and doesn't report it. Neither checks a literal that spans
+      lines. phpcs splits such a literal into one token per line, and Coder checks only a first
+      token that ends in a quote.
     - A string built with `.` is reported here whatever its first part is. Coder reports one that
       doesn't start with a literal, such as `t($prefix . 'name')`, as `NotLiteralString`.
     - It also reports a call not seen by Coder: a fully qualified `\t()` or
@@ -289,7 +300,8 @@ exception text in logs, and a translation hides the original text.
 
 **Reports:**
 
-- an exception message passed through `t()`.
+- an exception message passed through `t()`. The issue sits on the `throw` keyword, as in Coder,
+  so a `phpcs:ignore` comment written for Coder is on the line above it.
 
 **Not reported:**
 

@@ -109,7 +109,7 @@ function forms_lowercase_hook(array &$form): void {
 }
 
 // Text after a tag is not a hook line.
-// @mago-expect lint:drupal/doc-see-tag(2)
+// @mago-expect lint:drupal/doc-see-tag
 /**
  * Describes the function.
  *

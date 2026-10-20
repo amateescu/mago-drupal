@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Internal\Arguments;
+use amateescu\MagoDrupal\Internal\PhpcsCommentFilter;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -53,9 +54,12 @@ final class UntranslatedMessageHook implements MethodCallAnalysisHook
 
     /**
      * @param self::FORM_ERRORS|self::MESSAGES $methods
+     * @param PhpcsCommentFilter|null $phpcs Leaves out a message on a line
+     *   that a phpcs comment ignores for the sniffs this ports.
      */
     public function __construct(
         private readonly array $methods,
+        private readonly ?PhpcsCommentFilter $phpcs = null,
     ) {}
 
     public function getTargets(): array
@@ -96,7 +100,12 @@ final class UntranslatedMessageHook implements MethodCallAnalysisHook
 
         // An empty message marks the element without a message to show, and
         // markup is a render fragment, not a sentence.
-        if ($text === null || $text === '' || str_starts_with($text, '<')) {
+        if (
+            $text === null
+            || $text === ''
+            || str_starts_with($text, '<')
+            || $this->phpcs?->drops($source->contents, $argument->value->span->start) === true
+        ) {
             return;
         }
 

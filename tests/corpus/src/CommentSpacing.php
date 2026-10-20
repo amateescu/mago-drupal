@@ -48,6 +48,17 @@ final class CommentSpacing {
   }
 
   /**
+   * Draws a tree in comment lines.
+   */
+  public function tree(): void {
+    // Coder joins the lines into `root-`, which holds punctuation.
+    // @mago-expect lint:drupal/inline-comment(1)
+    // @mago-expect lint:drupal/inline-comment-punctuation(1)
+    // root
+    // - child
+  }
+
+  /**
    * Skips the comment lines Coder skips.
    */
   public function skippedComments(bool $flag): bool {

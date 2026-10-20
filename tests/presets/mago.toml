@@ -1,0 +1,6 @@
+# A site that extends drupal.mago.toml. `just test-presets` checks which of its files the linter
+# reads. The router script is left out, as phpcs skips a file whose name starts with a dot.
+extends = "../../drupal.mago.toml"
+
+[source]
+paths = ["web"]

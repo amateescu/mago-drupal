@@ -1,0 +1,2 @@
+web/index.php
+web/modules/custom/example/src/Example.php

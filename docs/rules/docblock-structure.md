@@ -250,7 +250,7 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 ## drupal/doc-see-tag
 
 - **Level:** error
-- **Fix:** safe. It removes the punctuation after a one-word reference.
+- **Fix:** safe. It removes a colon after `@see`, and the punctuation after a one-word reference.
 - **Standard:** [@see](https://project.pages.drupalcode.org/coding_standards/php/documentation/#see-see-also-references)
 - **Ports:**
     - `Drupal.Commenting.FunctionComment`: `EmptySees`, `SeeAdditionalText`, `SeePunctuation`
@@ -265,11 +265,15 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
   property;
 - a `@see` reference with other text after it, or with punctuation at its end, in any docblock
   outside a function body. The standard asks this of every `@see` tag, and Coder reads only those
-  of functions and methods.
+  of functions and methods. Punctuation at the end of other text is part of that text, so the tag
+  gets one issue;
+- a colon right after `@see`, as in `@see: https://www.drupal.org/i/3536307`, in the same
+  docblocks. The fix turns the colon and the spaces after it into one space, or removes them when
+  nothing follows. The reference after the colon is checked as above.
 
 The reference is read from the tag's own line. The lines below it are a description, which may end
-in a period. The fix is left out for a `@see` after `@deprecated`, whose change-record URL is
-fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
+in a period. The punctuation fix is left out for a `@see` after `@deprecated`, whose change-record
+URL is fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
 
 **Not reported:**
 
@@ -277,6 +281,11 @@ fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
   `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`, unless it is a function's or a
   method's;
 - a `@see` tag with no reference in a property docblock with `{@inheritdoc}`.
+
+??? note "Compared with Coder"
+
+    - phpcs reads `@see:` as a tag of its own, so Coder 8 and Coder 9 don't check it at all. The
+      rule reports the colon and checks the reference after it.
 
 ---
 
@@ -1111,6 +1120,9 @@ still want it.
 - a `@var` tag that starts with a variable name, as in `@var $count int`;
 - the property name repeated after the `@var` type on the tag's line, also after a type with
   spaces such as `array<string, int>`.
+
+A missing `@var` tag is reported on the `*/` of the docblock, where Coder reports it, so a
+`phpcs:ignore` on the docblock's last line covers it.
 
 The fix removes a property name repeated after the `@var` type. In a `@var` tag that starts with a
 variable name, a fix writes the type first when a whole type follows the name. It drops the

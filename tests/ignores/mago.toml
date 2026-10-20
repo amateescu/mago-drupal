@@ -1,0 +1,17 @@
+version = "1"
+php-version = "8.1"
+
+# The worker reads phpcs and PHPStan comments here, so the fixtures can prove
+# which issues those comments drop. The main corpus runs without the
+# arguments, since some of its fixtures hold phpcs comments that the rules
+# must still read as plain comments.
+[source]
+paths = ["src"]
+includes = ["stubs"]
+
+[formatter]
+preset = "drupal"
+
+[extension-hosts.drupal]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "../../resources/worker.php", "--phpcs-ignores", "--phpstan-ignores"]
+workers = 1

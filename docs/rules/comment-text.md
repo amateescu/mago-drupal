@@ -46,10 +46,11 @@ and git already records who wrote what.
 
 - docblock tag lines;
 - `@code` examples, up to `@endcode` or the next tag;
-- `// @see`-style reference lines;
+- `// @see`-style reference lines, and one-line `/* @see ... */` comments;
 - annotation values;
 - the `Implements hook_foo()` and `Contains ...` lines;
-- a line whose last word is too long for a line of its own, such as a URL or a long class path.
+- a line whose last word is too long for a line of its own, such as a URL or a long class path. A
+  `*/` at the end of the line isn't a word.
 
 Each of these holds text that can't be wrapped without damage.
 
@@ -61,7 +62,9 @@ can't do this check. A deeper indent from the formatter can push a comment past 
     - The rule reports a line that ends in `*/`. That includes a one-line `/* ... */` or
       `/** ... */` comment, a `/* ... */` comment after code, and the last line of a longer comment
       with text before the `*/`. phpcs skips these lines, because each one ends on a whitespace
-      token and not on a comment token. Both tools report the lines above the closer.
+      token and not on a comment token. Both tools report the lines above the closer. The rule
+      still exempts such a line when it would be exempt without the `*/`, such as a long URL at
+      the end or a one-line `/* @see ... */` comment.
 
 ---
 
@@ -377,6 +380,10 @@ Coder doesn't allow gendered pronouns in comments.
     - Coder reports the docblock of an enum case and of a property declared `readonly` with no
       visibility keyword, because its list of declaration keywords has neither. The rule takes both
       for declarations, as PHP does.
+    - The rule takes the first word of a comment from its first line. Coder joins the trimmed
+      lines of a comment run with nothing between them, so in a tree such as `// root` above
+      `// - child`, its first word is `root-`. That word holds punctuation, so Coder doesn't
+      report the lower-case `root`. The rule reports it, as the standard asks.
 
 ---
 

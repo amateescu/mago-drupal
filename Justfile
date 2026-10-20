@@ -19,14 +19,17 @@ lint:
 analyze:
     {{mago}} --config mago.toml analyze
 
-# The corpus has its own workspace, formatted with Drupal's preset.
+# The corpus and tests/ignores have their own workspaces, formatted with
+# Drupal's preset.
 format:
     {{mago}} --config mago.toml format
     {{mago}} --workspace tests/corpus format
+    {{mago}} --workspace tests/ignores format
 
 format-check:
     {{mago}} --config mago.toml format --check
     {{mago}} --workspace tests/corpus format --check
+    {{mago}} --workspace tests/ignores format --check
 
 # Applies safe fixes from every tool and loops until nothing changes. This
 # repository's mago.toml does not load the extension, so only Mago's built-in
@@ -48,12 +51,14 @@ fix:
 # against tests/corpus/expected-rules.txt. That step is necessary because
 # `--only` skips the expectations for the rules it filters out. Without
 # the step, a rule can lose its registration and its fixtures are no longer
-# checked, and the run stays green.
+# checked, and the run stays green. The last step checks the pins of
+# tests/ignores, whose worker reads phpcs and PHPStan comments.
 test-corpus:
     {{mago}} --workspace tests/corpus extension list --json | php -r '$registered = json_decode(json: stream_get_contents(STDIN), associative: true, flags: JSON_THROW_ON_ERROR); $actual = []; foreach ($registered["extensions"] as $extension) { foreach ($extension["linter-rules"] as $rule) { $actual[] = $rule["code"]; } } sort($actual); $expected = array_map("trim", file("tests/corpus/expected-rules.txt")); sort($expected); if ($actual === $expected) { exit(0); } fwrite(STDERR, "Registered rules drifted from tests/corpus/expected-rules.txt\n"); foreach (array_diff($expected, $actual) as $code) { fwrite(STDERR, "  no longer registered: " . $code . "\n"); } foreach (array_diff($actual, $expected) as $code) { fwrite(STDERR, "  not pinned: " . $code . "\n"); } exit(1);'
     CI_MERGE_REQUEST_SOURCE_BRANCH_NAME=3456789-corpus {{mago}} --workspace tests/corpus lint --only "$(paste -sd, - < tests/corpus/expected-rules.txt)"
     {{mago}} --workspace tests/corpus analyze
     php tests/CorpusPins.php {{mago}}
+    php tests/CorpusPins.php {{mago}} tests/ignores
 
 # Runs every rule's fix over the before and after pairs in tests/fixes. See
 # tests/FixCases.php for the layout.
@@ -69,10 +74,13 @@ test-examples:
     php tests/CheckExamples.php {{mago}}
 
 # Loads the config files that projects extend. Mago fails on a setting or a
-# rule name that it doesn't know.
+# rule name that it doesn't know. Then compares the files that the linter
+# reads in tests/presets, a site that extends drupal.mago.toml, with
+# tests/presets/linter-files.txt.
 test-presets:
     {{mago}} --config drupal.mago.toml config > /dev/null
     {{mago}} --config drupal-core.mago.toml config > /dev/null
+    {{mago}} --workspace tests/presets list-files --command linter | LC_ALL=C sort | diff tests/presets/linter-files.txt -
 
 # Compares the files that drupal-core.mago.toml leaves out with what a core
 # checkout's phpcs skips, such as `just check-core-excludes ../drupal`. Not

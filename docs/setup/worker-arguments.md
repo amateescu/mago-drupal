@@ -32,6 +32,27 @@ working-directory = "/path/to/project"
 Add `"--deprecations=12"` to report only the Drupal deprecations that are removed in Drupal 12 or
 earlier. See [Deprecation target](../analyzer/deprecations.md#deprecation-target).
 
+## phpcs and PHPStan comments
+
+Add `"--phpcs-ignores"` to let phpcs suppression comments, such as `phpcs:ignore`, drop the issues
+of the rules and analyzer checks that port the Coder codes they ignore. See
+[phpcs ignores](../coder/phpcs-ignores.md).
+
+Add `"--phpstan-ignores"` to let `@phpstan-ignore` comments drop the issues of the linter rules that
+port a PHPStan check, such as `drupal/render-callback`. The analyzer's own issues need the
+`phpstan-ignores` plugin instead. See [PHPStan ignores](../analyzer/phpstan-ignores.md#linter-rules).
+
+Both are off by default. `drupal-core.mago.toml` turns both on, since core's own phpcs and PHPStan
+runs rely on these comments:
+
+```toml
+[extension-hosts.drupal]
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--phpcs-ignores", "--phpstan-ignores"]
+```
+
+A project that extends `drupal-core.mago.toml` and sets its own command repeats them, since the
+command is replaced as a whole.
+
 ## Your own worker file
 
 `worker.php` turns its arguments into a call to `DrupalExtension::create()`. A project can make that
@@ -73,6 +94,8 @@ Each worker argument has a named argument of `create()`:
 | --- | --- |
 | `--root=PATH` | `root: 'PATH'` |
 | `--deprecations=12` | `deprecations: 12` |
+| `--phpcs-ignores` | `phpcsIgnores: true` |
+| `--phpstan-ignores` | `phpstanIgnores: true` |
 
 For example, `DrupalExtension::create(root: '../drupal', deprecations: 12)` does the same as
 `"--root=../drupal", "--deprecations=12"`.

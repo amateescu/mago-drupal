@@ -18,6 +18,9 @@ Each setting in the files has a comment that says why it's there.
 - The `Interface` and `Trait` suffixes, and the `file-name` rule, as Coder 9 checks them.
 - `check-name-casing` for the analyzer, which ports `Squiz.PHP.LowercasePHPFunctions`. The analyzer
   stays out of `*.api.php` files and test fixtures, as phpstan-drupal does.
+- Excludes for the paths where a Mago rule reports what Drupal does on purpose, such as the fake
+  credentials in tests. The linter also skips `.ht.router.php`, as phpcs skips a file whose name
+  starts with a dot.
 
 It doesn't set `php-version`, since that's up to the project. Without it, Mago assumes its newest
 PHP version, and the formatter writes syntax that older versions reject, such as `new Foo()->bar()`.
@@ -59,17 +62,24 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
   `vendor/` read for its symbols.
 - The files that phpcs doesn't check, left out of the formatter and the linter: the paths excluded
   by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile` or
-  `// @codingStandardsIgnoreFile`, which Mago doesn't read.
+  `// @codingStandardsIgnoreFile`, which Mago's own rules don't read.
+- The classes that core's `phpstan.neon.dist` leaves out because they're broken on purpose, left
+  out of the analyzer. The one that Mago reports a `semantics` error for is left out of the linter
+  too, since that error doesn't have a rule to turn off.
+- The worker with `--phpcs-ignores` and `--phpstan-ignores`, so that core's phpcs and PHPStan
+  comments drop the issues of the extension's rules, see
+  [phpcs and PHPStan comments](worker-arguments.md#phpcs-and-phpstan-comments).
 - The rules and the analyzer checks that core doesn't run, turned off, see
   [Checking Drupal core](#checking-drupal-core).
 
 ## Checking Drupal core
 
-Core's own `phpcs.xml.dist` asks for less than Drupal's standard. `drupal-core.mago.toml` turns off
-the rules whose checks it turns off or doesn't run. It leaves the `*.api.php` files and the
-transliteration tables out of `unused-variable` and `variable-redeclaration`, as `phpcs.xml.dist`
-does for their sniff, and it ignores five analyzer checks that are about modules that use core's
-API. The comments in the file say why.
+Core's own `phpcs.xml.dist` asks for less than Drupal's standard, and core runs Coder 8, which
+doesn't have some of the sniffs of Coder 9. `drupal-core.mago.toml` turns off the rules whose
+checks core turns off or doesn't run, Mago's own rules included. Where `phpcs.xml.dist` leaves
+paths out of a sniff, such as the tests directories out of the line length check, the file leaves
+them out of the rules that port it. It also ignores five analyzer checks that are about modules
+that use core's API. The comments in the file say why.
 
 A rule that the file turns off can be turned back on in the checkout's `mago.toml`:
 

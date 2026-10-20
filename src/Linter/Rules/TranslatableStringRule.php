@@ -14,9 +14,14 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 
+use function str_contains;
+use function strlen;
+use function strspn;
 use function trim;
 
 /**
@@ -30,6 +35,10 @@ use function trim;
  * `drupal/translatable-literal` reports a string that is not a literal at
  * all, and a string joined after the call. A nowdoc counts as a literal, as
  * in Coder 9; a heredoc does not.
+ *
+ * Each of Coder's checks and its exceptions needs a branch of its own.
+ *
+ * @mago-expect lint:cyclomatic-complexity
  */
 final class TranslatableStringRule implements Rule
 {
@@ -60,8 +69,13 @@ final class TranslatableStringRule implements Rule
 
         // A call with only named or only unpacked arguments is not empty. It
         // doesn't have a readable positional argument, so the rule does not
-        // check it.
+        // check it. StringTranslationTrait::formatPlural() needs three
+        // arguments, so a formatPlural() call without any is another method.
         if ($call->invocation->isEmpty()) {
+            if ($call->name === 'formatplural') {
+                return;
+            }
+
             $context->report(Issue::new('Do not call ' . $call->callee . ' without arguments.', $context->node->span));
 
             return;
@@ -116,9 +130,41 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
-        if ($value !== trim($value)) {
+        if (self::padded($context->file, $message, $value)) {
             $context->report(Issue::new(self::PADDED, $message->span)->withHelp(self::PADDED_HELP));
         }
+    }
+
+    /**
+     * Whether a literal starts or ends with whitespace, for a literal on one
+     * line.
+     *
+     * phpcs splits a literal that spans lines into one token per line, and
+     * Coder checks the padding only when the first token ends in a quote. So
+     * Coder never checks a literal that spans lines, and this rule doesn't
+     * either. An escape such as `\n` doesn't break the line, so a one-line
+     * literal that starts with one is still checked.
+     */
+    private static function padded(SourceFile $file, Node $literal, string $value): bool
+    {
+        return $value !== trim($value) && !str_contains($file->getText($literal), "\n");
+    }
+
+    /**
+     * The `.` right after the first literal, where Coder reports the
+     * concatenation, so that a phpcs comment written for Coder covers the
+     * same line. The whole argument when something other than whitespace
+     * sits between them.
+     */
+    private static function operator(SourceFile $file, Node $first, Node $message): Span
+    {
+        $offset = $first->span->end;
+        $offset += strspn($file->contents, characters: " \t\r\n", offset: $offset);
+        if ($offset >= strlen($file->contents) || $file->contents[$offset] !== '.') {
+            return $message->span;
+        }
+
+        return new Span($offset, $offset + 1);
     }
 
     /**
@@ -131,17 +177,17 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
+        $first = Values::leftmost($context->file, $message);
+        $value = Values::literalString($context->file, $first);
         $context->report(Issue::new(
             'Do not concatenate a translatable string. Use placeholders instead.',
-            $message->span,
+            $value === null ? $message->span : self::operator($context->file, $first, $message),
         )->withHelp(self::HELP));
 
         // Coder also checks the padding of the first token, so a padded
         // leftmost literal gets its own report. The later parts are not
         // checked.
-        $first = Values::leftmost($context->file, $message);
-        $value = Values::literalString($context->file, $first);
-        if ($value !== null && $value !== trim($value)) {
+        if ($value !== null && self::padded($context->file, $first, $value)) {
             $context->report(Issue::new(self::PADDED, $first->span)->withHelp(self::PADDED_HELP));
         }
     }

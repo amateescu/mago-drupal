@@ -87,6 +87,7 @@ use amateescu\MagoDrupal\Internal\ClassTargets;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
 use amateescu\MagoDrupal\Internal\DiskCache;
 use amateescu\MagoDrupal\Internal\Indexes;
+use amateescu\MagoDrupal\Internal\PhpcsCommentFilter;
 use amateescu\MagoDrupal\Internal\TraitRoots;
 use amateescu\MagoDrupal\Internal\TrustedCallbacks;
 use Mago\Sdk\Analyzer\Plugin;
@@ -111,9 +112,14 @@ final class DrupalPlugin implements Plugin
      *   the worker's cwd. Discovered from the cwd when null.
      * @param DeprecationTarget|null $deprecations The Drupal major whose
      *   removals are reported; every deprecation when null.
+     * @param bool $phpcsIgnores Lets a phpcs suppression comment drop the
+     *   issues of the checks that port the Coder codes it ignores.
      */
-    public function __construct(?string $root = null, ?DeprecationTarget $deprecations = null)
-    {
+    public function __construct(
+        ?string $root = null,
+        ?DeprecationTarget $deprecations = null,
+        private readonly bool $phpcsIgnores = false,
+    ) {
         $this->indexes = new Indexes($root, DiskCache::fromEnvironment());
         $this->deprecations = $deprecations ?? DeprecationTarget::all();
     }
@@ -162,10 +168,31 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodCallAnalysisHook(new UnknownPluginHook($indexes->plugins(...)));
 
         $this->registerClassChecks($registry, $traitRoots);
-        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...)));
-        $registry->registerMethodCallAnalysisHook(new GlobalDrupalCallHook($indexes->services(...), entityLoads: true));
-        $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(UntranslatedMessageHook::FORM_ERRORS));
-        $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(UntranslatedMessageHook::MESSAGES));
+        // The checks that port a Coder sniff honour phpcs comments when the
+        // worker reads them.
+        $phpcsIgnores = $this->phpcsIgnores;
+        $phpcs = static fn(string $code): ?PhpcsCommentFilter => $phpcsIgnores
+            ? PhpcsCommentFilter::for('drupal/' . $code)
+            : null;
+        $registry->registerMethodCallAnalysisHook(
+            new GlobalDrupalCallHook($indexes->services(...), phpcs: $phpcs(GlobalDrupalCallHook::CODE)),
+        );
+        $registry->registerMethodCallAnalysisHook(
+            new GlobalDrupalCallHook(
+                $indexes->services(...),
+                entityLoads: true,
+                phpcs: $phpcs(GlobalDrupalCallHook::ENTITY_LOAD_CODE),
+            ),
+        );
+        $untranslated = $phpcs(UntranslatedMessageHook::CODE);
+        $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(
+            UntranslatedMessageHook::FORM_ERRORS,
+            $untranslated,
+        ));
+        $registry->registerMethodCallAnalysisHook(new UntranslatedMessageHook(
+            UntranslatedMessageHook::MESSAGES,
+            $untranslated,
+        ));
 
         $registry->registerMethodCallAnalysisHook(new LoggerFromFactoryHook());
         $registry->registerMethodCallAnalysisHook(new ImplicitTransactionCommitHook());

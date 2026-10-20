@@ -25,6 +25,12 @@ excludes = [
     "vendor/squizlabs/php_codesniffer/",
 ]
 
+[extension-hosts.drupal]
+# Core's phpcs and PHPStan runs rely on its phpcs:ignore and @phpstan-ignore comments, so the
+# worker reads them for the extension's rules. This replaces the command of drupal.mago.toml as a
+# whole.
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--phpcs-ignores", "--phpstan-ignores"]
+
 [formatter]
 # The files that phpcs doesn't check. The analyzer still reads them, since core uses their classes.
 excludes = [
@@ -32,7 +38,8 @@ excludes = [
     "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
-    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago doesn't read.
+    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago's own rules don't
+    # read.
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
@@ -59,7 +66,8 @@ excludes = [
     "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
-    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago doesn't read.
+    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago's own rules don't
+    # read.
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
@@ -78,6 +86,9 @@ excludes = [
     "core/tests/PHPStan/fixtures/",
     "core/tests/fixtures/empty_file.php.module",
     "core/tests/fixtures/files/",
+    # Broken on purpose, and left out of core's phpstan.neon.dist. Mago reports its abstract method
+    # in a class that isn't abstract as a semantics error, which no setting turns off for one file.
+    "core/modules/system/tests/modules/router_test_directory/src/Controller/TestInvalidController.php",
 ]
 
 [linter.rules]
@@ -111,6 +122,21 @@ excludes = [
 "drupal/untranslated-options" = { enabled = false }
 # This rule checks what no Coder sniff checks.
 "drupal/global-class-backslash" = { enabled = false }
+# These rules match Coder 9 sniffs that core's Coder 8 setup doesn't run. no-request-variable is the
+# $_REQUEST half of the sniff that drupal/request-superglobal ports.
+no-redundant-method-override = { enabled = false }
+no-request-variable = { enabled = false }
+single-class-per-file = { enabled = false }
+# Core checks the case of a trait name, but not the "Trait" suffix.
+trait-name = { psr = false }
+# Core is the framework that sets PHP's runtime settings for the site.
+no-ini-set = { enabled = false }
+# Core's phpcs.xml.dist leaves tests directories out of Drupal.Files.LineLength. phpcs matches the
+# pattern in any case, so it also leaves out the Tests directories under src/.
+"drupal/comment-line-length" = { exclude = ["**/tests/**", "**/Tests/**"] }
+# The capital P in Parent is on purpose, inside a phpcs:disable range, which Mago's own rules don't
+# read.
+lowercase-keyword = { exclude = ["core/tests/Drupal/Tests/Component/Utility/ReflectionTest.php"] }
 # Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
 # VariableAnalysis sniff.
 "drupal/unused-variable" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
@@ -126,4 +152,13 @@ ignore = [
     "drupal/list-builder-cacheability",
     "drupal/static-entity-load",
     "drupal/untranslated-message",
+]
+# Core's phpstan.neon.dist leaves out these classes. They extend or use classes that don't exist,
+# or are broken on purpose.
+excludes = [
+    "core/modules/system/tests/modules/plugin_test/src/Plugin/plugin_test/custom_annotation/ExtendingNonInstalledClass.php",
+    "core/modules/system/tests/modules/plugin_test/src/Plugin/plugin_test/custom_annotation/UsingNonInstalledTraitClass.php",
+    "core/modules/system/tests/modules/plugin_test/src/Plugin/plugin_test/fruit/ExtendingNonInstalledClass.php",
+    "core/modules/system/tests/modules/router_test_directory/src/Controller/TestInvalidController.php",
+    "core/modules/system/tests/modules/router_test_directory/src/Controller/TestMissingDependency.php",
 ]

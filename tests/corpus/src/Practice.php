@@ -40,6 +40,26 @@ class Practice {
     throw new class('This is fine.') extends \RuntimeException {};
   }
 
+  // @mago-expect lint:drupal/missing-function-comment
+  public function translatedExceptionOnLaterLine(): never {
+    // @mago-expect lint:drupal/translated-exception(1)
+    throw new \RuntimeException(
+      $this->t('This should not be translated.'),
+    );
+  }
+
+  // @mago-expect lint:drupal/missing-function-comment
+  public function translatedExceptionPinnedToTheThrowLine(int $code): never {
+    // The issue starts at `throw`, as in Coder, so a phpcs:ignore comment
+    // written for Coder sits above the same line. The pin covers the first
+    // line only, because its range ends at the `{`.
+    // @mago-expect lint:drupal/translated-exception(1)
+    throw match ($code) {
+      1 => new \LogicException($this->t('This should not be translated.')),
+      default => new \RuntimeException('This is fine.'),
+    };
+  }
+
   /**
    * Stands in for StringTranslationTrait::t().
    */
