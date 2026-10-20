@@ -73,7 +73,8 @@ standard, and doesn't run some sniffs at all:
   `LongFullStop` of `Drupal.Commenting.DocComment`, `PSR2.Methods.MethodDeclaration.Underscore`
   and `PSR2.Classes.PropertyDeclaration.Underscore`;
 - it runs `MissingShort` of `Drupal.Commenting.DocComment` and `Missing` of
-  `Drupal.Commenting.FunctionComment` only in some directories;
+  `Drupal.Commenting.FunctionComment` only in some directories, and `Drupal.Files.LineLength`
+  everywhere except in tests directories;
 - it enables only `WrongOpenercase` of `PSR2.ControlStructures.SwitchDeclaration`;
 - it doesn't run `Drupal.NamingConventions.ValidFunctionName`,
   `Drupal.Semantics.ConstantName.ConstConstantStart`, `Drupal.Attributes.ValidHookName`,
@@ -85,8 +86,9 @@ standard, and doesn't run some sniffs at all:
 
 The rules that port those checks run on contrib and custom code. For
 [Drupal core](../setup/configuration.md#checking-drupal-core), `drupal-core.mago.toml` turns them
-off, or they run only in the directories where core runs them. That doesn't change Mago's own
-rules, such as `trait-name`, which `drupal.mago.toml` sets. A project that turns other sub-codes off
+off, or they run only in the directories where core runs them. It also turns off the parts of
+Mago's own rules that match those sniffs, such as the `Trait` suffix check of `trait-name`, which
+`drupal.mago.toml` turns on. A project that turns other sub-codes off
 in its phpcs config can turn off the matching rules under
 [`[linter.rules]`](../setup/configuration.md#turning-rules-off). An `<exclude-pattern>` inside a
 `<rule>` of the phpcs config becomes an `exclude` of the matching rule, such as
@@ -96,7 +98,9 @@ in its phpcs config can turn off the matching rules under
 extensions in its `--extensions` option, `php` and `inc` when none is given. With the usual Coder
 options, it also checks `.test` files, a Drupal 7 format, and `.txt` and `.md` files. When phpcs
 scans a directory, it skips a file whose name starts with a dot, such as `.phpstan-baseline.php`.
-Mago reads it.
+Mago reads it. `drupal.mago.toml` leaves `.ht.router.php`, which every site has, out of the linter,
+but a Mago glob can't match every dot-file without also matching each file of a project that sits
+inside a dot-directory.
 
 ## Comment whitespace and the formatter
 
