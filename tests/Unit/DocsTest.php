@@ -13,7 +13,6 @@ use function array_values;
 use function dirname;
 use function glob;
 use function implode;
-use function in_array;
 use function sort;
 use function strlen;
 use function substr;
@@ -86,10 +85,9 @@ final class DocsTest extends TestCase
                     continue;
                 }
 
-                $skipped = in_array($entry->code, DrupalExtension::SKIPPED_IN_CORE, strict: true);
                 $problems = array_merge($problems, $entry->problems(
                     $rule,
-                    $skipped,
+                    DrupalExtension::SKIPPED_IN_CORE,
                     $pages->map()->ports($entry->code),
                 ));
             }
