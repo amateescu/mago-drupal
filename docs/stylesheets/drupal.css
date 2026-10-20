@@ -22,6 +22,58 @@
 }
 
 /*
+ * The header and the tabs take the primary color. The modern theme draws them
+ * in a translucent shade of the page background.
+ */
+.md-header,
+.md-tabs {
+  color: var(--md-primary-bg-color);
+  background-color: var(--md-primary-fg-color);
+}
+
+.md-tabs__item--active {
+  border-bottom-color: currentcolor;
+}
+
+/*
+ * The logo takes most of the header's 2.4rem height, so the details of the
+ * hat show. The padding around it shrinks by as much as the logo grows, which
+ * keeps the header at the same height.
+ */
+.md-header__button.md-logo {
+  padding: 0.3rem;
+  margin: 0 0.2rem;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.8rem;
+}
+
+/*
+ * The search button in the header is white on a translucent white, instead of
+ * the page's text color on a translucent shade of it.
+ */
+.md-header .md-search__button {
+  color: var(--md-primary-bg-color--light);
+  background-color: #ffffff26;
+}
+
+.md-header .md-search__button:focus,
+.md-header .md-search__button:hover {
+  color: var(--md-primary-bg-color);
+  background-color: #ffffff40;
+}
+
+.md-header .md-search__button::before {
+  background-color: currentcolor;
+}
+
+.md-header .md-search__button::after {
+  background-color: #ffffff26;
+}
+
+/*
  * Tables take the full width of the content area, so a column of long text
  * isn't squeezed next to short ones. The theme sizes a table to its content.
  * The wrapper scrolls a table that is still wider than the page.
