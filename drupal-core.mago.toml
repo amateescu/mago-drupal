@@ -109,10 +109,8 @@ excludes = [
 "drupal/unsilenced-deprecation" = { enabled = false }
 "drupal/untranslated-description" = { enabled = false }
 "drupal/untranslated-options" = { enabled = false }
-# These rules check what no Coder sniff checks.
-"drupal/doc-see-reference" = { enabled = false }
+# This rule checks what no Coder sniff checks.
 "drupal/global-class-backslash" = { enabled = false }
-"drupal/hook-method-comment" = { enabled = false }
 # Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
 # VariableAnalysis sniff.
 "drupal/unused-variable" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }

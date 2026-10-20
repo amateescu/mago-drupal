@@ -29,7 +29,6 @@ use amateescu\MagoDrupal\Linter\Rules\DeprecationMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\DiscouragedFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentArraySyntaxRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentRule;
-use amateescu\MagoDrupal\Linter\Rules\DocSeeReferenceRule;
 use amateescu\MagoDrupal\Linter\Rules\DocSeeTagRule;
 use amateescu\MagoDrupal\Linter\Rules\DocSentenceRule;
 use amateescu\MagoDrupal\Linter\Rules\DocTagDescriptionsRule;
@@ -62,7 +61,6 @@ use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\HookAttributeNameRule;
 use amateescu\MagoDrupal\Linter\Rules\HookCommentRule;
-use amateescu\MagoDrupal\Linter\Rules\HookMethodCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoAutoAddedKeysRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoCoreVersionRequirementRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoDependenciesArrayRule;
@@ -255,7 +253,6 @@ final class DrupalExtension
             new DiscouragedFunctionRule(),
             new DocCommentArraySyntaxRule(),
             new DocCommentRule(),
-            new DocSeeReferenceRule(),
             new DocSeeTagRule(),
             new DocSentenceRule(),
             new DocTagDescriptionsRule(),
@@ -288,7 +285,6 @@ final class DrupalExtension
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
             new HookCommentRule(),
-            new HookMethodCommentRule(),
             new InfoAutoAddedKeysRule(),
             new InfoCoreVersionRequirementRule(),
             new InfoDependenciesArrayRule(),

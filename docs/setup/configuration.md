@@ -78,8 +78,7 @@ the rules whose checks it turns off or doesn't run:
   `untranslated-options`, which all port DrupalPractice sniffs;
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`;
-- `doc-see-reference`, `global-class-backslash` and `hook-method-comment`, whose checks aren't done
-  by any Coder sniff.
+- `global-class-backslash`, whose check isn't done by any Coder sniff.
 
 `unused-variable` and `variable-redeclaration` leave out the `*.api.php` files and the
 transliteration tables, which `phpcs.xml.dist` leaves out of their sniff.

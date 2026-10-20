@@ -7,7 +7,7 @@ namespace Drupal\corpus\Hook;
 use Drupal\Core\Hook\Attribute\Hook;
 
 /**
- * Exercises the hook method comment rule.
+ * Exercises the hook comment rule on hook methods.
  */
 class HookMethodComment {
 
@@ -18,7 +18,7 @@ class HookMethodComment {
   public function cron(): void {
   }
 
-  // @mago-expect lint:drupal/hook-method-comment
+  // @mago-expect lint:drupal/hook-comment
   /**
    * Runs the hourly cleanup.
    */
@@ -26,7 +26,7 @@ class HookMethodComment {
   public function describedCron(): void {
   }
 
-  // @mago-expect lint:drupal/hook-method-comment
+  // @mago-expect lint:drupal/hook-comment
   /**
    * Implements hook_help()
    */
@@ -35,7 +35,7 @@ class HookMethodComment {
     return '';
   }
 
-  // @mago-expect lint:drupal/hook-method-comment
+  // @mago-expect lint:drupal/hook-comment
   /**
    * Implements hook_entity_insert().
    *

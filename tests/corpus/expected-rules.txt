@@ -18,7 +18,6 @@ drupal/deprecation-message
 drupal/discouraged-function
 drupal/doc-comment
 drupal/doc-comment-array-syntax
-drupal/doc-see-reference
 drupal/doc-see-tag
 drupal/doc-sentence
 drupal/doc-tag-descriptions
@@ -51,7 +50,6 @@ drupal/global-function
 drupal/global-variable
 drupal/hook-attribute-name
 drupal/hook-comment
-drupal/hook-method-comment
 drupal/info-auto-added-keys
 drupal/info-core-version-requirement
 drupal/info-dependencies-array
