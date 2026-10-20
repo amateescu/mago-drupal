@@ -31,6 +31,7 @@ use function rmdir;
 use function scandir;
 use function set_error_handler;
 use function str_ends_with;
+use function str_starts_with;
 use function stream_get_contents;
 use function strlen;
 use function substr;
@@ -376,7 +377,12 @@ final class DiskCacheTest extends TestCase
         mkdir($this->directory . '/elsewhere', permissions: 0o700, recursive: true);
         $default = $this->directory . '/mago-drupal-' . (string) posix_geteuid();
 
-        self::assertSame('no posix, cache', self::runWithoutExtensions($this->directory));
+        $output = self::runWithoutExtensions($this->directory);
+        if (str_starts_with($output, 'posix')) {
+            self::markTestSkipped('This PHP has the posix extension built in, so `php -n` keeps it.');
+        }
+
+        self::assertSame('no posix, cache', $output);
         self::assertSame(posix_geteuid(), fileowner($default));
         self::assertCount(1, (array) glob($default . '/hooks-a-*.cache'));
 
