@@ -821,9 +821,7 @@ as in `$a = $b = 1` and `example_save($id = 5)`.
   assignment writes through, and a `foreach ($items as &$item)` value that an `$item = ...`
   assignment writes through;
 - a property, and a static property such as `self::$count`;
-- a `*.tpl.php` file, which Coder's ruleset leaves out;
-- in Drupal core, a `*.api.php` file and the transliteration tables in
-  `core/lib/Drupal/Component/Transliteration/data`, which core's `phpcs.xml.dist` leaves out.
+- a `*.tpl.php` file, which Coder's ruleset leaves out.
 
 Mago's own `no-redundant-variable` reports a value that isn't read later, which is a different
 check. The [configuration](../setup/configuration.md) turns it off.
@@ -902,9 +900,7 @@ A write is an assignment, a `foreach` variable or an element of a list that is a
 - a `catch` variable or a `= &` binding of a name that the scope only wrote, or bound before;
 - `static $x = 1;`, which Coder treats as an assignment, not as a declaration;
 - a name that the scope only read before the declaration;
-- a `*.tpl.php` file, which Coder's ruleset leaves out;
-- in Drupal core, a `*.api.php` file and the transliteration tables in
-  `core/lib/Drupal/Component/Transliteration/data`, which core's `phpcs.xml.dist` leaves out.
+- a `*.tpl.php` file, which Coder's ruleset leaves out.
 
 A rebinding on purpose, such as `$elements = &$form;` over a parameter, needs a
 `// @mago-expect lint:drupal/variable-redeclaration` comment above it. Mago reports a repeated

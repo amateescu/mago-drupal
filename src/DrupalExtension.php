@@ -8,7 +8,6 @@ use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
-use amateescu\MagoDrupal\Internal\SkippedInCoreRule;
 use amateescu\MagoDrupal\Internal\Utf8IssueRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ByteOrderMarkRule;
@@ -30,6 +29,7 @@ use amateescu\MagoDrupal\Linter\Rules\DeprecationMessageRule;
 use amateescu\MagoDrupal\Linter\Rules\DiscouragedFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentArraySyntaxRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\DocSeeReferenceRule;
 use amateescu\MagoDrupal\Linter\Rules\DocSeeTagRule;
 use amateescu\MagoDrupal\Linter\Rules\DocSentenceRule;
 use amateescu\MagoDrupal\Linter\Rules\DocTagDescriptionsRule;
@@ -62,6 +62,7 @@ use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\HookAttributeNameRule;
 use amateescu\MagoDrupal\Linter\Rules\HookCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\HookMethodCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoAutoAddedKeysRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoCoreVersionRequirementRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoDependenciesArrayRule;
@@ -129,7 +130,6 @@ use Mago\Sdk\Extension;
 use Mago\Sdk\Linter\Rule;
 
 use function array_filter;
-use function in_array;
 use function is_string;
 use function preg_match;
 use function str_starts_with;
@@ -149,43 +149,6 @@ final class DrupalExtension
     private const PACKAGE = 'amateescu/mago-drupal';
 
     private function __construct() {}
-
-    /**
-     * The rules whose checks core's `phpcs.xml.dist` turns off or does not
-     * run. They don't report in the files of Drupal core itself.
-     *
-     * @internal
-     */
-    public const SKIPPED_IN_CORE = [
-        'drupal/author-tag',
-        'drupal/case-fall-through',
-        'drupal/class-prefix',
-        'drupal/const-prefix',
-        'drupal/curl-ssl-verify',
-        'drupal/escaped-placeholder',
-        'drupal/form-alter-comment',
-        'drupal/function-name',
-        'drupal/function-prefix',
-        'drupal/global-class-backslash',
-        'drupal/global-constant',
-        'drupal/hook-attribute-name',
-        'drupal/info-core-version-requirement',
-        'drupal/info-dependencies-array',
-        'drupal/info-description',
-        'drupal/inline-comment-blank-line',
-        'drupal/inline-comment-punctuation',
-        'drupal/insecure-unserialize',
-        'drupal/long-description-punctuation',
-        'drupal/method-name',
-        'drupal/method-name-underscore',
-        'drupal/request-superglobal',
-        'drupal/routing-access',
-        'drupal/short-list',
-        'drupal/strict-config-schema',
-        'drupal/unsilenced-deprecation',
-        'drupal/untranslated-description',
-        'drupal/untranslated-options',
-    ];
 
     /**
      * Builds the extension from the worker's arguments: `--root=PATH` for the
@@ -230,8 +193,7 @@ final class DrupalExtension
     {
         $rules = [];
         foreach (self::linterRules() as $rule) {
-            $skipped = in_array($rule->getDefinition()->code, self::SKIPPED_IN_CORE, strict: true);
-            $rules[] = new Utf8IssueRule($skipped ? new SkippedInCoreRule($rule) : $rule);
+            $rules[] = new Utf8IssueRule($rule);
         }
 
         return new Extension(
@@ -293,6 +255,7 @@ final class DrupalExtension
             new DiscouragedFunctionRule(),
             new DocCommentArraySyntaxRule(),
             new DocCommentRule(),
+            new DocSeeReferenceRule(),
             new DocSeeTagRule(),
             new DocSentenceRule(),
             new DocTagDescriptionsRule(),
@@ -325,6 +288,7 @@ final class DrupalExtension
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
             new HookCommentRule(),
+            new HookMethodCommentRule(),
             new InfoAutoAddedKeysRule(),
             new InfoCoreVersionRequirementRule(),
             new InfoDependenciesArrayRule(),

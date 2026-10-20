@@ -513,7 +513,7 @@ of that name, as `non-existent-method`. That is the other code of the sniff, `Ol
 - a property of a config entity or a plugin annotation, which may use any case: a class whose
   parent name contains `ConfigEntity` or is `Plugin` or `ViewsPluginAnnotationBase`, and a class
   that implements `AnnotationInterface`. A name that starts with an underscore is still reported in
-  these classes, except in Drupal core, since core's `phpcs.xml.dist` turns that check off.
+  these classes.
 
 The names are compared as written, so `\Drupal\Core\Config\Entity\ConfigEntityBase` counts, while
 an alias of `Plugin` or `\Drupal\Component\Annotation\Plugin` doesn't. Only the first parent of an

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\FunctionScopes;
 use amateescu\MagoDrupal\Internal\VariableScopes;
 use Mago\Sdk\Linter\LintContext;
@@ -42,14 +41,8 @@ final class VariableRedeclarationRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $path = $context->file->path;
-
         // Coder's ruleset skips templates.
-        if (
-            $context->node->kind !== NodeKind::Program
-            || str_ends_with($path, '.tpl.php')
-            || !UnusedVariableRule::checkedOnCore($path) && CoreFiles::contains($path)
-        ) {
+        if ($context->node->kind !== NodeKind::Program || str_ends_with($context->file->path, '.tpl.php')) {
             return;
         }
 

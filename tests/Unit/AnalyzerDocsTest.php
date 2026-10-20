@@ -36,7 +36,7 @@ final class AnalyzerDocsTest extends TestCase
         $problems = [];
         foreach (self::pages()->pages() as $page) {
             foreach ($page['entries'] as $entry) {
-                $problems = array_merge($problems, $entry->problems());
+                $problems = array_merge($problems, $entry->problems(CorePreset::ignoredChecks()));
             }
         }
 

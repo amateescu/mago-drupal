@@ -218,13 +218,10 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(
             new ListBuilderOperationsProvider($this->indexes->coreVersion(...)),
         );
-        // Core keeps the parameter commented out in its own list builders, so
-        // the check leaves core's files out.
         $registry->registerClassLikeAnalysisHook(
             new DescendantMetadataHook(
                 ListBuilderCacheabilityCheck::ANCESTORS,
                 new ListBuilderCacheabilityCheck($this->indexes->coreVersion(...)),
-                outsideCore: true,
             ),
         );
 
@@ -347,8 +344,7 @@ final class DrupalPlugin implements Plugin
     /**
      * The internal classes are read off the disk at registration, since the
      * host wants the ancestors before the first request; a workspace without
-     * any doesn't need the hook at all. Core's own phpstan configuration
-     * ignores the rule, so the hooks leave core's files out.
+     * any doesn't need the hook at all.
      */
     private function registerInternalParentHook(PluginRegistry $registry): void
     {

@@ -246,6 +246,34 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 ---
 
+## drupal/doc-see-reference
+
+- **Level:** error
+- **Fix:** safe. It removes the punctuation after a one-word reference.
+- **Standard:** [@see](https://project.pages.drupalcode.org/coding_standards/php/documentation/#see-see-also-references)
+- **Ports:** none. Coder reads only the `@see` tags of functions, methods and properties.
+- **Off in Drupal core**
+
+> Each `@see` reference is on its own line, with no additional text beyond the item being
+> referenced.
+
+**Reports:**
+
+- a `@see` reference with other text after it, or with punctuation at its end, in a docblock outside
+  a function body that isn't a function's or a method's, such as a class's, a property's or a
+  file's.
+
+The standard asks this of every `@see` tag, and [`drupal/doc-see-tag`](#drupaldoc-see-tag) checks
+the references of functions and methods. The reference is read from the tag's own line, as in that
+rule.
+
+**Not reported:**
+
+- the references in a docblock whose first tag, or the tag after a leading `@file`, is
+  `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`.
+
+---
+
 ## drupal/doc-see-tag
 
 - **Level:** error
@@ -262,22 +290,18 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 - a `@see` tag with no reference on its line, in the docblock of a function, a method or a
   property;
-- a `@see` reference with other text after it, or with punctuation at its end, in any docblock
-  outside a function body. The standard asks this of every `@see` tag, and Coder reads only those
-  of functions and methods.
+- a `@see` reference with other text after it, or with punctuation at its end, in the docblock of
+  a function or a method.
 
 The reference is read from the tag's own line. The lines below it are a description, which may end
 in a period. The fix is left out for a `@see` after `@deprecated`, whose change-record url is
 fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
+[`drupal/doc-see-reference`](#drupaldoc-see-reference) checks the references in the other
+docblocks.
 
 **Not reported:**
 
-- the references in a docblock whose first tag, or the tag after a leading `@file`, is
-  `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`, unless it is a function's or a
-  method's;
-- a `@see` tag with no reference in a property docblock with `{@inheritdoc}`;
-- in Drupal core, the references in a docblock that isn't a function's or a method's, as in core's
-  phpcs.
+- a `@see` tag with no reference in a property docblock with `{@inheritdoc}`.
 
 ---
 
@@ -848,12 +872,7 @@ The rule reads functions declared at the top level of a file, and only a docbloc
 - a function in a block, in `namespace X { }` or in another function;
 - a docblock that has a comment, an attribute or a `?>` between it and the `function` keyword.
 
-The rule also reads a method with a `#[Hook]` attribute, which is skipped by Coder, and applies the
-same summary, `@param` and `@return` checks as for a function. The standard predates OOP hooks and
-doesn't mention methods. Core writes the `Implements hook_foo().` summary on nearly all of its
-`#[Hook]` methods, and the change records for OOP hooks show it too, so the rule asks for it. A
-method's docblock may sit above or below its attributes. In Drupal core the rule leaves methods out,
-as core's phpcs does.
+[`drupal/hook-method-comment`](#drupalhook-method-comment) checks `#[Hook]` methods.
 
 The fix replaces a description that repeats the function name, as in `Implements my_mod_help().`,
 with `Implements hook_help().`. For a hook with a placeholder it writes the function's own words,
@@ -891,6 +910,67 @@ the function name starts with the file's machine name and an underscore.
       `hook_mod_help` for `my_mod_help` in `my_mod.module`, where the rule writes `hook_help`.
     - Coder reports a description that repeats the function name as an error. The rule reports it
       at warning level.
+
+---
+
+## drupal/hook-method-comment
+
+- **Level:** warning
+- **Fix:** none
+- **Standard:** [Hook implementation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#hook-implementation)
+- **Ports:** none. Coder doesn't read methods.
+- **Off in Drupal core**
+
+**Reports:**
+
+- a method with a `#[Hook]` attribute that isn't documented as `Implements hook_foo().`;
+- a `#[Hook]` method with `@param` or `@return` documentation, which repeats the hook's.
+
+The checks are the ones that [`drupal/hook-comment`](#drupalhook-comment) applies to a function.
+The standard predates OOP hooks and doesn't mention methods. Core writes the
+`Implements hook_foo().` summary on nearly all of its `#[Hook]` methods, and the change records for
+OOP hooks show it too, so the rule asks for it. A method's docblock may sit above or below its
+attributes.
+
+**Not reported:**
+
+- a method without a docblock, or with a docblock that starts with a tag.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    namespace Drupal\example\Hook;
+
+    use Drupal\Core\Hook\Attribute\Hook;
+
+    class ExampleHooks {
+
+      /**
+       * Provides help for the module.
+       */
+      #[Hook('help')]
+      public function help($route_name) {
+      }
+
+    }
+
+    // Fine.
+    namespace Drupal\example\Hook;
+
+    use Drupal\Core\Hook\Attribute\Hook;
+
+    class ExampleHooks {
+
+      /**
+       * Implements hook_help().
+       */
+      #[Hook('help')]
+      public function help($route_name) {
+      }
+
+    }
+    ```
 
 ---
 

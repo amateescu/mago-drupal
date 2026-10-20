@@ -11,11 +11,11 @@ use function is_file;
 /**
  * Recognises the files of Drupal core itself.
  *
- * Core's `phpcs.xml.dist` turns off some of Drupal's checks and runs others in
- * some directories only, and some analyzer checks are about contrib and custom
- * code. A file is core's when one of its directories is named `core` and holds
- * `lib/Drupal.php`. One run then checks a site's modules by Drupal's standard
- * and its `core/` by core's.
+ * Core's `phpcs.xml.dist` runs two checks in some directories only. A rule's
+ * `exclude` setting can't say that, so the two rules check the path
+ * themselves. Core also looks up only its own services, so every service id is
+ * checked in its files. A file is core's when one of its directories is named
+ * `core` and holds `lib/Drupal.php`.
  *
  * @internal
  */

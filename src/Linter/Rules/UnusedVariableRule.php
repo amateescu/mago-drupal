@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\FunctionScopes;
 use amateescu\MagoDrupal\Internal\ScopeVariable;
 use amateescu\MagoDrupal\Internal\VariableScopes;
@@ -15,7 +14,6 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
-use function preg_match;
 use function sprintf;
 use function str_ends_with;
 
@@ -28,12 +26,6 @@ use function str_ends_with;
  */
 final class UnusedVariableRule implements Rule
 {
-    /**
-     * The files that core's `phpcs.xml.dist` leaves out of the check: the
-     * hook documentation and the transliteration tables.
-     */
-    private const CORE_SKIPPED = '#(?:\.api\.php|(?:^|/)core/lib/Drupal/Component/Transliteration/data/[^/]*\.php)$#';
-
     /**
      * The message for each kind of variable.
      */
@@ -71,14 +63,8 @@ final class UnusedVariableRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        $path = $context->file->path;
-
         // Coder's ruleset skips templates.
-        if (
-            $context->node->kind !== NodeKind::Program
-            || str_ends_with($path, '.tpl.php')
-            || !self::checkedOnCore($path) && CoreFiles::contains($path)
-        ) {
+        if ($context->node->kind !== NodeKind::Program || str_ends_with($context->file->path, '.tpl.php')) {
             return;
         }
 
@@ -92,14 +78,5 @@ final class UnusedVariableRule implements Rule
                 }
             }
         }
-    }
-
-    /**
-     * Whether core's `phpcs.xml.dist` checks the file at $path for unused
-     * variables.
-     */
-    public static function checkedOnCore(string $path): bool
-    {
-        return preg_match(self::CORE_SKIPPED, $path) !== 1;
     }
 }

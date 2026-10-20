@@ -87,7 +87,7 @@ final class DocsTest extends TestCase
 
                 $problems = array_merge($problems, $entry->problems(
                     $rule,
-                    DrupalExtension::SKIPPED_IN_CORE,
+                    CorePreset::rulesTurnedOff(),
                     $pages->map()->ports($entry->code),
                 ));
             }

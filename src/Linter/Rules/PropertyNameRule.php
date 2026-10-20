@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\Nodes;
 use amateescu\MagoDrupal\Internal\TopLevel;
 use Mago\Sdk\Linter\LintContext;
@@ -91,11 +90,9 @@ final class PropertyNameRule implements Rule
                 }
 
                 // PSR2.Classes.PropertyDeclaration.Underscore doesn't exempt
-                // any classes, so a leading underscore is still reported there,
-                // except in core's own files, since core's phpcs.xml.dist turns
-                // that sniff off.
+                // any classes, so a leading underscore is still reported there.
                 $exempt ??= $this->allowsAnyCase($file, $property);
-                if ($exempt && (!str_starts_with($name, '_') || CoreFiles::contains($file->path))) {
+                if ($exempt && !str_starts_with($name, '_')) {
                     continue;
                 }
 

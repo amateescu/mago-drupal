@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Internal\Arguments;
-use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -79,10 +78,7 @@ final class UntranslatedMessageHook implements MethodCallAnalysisHook
 
     public function analyze(NodeAnalysisContext $context): void
     {
-        if (
-            TestFiles::isTestOrHookDocumentation($context->analysis->file)
-            || CoreFiles::contains($context->analysis->file)
-        ) {
+        if (TestFiles::isTestOrHookDocumentation($context->analysis->file)) {
             return;
         }
 

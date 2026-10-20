@@ -7,7 +7,6 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 use amateescu\MagoDrupal\Analyzer\Checks\MetadataCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
@@ -32,12 +31,10 @@ final class DescendantMetadataHook implements ClassLikeAnalysisHook
 {
     /**
      * @param non-empty-list<non-empty-string> $ancestors
-     * @param bool $outsideCore Leaves the files of Drupal core itself out.
      */
     public function __construct(
         private readonly array $ancestors,
         private readonly MetadataCheck $check,
-        private readonly bool $outsideCore = false,
     ) {}
 
     public function getTargets(): array
@@ -59,10 +56,7 @@ final class DescendantMetadataHook implements ClassLikeAnalysisHook
     {
         // An interface extending the ancestor is a descendant too, but the
         // checks are about implementations.
-        if (
-            $context->node->kind !== NodeKind::Class_
-            || $this->outsideCore && CoreFiles::contains($context->source->path)
-        ) {
+        if ($context->node->kind !== NodeKind::Class_) {
             return;
         }
 

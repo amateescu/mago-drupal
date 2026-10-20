@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\corpus;
 
-// @mago-expect lint:drupal/doc-see-tag
+// @mago-expect lint:drupal/doc-see-reference
 /**
- * Coder reads the @see tags of function docblocks only.
+ * Coder reads the @see tags of function and property docblocks only.
  *
  * @see \Drupal\corpus\SeeReferences::limit().
  */
 final class SeeReferences {
 
-  // @mago-expect lint:drupal/doc-see-tag
+  // @mago-expect lint:drupal/doc-see-reference
   /**
    * The default limit.
    *

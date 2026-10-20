@@ -68,7 +68,7 @@ final class RegistrationTest extends TestCase
      * The classes the walk records and looks into: the analyzer and linter
      * classes, and the wrappers that the extension puts around each rule.
      */
-    private const WALKED = '/^amateescu\\\\MagoDrupal\\\\(?:Analyzer\\\\|Linter\\\\|Internal\\\\(?:Utf8IssueRule|SkippedInCoreRule)$)/';
+    private const WALKED = '/^amateescu\\\\MagoDrupal\\\\(?:Analyzer\\\\|Linter\\\\|Internal\\\\Utf8IssueRule$)/';
 
     private string|false $cache = false;
 

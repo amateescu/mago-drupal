@@ -60,16 +60,13 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
 - The files that phpcs doesn't check, left out of the formatter and the linter: the paths excluded
   by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile` or
   `// @codingStandardsIgnoreFile`, which Mago doesn't read.
+- The rules and the analyzer checks that core doesn't run, turned off, see
+  [Checking Drupal core](#checking-drupal-core).
 
 ## Checking Drupal core
 
-Core's own `phpcs.xml.dist` asks for less than Drupal's standard, and the extension follows it in
-the files of Drupal core itself. A file is core's when one of its directories is named `core` and
-holds `lib/Drupal.php`. The other files of the same run, such as a site's modules, get Drupal's
-standard.
-
-In core's files, these rules don't report, since core's `phpcs.xml.dist` turns their checks off or
-doesn't run them:
+Core's own `phpcs.xml.dist` asks for less than Drupal's standard. `drupal-core.mago.toml` turns off
+the rules whose checks it turns off or doesn't run:
 
 - `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
   `method-name`, `method-name-underscore` and `short-list`;
@@ -81,19 +78,36 @@ doesn't run them:
   `untranslated-options`, which all port DrupalPractice sniffs;
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
   `info-dependencies-array`, `info-description` and `routing-access`;
-- `global-class-backslash`, whose check isn't done by any Coder sniff.
+- `doc-see-reference`, `global-class-backslash` and `hook-method-comment`, whose checks aren't done
+  by any Coder sniff.
 
-`missing-summary` and `missing-function-comment` run only in the directories where core's
-`phpcs.xml.dist` runs them, and `unused-variable` stays out of the `*.api.php` files and the
-transliteration tables, which that file leaves out. `property-name` leaves out its leading
-underscore check in the classes whose properties may use any case.
+`unused-variable` and `variable-redeclaration` leave out the `*.api.php` files and the
+transliteration tables, which `phpcs.xml.dist` leaves out of their sniff.
 
-Five analyzer checks don't apply to core and leave its files out:
+The file also ignores five analyzer checks that are about modules that use core's API:
 [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),
 [`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load),
 [`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message),
 [`drupal/internal-class-extension`](../analyzer/hooks.md#drupalinternal-class-extension) and
 [`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability).
+
+A rule that the file turns off can be turned back on in the checkout's `mago.toml`:
+
+```toml
+extends = "vendor/amateescu/mago-drupal/drupal-core.mago.toml"
+php-version = "8.3"
+
+[linter.rules]
+"drupal/inline-comment-punctuation" = { enabled = true }
+```
+
+An analyzer check stays ignored, since Mago adds the `ignore` list of `mago.toml` to the one of the
+file that it extends.
+
+Two rules follow core's directories by themselves, since a rule's `exclude` setting can't name the
+only directories to check. In the files of Drupal core itself, `missing-summary` and
+`missing-function-comment` run only in the directories where core's `phpcs.xml.dist` runs them. A
+file is core's when one of its directories is named `core` and holds `lib/Drupal.php`.
 [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) checks every service id in
 core's files, since core looks up only its own services.
 

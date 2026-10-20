@@ -174,6 +174,7 @@ They don't check the types in a docblock against the real signature, which is do
 | [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Checks the comment style above a class, interface, trait or enum, the blank line below its docblock, and a summary that repeats the name. |
 | [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Checks the wording of a @deprecated docblock tag and the @see tag that must follow it. |
 | [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Checks a docblock's opener, closer, blank lines and spaces, and @inheritdoc without braces. |
+| [`drupal/doc-see-reference`](docblock-structure.md#drupaldoc-see-reference) | error | Reports a @see reference with text or punctuation after it, in a docblock that is not a function's. |
 | [`drupal/doc-see-tag`](docblock-structure.md#drupaldoc-see-tag) | error | Reports a @see tag with no reference, or with text or punctuation after the reference. |
 | [`drupal/doc-sentence`](docblock-structure.md#drupaldoc-sentence) | error | Checks the first letter and the end of a docblock summary and of its @param and @throws descriptions, the first letter of the long description, and a summary on one line. |
 | [`drupal/doc-tag-descriptions`](docblock-structure.md#drupaldoc-tag-descriptions) | error | Reports a @param or @return with no description, a @param that repeats one or is out of order, and a method parameter with no @param when others have one. |
@@ -184,6 +185,7 @@ They don't check the types in a docblock against the real signature, which is do
 | [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file doesn't start with a comment. |
 | [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Checks the comment style above a function or method, and that its docblock isn't followed by a blank line. |
 | [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Checks the "Implements hook_x()." docblock convention on a hook implementation. |
+| [`drupal/hook-method-comment`](docblock-structure.md#drupalhook-method-comment) | warning | Checks the "Implements hook_x()." docblock convention on a #[Hook] method. |
 | [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |
 | [`drupal/missing-class-comment`](docblock-structure.md#drupalmissing-class-comment) | error | Reports a class, interface, trait or enum with no docblock. |
 | [`drupal/missing-file-comment`](docblock-structure.md#drupalmissing-file-comment) | error | Reports a PHP file that isn't a class file and doesn't have a comment at its start. |

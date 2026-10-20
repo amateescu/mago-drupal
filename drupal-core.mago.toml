@@ -4,8 +4,9 @@
 #     extends = "vendor/amateescu/mago-drupal/drupal-core.mago.toml"
 #     php-version = "8.3"
 #
-# It adds what core's phpcs.xml.dist checks to drupal.mago.toml. The extension follows core's
-# phpcs.xml.dist in core's own files by itself.
+# It changes drupal.mago.toml to check what core's phpcs.xml.dist checks. Each rule and check that
+# it turns off can be turned back on in the checkout's mago.toml, as in
+# "drupal/short-list" = { enabled = true } under [linter.rules].
 
 extends = "drupal.mago.toml"
 
@@ -77,4 +78,54 @@ excludes = [
     "core/tests/PHPStan/fixtures/",
     "core/tests/fixtures/empty_file.php.module",
     "core/tests/fixtures/files/",
+]
+
+[linter.rules]
+# Core's phpcs.xml.dist turns off the checks that these rules port, or doesn't run their sniffs.
+"drupal/author-tag" = { enabled = false }
+"drupal/case-fall-through" = { enabled = false }
+"drupal/class-prefix" = { enabled = false }
+"drupal/const-prefix" = { enabled = false }
+"drupal/curl-ssl-verify" = { enabled = false }
+"drupal/escaped-placeholder" = { enabled = false }
+"drupal/form-alter-comment" = { enabled = false }
+"drupal/function-name" = { enabled = false }
+"drupal/function-prefix" = { enabled = false }
+"drupal/global-constant" = { enabled = false }
+"drupal/hook-attribute-name" = { enabled = false }
+"drupal/info-core-version-requirement" = { enabled = false }
+"drupal/info-dependencies-array" = { enabled = false }
+"drupal/info-description" = { enabled = false }
+"drupal/inline-comment-blank-line" = { enabled = false }
+"drupal/inline-comment-punctuation" = { enabled = false }
+"drupal/insecure-unserialize" = { enabled = false }
+"drupal/long-description-punctuation" = { enabled = false }
+"drupal/method-name" = { enabled = false }
+"drupal/method-name-underscore" = { enabled = false }
+"drupal/request-superglobal" = { enabled = false }
+"drupal/routing-access" = { enabled = false }
+"drupal/short-list" = { enabled = false }
+"drupal/strict-config-schema" = { enabled = false }
+"drupal/unsilenced-deprecation" = { enabled = false }
+"drupal/untranslated-description" = { enabled = false }
+"drupal/untranslated-options" = { enabled = false }
+# These rules check what no Coder sniff checks.
+"drupal/doc-see-reference" = { enabled = false }
+"drupal/global-class-backslash" = { enabled = false }
+"drupal/hook-method-comment" = { enabled = false }
+# Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
+# VariableAnalysis sniff.
+"drupal/unused-variable" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
+"drupal/variable-redeclaration" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
+
+[analyzer]
+# These checks are about modules that use core's API. Core's own phpstan.neon.dist ignores
+# internal-class-extension, and core keeps the cacheability parameter commented out in its own list
+# builders.
+ignore = [
+    "drupal/global-drupal-call",
+    "drupal/internal-class-extension",
+    "drupal/list-builder-cacheability",
+    "drupal/static-entity-load",
+    "drupal/untranslated-message",
 ]
