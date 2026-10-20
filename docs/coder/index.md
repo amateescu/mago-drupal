@@ -9,6 +9,7 @@ phpcs report or a `phpcs:ignore` comment. phpcs names a check `Standard.Category
 - [Sniffs from other standards](other-standards.md): the sniffs taken by the `Drupal` standard from
   PHP_CodeSniffer and the Slevomat Coding Standard.
 - [DrupalPractice standard](drupal-practice.md).
+- [phpcs ignores](phpcs-ignores.md): reading `phpcs:ignore` and the other suppression comments.
 
 The **Handled by** column names one or more of:
 
@@ -60,11 +61,14 @@ vendor/bin/phpcs --standard=Drupal --sniffs=Drupal.Files.TxtFileLineLength --ext
 
 ## Differences that apply to every rule
 
-**Suppression comments.** A phpcs suppression comment (`phpcs:ignore`, `phpcs:disable`,
-`phpcs:ignoreFile`) doesn't suppress a Mago issue. A codebase that uses those comments must convert
-them to `// @mago-expect lint:<code>` or to a Mago exclude. In core, `phpcs:ignoreFile` marks the
-copied Doctrine annotation classes, test fixtures, the generated `ProxyClass` files and a few other
-files. PHP_CodeSniffer 4, which Coder 9 runs on, no longer reads `@codingStandardsIgnoreFile`.
+**Suppression comments.** With the `--phpcs-ignores` worker argument, a phpcs suppression comment
+(`phpcs:ignore`, `phpcs:disable`, `phpcs:ignoreFile` and the older `@codingStandards` forms) drops
+the issues of the rules and checks that port the codes it ignores. See
+[phpcs ignores](phpcs-ignores.md). It's off by default, and `drupal-core.mago.toml` turns it on.
+The comments don't reach Mago's own rules, so a line that phpcs ignores for one of those needs a
+`// @mago-expect lint:<code>` or a Mago exclude. In core, `phpcs:ignoreFile` marks the copied
+Doctrine annotation classes, test fixtures, the generated `ProxyClass` files and a few other files,
+and `drupal-core.mago.toml` leaves them out of the linter.
 
 **Core's configuration.** Core's `phpcs.xml.dist` turns off some checks enabled by the Drupal
 standard, and doesn't run some sniffs at all:

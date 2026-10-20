@@ -16,7 +16,8 @@ phpstan-drupal in a Drupal project.
   and formats the code, and `mago lint --fix` applies only the fixes. See [Fixes](setup/fixes.md).
 - **A map from Coder** lists every check of Coder's two standards and what takes its place. Search
   it for the code from a phpcs report or a `phpcs:ignore` comment. See
-  [Coming from Coder](coder/index.md).
+  [Coming from Coder](coder/index.md). The extension can also read the `phpcs:ignore` comments
+  themselves, see [phpcs ignores](coder/phpcs-ignores.md).
 - **A map from PHPStan** lists every rule and extension of phpstan-drupal and what takes its place,
   and how a `phpstan.neon` moves to Mago. See [Coming from PHPStan](phpstan/index.md).
 

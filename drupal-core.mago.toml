@@ -25,6 +25,12 @@ excludes = [
     "vendor/squizlabs/php_codesniffer/",
 ]
 
+[extension-hosts.drupal]
+# Core's phpcs and PHPStan runs rely on its phpcs:ignore and @phpstan-ignore comments, so the
+# worker reads them for the extension's rules. This replaces the command of drupal.mago.toml as a
+# whole.
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--phpcs-ignores", "--phpstan-ignores"]
+
 [formatter]
 # The files that phpcs doesn't check. The analyzer still reads them, since core uses their classes.
 excludes = [

@@ -62,10 +62,13 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
   `vendor/` read for its symbols.
 - The files that phpcs doesn't check, left out of the formatter and the linter: the paths excluded
   by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile` or
-  `// @codingStandardsIgnoreFile`, which Mago doesn't read.
+  `// @codingStandardsIgnoreFile`, which Mago's own rules don't read.
 - The classes that core's `phpstan.neon.dist` leaves out because they're broken on purpose, left
   out of the analyzer. The one that Mago reports a `semantics` error for is left out of the linter
   too, since that error doesn't have a rule to turn off.
+- The worker with `--phpcs-ignores` and `--phpstan-ignores`, so that core's phpcs and PHPStan
+  comments drop the issues of the extension's rules, see
+  [phpcs and PHPStan comments](worker-arguments.md#phpcs-and-phpstan-comments).
 - The rules and the analyzer checks that core doesn't run, turned off, see
   [Checking Drupal core](#checking-drupal-core).
 

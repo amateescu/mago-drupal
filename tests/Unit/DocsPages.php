@@ -42,6 +42,8 @@ final class DocsPages
         CheckPages::INDEX,
         'phpstan/phpstan-drupal.md',
         'phpstan/identifiers.md',
+        'coder/phpcs-ignores.md',
+        'analyzer/phpstan-ignores.md',
     ];
 
     private const REGION = '/(<!-- docs-gen:([a-z0-9-]+) -->\n).*?(<!-- \/docs-gen -->)/s';
@@ -156,6 +158,8 @@ final class DocsPages
             'phpstan-drupal-rules' => $phpstan->rules(),
             'phpstan-drupal-extensions' => $phpstan->extensions(),
             'phpstan-identifiers' => $phpstan->identifiers(),
+            'phpcs-other-names' => (new IgnorePages($pages))->phpcsOtherNames(),
+            'phpstan-rule-identifiers' => (new IgnorePages($pages))->phpstanRuleIdentifiers(),
             default => throw new RuntimeException("No generated part is named {$name}."),
         };
     }

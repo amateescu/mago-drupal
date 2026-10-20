@@ -47,7 +47,9 @@ phpstan-deprecation-rules.
 
 - phpstan-drupal's identifiers, which aren't in the list;
 - the `drupal/` and `phpunit/` checks. They report after Mago runs the plugin, so a comment never
-  drops one of them.
+  drops one of them;
+- the issues of linter rules. See [Linter rules](#linter-rules) for the ones that port a PHPStan
+  check.
 
 An issue counts as being on the covered line when it starts there. Unreachable code is the one
 exception. PHPStan reports the first unreachable statement of a block, and Mago reports every one of
@@ -65,3 +67,30 @@ $this->assertSame('x', $result);   // none here either
 
 Mago matches `@mago-expect` pragmas before the plugin runs. So a pragma next to a `@phpstan-ignore`
 for the same issue still counts as used: it can be removed, but Mago doesn't point it out.
+
+## Linter rules
+
+Some linter rules port a PHPStan check, such as phpstan-drupal's `RenderCallbackRule`. The plugin
+runs in the analyzer, so it can't drop their issues. With the `--phpstan-ignores` worker argument,
+these rules read `@phpstan-ignore` comments themselves. It's off by default, as the plugin is, and
+`drupal-core.mago.toml` turns it on. See [Worker arguments](../setup/worker-arguments.md).
+
+The comments cover the same lines as for the plugin. `@phpstan-ignore-line` and
+`@phpstan-ignore-next-line` drop the issues of these rules, and an identifier drops the issues of
+the rule listed with it:
+
+<!-- docs-gen:phpstan-rule-identifiers -->
+
+- [`drupal/discouraged-function`](../rules/phpstan-drupal.md#drupaldiscouraged-function): `discouragedFunctions.discouragedFunctionCalled`
+- [`drupal/render-callback`](../rules/phpstan-drupal.md#drupalrender-callback): `renderCallback.expectsArrayOfCallbacks`, `renderCallback.expectsCallableArrayWithArguments`, `renderCallback.nonTrustedCallback`
+- [`drupal/symfony-yaml-parse`](../rules/phpstan-drupal.md#drupalsymfony-yaml-parse): `drupal.symfonyYamlParse`
+- [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix): `nonAbstractTestClass.NameNoSuffixTest`
+- [`drupal/todo-current-issue`](../rules/phpstan-drupal.md#drupaltodo-current-issue): `drupal.todoCurrentIssue`
+- [`drupal/weak-hash`](../rules/bugs-and-security.md#drupalweak-hash): `disallowed.function`
+
+<!-- /docs-gen -->
+
+`drupal/weak-hash` ports the disallowed calls of core's `phpstan.neon.dist`, which
+phpstan-disallowed-calls reports as `disallowed.function`. The other rules don't read
+`@phpstan-ignore` comments. Unlike for the plugin, the issue is dropped before Mago sees it, so a
+`@mago-expect` for it is reported as unused.

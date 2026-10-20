@@ -52,6 +52,7 @@ nav = [
       { "Drupal standard" = "coder/drupal.md" },
       { "Sniffs from other standards" = "coder/other-standards.md" },
       { "DrupalPractice standard" = "coder/drupal-practice.md" },
+      { "phpcs ignores" = "coder/phpcs-ignores.md" },
     ] },
     { "From PHPStan" = [
       { "Overview" = "phpstan/index.md" },
