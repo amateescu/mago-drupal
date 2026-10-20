@@ -89,8 +89,14 @@ final class VariableCommentRule implements Rule
         }
 
         if ($varTags === []) {
-            if (!$this->hasNativeType($context)) {
-                $context->report(Issue::new('The property docblock doesn\'t have a @var tag.', $context->node->span));
+            // Coder reports a missing tag on the `*/` of the docblock, which
+            // is the line that a phpcs comment in the docblock covers.
+            $docblock = DeclarationComment::of($context)->docblock();
+            if ($docblock !== null && !$this->hasNativeType($context)) {
+                $context->report(Issue::new(
+                    'The property docblock doesn\'t have a @var tag.',
+                    new Span($docblock->end - 2, $docblock->end),
+                ));
             }
 
             return;

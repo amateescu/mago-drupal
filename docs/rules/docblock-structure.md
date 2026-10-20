@@ -1121,6 +1121,9 @@ still want it.
 - the property name repeated after the `@var` type on the tag's line, also after a type with
   spaces such as `array<string, int>`.
 
+A missing `@var` tag is reported on the `*/` of the docblock, where Coder reports it, so a
+`phpcs:ignore` on the docblock's last line covers it.
+
 The fix removes a property name repeated after the `@var` type. In a `@var` tag that starts with a
 variable name, a fix writes the type first when a whole type follows the name. It drops the
 property's own name, and moves any other name after the type.
