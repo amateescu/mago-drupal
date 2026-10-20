@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use function in_array;
+use function is_array;
 use function substr;
 
 /**
@@ -31,7 +32,7 @@ final class UnreachableIgnores
         foreach ($ignores->lines() as [, $end, $identifiers]) {
             // A line form ignores everything on its line, reachable or not,
             // so only the identifier says where a dead run starts.
-            $unreachable = $identifiers !== true && in_array(self::IDENTIFIER, $identifiers, strict: true);
+            $unreachable = is_array($identifiers) && in_array(self::IDENTIFIER, $identifiers, strict: true);
             if ($unreachable && $end < $offset && PhpTokens::staysInBlock(substr($contents, $end, $offset - $end))) {
                 return true;
             }

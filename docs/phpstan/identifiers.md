@@ -52,6 +52,7 @@ ones matched by the plugin. The identifiers of phpstan-drupal are on the
 - `missingType.return`: `missing-return-type`
 - `new.deprecated`: `deprecated-class`, `deprecated-trait`
 - `new.deprecatedClass`: `deprecated-class`, `deprecated-trait`
+- `nullsafe.neverNull`: `redundant-nullsafe-operator`
 - `offsetAccess.invalidOffset`: `invalid-array-index`, `mismatched-array-index`, `mixed-array-index`
 - `offsetAccess.nonOffsetAccessible`: `false-array-access`, `invalid-array-access`, `mixed-array-access`, `null-array-access`, `possibly-false-array-access`, `possibly-invalid-array-access`, `possibly-null-array-access`
 - `offsetAccess.notFound`: `possibly-undefined-array-index`, `possibly-undefined-int-array-index`, `possibly-undefined-string-array-index`, `undefined-int-array-index`, `undefined-string-array-index`

@@ -128,19 +128,13 @@ use InvalidArgumentException;
 use Mago\Sdk\Extension;
 use Mago\Sdk\Linter\Rule;
 
-use function array_fill_keys;
 use function array_filter;
-use function array_key_exists;
-use function array_keys;
-use function explode;
-use function implode;
 use function in_array;
 use function is_string;
 use function preg_match;
 use function str_starts_with;
 use function strlen;
 use function substr;
-use function trim;
 
 /**
  * Builds the complete extension that each worker process advertises.
@@ -149,8 +143,6 @@ use function trim;
  * typed arguments here, not rule lists that the caller must assemble.
  *
  * @api
- *
- * @mago-expect lint:cyclomatic-complexity
  */
 final class DrupalExtension
 {
@@ -160,7 +152,8 @@ final class DrupalExtension
 
     /**
      * The rules whose checks core's `phpcs.xml.dist` turns off or does not
-     * run. With `--core`, they are off by default.
+     * run. With `--core`, they are off by default, and `enabled = true` under
+     * `[linter.rules]` turns one back on.
      */
     private const CORE_OFF = [
         'drupal/author-tag',
@@ -196,13 +189,12 @@ final class DrupalExtension
     /**
      * Builds the extension from the worker's arguments: `--core` when the
      * worker runs on Drupal core, `--root=PATH` for the Drupal document root,
-     * `--deprecations=N` for the Drupal major whose removals to report, and
-     * `--disable=<code>,<code>` for the rules to turn off by default.
-     * `--disable` can be given more than once. Of the others, the last one
-     * wins, matching how repeated CLI flags behave.
+     * and `--deprecations=N` for the Drupal major whose removals to report.
+     * The last one of a repeated argument wins, matching how repeated CLI
+     * flags behave.
      *
      * @throws InvalidArgumentException When `--deprecations` is not a major
-     *   version, or a code in `--disable` doesn't name a rule.
+     *   version.
      *
      * @param array<mixed> $arguments
      */
@@ -210,20 +202,6 @@ final class DrupalExtension
     {
         $strings = array_filter($arguments, is_string(...));
         $deprecations = self::option($strings, 'deprecations');
-        $disabled = [];
-        foreach ($strings as $argument) {
-            if (!str_starts_with($argument, '--disable=')) {
-                continue;
-            }
-
-            foreach (explode(',', substr($argument, offset: strlen('--disable='))) as $code) {
-                if (trim($code) === '') {
-                    continue;
-                }
-
-                $disabled[] = trim($code);
-            }
-        }
 
         if ($deprecations !== null && preg_match('/^[1-9][0-9]*$/', $deprecations) !== 1) {
             throw new InvalidArgumentException(
@@ -233,7 +211,6 @@ final class DrupalExtension
 
         return self::create(
             core: in_array('--core', $arguments, strict: true),
-            disabled: $disabled,
             root: self::option($strings, 'root'),
             deprecations: $deprecations === null ? null : (int) $deprecations,
         );
@@ -243,37 +220,24 @@ final class DrupalExtension
      * @param bool $core Turns off the checks that do not apply to Drupal core
      *   itself, and turns off by default the rules that core's
      *   `phpcs.xml.dist` turns off.
-     * @param list<string> $disabled The codes of the rules to turn off by
-     *   default.
      * @param string|null $root Drupal document root, absolute or relative to
      *   the worker's cwd. Discovered from the cwd when null.
      * @param int|null $deprecations Reports only the Drupal deprecations
      *   removed in this major or earlier, such as 12; every deprecation when
      *   null.
      *
-     * @throws InvalidArgumentException When a code in $disabled doesn't name
-     *   a rule, or $deprecations is not a positive number.
+     * @throws InvalidArgumentException When $deprecations is not a positive
+     *   number.
      *
      * @mago-expect lint:no-boolean-flag-parameter
      */
-    public static function create(
-        bool $core = false,
-        array $disabled = [],
-        ?string $root = null,
-        ?int $deprecations = null,
-    ): Extension {
-        $off = array_fill_keys($core ? [...self::CORE_OFF, ...$disabled] : $disabled, value: true);
+    public static function create(bool $core = false, ?string $root = null, ?int $deprecations = null): Extension
+    {
+        $off = $core ? self::CORE_OFF : [];
         $rules = [];
         foreach (self::linterRules($core) as $rule) {
-            $code = $rule->getDefinition()->code;
-            $rules[] = new Utf8IssueRule(array_key_exists($code, $off) ? new DefaultOffRule($rule) : $rule);
-            unset($off[$code]);
-        }
-
-        if ($off !== []) {
-            throw new InvalidArgumentException(
-                'No mago-drupal rule has the code ' . implode(', ', array_keys($off)) . '.',
-            );
+            $offByDefault = in_array($rule->getDefinition()->code, $off, strict: true);
+            $rules[] = new Utf8IssueRule($offByDefault ? new DefaultOffRule($rule) : $rule);
         }
 
         return new Extension(

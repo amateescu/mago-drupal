@@ -24,7 +24,7 @@ The rules aim for parity with [Coder 9](https://www.drupal.org/project/coder/rel
 
 ## Quick start
 
-You need PHP 8.1 or later and Mago 1.57 or later.
+You need PHP 8.1 or later and Mago 1.58 or later.
 
 ```shell
 composer require --dev carthage-software/mago amateescu/mago-drupal

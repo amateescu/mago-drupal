@@ -85,9 +85,9 @@ final class EntityTypeAttributeTest extends TestCase
         self::assertNull($config?->handler('view_builder'));
         self::assertSame('Drupal\Core\Config\Entity\ConfigEntityTypeInterface', $config?->definitionInterface());
         self::assertSame(EntityTypeKind::Base, $base?->kind);
-        self::assertNull($base?->storage());
-        self::assertSame('Drupal\Core\Entity\EntityAccessControlHandler', $base?->handler('access'));
-        self::assertNull($base?->definitionInterface());
+        self::assertNull($base->storage());
+        self::assertSame('Drupal\Core\Entity\EntityAccessControlHandler', $base->handler('access'));
+        self::assertNull($base->definitionInterface());
     }
 
     public function testIgnoresOtherAttributesAndNonLiteralIds(): void

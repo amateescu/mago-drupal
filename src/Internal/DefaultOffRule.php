@@ -11,9 +11,9 @@ use Mago\Sdk\Linter\RuleDefinition;
 /**
  * Registers a rule with its default turned off.
  *
- * Mago runs an extension rule whose default is on unless `--only` picks
- * other rules, and `[linter.rules]` does not take extension codes. A rule
- * that is off by default still runs when `--only` names it.
+ * `--core` uses it for the rules that core's `phpcs.xml.dist` turns off.
+ * `enabled = true` under `[linter.rules]` turns such a rule back on, and
+ * `--only` runs it when it names the rule.
  *
  * @internal
  */

@@ -87,7 +87,11 @@ The rules that port those checks are on by default for contrib and custom code, 
 [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off, or limits
 them to the directories where core runs them. `--core` doesn't change Mago's own rules, such as
 `trait-name`, which `mago.toml` sets. A project that turns other sub-codes off in its phpcs config
-can turn off the matching rules with [`--disable`](../setup/worker-arguments.md#turning-rules-off).
+can turn off the matching rules under [`[linter.rules]`](../setup/configuration.md#turning-rules-off).
+An `<exclude-pattern>` inside a `<rule>` of the phpcs config becomes an `exclude` of the matching
+rule, such as `"drupal/missing-function-comment" = { exclude = ["tests/"] }`. A project that starts
+from core's configuration but isn't core can turn off the rules that `--core` turns off with the
+block in [Checking Drupal core](../setup/worker-arguments.md#checking-drupal-core).
 
 **File types.** Mago reads only the file extensions in its `[source]` block. phpcs reads the
 extensions in its `--extensions` option, `php` and `inc` when none is given. With the usual Coder

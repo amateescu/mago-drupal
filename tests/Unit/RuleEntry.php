@@ -46,6 +46,7 @@ final class RuleEntry
         $offWithCore = !$withCore->defaultEnabled;
 
         $level = strtolower($rule->defaultLevel->name);
+        $match = [];
         if (preg_match('/^- \*\*Level:\*\* (\w+)$/m', $facts, $match) !== 1 || $match[1] !== $level) {
             $problems[] = "{$this->code}: the level is {$level}.";
         }

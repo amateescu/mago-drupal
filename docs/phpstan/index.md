@@ -19,11 +19,11 @@ setup with this extension.
 | `fileExtensions` | `extensions` under `[source]`. phpstan-drupal adds Drupal's extensions itself, and Mago needs them listed, as in [Install](../setup/install.md). |
 | `bootstrapFiles`, `scanFiles`, `scanDirectories` | `includes` under `[source]`: code read by Mago for its declarations and not reported. Mago doesn't run any code, so a bootstrap file counts only for what it declares. |
 | `phpVersion` | `php-version`. |
-| `ignoreErrors` | `ignore` under `[analyzer]`, by issue code and optionally by path, as [Turning rules off](../setup/worker-arguments.md#turning-rules-off) shows. Nothing like a message pattern exists in Mago. |
+| `ignoreErrors` | `ignore` under `[analyzer]`, by issue code and optionally by path, as [Turning rules off](../setup/configuration.md#turning-rules-off) shows. Nothing like a message pattern exists in Mago. |
 | A baseline | A PHPStan baseline can't be reused. `vendor/bin/mago analyze --generate-baseline --baseline=analyzer-baseline.toml` writes a new one, and `baseline = "analyzer-baseline.toml"` under `[analyzer]` reads it. |
 | `drupal.drupal_root` | The worker's `--root` argument, see [Finding the Drupal root](../setup/worker-arguments.md#finding-the-drupal-root). |
 | `drupal.entityMapping` | Nothing. The analyzer reads entity types from their attributes and annotations, see [The entity type index](../analyzer/entities.md#the-entity-type-index). |
-| `drupal.rules` | `ignore` under `[analyzer]`, with the code of the check that ports the rule. [phpstan-drupal](phpstan-drupal.md) gives the codes. The worker's `--disable` argument turns off a rule ported by this extension as a linter rule. |
+| `drupal.rules` | `ignore` under `[analyzer]`, with the code of the check that ports the rule. [phpstan-drupal](phpstan-drupal.md) gives the codes. `enabled = false` under `[linter.rules]` turns off a rule ported by this extension as a linter rule. |
 
 ## Extension packages
 

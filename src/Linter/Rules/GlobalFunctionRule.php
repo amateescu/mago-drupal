@@ -111,8 +111,11 @@ final class GlobalFunctionRule implements Rule
 
                 // StringTranslationTrait works in any class. A service needs
                 // a class that can get it injected.
-                if ($name !== 't' && !($injectable ??= InjectableClass::check($context->file, $context->node))) {
-                    continue;
+                if ($name !== 't') {
+                    $injectable ??= InjectableClass::check($context->file, $context->node);
+                    if (!$injectable) {
+                        continue;
+                    }
                 }
 
                 // Coder skips a Drupal 7 module. The version comes from an

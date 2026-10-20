@@ -17,7 +17,11 @@ are turned off or not run by core's `phpcs.xml.dist`:
   `global-constant`, `request-superglobal`, `strict-config-schema`, `untranslated-description` and
   `untranslated-options`, which all port DrupalPractice sniffs;
 - the rules for info and routing files not run by core: `info-core-version-requirement`,
-  `info-dependencies-array`, `info-description` and `routing-access`.
+  `info-dependencies-array`, `info-description` and `routing-access`;
+- `global-class-backslash`, whose check isn't done by any Coder sniff.
+
+`enabled = true` under `[linter.rules]` turns one of these rules back on, see
+[Turning rules off](configuration.md#turning-rules-off).
 
 It limits `missing-summary` and `missing-function-comment` to the directories where core's
 `phpcs.xml.dist` runs them, and keeps `unused-variable` out of the `*.api.php` files and the
@@ -32,6 +36,48 @@ It also turns off the five analyzer checks that don't apply to core,
 [`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability), and
 makes [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) check every service
 id, since core looks up only its own services.
+
+A project that starts from core's `phpcs.xml.dist` but isn't core itself can leave `--core` off,
+which keeps those analyzer checks, and turn off the same rules in `mago.toml`:
+
+<!-- docs-gen:core-rules -->
+
+```toml
+[linter.rules]
+"drupal/author-tag" = { enabled = false }
+"drupal/case-fall-through" = { enabled = false }
+"drupal/class-prefix" = { enabled = false }
+"drupal/const-prefix" = { enabled = false }
+"drupal/curl-ssl-verify" = { enabled = false }
+"drupal/escaped-placeholder" = { enabled = false }
+"drupal/form-alter-comment" = { enabled = false }
+"drupal/function-name" = { enabled = false }
+"drupal/function-prefix" = { enabled = false }
+"drupal/global-class-backslash" = { enabled = false }
+"drupal/global-constant" = { enabled = false }
+"drupal/hook-attribute-name" = { enabled = false }
+"drupal/info-core-version-requirement" = { enabled = false }
+"drupal/info-dependencies-array" = { enabled = false }
+"drupal/info-description" = { enabled = false }
+"drupal/inline-comment-blank-line" = { enabled = false }
+"drupal/inline-comment-punctuation" = { enabled = false }
+"drupal/insecure-unserialize" = { enabled = false }
+"drupal/long-description-punctuation" = { enabled = false }
+"drupal/method-name" = { enabled = false }
+"drupal/method-name-underscore" = { enabled = false }
+"drupal/request-superglobal" = { enabled = false }
+"drupal/routing-access" = { enabled = false }
+"drupal/short-list" = { enabled = false }
+"drupal/strict-config-schema" = { enabled = false }
+"drupal/unsilenced-deprecation" = { enabled = false }
+"drupal/untranslated-description" = { enabled = false }
+"drupal/untranslated-options" = { enabled = false }
+```
+<!-- /docs-gen -->
+
+The block doesn't limit `missing-summary`, `missing-function-comment`, `unused-variable` and
+`property-name` the way `--core` does. Add an `exclude` to a rule for the paths where the project
+doesn't want it, see [Turning rules off](configuration.md#turning-rules-off).
 
 ## Finding the Drupal root
 
@@ -61,33 +107,6 @@ working-directory = "/path/to/project"
 
 Add `"--deprecations=12"` to report only the Drupal deprecations that are removed in Drupal 12 or
 earlier. See [Deprecation target](../analyzer/deprecations.md#deprecation-target).
-
-## Turning rules off
-
-Mago doesn't take this extension's rule codes under `[linter.rules]`. To turn rules off, add
-`"--disable=<code>,<code>"` to the command:
-
-```toml
-[extension-hosts.drupal]
-command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--disable=drupal/inline-comment-punctuation"]
-```
-
-A rule that is turned off still runs when `mago lint --only` names it. The worker stops with an
-error when a code doesn't name a rule.
-
-A project that turns phpcs sub-codes off in its `phpcs.xml` can turn off the matching rules this
-way. [Coming from Coder](../coder/index.md) says which rule ports each sub-code.
-
-`--disable` takes only linter rules. To turn off an [analyzer check](../analyzer/index.md#checks),
-use Mago's own `[analyzer] ignore`, for the whole project or for some paths:
-
-```toml
-[analyzer]
-ignore = [
-    "drupal/global-drupal-call",
-    { code = "drupal/entity-storage-injection", in = "src/Legacy/" },
-]
-```
 
 ## Your own worker file
 
@@ -131,7 +150,6 @@ Each worker argument has a named argument of `create()`:
 | `--core` | `core: true` |
 | `--root=PATH` | `root: 'PATH'` |
 | `--deprecations=12` | `deprecations: 12` |
-| `--disable=<code>,<code>` | `disabled: ['<code>', '<code>']` |
 
 For example, `DrupalExtension::create(core: true, deprecations: 12)` does the same as
 `"--core", "--deprecations=12"`.
