@@ -249,3 +249,40 @@ function escaped_quote_in_interpolation(TranslationManager $object): string {
   // @mago-expect lint:drupal/translatable-string
   return "Value: {$object->t('It\'s here')}";
 }
+
+// @mago-expect lint:drupal/missing-function-comment
+function multi_line_literal(): TranslatableMarkup {
+  // The phpcs tokenizer splits a literal that spans lines into one token per
+  // line, so Coder doesn't check its padding.
+  return t('
+    <p>Some text.</p>
+  ');
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function multi_line_literal_padded_on_one_side(): TranslatableMarkup {
+  return t(' Some
+    text.');
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function multi_line_first_literal_of_concatenation(string $name): TranslatableMarkup {
+  // @mago-expect lint:drupal/translatable-string(1)
+  return t('Hello
+    ' . $name);
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function escaped_newline_at_the_start(): TranslatableMarkup {
+  // PHP builds the same value as a line break in the source, and the literal
+  // is on one line.
+  // @mago-expect lint:drupal/translatable-string(1)
+  return t("\nSome text.");
+}
+
+// @mago-expect lint:drupal/missing-function-comment
+function plural_without_arguments(PluralFormatter $formatter): string {
+  // StringTranslationTrait::formatPlural() needs three arguments, so this is
+  // another method.
+  return $formatter->formatPlural();
+}

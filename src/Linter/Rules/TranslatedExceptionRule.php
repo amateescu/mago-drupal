@@ -11,6 +11,7 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
@@ -65,12 +66,14 @@ final class TranslatedExceptionRule implements Rule
             }
         }
 
-        $call = Calls::findFirst($context->file, $new, ['t']);
-        if ($call === null) {
+        if (Calls::findFirst($context->file, $new, ['t']) === null) {
             return;
         }
 
-        $context->report(Issue::new('Do not translate an exception message.', $call->span)->withHelp(
+        // Coder reports the `throw` keyword, so a phpcs:ignore comment
+        // written for Coder covers the same line. The keyword is five bytes.
+        $start = $context->node->span->start;
+        $context->report(Issue::new('Do not translate an exception message.', new Span($start, $start + 5))->withHelp(
             'Developers read exception text in logs. A translation hides the original text.',
         ));
     }
