@@ -23,6 +23,7 @@ use function preg_match;
 use function preg_match_all;
 use function rtrim;
 use function str_contains;
+use function str_ends_with;
 use function str_starts_with;
 use function strlen;
 use function strrpos;
@@ -47,7 +48,9 @@ use function trim;
  * examples, `// @see`-style reference lines, annotation values, and the
  * `Implements hook_foo()` and `Contains ...` lines. A line is also exempt if
  * its last word, alone on a line at the same indent, is still past the
- * limit. That exempts URLs and long class paths.
+ * limit. That exempts URLs and long class paths. A one-line `/* @see *\/`
+ * comment is exempt like a `// @see` line, since phpcs never measures a line
+ * that ends in `*\/`.
  *
  * @mago-expect lint:cyclomatic-complexity
  */
@@ -221,9 +224,11 @@ final class CommentLineLengthRule implements Rule
     private function isExemptComment(string $text): bool
     {
         // You cannot wrap a reference line or text without a space in it,
-        // such as a URL.
+        // such as a URL. A reference is a `// @` line or a one-line
+        // `/* @ *\/` comment.
         return (
             preg_match('#^\s*// @.+#', $text) === 1
+            || preg_match('#^\s*/\* @.+\*/\s*$#', $text) === 1
             || !str_contains(trim($text, characters: self::MARKERS . "\r"), ' ')
         );
     }
@@ -243,12 +248,17 @@ final class CommentLineLengthRule implements Rule
     /**
      * Whether wrapping the line does not help. The last word, alone on a
      * line at the same indent, is still past the limit. This covers URLs
-     * and class paths.
+     * and class paths. A `*\/` at the end of the line isn't a word.
      */
     private function isUnbreakable(string $line): bool
     {
         $text = ltrim(ltrim($line), characters: self::MARKERS);
         $indent = mb_strlen($line, encoding: 'UTF-8') - mb_strlen($text, encoding: 'UTF-8');
+
+        $text = rtrim($text);
+        if (str_ends_with($text, needle: '*/')) {
+            $text = rtrim(substr($text, offset: 0, length: -2));
+        }
 
         $space = strrpos($text, needle: ' ');
         $tail = $space === false ? $text : substr($text, $space + 1);
