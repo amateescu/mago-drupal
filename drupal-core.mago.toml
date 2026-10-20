@@ -35,7 +35,7 @@ excludes = [
     "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
-    # Marked with // phpcs:ignoreFile, which Mago doesn't read.
+    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago doesn't read.
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
@@ -47,11 +47,13 @@ excludes = [
     "core/lib/Drupal/Core/Serialization/Yaml.php",
     "core/lib/Drupal/Core/Validation/ConstraintViolationBuilder.php",
     "core/modules/contact/tests/fixtures/",
+    "core/modules/content_moderation/tests/fixtures/",
     "core/modules/migrate_drupal/tests/fixtures/",
+    "core/modules/workspaces/tests/fixtures/",
     "core/tests/Drupal/Tests/DocumentElement.php",
     "core/tests/PHPStan/fixtures/",
     "core/tests/fixtures/empty_file.php.module",
-    "core/tests/fixtures/files/php-2.php",
+    "core/tests/fixtures/files/",
 ]
 
 [linter]
@@ -60,7 +62,7 @@ excludes = [
     "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
-    # Marked with // phpcs:ignoreFile, which Mago doesn't read.
+    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago doesn't read.
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
@@ -72,9 +74,11 @@ excludes = [
     "core/lib/Drupal/Core/Serialization/Yaml.php",
     "core/lib/Drupal/Core/Validation/ConstraintViolationBuilder.php",
     "core/modules/contact/tests/fixtures/",
+    "core/modules/content_moderation/tests/fixtures/",
     "core/modules/migrate_drupal/tests/fixtures/",
+    "core/modules/workspaces/tests/fixtures/",
     "core/tests/Drupal/Tests/DocumentElement.php",
     "core/tests/PHPStan/fixtures/",
     "core/tests/fixtures/empty_file.php.module",
-    "core/tests/fixtures/files/php-2.php",
+    "core/tests/fixtures/files/",
 ]

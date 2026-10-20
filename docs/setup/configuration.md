@@ -59,7 +59,8 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
   `vendor/` read for its symbols.
 - The worker's [`--core` argument](worker-arguments.md#checking-drupal-core).
 - The files that phpcs doesn't check, left out of the formatter and the linter: the paths excluded
-  by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile`, which Mago doesn't read.
+  by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile` or
+  `// @codingStandardsIgnoreFile`, which Mago doesn't read.
 
 ## Turning rules off
 
