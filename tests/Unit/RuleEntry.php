@@ -8,7 +8,6 @@ use Mago\Sdk\Linter\RuleDefinition;
 
 use function explode;
 use function implode;
-use function in_array;
 use function ksort;
 use function ltrim;
 use function preg_match;
@@ -33,14 +32,12 @@ final class RuleEntry
     /**
      * Returns how the facts list differs from the rule and the parity map.
      *
-     * @param list<string> $offInCore The codes of the rules that
-     *   drupal-core.mago.toml turns off.
      * @param array<string, bool> $ports The codes that the map says the rule
      *   ports, each mapped to whether the port is partial.
      *
      * @return list<string>
      */
-    public function problems(RuleDefinition $rule, array $offInCore, array $ports): array
+    public function problems(RuleDefinition $rule, array $ports): array
     {
         $facts = $this->facts();
         $problems = [];
@@ -53,13 +50,6 @@ final class RuleEntry
 
         if (preg_match('/^- \*\*Fix:\*\* \S/m', $facts) !== 1) {
             $problems[] = "{$this->code}: the entry doesn't have a Fix line.";
-        }
-
-        $off = in_array($this->code, $offInCore, strict: true);
-        if (str_contains($facts, '- **Off in Drupal core**') !== $off) {
-            $problems[] = $off
-                ? "{$this->code}: the rule is off in Drupal core."
-                : "{$this->code}: the rule isn't off in Drupal core.";
         }
 
         $listed = $this->ports();

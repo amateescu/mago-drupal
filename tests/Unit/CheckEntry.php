@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Tests;
 
 use function explode;
-use function in_array;
 use function ltrim;
 use function preg_match;
 use function preg_replace;
@@ -42,14 +41,11 @@ final class CheckEntry
     /**
      * Returns how the facts list breaks the rules for an analyzer entry: a
      * Level line, one Source line, no Fix line, since checks don't have a
-     * fix, and an "Off in Drupal core" line for the checks that
-     * drupal-core.mago.toml ignores.
-     *
-     * @param list<string> $offInCore
+     * fix.
      *
      * @return list<string>
      */
-    public function problems(array $offInCore): array
+    public function problems(): array
     {
         $facts = $this->facts();
         $problems = [];
@@ -59,13 +55,6 @@ final class CheckEntry
 
         if (str_contains($facts, '- **Fix:**')) {
             $problems[] = "{$this->code}: an analyzer check doesn't have a fix, so the entry doesn't need a Fix line.";
-        }
-
-        $off = in_array($this->code, $offInCore, strict: true);
-        if (str_contains($facts, '- **Off in Drupal core**') !== $off) {
-            $problems[] = $off
-                ? "{$this->code}: the check is off in Drupal core."
-                : "{$this->code}: the check isn't off in Drupal core.";
         }
 
         return [...$problems, ...SourceLine::problems($this->code, $facts)];

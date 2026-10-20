@@ -4,8 +4,8 @@
 #     extends = "vendor/amateescu/mago-drupal/drupal-core.mago.toml"
 #     php-version = "8.3"
 #
-# It changes drupal.mago.toml to check what core's phpcs.xml.dist checks. Each rule and check that
-# it turns off can be turned back on in the checkout's mago.toml, as in
+# It changes drupal.mago.toml to check what core's phpcs.xml.dist checks. Each rule that it turns
+# off can be turned back on in the checkout's mago.toml, as in
 # "drupal/short-list" = { enabled = true } under [linter.rules].
 
 extends = "drupal.mago.toml"

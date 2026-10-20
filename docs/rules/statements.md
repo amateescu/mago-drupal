@@ -67,7 +67,6 @@ The standard doesn't have a sentence for this. Its switch example puts a blank l
 - **Fix:** none
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `PSR2.ControlStructures.SwitchDeclaration.TerminatingComment`
-- **Off in Drupal core**
 
 A case that runs on into the next one needs a comment there, so a reader can tell that the missing
 `break` is on purpose.
@@ -758,7 +757,6 @@ off.
   It is potentially unsafe when it would drop a comment there. An empty `list()` doesn't have a fix.
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `SlevomatCodingStandard.PHP.ShortList.LongListUsed`
-- **Off in Drupal core**
 
 Coder asks for the short `[...]` form for destructuring, as for arrays.
 

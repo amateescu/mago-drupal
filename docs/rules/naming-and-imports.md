@@ -177,7 +177,6 @@ name, or a docblock that writes the short name in the same case.
 - **Fix:** none
 - **Standard:** [Functions and variables](https://project.pages.drupalcode.org/coding_standards/php/coding/#functions-and-variables)
 - **Ports:** `Drupal.NamingConventions.ValidFunctionName.InvalidName`
-- **Off in Drupal core**
 
 > Functions should be named using lowercase, and words should be separated with an underscore.
 
@@ -203,7 +202,6 @@ by Coder. The [configuration](../setup/configuration.md) turns it off.
 - **Fix:** safe. It adds the backslash.
 - **Standard:** ["use"-ing classes](https://project.pages.drupalcode.org/coding_standards/php/namespaces/#use-ing-classes)
 - **Ports:** none. Coder doesn't have such a sniff.
-- **Off in Drupal core**
 
 > Classes and interfaces without a backslash `\` inside their fully-qualified name (for example, the
 > built-in PHP Exception class) must be fully qualified. For example: `new \Exception();`.
@@ -235,7 +233,6 @@ Mago's `no-fully-qualified-global-class-like`, off by default, asks for the oppo
 - **Fix:** none
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.Attributes.ValidHookName.HookPrefix`
-- **Off in Drupal core**
 
 Coder asks for the hook name in a `#[Hook]` attribute without the `hook_` prefix. The attribute
 holds the hook name without the prefix, so a name with it is never invoked.
@@ -342,7 +339,6 @@ does.
 - **Fix:** none
 - **Standard:** [Classes, methods and properties](https://project.pages.drupalcode.org/coding_standards/php/coding/#classes-methods-and-properties)
 - **Ports:** `Drupal.NamingConventions.ValidFunctionName`: `NotCamelCaps`, `ScopeNotCamelCaps`
-- **Off in Drupal core**
 
 > Methods and class properties should use lowerCamel naming.
 >
@@ -412,7 +408,6 @@ rule.
 - **Ports:**
     - `Drupal.NamingConventions.ValidFunctionName.MethodDoubleUnderscore`
     - `PSR2.Methods.MethodDeclaration.Underscore`
-- **Off in Drupal core**
 
 > Method names must not be prefixed with a single underscore to indicate protected or private
 > visibility. That is, an underscore prefix explicitly has no meaning.

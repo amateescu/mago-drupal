@@ -18,7 +18,6 @@ below needs the type of the object that a method is called on, so it's an analyz
 - **Ports:**
     - `DrupalPractice.FunctionCalls.FormErrorT.ErrorMessage` (partly)
     - `DrupalPractice.FunctionCalls.MessageT.ErrorMessage` (partly)
-- **Off in Drupal core**
 
 Coder reports a literal message passed to the Drupal 7 functions `form_set_error()`, `form_error()`
 and `drupal_set_message()`. Users see the message, so it goes through `t()` to be translated. The

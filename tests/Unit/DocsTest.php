@@ -85,11 +85,7 @@ final class DocsTest extends TestCase
                     continue;
                 }
 
-                $problems = array_merge($problems, $entry->problems(
-                    $rule,
-                    CorePreset::rulesTurnedOff(),
-                    $pages->map()->ports($entry->code),
-                ));
+                $problems = array_merge($problems, $entry->problems($rule, $pages->map()->ports($entry->code)));
             }
         }
 

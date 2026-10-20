@@ -10,7 +10,6 @@ Rules for code that runs input it shouldn't trust, or reads the wrong value.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.FunctionCalls.InsecureUnserialize.InsecureUnserialize` (partly)
-- **Off in Drupal core**
 
 DrupalPractice asks an `unserialize()` call to limit the classes it builds. Without a limit, the
 payload decides which objects PHP builds, and their destructors run.

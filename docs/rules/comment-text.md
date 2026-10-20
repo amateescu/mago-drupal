@@ -13,7 +13,6 @@ the line-length check for comments. For the comment whitespace set by `mago form
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Commenting.AuthorTag.AuthorFound`
-- **Off in Drupal core**
 
 DrupalPractice asks for no `@author` tag. The tag goes out of date as other people edit the file,
 and git already records who wrote what.
@@ -388,7 +387,6 @@ Coder doesn't allow gendered pronouns in comments.
 - **Ports:**
     - `Drupal.Commenting.InlineComment.SpacingAfter` (partly)
     - `DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter` (partly)
-- **Off in Drupal core**
 
 > Comments should be on a separate line immediately before the code line or block they reference.
 
@@ -449,7 +447,6 @@ pass applies it.
   `,.`.
 - **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation)
 - **Ports:** `Drupal.Commenting.InlineComment.InvalidEndChar`
-- **Off in Drupal core**
 
 > All documentation and comments should form proper sentences, use proper grammar and punctuation,
 > and generally follow the same style guidelines as Drupal.org content:
@@ -477,7 +474,6 @@ pass applies it.
 - **Fix:** safe. It adds a full stop.
 - **Standard:** [General documentation](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-documentation)
 - **Ports:** `Drupal.Commenting.DocComment.LongFullStop`
-- **Off in Drupal core**
 
 > All documentation and comments should form proper sentences, use proper grammar and punctuation,
 > and generally follow the same style guidelines as Drupal.org content:

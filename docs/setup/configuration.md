@@ -66,29 +66,10 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
 ## Checking Drupal core
 
 Core's own `phpcs.xml.dist` asks for less than Drupal's standard. `drupal-core.mago.toml` turns off
-the rules whose checks it turns off or doesn't run:
-
-- `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
-  `method-name`, `method-name-underscore` and `short-list`;
-- `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
-- `unsilenced-deprecation`;
-- `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](../rules/drupal-practice.md)
-  `class-prefix`, `curl-ssl-verify`, `escaped-placeholder`, `form-alter-comment`,
-  `global-constant`, `request-superglobal`, `strict-config-schema`, `untranslated-description` and
-  `untranslated-options`, which all port DrupalPractice sniffs;
-- the rules for info and routing files not run by core: `info-core-version-requirement`,
-  `info-dependencies-array`, `info-description` and `routing-access`;
-- `global-class-backslash`, whose check isn't done by any Coder sniff.
-
-`unused-variable` and `variable-redeclaration` leave out the `*.api.php` files and the
-transliteration tables, which `phpcs.xml.dist` leaves out of their sniff.
-
-The file also ignores five analyzer checks that are about modules that use core's API:
-[`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),
-[`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load),
-[`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message),
-[`drupal/internal-class-extension`](../analyzer/hooks.md#drupalinternal-class-extension) and
-[`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability).
+the rules whose checks it turns off or doesn't run. It leaves the `*.api.php` files and the
+transliteration tables out of `unused-variable` and `variable-redeclaration`, as `phpcs.xml.dist`
+does for their sniff, and it ignores five analyzer checks that are about modules that use core's
+API. The comments in the file say why.
 
 A rule that the file turns off can be turned back on in the checkout's `mago.toml`:
 
@@ -110,8 +91,8 @@ file is core's when one of its directories is named `core` and holds `lib/Drupal
 [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) checks every service id in
 core's files, since core looks up only its own services.
 
-A project that starts from core's `phpcs.xml.dist` but isn't core can turn the same rules off under
-`[linter.rules]`, see [Turning rules off](#turning-rules-off).
+A project that starts from core's `phpcs.xml.dist` but isn't core can copy the `[linter.rules]`
+entries of `drupal-core.mago.toml`, see [Turning rules off](#turning-rules-off).
 
 ## Turning rules off
 

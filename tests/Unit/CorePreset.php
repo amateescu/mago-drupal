@@ -21,19 +21,6 @@ final class CorePreset
     private function __construct() {}
 
     /**
-     * Returns the rule codes that drupal-core.mago.toml turns off.
-     *
-     * @return list<string>
-     */
-    public static function rulesTurnedOff(): array
-    {
-        $matches = [];
-        preg_match_all('/^"(drupal\/[a-z0-9-]+)" = \{ enabled = false \}$/m', self::contents(), $matches);
-
-        return array_values($matches[1]);
-    }
-
-    /**
      * Returns the extension's rule codes under `[linter.rules]` in $file.
      *
      * @return list<string>
