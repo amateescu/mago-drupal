@@ -16,7 +16,10 @@
  * covering the line it starts on, and every pragma needs exactly one issue,
  * or the count it names in `(N)`.
  *
- * Usage: php tests/CorpusPins.php <mago binary>
+ * The workspace is `tests/corpus` unless another one is given, relative to
+ * the repository, such as `tests/ignores`. Its pragmas sit under `src`.
+ *
+ * Usage: php tests/CorpusPins.php <mago binary> [workspace]
  */
 
 declare(strict_types=1);
@@ -109,18 +112,22 @@ final class CorpusPins
     {
         $mago = $arguments[1] ?? null;
         if ($mago === null) {
-            fwrite(STDERR, data: "Usage: php tests/CorpusPins.php <mago binary>\n");
+            fwrite(STDERR, data: "Usage: php tests/CorpusPins.php <mago binary> [workspace]\n");
 
             return 2;
         }
 
-        $corpus = __DIR__ . '/corpus';
+        $corpus = dirname(__DIR__) . '/' . ($arguments[2] ?? 'tests/corpus');
         $copy = sys_get_temp_dir() . '/mago-drupal-pins-' . (string) getmypid();
         try {
             self::copyTree($corpus, $copy);
             self::pointAtWorker($copy . '/mago.toml', dirname(__DIR__) . '/resources/worker.php');
-            $pragmas = [...self::neutralize($copy, 'src'), ...self::neutralize($copy, 'modules/corpus_callbacks')];
-            $rules = file($corpus . '/expected-rules.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $pragmas = self::neutralize($copy, 'src');
+            if (is_dir($copy . '/modules/corpus_callbacks')) {
+                $pragmas = [...$pragmas, ...self::neutralize($copy, 'modules/corpus_callbacks')];
+            }
+
+            $rules = file(__DIR__ . '/corpus/expected-rules.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             $codes = implode(',', $rules === false ? [] : $rules);
 
             // The copy lives under a new path each run, so a cache entry keyed

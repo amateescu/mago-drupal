@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 use amateescu\MagoDrupal\Internal\Attributes;
 use amateescu\MagoDrupal\Internal\DeprecationScopes;
 use amateescu\MagoDrupal\Internal\FileMembers;
+use amateescu\MagoDrupal\Internal\PhpcsCommentFilter;
 use amateescu\MagoDrupal\Internal\ServiceIndex;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Types;
@@ -85,10 +86,13 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
      * @param Closure(Codebase): ServiceIndex $services Returns the current index.
      * @param bool $entityLoads Reports static entity loads instead of
      *   `\Drupal` calls.
+     * @param PhpcsCommentFilter|null $phpcs Leaves out a call on a line that
+     *   a phpcs comment ignores for the sniff this ports.
      */
     public function __construct(
         private readonly Closure $services,
         private readonly bool $entityLoads = false,
+        private readonly ?PhpcsCommentFilter $phpcs = null,
     ) {}
 
     public function getTargets(): array
@@ -131,7 +135,12 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
         }
 
         $method = $members->methodAt($context->codebase, $class, $context->node->span);
-        if ($method === null || $method->static === true || self::isFallback($method)) {
+        if (
+            $method === null
+            || $method->static === true
+            || self::isFallback($method)
+            || $this->phpcs?->drops($contents, $context->node->span->start) === true
+        ) {
             return;
         }
 
