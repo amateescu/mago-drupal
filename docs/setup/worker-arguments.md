@@ -5,7 +5,8 @@ string after the path of `worker.php`.
 
 ## Checking Drupal core
 
-Add `"--core"` to the command when you check Drupal core itself. It turns off the rules whose checks
+`"--core"` is for checking Drupal core itself. `drupal-core.mago.toml` adds it to the command, see
+[Configuration](configuration.md#what-drupal-coremagotoml-adds). It turns off the rules whose checks
 are turned off or not run by core's `phpcs.xml.dist`:
 
 - `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
@@ -37,47 +38,8 @@ It also turns off the five analyzer checks that don't apply to core,
 makes [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) check every service
 id, since core looks up only its own services.
 
-A project that starts from core's `phpcs.xml.dist` but isn't core itself can leave `--core` off,
-which keeps those analyzer checks, and turn off the same rules in `mago.toml`:
-
-<!-- docs-gen:core-rules -->
-
-```toml
-[linter.rules]
-"drupal/author-tag" = { enabled = false }
-"drupal/case-fall-through" = { enabled = false }
-"drupal/class-prefix" = { enabled = false }
-"drupal/const-prefix" = { enabled = false }
-"drupal/curl-ssl-verify" = { enabled = false }
-"drupal/escaped-placeholder" = { enabled = false }
-"drupal/form-alter-comment" = { enabled = false }
-"drupal/function-name" = { enabled = false }
-"drupal/function-prefix" = { enabled = false }
-"drupal/global-class-backslash" = { enabled = false }
-"drupal/global-constant" = { enabled = false }
-"drupal/hook-attribute-name" = { enabled = false }
-"drupal/info-core-version-requirement" = { enabled = false }
-"drupal/info-dependencies-array" = { enabled = false }
-"drupal/info-description" = { enabled = false }
-"drupal/inline-comment-blank-line" = { enabled = false }
-"drupal/inline-comment-punctuation" = { enabled = false }
-"drupal/insecure-unserialize" = { enabled = false }
-"drupal/long-description-punctuation" = { enabled = false }
-"drupal/method-name" = { enabled = false }
-"drupal/method-name-underscore" = { enabled = false }
-"drupal/request-superglobal" = { enabled = false }
-"drupal/routing-access" = { enabled = false }
-"drupal/short-list" = { enabled = false }
-"drupal/strict-config-schema" = { enabled = false }
-"drupal/unsilenced-deprecation" = { enabled = false }
-"drupal/untranslated-description" = { enabled = false }
-"drupal/untranslated-options" = { enabled = false }
-```
-<!-- /docs-gen -->
-
-The block doesn't limit `missing-summary`, `missing-function-comment`, `unused-variable` and
-`property-name` the way `--core` does. Add an `exclude` to a rule for the paths where the project
-doesn't want it, see [Turning rules off](configuration.md#turning-rules-off).
+A project that starts from core's `phpcs.xml.dist` but isn't core can add `"--core"` to its own
+command. It then loses those analyzer checks too.
 
 ## Finding the Drupal root
 

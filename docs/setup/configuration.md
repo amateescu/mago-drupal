@@ -1,122 +1,65 @@
 # Configuration
 
-This extension covers the parts of Drupal's standard that need to know about Drupal. Mago itself
-handles most of the rest, but some of its defaults differ from Drupal. Each of these settings is one
-line that makes Mago match Drupal:
+The package has two config files to extend from `mago.toml`, see [Install](install.md):
 
-```toml
-# The lowest PHP version that the project supports. Mago does not read it from composer.json.
-# Without this line, Mago assumes its newest PHP version, and the formatter writes syntax that older
-# versions reject, such as new Foo()->bar().
-php-version = "8.3"
+- `drupal.mago.toml` makes Mago match Drupal's standard, for a site, a module or a theme.
+- `drupal-core.mago.toml` adds what core's `phpcs.xml.dist` checks, for a core checkout.
 
-[formatter]
-# Drupal's style for braces and indentation. Lines wrap at 120 columns. Drupal's standard asks for
-# about 80, which phpcs does not check for code.
-preset = "drupal"
-# Mago reads a YAML file as text outside PHP, and the formatter would trim the end of its lines.
-excludes = ["**/*.yml"]
+Each setting in the files has a comment that says why it's there.
 
-[linter]
-# Mago's own Drupal switch. The formatter's drupal preset writes TRUE, FALSE and NULL. This switch
-# stops `lowercase-keyword` from reporting those three keywords. The rule still reports every other
-# upper-case keyword.
-integrations = ["drupal"]
-# A config export can hold any text. Mago reads a `<?` in it, as in `<?xml`, as a PHP open tag and
-# reports parse errors. The info and routing files are never in these directories.
-excludes = [
-    "**/config/install/**/*.yml",
-    "**/config/optional/**/*.yml",
-    "**/config/schema/**/*.yml",
-    "**/config/sync/**/*.yml",
-]
+## What drupal.mago.toml sets
 
-[linter.rules]
-# Report an interface name without the "Interface" suffix.
-interface-name = { psr = true }
-# Report a trait name without the "Trait" suffix, as Coder 9 does.
-trait-name = { psr = true }
-# Report a file whose name differs from the class that it declares. Coder skips the test classes
-# under a module's tests directory and the helper classes in their files, and so do both rules.
-file-name = { enabled = true, exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
-single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
-# drupal/function-name checks function names the way Coder does. Mago's rule wants snake case, so
-# it also reports a private helper such as _mymodule_helper(), which Coder accepts.
-function-name = { enabled = false }
-# drupal/unused-variable reports a variable that its function never reads, and a variable in a
-# closure's `use` list that the closure never reads, as Coder does. no-redundant-variable is a
-# different check. It reports a value that isn't read later, and also a catch variable, the value
-# of a `$key => $value` foreach and a write through a reference, which Coder allows.
-# no-unused-closure-capture repeats the `use` list check.
-no-redundant-variable = { enabled = false }
-no-unused-closure-capture = { enabled = false }
+- Drupal's PHP file extensions, and `yml` for the rules for
+  [info and routing files](../rules/info-and-routing-files.md). The formatter and the analyzer stay
+  out of YAML files, and the linter stays out of config exports.
+- The worker, with Xdebug and pcov off, see [Xdebug and pcov](install.md#xdebug-and-pcov).
+- Mago's `drupal` formatter preset, and its `drupal` linter integration, which accepts `TRUE`,
+  `FALSE` and `NULL`.
+- The `Interface` and `Trait` suffixes, and the `file-name` rule, as Coder 9 checks them.
+- `check-name-casing` for the analyzer, which ports `Squiz.PHP.LowercasePHPFunctions`. The analyzer
+  stays out of `*.api.php` files and test fixtures, as phpstan-drupal does.
 
-[analyzer]
-# Report a PHP function that is called with the wrong case. That is Drupal's
-# Squiz.PHP.LowercasePHPFunctions.
-check-name-casing = true
-# A YAML file doesn't hold any PHP for the analyzer. An api.php file documents hooks with example
-# code, and test fixtures are often broken on purpose. phpstan-drupal leaves both out as well. The
-# linter still checks them, as phpcs does.
-excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
-# For a project that also runs PHPStan: let its @phpstan-ignore comments drop the Mago issues that
-# report the same finding. See the PHPStan ignores page of the analyzer docs.
-# plugins = ["phpstan-ignores"]
-```
+It doesn't set `php-version`, since that's up to the project. Without it, Mago assumes its newest
+PHP version, and the formatter writes syntax that older versions reject, such as `new Foo()->bar()`.
 
 ## Turn off what Drupal's standard doesn't ask for
 
-Mago has many more rules than Drupal's standard. A module that passes phpcs starts out with issues
-not asked for by the standard, from rules such as `assert-description` or `no-else-clause`. Turning
-those rules off doesn't lose any check done by phpcs:
+Mago has many more rules than Drupal's standard. `drupal.mago.toml` turns off the ones that
+contradict the standard or repeat a rule of this extension, such as `tagged-todo` and
+`function-name`, and the advice that the standard doesn't ask for, such as `no-else-clause` and
+`strict-types`. Turning them off doesn't lose any check done by phpcs.
+
+## Changing a setting
+
+The project's `mago.toml` wins over the file that it extends. A table is merged into the one in the
+file, so one line changes one rule. An array is added to the one in the file. The worker command is
+replaced as a whole.
 
 ```toml
+extends = "vendor/amateescu/mago-drupal/drupal.mago.toml"
+php-version = "8.3"
+
+[source]
+# Coder also checks .test files, a Drupal 7 format.
+extensions = ["test"]
+
 [linter.rules]
-# These rules contradict Drupal's standard, or repeat a rule of this extension.
-# Drupal writes a deprecation as @trigger_error(), and drupal/unsilenced-deprecation reports a
-# missing @.
-# drupal/inline-comment already reports a "#" comment. drupal/todo-comment already checks the
-# "@todo Fix problem X here." format, and tagged-todo contradicts that format.
-# Drupal's standard allows a global variable named _mymodule_name, and core keeps its settings in
-# globals such as $base_url and $GLOBALS['config']. no-global reports every use, at error level.
-no-error-control-operator = { enabled = false }
-no-global = { enabled = false }
-no-hash-comment = { enabled = false }
-tagged-todo = { enabled = false }
+strict-types = { enabled = true }
 
-# The no-empty-loop fix deletes a loop whose condition does the work, as in
-# while (--$i >= 0 && ...) {}, and Mago marks that fix safe.
-no-empty-loop = { enabled = false }
-
-# Advice that Drupal's standard does not ask for. Keep the rules that you want.
-assert-description = { enabled = false }
-braced-string-interpolation = { enabled = false }
-cyclomatic-complexity = { enabled = false }
-excessive-nesting = { enabled = false }
-excessive-parameter-list = { enabled = false }
-halstead = { enabled = false }
-identity-comparison = { enabled = false }
-kan-defect = { enabled = false }
-literal-named-argument = { enabled = false }
-no-assign-in-condition = { enabled = false }
-no-boolean-flag-parameter = { enabled = false }
-no-else-clause = { enabled = false }
-no-empty = { enabled = false }
-no-empty-catch-clause = { enabled = false }
-no-isset = { enabled = false }
-no-multi-assignments = { enabled = false }
-no-shorthand-ternary = { enabled = false }
-prefer-arrow-function = { enabled = false }
-prefer-early-continue = { enabled = false }
-prefer-first-class-callable = { enabled = false }
-prefer-static-closure = { enabled = false }
-readable-literal = { enabled = false }
-too-many-methods = { enabled = false }
-# Drupal core declares strict types in its tests, where its phpcs.xml.dist requires them, and in few
-# other files. Many contrib modules declare them everywhere. Examine your own codebase before you
-# disable this rule.
-strict-types = { enabled = false }
+[analyzer]
+# Let @phpstan-ignore comments drop the Mago issues that report the same finding.
+plugins = ["phpstan-ignores"]
 ```
+
+See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
+
+## What drupal-core.mago.toml adds
+
+- The files that core's `phpcs.xml.dist` checks: `core/` and `composer/`, with `.test` files, and
+  `vendor/` read for its symbols.
+- The worker's [`--core` argument](worker-arguments.md#checking-drupal-core).
+- The files that phpcs doesn't check, left out of the formatter and the linter: the paths excluded
+  by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile`, which Mago doesn't read.
 
 ## Turning rules off
 

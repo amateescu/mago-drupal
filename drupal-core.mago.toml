@@ -1,0 +1,80 @@
+# Mago settings for a Drupal core checkout, with core/, composer/ and vendor/ at the top. Extend
+# this file from the checkout's mago.toml:
+#
+#     extends = "vendor/amateescu/mago-drupal/drupal-core.mago.toml"
+#     php-version = "8.3"
+#
+# It adds what core's phpcs.xml.dist checks to drupal.mago.toml.
+
+extends = "drupal.mago.toml"
+
+[source]
+# The files that core's phpcs.xml.dist checks, and the extensions that it adds.
+paths = ["core", "composer"]
+includes = ["vendor"]
+extensions = ["test"]
+excludes = [
+    "**/bower_components/**",
+    "**/node_modules/**",
+    "core/assets/vendor/",
+    "core/.phpstan-baseline.php",
+    "core/phpstan-tmp/",
+    # The test fixtures of phpcs are .inc files that don't parse on purpose.
+    "vendor/squizlabs/php_codesniffer/",
+]
+
+[extension-hosts.drupal]
+# --core turns off the rules that core's phpcs.xml.dist turns off, limits some rules to the
+# directories where it runs them, and turns off the analyzer checks that don't apply to core.
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--core"]
+
+[formatter]
+# The files that phpcs doesn't check. The analyzer still reads them, since core uses their classes.
+excludes = [
+    # Excluded by core's phpcs.xml.dist.
+    "core/lib/Drupal/Component/Diff/",
+    "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
+    "core/modules/system/tests/fixtures/HtaccessTest/",
+    # Marked with // phpcs:ignoreFile, which Mago doesn't read.
+    "core/assets/scaffold/files/default.settings.php",
+    "core/assets/scaffold/files/example.settings.local.php",
+    "core/assets/scaffold/files/example.sites.php",
+    "core/lib/Drupal/Component/Annotation/Doctrine/",
+    "core/lib/Drupal/Core/Config/Action/Exists.php",
+    "core/lib/Drupal/Core/Database/DatabaseException.php",
+    "core/lib/Drupal/Core/DependencyInjection/YamlFileLoader.php",
+    "core/lib/Drupal/Core/ProxyClass/",
+    "core/lib/Drupal/Core/Serialization/Yaml.php",
+    "core/lib/Drupal/Core/Validation/ConstraintViolationBuilder.php",
+    "core/modules/contact/tests/fixtures/",
+    "core/modules/migrate_drupal/tests/fixtures/",
+    "core/tests/Drupal/Tests/DocumentElement.php",
+    "core/tests/PHPStan/fixtures/",
+    "core/tests/fixtures/empty_file.php.module",
+    "core/tests/fixtures/files/php-2.php",
+]
+
+[linter]
+excludes = [
+    # Excluded by core's phpcs.xml.dist.
+    "core/lib/Drupal/Component/Diff/",
+    "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
+    "core/modules/system/tests/fixtures/HtaccessTest/",
+    # Marked with // phpcs:ignoreFile, which Mago doesn't read.
+    "core/assets/scaffold/files/default.settings.php",
+    "core/assets/scaffold/files/example.settings.local.php",
+    "core/assets/scaffold/files/example.sites.php",
+    "core/lib/Drupal/Component/Annotation/Doctrine/",
+    "core/lib/Drupal/Core/Config/Action/Exists.php",
+    "core/lib/Drupal/Core/Database/DatabaseException.php",
+    "core/lib/Drupal/Core/DependencyInjection/YamlFileLoader.php",
+    "core/lib/Drupal/Core/ProxyClass/",
+    "core/lib/Drupal/Core/Serialization/Yaml.php",
+    "core/lib/Drupal/Core/Validation/ConstraintViolationBuilder.php",
+    "core/modules/contact/tests/fixtures/",
+    "core/modules/migrate_drupal/tests/fixtures/",
+    "core/tests/Drupal/Tests/DocumentElement.php",
+    "core/tests/PHPStan/fixtures/",
+    "core/tests/fixtures/empty_file.php.module",
+    "core/tests/fixtures/files/php-2.php",
+]

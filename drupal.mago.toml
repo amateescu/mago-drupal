@@ -1,0 +1,110 @@
+# Mago settings for a Drupal site, module or theme. Extend this file from the project's mago.toml:
+#
+#     extends = "vendor/amateescu/mago-drupal/drupal.mago.toml"
+#     php-version = "8.3"
+#
+# Set php-version to the lowest PHP version that the project supports. Mago doesn't read it from
+# composer.json, and without it the formatter writes syntax that older versions reject, such as
+# new Foo()->bar().
+#
+# A table in the project's file is merged into the one here, so a single rule can be changed. An
+# array is added to the one here. The worker command is replaced as a whole.
+
+[source]
+# Drupal keeps PHP in files with these extensions. yml lets the rules for info and routing files
+# read .info.yml and .routing.yml files.
+extensions = ["php", "module", "install", "inc", "theme", "profile", "engine", "yml"]
+
+[extension-hosts.drupal]
+# The worker path is relative to the directory of the project's mago.toml. -d xdebug.mode=off and
+# -d pcov.enabled=0 keep Xdebug and pcov from slowing the worker down.
+command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php"]
+
+[formatter]
+# Drupal's style for braces and indentation. Lines wrap at 120 columns. Drupal's standard asks for
+# about 80, which phpcs doesn't check for code.
+preset = "drupal"
+# Mago reads a YAML file as text outside PHP, and the formatter would trim the end of its lines.
+excludes = ["**/*.yml"]
+
+[linter]
+# The formatter's drupal preset writes TRUE, FALSE and NULL. This stops lowercase-keyword from
+# reporting those three keywords. The rule still reports every other upper-case keyword.
+integrations = ["drupal"]
+# A config export can hold any text. Mago reads a <? in it, as in <?xml, as a PHP open tag and
+# reports parse errors. The info and routing files are never in these directories.
+excludes = [
+    "**/config/install/**/*.yml",
+    "**/config/optional/**/*.yml",
+    "**/config/schema/**/*.yml",
+    "**/config/sync/**/*.yml",
+]
+
+[linter.rules]
+# Report an interface name without the "Interface" suffix, and a trait name without the "Trait"
+# suffix, as Coder 9 does.
+interface-name = { psr = true }
+trait-name = { psr = true }
+# Report a file whose name differs from the class that it declares. Coder skips the test classes
+# under a module's tests directory and the helper classes in their files.
+file-name = { enabled = true, exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
+single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
+
+# These rules contradict Drupal's standard, or repeat a rule of this extension.
+# drupal/function-name checks function names the way Coder does. function-name wants snake case,
+# so it also reports a private helper such as _mymodule_helper().
+function-name = { enabled = false }
+# drupal/unused-variable reports a variable that's never read, as Coder does. no-redundant-variable
+# also reports a catch variable, the value of a $key => $value foreach and a write through a
+# reference, which Coder allows. no-unused-closure-capture repeats drupal/unused-variable.
+no-redundant-variable = { enabled = false }
+no-unused-closure-capture = { enabled = false }
+# Drupal writes a deprecation as @trigger_error(), and drupal/unsilenced-deprecation reports a
+# missing @.
+no-error-control-operator = { enabled = false }
+# Drupal's standard allows a global variable named _mymodule_name, and core keeps its settings in
+# globals such as $base_url.
+no-global = { enabled = false }
+# drupal/inline-comment already reports a "#" comment. drupal/todo-comment checks the
+# "@todo Fix problem X here." format, and tagged-todo contradicts it.
+no-hash-comment = { enabled = false }
+tagged-todo = { enabled = false }
+# The fix deletes a loop whose condition does the work, as in while (--$i >= 0 && ...) {}, and
+# Mago marks that fix safe.
+no-empty-loop = { enabled = false }
+
+# Advice that Drupal's standard doesn't ask for. Set enabled = true for the ones that you want.
+assert-description = { enabled = false }
+braced-string-interpolation = { enabled = false }
+cyclomatic-complexity = { enabled = false }
+excessive-nesting = { enabled = false }
+excessive-parameter-list = { enabled = false }
+halstead = { enabled = false }
+identity-comparison = { enabled = false }
+kan-defect = { enabled = false }
+literal-named-argument = { enabled = false }
+no-assign-in-condition = { enabled = false }
+no-boolean-flag-parameter = { enabled = false }
+no-else-clause = { enabled = false }
+no-empty = { enabled = false }
+no-empty-catch-clause = { enabled = false }
+no-isset = { enabled = false }
+no-multi-assignments = { enabled = false }
+no-shorthand-ternary = { enabled = false }
+prefer-arrow-function = { enabled = false }
+prefer-early-continue = { enabled = false }
+prefer-first-class-callable = { enabled = false }
+prefer-static-closure = { enabled = false }
+readable-literal = { enabled = false }
+too-many-methods = { enabled = false }
+# Drupal's standard doesn't ask for strict types. Core declares them in its tests, and many contrib
+# modules declare them everywhere.
+strict-types = { enabled = false }
+
+[analyzer]
+# Report a PHP function that is called with the wrong case, as Squiz.PHP.LowercasePHPFunctions does.
+check-name-casing = true
+# A YAML file doesn't hold any PHP. An api.php file documents hooks with example code, and test
+# fixtures are often broken on purpose. phpstan-drupal leaves both out too. The linter still checks
+# them, as phpcs does.
+excludes = ["**/*.yml", "**/*.api.php", "**/tests/fixtures/**"]
