@@ -70,7 +70,7 @@ final class FullyQualifiedNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/fully-qualified-name',
             name: 'Fully qualified name',
-            description: 'Reports namespaced classes referenced in full instead of through a use statement.',
+            description: 'Reports a namespaced class referenced in full instead of through a use statement.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // The name kinds and the skipped kinds are targets. Rust then

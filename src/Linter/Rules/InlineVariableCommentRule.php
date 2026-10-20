@@ -62,7 +62,7 @@ final class InlineVariableCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-variable-comment',
             name: 'Inline variable comment',
-            description: 'Checks the style and word order of an inline @var type declaration.',
+            description: 'Reports an inline @var type declaration in a // comment, or with the variable name before the type.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

@@ -60,7 +60,7 @@ final class FunctionBlankLineRule implements Rule
         return new RuleDefinition(
             code: 'drupal/function-blank-line',
             name: 'Function blank line',
-            description: 'Checks that a blank line separates a function declaration from the code or comment before it.',
+            description: 'Reports a function declaration with no blank line between it and the code or comment before it.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Function],

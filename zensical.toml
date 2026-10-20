@@ -1,5 +1,5 @@
 [project]
-site_name = "mago-drupal"
+site_name = "Mago for Drupal"
 site_description = "Drupal's coding standard for the Mago linter."
 repo_url = "https://github.com/amateescu/mago-drupal"
 repo_name = "amateescu/mago-drupal"

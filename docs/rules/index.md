@@ -1,11 +1,11 @@
 # Linter rules
 
 Every linter rule of the extension, grouped by what it checks. Each group has a page, and each rule
-has an entry there. An entry starts with the rule's level, what its fix does, either the section of
-[Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) checked by the
-rule or, for a check not covered by the standards, where the check comes from, and then the checks
-ported by the rule, from Coder, core's own phpcs or PHPStan config, or phpstan-drupal. Then come
-what the rule reports and, where it skips cases, what it leaves alone.
+has an entry there. An entry starts with the rule's level and what its fix does. Then it names the
+section of [Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) that
+the rule checks, or, for a check that the standards don't cover, where the check comes from. Last
+come the checks ported by the rule, from Coder, core's own phpcs or PHPStan config, or
+phpstan-drupal. What the rule reports follows, and, where it skips cases, what it leaves alone.
 
 Coder 9 is the parity target. Where the written standards ask for less than Coder, the rules
 follow Coder. Where they ask for more, some rules follow the standards, and their entries say so.
@@ -22,24 +22,24 @@ Rules for code that runs input it shouldn't trust, or reads the wrong value.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/insecure-unserialize`](bugs-and-security.md#drupalinsecure-unserialize) | error | Reports unserialize() calls that don't limit the allowed classes. |
-| [`drupal/preg-security`](bugs-and-security.md#drupalpreg-security) | error | Reports a preg pattern with the `e` modifier. The modifier evaluates the replacement as PHP. |
-| [`drupal/remote-address`](bugs-and-security.md#drupalremote-address) | error | Reports a read of $_SERVER['REMOTE_ADDR']. The read ignores Drupal's reverse-proxy settings. |
+| [`drupal/insecure-unserialize`](bugs-and-security.md#drupalinsecure-unserialize) | error | Reports an unserialize() call that doesn't limit the allowed classes. |
+| [`drupal/preg-security`](bugs-and-security.md#drupalpreg-security) | error | Reports a preg pattern with the e modifier, which evaluates the replacement as PHP. |
+| [`drupal/remote-address`](bugs-and-security.md#drupalremote-address) | error | Reports a read of $_SERVER['REMOTE_ADDR'], which ignores Drupal's reverse-proxy settings. |
 | [`drupal/weak-hash`](bugs-and-security.md#drupalweak-hash) | warning | Reports an md5(), sha1() or crc32() call, and a hash() call that uses one of those algorithms. |
 
 ## Using the right API
 
-Rules for calls that have a Drupal API in their place, and for the strings read by Drupal's tools
-from the source.
+Rules for calls that a Drupal API replaces, and for strings that Drupal's tools read from the
+source.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/deprecation-message`](right-api.md#drupaldeprecation-message) | warning | Checks that E_USER_DEPRECATED messages follow the documented deprecation grammar. |
-| [`drupal/global-function`](right-api.md#drupalglobal-function) | warning | Reports procedural Drupal functions called from inside a class. |
+| [`drupal/deprecation-message`](right-api.md#drupaldeprecation-message) | warning | Reports an E_USER_DEPRECATED message that breaks the documented deprecation grammar. |
+| [`drupal/global-function`](right-api.md#drupalglobal-function) | warning | Reports a procedural Drupal function called from inside a class. |
 | [`drupal/translatable-literal`](right-api.md#drupaltranslatable-literal) | warning | Reports a translatable string that isn't a literal, a first-class callable such as t(...), and a string joined after the call. |
 | [`drupal/translatable-string`](right-api.md#drupaltranslatable-string) | warning | Reports a translatable string built with ".", an empty or padded one, a call with no string, and an escaped quote. |
 | [`drupal/translated-exception`](right-api.md#drupaltranslated-exception) | warning | Reports an exception message passed through t(). |
-| [`drupal/unsilenced-deprecation`](right-api.md#drupalunsilenced-deprecation) | error | Reports a trigger_error() deprecation notice that doesn't start with "@". |
+| [`drupal/unsilenced-deprecation`](right-api.md#drupalunsilenced-deprecation) | error | Reports a trigger_error() deprecation notice without an "@" right before it. |
 
 ## Procedural files
 
@@ -49,13 +49,13 @@ before the first dot. All of them report only in `.module` and `.install` files,
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/const-prefix`](procedural-files.md#drupalconst-prefix) | warning | Reports const constants that don't start with the module name. |
-| [`drupal/constant-prefix`](procedural-files.md#drupalconstant-prefix) | warning | Reports define() constants that don't start with the module name. |
-| [`drupal/empty-install-hook`](procedural-files.md#drupalempty-install-hook) | error | Reports hook_install() and hook_uninstall() implementations with an empty body. |
-| [`drupal/function-prefix`](procedural-files.md#drupalfunction-prefix) | error | Reports functions in a .module file whose name doesn't start with the module name. |
-| [`drupal/global-variable`](procedural-files.md#drupalglobal-variable) | error | Reports global variables that don't start with an underscore. |
-| [`drupal/install-hook-location`](procedural-files.md#drupalinstall-hook-location) | error | Reports install-time hooks declared in a .module file instead of a .install file. |
-| [`drupal/t-in-hook-schema`](procedural-files.md#drupalt-in-hook-schema) | error | Reports a t() call inside hook_schema(). Drupal never shows those strings to users. |
+| [`drupal/const-prefix`](procedural-files.md#drupalconst-prefix) | warning | Reports a const constant that doesn't start with the module name. |
+| [`drupal/constant-prefix`](procedural-files.md#drupalconstant-prefix) | warning | Reports a define() constant that doesn't start with the module name. |
+| [`drupal/empty-install-hook`](procedural-files.md#drupalempty-install-hook) | error | Reports a hook_install() or hook_uninstall() implementation with an empty body. |
+| [`drupal/function-prefix`](procedural-files.md#drupalfunction-prefix) | error | Reports a function in a .module file whose name doesn't start with the module name. |
+| [`drupal/global-variable`](procedural-files.md#drupalglobal-variable) | error | Reports a global variable that doesn't start with an underscore. |
+| [`drupal/install-hook-location`](procedural-files.md#drupalinstall-hook-location) | error | Reports an install-time hook declared in a .module file instead of a .install file. |
+| [`drupal/t-in-hook-schema`](procedural-files.md#drupalt-in-hook-schema) | error | Reports a t() call inside hook_schema(), whose strings Drupal never shows to users. |
 
 ## Files and PHP tags
 
@@ -66,8 +66,8 @@ Rules for the bytes of a file and for its open and close tags.
 | [`drupal/byte-order-mark`](files-and-tags.md#drupalbyte-order-mark) | error | Reports a UTF-8 or UTF-16 byte order mark at the start of a file. |
 | [`drupal/empty-php-tags`](files-and-tags.md#drupalempty-php-tags) | warning | Reports an open tag that a close tag follows with only whitespace between. |
 | [`drupal/file-encoding`](files-and-tags.md#drupalfile-encoding) | warning | Reports a file whose bytes aren't valid UTF-8. |
-| [`drupal/file-start-whitespace`](files-and-tags.md#drupalfile-start-whitespace) | error | Reports whitespace before the first PHP open tag of a file. |
-| [`drupal/short-echo-tag`](files-and-tags.md#drupalshort-echo-tag) | error | Reports the <?= echo tag. Drupal writes <?php echo. |
+| [`drupal/file-start-whitespace`](files-and-tags.md#drupalfile-start-whitespace) | error | Reports a file with whitespace before its first PHP open tag. |
+| [`drupal/short-echo-tag`](files-and-tags.md#drupalshort-echo-tag) | error | Reports a <?= echo tag, where Drupal writes <?php echo. |
 | [`drupal/tab-character`](files-and-tags.md#drupaltab-character) | error | Reports a tab in a comment or in the HTML outside the PHP tags. |
 
 ## Info and routing files
@@ -78,12 +78,12 @@ outside PHP tags, and these rules read the YAML in it.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/info-auto-added-keys`](info-and-routing-files.md#drupalinfo-auto-added-keys) | warning | Reports the keys of an .info.yml file that drupal.org packaging adds. |
+| [`drupal/info-auto-added-keys`](info-and-routing-files.md#drupalinfo-auto-added-keys) | warning | Reports a key of an .info.yml file that drupal.org packaging adds. |
 | [`drupal/info-core-version-requirement`](info-and-routing-files.md#drupalinfo-core-version-requirement) | warning | Reports an .info.yml file without a core_version_requirement key. |
 | [`drupal/info-dependencies-array`](info-and-routing-files.md#drupalinfo-dependencies-array) | error | Reports a dependencies key of an .info.yml file that isn't a list. |
 | [`drupal/info-description`](info-and-routing-files.md#drupalinfo-description) | warning | Reports an .info.yml file with no description or an empty one. |
 | [`drupal/info-namespaced-dependency`](info-and-routing-files.md#drupalinfo-namespaced-dependency) | warning | Reports a dependency in an .info.yml file without its project name. |
-| [`drupal/routing-access`](info-and-routing-files.md#drupalrouting-access) | warning | Reports an open route without a comment, and the "access administration pages" permission. |
+| [`drupal/routing-access`](info-and-routing-files.md#drupalrouting-access) | warning | Reports an open route without a comment, and a route that asks for the "access administration pages" permission. |
 
 ## Naming and imports
 
@@ -93,22 +93,22 @@ Rules for the names of classes, constants, functions, methods, properties and va
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/class-name-acronym`](naming-and-imports.md#drupalclass-name-acronym) | error | Reports class-like names that start with three capitals and don't have a lower-case letter, such as HTTP. |
-| [`drupal/define-name`](naming-and-imports.md#drupaldefine-name) | error | Reports define() constants whose name isn't upper case. |
-| [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports enum cases that don't use UpperCamelCase. |
-| [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports namespaced classes referenced in full instead of through a use statement. |
-| [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports functions whose name isn't lower case. |
+| [`drupal/class-name-acronym`](naming-and-imports.md#drupalclass-name-acronym) | error | Reports a class-like name that starts with three capitals and doesn't have a lower-case letter, such as HTTP. |
+| [`drupal/define-name`](naming-and-imports.md#drupaldefine-name) | error | Reports a define() constant whose name isn't upper case. |
+| [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports an enum case that doesn't use UpperCamelCase. |
+| [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports a namespaced class referenced in full instead of through a use statement. |
+| [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports a function whose name isn't lower case. |
 | [`drupal/global-class-backslash`](naming-and-imports.md#drupalglobal-class-backslash) | error | Reports a global class written without a leading backslash in a file with no namespace. |
-| [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports Hook attributes whose name starts with hook_. |
+| [`drupal/hook-attribute-name`](naming-and-imports.md#drupalhook-attribute-name) | warning | Reports a Hook attribute whose name starts with hook_. |
 | [`drupal/literal-constant-case`](naming-and-imports.md#drupalliteral-constant-case) | error | Reports a fully qualified \true, \false or \null that is not written in upper case. |
-| [`drupal/method-name`](naming-and-imports.md#drupalmethod-name) | error | Reports method names that don't use lowerCamelCase. |
-| [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports method names that start with an underscore, other than PHP magic methods. |
+| [`drupal/method-name`](naming-and-imports.md#drupalmethod-name) | error | Reports a method name that doesn't use lowerCamelCase. |
+| [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports a method name that starts with an underscore, other than a PHP magic method. |
 | [`drupal/old-style-constructor`](naming-and-imports.md#drupalold-style-constructor) | error | Reports a method named after its class in a class without __construct(). |
-| [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports class properties that don't use lowerCamelCase. |
+| [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports a class property that doesn't use lowerCamelCase. |
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |
 | [`drupal/test-class-suffix`](naming-and-imports.md#drupaltest-class-suffix) | error | Reports a test class whose name doesn't end in Test, which PHPUnit never runs. |
 | [`drupal/use-leading-backslash`](naming-and-imports.md#drupaluse-leading-backslash) | error | Reports a use statement whose first name starts with a backslash. |
-| [`drupal/variable-name`](naming-and-imports.md#drupalvariable-name) | error | Reports variables whose name starts with a capital letter. |
+| [`drupal/variable-name`](naming-and-imports.md#drupalvariable-name) | error | Reports a variable whose name starts with a capital letter. |
 
 ## Statements and declarations
 
@@ -117,22 +117,22 @@ and for how methods, properties and parameters are declared.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/case-break-blank-line`](statements.md#drupalcase-break-blank-line) | error | Checks that one blank line follows the statement that ends a switch case. |
+| [`drupal/case-break-blank-line`](statements.md#drupalcase-break-blank-line) | error | Reports a statement that ends a switch case and isn't followed by exactly one blank line. |
 | [`drupal/case-fall-through`](statements.md#drupalcase-fall-through) | error | Reports a non-empty switch case that falls through to the next case with no comment. |
 | [`drupal/case-label-line`](statements.md#drupalcase-label-line) | error | Reports a comment before a case or default label on the label's line. |
 | [`drupal/case-semicolon`](statements.md#drupalcase-semicolon) | error | Reports a case or default label that ends with a semicolon instead of a colon. |
-| [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between `yield` and `from`. |
-| [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports "else if" where Drupal writes "elseif". |
+| [`drupal/comment-in-expression`](statements.md#drupalcomment-in-expression) | error | Reports a comment right after a cast, or between yield and from. |
+| [`drupal/else-if`](statements.md#drupalelse-if) | error | Reports an "else if" where Drupal writes "elseif". |
 | [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that doesn't have a case label. |
 | [`drupal/explicit-nullable-param`](statements.md#drupalexplicit-nullable-param) | error | Reports a typed parameter with a null default whose type doesn't allow null. |
-| [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Checks that a blank line separates a function declaration from the code or comment before it. |
-| [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports methods declared without an explicit visibility keyword. |
+| [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Reports a function declaration with no blank line between it and the code or comment before it. |
+| [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports a method declared without an explicit visibility keyword. |
 | [`drupal/non-capturing-catch`](statements.md#drupalnon-capturing-catch) | error | Reports a catch variable that's never read, which the clause can leave out from PHP 8.0. |
-| [`drupal/null-coalesce`](statements.md#drupalnull-coalesce) | error | Reports isset() and strict null checks in a ternary that "??" replaces. |
+| [`drupal/null-coalesce`](statements.md#drupalnull-coalesce) | error | Reports an isset() or strict null check in a ternary that "??" replaces. |
 | [`drupal/parameter-blank-line`](statements.md#drupalparameter-blank-line) | error | Reports a blank line in a multi-line function declaration. |
 | [`drupal/property-per-statement`](statements.md#drupalproperty-per-statement) | error | Reports a statement that declares more than one property. |
-| [`drupal/property-visibility`](statements.md#drupalproperty-visibility) | error | Reports properties declared with var or without an explicit visibility keyword. |
-| [`drupal/redundant-return`](statements.md#drupalredundant-return) | warning | Reports a `return;` that is the last statement of a function body. |
+| [`drupal/property-visibility`](statements.md#drupalproperty-visibility) | error | Reports a property declared with var or without an explicit visibility keyword. |
+| [`drupal/redundant-return`](statements.md#drupalredundant-return) | warning | Reports a bare return; that is the last statement of a function body. |
 | [`drupal/short-ternary`](statements.md#drupalshort-ternary) | error | Reports a ternary that repeats its condition, which "?:" replaces. |
 | [`drupal/short-list`](statements.md#drupalshort-list) | error | Reports a list(...) destructuring that can be written as [...]. |
 | [`drupal/unused-variable`](statements.md#drupalunused-variable) | warning | Reports a variable that is written and never read in its function, closure or file. |
@@ -140,24 +140,25 @@ and for how methods, properties and parameters are declared.
 
 ## Comment text
 
-These rules read only the text of a comment, and don't compare it against the declaration that it
-documents. They cover the part of `Drupal.Commenting.*` that works that way, the `@author` ban and
-the line-length check for comments. For the comment whitespace set by `mago format`, see
+These rules check comments without comparing them against the declaration that they document. They
+cover the part of `Drupal.Commenting.*` that works that way, the DrupalPractice comment checks, the
+`@author` ban, the line-length check for comments and the docblock side of unused imports. For the
+comment whitespace set by `mago format`, see
 [Comment whitespace and the formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/author-tag`](comment-text.md#drupalauthor-tag) | warning | Reports @author tags in docblocks. |
-| [`drupal/comment-line-length`](comment-text.md#drupalcomment-line-length) | warning | Reports comment lines longer than 80 characters. |
-| [`drupal/doc-comment-array-syntax`](comment-text.md#drupaldoc-comment-array-syntax) | warning | Reports `array()` syntax inside a docblock @code example. |
+| [`drupal/author-tag`](comment-text.md#drupalauthor-tag) | warning | Reports an @author tag in a docblock. |
+| [`drupal/comment-line-length`](comment-text.md#drupalcomment-line-length) | warning | Reports a comment line longer than 80 characters. |
+| [`drupal/doc-comment-array-syntax`](comment-text.md#drupaldoc-comment-array-syntax) | warning | Reports an array() literal inside a docblock @code example. |
 | [`drupal/doc-type-namespace`](comment-text.md#drupaldoc-type-namespace) | warning | Reports a docblock tag, such as @param or @see, that names a class imported only for docblocks by its short name. |
-| [`drupal/expected-exception-tag`](comment-text.md#drupalexpected-exception-tag) | warning | Reports the legacy PHPUnit @expectedException* docblock tags. |
-| [`drupal/gender-neutral-comment`](comment-text.md#drupalgender-neutral-comment) | warning | Reports gendered pronouns in comments. |
-| [`drupal/inline-comment`](comment-text.md#drupalinline-comment) | warning | Checks that a `//` comment has one space after `//`, starts with a capital letter, and doesn't use `#`, and that a docblock doesn't sit inside code. |
-| [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) | warning | Checks that a `//` comment on its own line isn't followed by a blank line. |
-| [`drupal/inline-comment-punctuation`](comment-text.md#drupalinline-comment-punctuation) | warning | Checks that a `//` comment ends with terminal punctuation. |
-| [`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) | warning | Checks that a docblock's long description doesn't end with a letter. |
-| [`drupal/post-statement-comment`](comment-text.md#drupalpost-statement-comment) | warning | Reports a `//` comment on the same line as the statement before it, and a comment after the opening or closing brace of a class. |
+| [`drupal/expected-exception-tag`](comment-text.md#drupalexpected-exception-tag) | warning | Reports a legacy PHPUnit @expectedException* docblock tag. |
+| [`drupal/gender-neutral-comment`](comment-text.md#drupalgender-neutral-comment) | warning | Reports a gendered pronoun in a comment. |
+| [`drupal/inline-comment`](comment-text.md#drupalinline-comment) | warning | Reports a // comment without one space after // or without a capital letter, a # comment, and a docblock inside code. |
+| [`drupal/inline-comment-blank-line`](comment-text.md#drupalinline-comment-blank-line) | warning | Reports a // comment on its own line that a blank line follows. |
+| [`drupal/inline-comment-punctuation`](comment-text.md#drupalinline-comment-punctuation) | warning | Reports a // comment that doesn't end with terminal punctuation. |
+| [`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) | warning | Reports a docblock long description that ends with a letter. |
+| [`drupal/post-statement-comment`](comment-text.md#drupalpost-statement-comment) | warning | Reports a // comment on the same line as the statement before it, and a comment after the opening or closing brace of a class. |
 | [`drupal/todo-comment`](comment-text.md#drupaltodo-comment) | warning | Reports a to-do comment that doesn't follow the "@todo Fix problem X here." format. |
 
 ## Docblock structure
@@ -171,26 +172,26 @@ They don't check the types in a docblock against the real signature, which is do
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Checks the comment style above a class, interface, trait or enum, the blank line below its docblock, and a summary that repeats the name. |
-| [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Checks the wording of a @deprecated docblock tag and the @see tag that must follow it. |
-| [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Checks a docblock's opener, closer, blank lines and spaces, and @inheritdoc without braces. |
+| [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Reports a comment of the wrong style above a class, interface, trait or enum, a blank line below its docblock, and a summary that repeats the name. |
+| [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Reports a @deprecated docblock tag whose wording breaks the documented grammar, and a missing or malformed @see tag after it. |
+| [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Reports a docblock with a wrong opener, closer, blank lines or spaces, or with @inheritdoc without braces. |
 | [`drupal/doc-see-tag`](docblock-structure.md#drupaldoc-see-tag) | error | Reports a @see tag with no reference, or with text or punctuation after the reference. |
-| [`drupal/doc-sentence`](docblock-structure.md#drupaldoc-sentence) | error | Checks the first letter and the end of a docblock summary and of its @param and @throws descriptions, the first letter of the long description, and a summary on one line. |
+| [`drupal/doc-sentence`](docblock-structure.md#drupaldoc-sentence) | error | Reports a docblock summary, @param or @throws description with a wrong first letter or ending, a long description that starts with a lower-case letter, and a summary on more than one line. |
 | [`drupal/doc-tag-descriptions`](docblock-structure.md#drupaldoc-tag-descriptions) | error | Reports a @param or @return with no description, a @param that repeats one or is out of order, and a method parameter with no @param when others have one. |
-| [`drupal/doc-tag-groups`](docblock-structure.md#drupaldoc-tag-groups) | error | Checks that the tags of one kind are in one group, @param first, and the blank lines around the groups. |
-| [`drupal/doc-tag-layout`](docblock-structure.md#drupaldoc-tag-layout) | error | Checks where the description of a @param, @return or @throws goes, its indent, and the spacing of the tag. |
+| [`drupal/doc-tag-groups`](docblock-structure.md#drupaldoc-tag-groups) | error | Reports a docblock whose tags of one kind aren't in one group with @param first, or whose tag groups don't have the right blank lines around them. |
+| [`drupal/doc-tag-layout`](docblock-structure.md#drupaldoc-tag-layout) | error | Reports a @param, @return or @throws tag whose description is on the wrong line or has the wrong indent, or whose spacing is wrong. |
 | [`drupal/doc-tag-types`](docblock-structure.md#drupaldoc-tag-types) | error | Reports a @param with no type or variable name, a @return with no type, and a second @return. |
 | [`drupal/doc-type-name`](docblock-structure.md#drupaldoc-type-name) | error | Reports a @param, @return or @var type spelled another way than the standard asks, such as integer for int. |
-| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Checks the style, the @file tag and the blank line below the docblock that starts a PHP file, and that a namespaced class file doesn't start with a comment. |
-| [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Checks the comment style above a function or method, and that its docblock isn't followed by a blank line. |
-| [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Checks the "Implements hook_x()." docblock convention on a hook implementation. |
-| [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Checks the style and word order of an inline @var type declaration. |
+| [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Reports a comment that starts a PHP file and has the wrong style, no @file tag or no blank line below it, and a comment at the start of a namespaced class file. |
+| [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Reports a comment of the wrong style above a function or method, and a blank line below its docblock. |
+| [`drupal/hook-comment`](docblock-structure.md#drupalhook-comment) | warning | Reports a hook implementation whose docblock doesn't follow the "Implements hook_x()." convention. |
+| [`drupal/inline-variable-comment`](docblock-structure.md#drupalinline-variable-comment) | warning | Reports an inline @var type declaration in a // comment, or with the variable name before the type. |
 | [`drupal/missing-class-comment`](docblock-structure.md#drupalmissing-class-comment) | error | Reports a class, interface, trait or enum with no docblock. |
 | [`drupal/missing-file-comment`](docblock-structure.md#drupalmissing-file-comment) | error | Reports a PHP file that isn't a class file and doesn't have a comment at its start. |
 | [`drupal/missing-function-comment`](docblock-structure.md#drupalmissing-function-comment) | error | Reports a function or method with no docblock, a constructor excepted. |
 | [`drupal/missing-property-comment`](docblock-structure.md#drupalmissing-property-comment) | error | Reports a class property with no docblock. |
 | [`drupal/missing-summary`](docblock-structure.md#drupalmissing-summary) | error | Reports a docblock with tags and no short description. |
-| [`drupal/variable-comment`](docblock-structure.md#drupalvariable-comment) | error | Checks the comment style above a class property and the @var tag of its docblock. |
+| [`drupal/variable-comment`](docblock-structure.md#drupalvariable-comment) | error | Reports a comment of the wrong style above a class property, and a missing or malformed @var tag in its docblock. |
 
 ## DrupalPractice checks
 
@@ -200,11 +201,11 @@ they're [off in Drupal core](../setup/configuration.md#checking-drupal-core).
 | Rule | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/class-prefix`](drupal-practice.md#drupalclass-prefix) | warning | Reports a class or interface in the global namespace that doesn't start with the module name. |
-| [`drupal/curl-ssl-verify`](drupal-practice.md#drupalcurl-ssl-verify) | warning | Reports curl_setopt() calls that turn off CURLOPT_SSL_VERIFYPEER. |
-| [`drupal/escaped-placeholder`](drupal-practice.md#drupalescaped-placeholder) | warning | Reports check_plain() or Html::escape() as the value of an @, % or : placeholder, which escapes the value already. |
+| [`drupal/curl-ssl-verify`](drupal-practice.md#drupalcurl-ssl-verify) | warning | Reports a curl_setopt() call that turns off CURLOPT_SSL_VERIFYPEER. |
+| [`drupal/escaped-placeholder`](drupal-practice.md#drupalescaped-placeholder) | warning | Reports a check_plain() or Html::escape() call as the value of an @, % or : placeholder, which escapes the value already. |
 | [`drupal/form-alter-comment`](drupal-practice.md#drupalform-alter-comment) | warning | Reports a function documented as hook_form_alter() that isn't named after the module. |
 | [`drupal/global-constant`](drupal-practice.md#drupalglobal-constant) | warning | Reports a top-level const statement or define() call, as DrupalPractice does. |
-| [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE or $_FILES. The request stack gives the same data. |
+| [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE or $_FILES, where the request stack gives the same data. |
 | [`drupal/strict-config-schema`](drupal-practice.md#drupalstrict-config-schema) | error | Reports a test class that turns off strict config schema checking. |
 | [`drupal/untranslated-description`](drupal-practice.md#drupaluntranslated-description) | warning | Reports a plain string as the #description of a form element or render array. |
 | [`drupal/untranslated-options`](drupal-practice.md#drupaluntranslated-options) | warning | Reports a plain string in the #options of a checkboxes, radios, select or tableselect element. |
@@ -217,8 +218,8 @@ of the standard would go unchecked.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/link-text-translatable`](drupal-7.md#drupallink-text-translatable) | error | Reports literal link text passed to l() without a t() wrapper. |
-| [`drupal/t-in-hook-menu`](drupal-7.md#drupalt-in-hook-menu) | error | Reports a t() call inside hook_menu(). Drupal translates the strings when it renders them. |
+| [`drupal/link-text-translatable`](drupal-7.md#drupallink-text-translatable) | error | Reports an l() call whose link text is a literal without a t() wrapper. |
+| [`drupal/t-in-hook-menu`](drupal-7.md#drupalt-in-hook-menu) | error | Reports a t() call inside hook_menu(), whose strings Drupal translates when it renders them. |
 | [`drupal/watchdog-message`](drupal-7.md#drupalwatchdog-message) | error | Reports a watchdog() message wrapped in t() or built by concatenation. |
 
 ## Ported from phpstan-drupal
@@ -228,9 +229,9 @@ only the syntax.
 
 | Rule | Level | What it reports |
 | --- | --- | --- |
-| [`drupal/discouraged-function`](phpstan-drupal.md#drupaldiscouraged-function) | error | Reports calls to the devel dump helpers and to fnmatch(). Some PHP builds don't have fnmatch(). |
+| [`drupal/discouraged-function`](phpstan-drupal.md#drupaldiscouraged-function) | error | Reports a call to a devel dump helper or to fnmatch(), which some PHP builds don't have. |
 | [`drupal/render-callback`](phpstan-drupal.md#drupalrender-callback) | error | Reports a render array callback that isn't a closure, a service:method string or a class method. |
-| [`drupal/symfony-yaml-parse`](phpstan-drupal.md#drupalsymfony-yaml-parse) | warning | Reports a Symfony\Component\Yaml\Yaml::parse() call. It bypasses Drupal\Component\Serialization\Yaml::decode(). |
+| [`drupal/symfony-yaml-parse`](phpstan-drupal.md#drupalsymfony-yaml-parse) | warning | Reports a Symfony\Component\Yaml\Yaml::parse() call, which bypasses Drupal\Component\Serialization\Yaml::decode(). |
 | [`drupal/todo-current-issue`](phpstan-drupal.md#drupaltodo-current-issue) | error | Reports a @todo comment that links the issue of the current GitLab merge request. |
 
 <!-- /docs-gen -->

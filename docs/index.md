@@ -1,10 +1,10 @@
-# mago-drupal
+# Mago for Drupal
 
-mago-drupal is a [Mago](https://github.com/carthage-software/mago) extension that adds
+A [Mago](https://github.com/carthage-software/mago) extension that adds
 [Drupal's coding standards](https://project.pages.drupalcode.org/coding_standards/) to the Mago
-linter, and teaches the Mago analyzer what Drupal's services, entities, config and plugins hand
-back. Together with `mago format` and Mago's own rules, it replaces phpcs and Coder for the PHP
-files of a Drupal project.
+linter and teaches the Mago analyzer about Drupal's services, entities, config and plugins.
+Together with Mago's own formatter, rules and analyzer, it replaces phpcs, Coder, PHPStan and
+phpstan-drupal in a Drupal project.
 
 - **Linter rules** check the parts of the standards that can't be checked by Mago's own rules. They
   port the checks of Coder's `Drupal` and `DrupalPractice` standards that need to know about Drupal,
@@ -12,8 +12,8 @@ files of a Drupal project.
   [Linter rules](rules/index.md).
 - **Analyzer plugins** give `mago analyze` the types of Drupal's services, entities, config and
   plugins, and port phpstan-drupal's Drupal-specific checks. See [Analyzer](analyzer/index.md).
-- **Fixes** work the way phpcbf fixes Coder's sniffs. Many rules have one, and `mago lint --fix`
-  applies them.
+- **Fixes** work the way phpcbf fixes Coder's sniffs. Many rules have one. `mago fix` applies them
+  and formats the code, and `mago lint --fix` applies only the fixes. See [Fixes](setup/fixes.md).
 - **A map from Coder** lists every check of Coder's two standards and what takes its place. Search
   it for the code from a phpcs report or a `phpcs:ignore` comment. See
   [Coming from Coder](coder/index.md).

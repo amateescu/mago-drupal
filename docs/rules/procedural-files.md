@@ -26,7 +26,7 @@ before the first dot. All of them report only in `.module` and `.install` files,
 
 - a `const` inside a braced `namespace Foo { }`. That skip doesn't apply to `define()`.
 
-The check is the one of `drupal/constant-prefix`.
+It checks the prefix the same way as [`drupal/constant-prefix`](#drupalconstant-prefix).
 
 ??? example "Example"
 

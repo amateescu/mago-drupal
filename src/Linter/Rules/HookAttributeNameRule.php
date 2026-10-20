@@ -39,7 +39,7 @@ final class HookAttributeNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/hook-attribute-name',
             name: 'Hook attribute name',
-            description: 'Reports Hook attributes whose name starts with hook_.',
+            description: 'Reports a Hook attribute whose name starts with hook_.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Attribute],

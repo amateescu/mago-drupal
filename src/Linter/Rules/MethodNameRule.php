@@ -35,7 +35,7 @@ final class MethodNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/method-name',
             name: 'Method name',
-            description: "Reports method names that don't use lowerCamelCase.",
+            description: "Reports a method name that doesn't use lowerCamelCase.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // The class-like gives the class name for the PHP 4 constructor

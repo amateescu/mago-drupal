@@ -35,7 +35,7 @@ final class DocCommentArraySyntaxRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-comment-array-syntax',
             name: 'Doc comment array syntax',
-            description: 'Reports `array()` syntax inside a docblock @code example.',
+            description: 'Reports an array() literal inside a docblock @code example.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

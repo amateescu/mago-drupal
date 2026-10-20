@@ -37,7 +37,7 @@ final class RoutingAccessRule implements Rule
         return new RuleDefinition(
             code: 'drupal/routing-access',
             name: 'Routing access',
-            description: 'Reports an open route without a comment, and the "access administration pages" permission.',
+            description: 'Reports an open route without a comment, and a route that asks for the "access administration pages" permission.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

@@ -69,7 +69,7 @@ final class GlobalFunctionRule implements Rule
         return new RuleDefinition(
             code: 'drupal/global-function',
             name: 'Global function in a class',
-            description: 'Reports procedural Drupal functions called from inside a class.',
+            description: 'Reports a procedural Drupal function called from inside a class.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             // Coder reports only in a class. An anonymous class inside a

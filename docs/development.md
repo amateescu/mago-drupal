@@ -11,8 +11,10 @@ just check-all
 ```
 
 `just check` runs `validate`, `format-check`, `test`, `lint` and `analyze`. `just check-all` also
-runs `test-corpus`, `test-fixes` and `test-examples`.
+runs `test-presets`, `test-corpus`, `test-fixes` and `test-examples`.
 
+- `test-presets` loads `drupal.mago.toml` and `drupal-core.mago.toml`, the config files that
+  projects extend, and fails when Mago doesn't know one of their settings or rule names.
 - `test-corpus` starts a real worker over `tests/corpus/src/` and fails if an `@mago-expect`
   annotation isn't fulfilled. `tests/corpus/expected-rules.txt` pins the registered rule codes. Add
   your code there when you add a rule.
@@ -35,11 +37,15 @@ from `zensical.toml`. `just docs` serves the site on http://127.0.0.1:8000 with 
 `just docs-build` builds it into `site/` and fails on a broken link or anchor. Both install the
 Zensical version pinned by the `Justfile` into `.venv`.
 
-The tables of the [rules index](rules/index.md) and of the [Coming from Coder](coder/index.md) pages
-are generated, between `<!-- docs-gen -->` markers. They come from the registered rules and from
-`tests/coder-map.json`, which says what handles each code of Coder's two standards. `just docs-gen`
-rewrites them. `DocsTest` fails when they are out of date, when a rule doesn't have an entry on a
-rule page, and when an entry's level or Ports codes differ from the rule and the map.
+Some parts of the pages are generated, between `<!-- docs-gen -->` markers: the tables of the
+[rules index](rules/index.md), the tables of the [Coming from Coder](coder/index.md) pages, the
+[phpstan-drupal](phpstan/phpstan-drupal.md) and [PHPStan identifiers](phpstan/identifiers.md)
+pages, and the table of checks on the [analyzer index](analyzer/index.md). They come from the
+registered rules, the analyzer entries, `tests/coder-map.json`, which says what handles each code of
+Coder's two standards, and `tests/phpstan-drupal-map.json`, which says what takes the place of each
+rule and extension of phpstan-drupal. `just docs-gen` rewrites them. `DocsTest` fails when they are
+out of date, when a rule doesn't have an entry on a rule page, and when an entry's level or Ports
+codes differ from the rule and the map.
 
 When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
 rule with `ext:drupal/<code>` in the map, and run `just docs-gen`.

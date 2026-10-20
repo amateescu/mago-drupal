@@ -28,7 +28,7 @@ final class InstallHookLocationRule implements Rule
         return new RuleDefinition(
             code: 'drupal/install-hook-location',
             name: 'Install hook location',
-            description: 'Reports install-time hooks declared in a .module file instead of a .install file.',
+            description: 'Reports an install-time hook declared in a .module file instead of a .install file.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function],

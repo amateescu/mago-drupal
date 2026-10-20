@@ -30,7 +30,7 @@ final class InfoAutoAddedKeysRule implements Rule
         return new RuleDefinition(
             code: 'drupal/info-auto-added-keys',
             name: 'Info file auto-added keys',
-            description: 'Reports the keys of an .info.yml file that drupal.org packaging adds.',
+            description: 'Reports a key of an .info.yml file that drupal.org packaging adds.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

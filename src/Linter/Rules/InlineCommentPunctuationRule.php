@@ -40,7 +40,7 @@ final class InlineCommentPunctuationRule implements Rule
         return new RuleDefinition(
             code: 'drupal/inline-comment-punctuation',
             name: 'Inline comment punctuation',
-            description: 'Checks that a `//` comment ends with terminal punctuation.',
+            description: "Reports a // comment that doesn't end with terminal punctuation.",
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

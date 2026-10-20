@@ -30,7 +30,7 @@ final class PropertyVisibilityRule implements Rule
         return new RuleDefinition(
             code: 'drupal/property-visibility',
             name: 'Property visibility',
-            description: 'Reports properties declared with var or without an explicit visibility keyword.',
+            description: 'Reports a property declared with var or without an explicit visibility keyword.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::PlainProperty, NodeKind::HookedProperty],

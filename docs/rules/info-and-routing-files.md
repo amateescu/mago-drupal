@@ -38,7 +38,7 @@ have them.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.InfoFiles.CoreVersionRequirement.CoreVersionRequirement`
 
-DrupalPractice asks the `.info.yml` file of an extension for a `core_version_requirement` key.
+DrupalPractice asks for a `core_version_requirement` key in the `.info.yml` file of an extension.
 Drupal installs the extension only on the core versions that the key names.
 
 **Reports:**
@@ -108,7 +108,7 @@ Coder asks for the `dependencies` of an `.info.yml` file as a list.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.InfoFiles.Description`: `Empty`, `Missing`
 
-DrupalPractice asks the `.info.yml` file of an extension for a description.
+DrupalPractice asks for a description in the `.info.yml` file of an extension.
 
 **Reports:**
 
@@ -132,7 +132,7 @@ DrupalPractice asks the `.info.yml` file of an extension for a description.
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.InfoFiles.NamespacedDependency.NonNamespaced`
 
-DrupalPractice asks for each dependency with the name of its project.
+DrupalPractice asks for each dependency to name its project, as in `drupal:node`.
 
 **Reports:**
 

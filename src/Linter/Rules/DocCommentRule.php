@@ -42,7 +42,7 @@ final class DocCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-comment',
             name: 'Doc comment',
-            description: "Checks a docblock's opener, closer, blank lines and spaces, and @inheritdoc without braces.",
+            description: 'Reports a docblock with a wrong opener, closer, blank lines or spaces, or with @inheritdoc without braces.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::Function, NodeKind::Method],

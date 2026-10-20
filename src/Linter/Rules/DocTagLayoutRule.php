@@ -63,7 +63,7 @@ final class DocTagLayoutRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-tag-layout',
             name: 'Doc tag layout',
-            description: 'Checks where the description of a @param, @return or @throws goes, its indent, and the spacing of the tag.',
+            description: 'Reports a @param, @return or @throws tag whose description is on the wrong line or has the wrong indent, or whose spacing is wrong.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function, NodeKind::Method],

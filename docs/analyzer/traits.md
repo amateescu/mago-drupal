@@ -49,9 +49,9 @@ costs a few method lookups.
 
 ### Properties
 
-A property on the `$this` of a trait, such as `$this->container`, gets the report half of this.
-When every class that uses the trait has the property, declared or through a `@property` tag, the
-report of a missing property is dropped:
+A property on the `$this` of a trait, such as `$this->container`, is only partly handled: when
+every class that uses the trait has the property, declared or through a `@property` tag, the report
+of a missing property is dropped:
 
 - a static read, `self::$name` or `static::$name`, needs a declared static property in every class,
   since PHP throws for an instance or a magic one;
@@ -66,8 +66,8 @@ as `unused-property`.
 
 Core documents `@return $this` on an interface, and keeps the body in a trait with a bare
 `{@inheritdoc}`. A trait doesn't have a parent to inherit from, so on a concrete class the call is
-typed `mixed`, and the rest of the chain with it. The analyzer hands back the receiver for the 42
-methods of 16 core traits whose bodies only ever `return $this`.
+typed `mixed`, and the rest of the chain with it. The analyzer types the call as the receiver for
+the 42 methods of 16 core traits whose bodies only ever `return $this`.
 
 ```php
 AccessResult::allowed()->addCacheableDependency($entity)->andIf($other);  // AccessResultAllowed

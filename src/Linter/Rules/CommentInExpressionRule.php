@@ -39,7 +39,7 @@ final class CommentInExpressionRule implements Rule
         return new RuleDefinition(
             code: 'drupal/comment-in-expression',
             name: 'Comment in expression',
-            description: 'Reports a comment right after a cast, or between `yield` and `from`.',
+            description: 'Reports a comment right after a cast, or between yield and from.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::UnaryPrefixOperator, NodeKind::YieldFrom],

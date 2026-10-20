@@ -136,7 +136,7 @@ final class CoderTables
             );
             $partial = array_filter($sniff['codes'], static fn(array $code): bool => $code['status'] === 'partial');
             $by = match (true) {
-                $ported === [] => 'Not ported',
+                $ported === [] => 'nothing',
                 $partial === [] => $this->handledBy($sniff['where'], statuses: ['report']),
                 default => $this->handledBy($sniff['where'], statuses: ['partial']) . ', partly',
             };
@@ -332,7 +332,7 @@ final class CoderTables
                 'analyze' => $name === '' ? '`mago analyze`' : "`mago analyze` (`{$name}`)",
                 'branch' => 'The analyzer (not released)',
                 'phpcs' => 'phpcs',
-                default => 'Nothing',
+                default => 'nothing',
             };
             $names[] = $gate === null ? $label : "{$label} ({$gate})";
         }

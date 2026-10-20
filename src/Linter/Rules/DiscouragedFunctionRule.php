@@ -52,7 +52,7 @@ final class DiscouragedFunctionRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/discouraged-function',
             name: 'Discouraged function',
-            description: "Reports calls to the devel dump helpers and to fnmatch(). Some PHP builds don't have fnmatch().",
+            description: "Reports a call to a devel dump helper or to fnmatch(), which some PHP builds don't have.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall, NodeKind::FunctionPartialApplication],

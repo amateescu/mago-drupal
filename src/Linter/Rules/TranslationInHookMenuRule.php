@@ -22,7 +22,7 @@ final class TranslationInHookMenuRule extends HookTranslationRule
         return new RuleDefinition(
             code: 'drupal/t-in-hook-menu',
             name: 'Translation in hook_menu()',
-            description: 'Reports a t() call inside hook_menu(). Drupal translates the strings when it renders them.',
+            description: 'Reports a t() call inside hook_menu(), whose strings Drupal translates when it renders them.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function],

@@ -90,7 +90,7 @@ final class PostStatementCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/post-statement-comment',
             name: 'Post-statement comment',
-            description: 'Reports a `//` comment on the same line as the statement before it, and a comment after the opening or closing brace of a class.',
+            description: 'Reports a // comment on the same line as the statement before it, and a comment after the opening or closing brace of a class.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::Program],

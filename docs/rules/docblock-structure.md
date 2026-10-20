@@ -106,14 +106,15 @@ A docblock above or below the attributes counts. A docblock tagged `@file` is th
 
 - a `@deprecated` tag whose text breaks that grammar. A version is `drupal:n.n.n`,
   `project:n.x-n.n` or `project:n.n.n`, with an optional release label such as `-alpha1`, as in
-  `drupal/deprecation-message`. The text may wrap over several lines;
+  [`drupal/deprecation-message`](right-api.md#drupaldeprecation-message). The text may wrap over
+  several lines;
 - a `@deprecated` tag with no `@see` tag after it;
-- a change-record url in another form, or with punctuation after it. The url is the first line of
+- a change-record URL in another form, or with punctuation after it. The URL is the first line of
   the `@see` tag. Coder 9 accepts `https://www.drupal.org/node/n`,
   `https://www.drupal.org/project/name/issues/n` and
   `https://git.drupalcode.org/project/name/-/work_items/n`.
 
-A safe fix removes the punctuation after the url.
+A safe fix removes the punctuation after the URL.
 
 A potentially unsafe fix rewrites an old core wording on the text's first line, such as
 `in Drupal 8.5.x and will be removed before Drupal 9.0.0.`, as phpcbf does. It writes `drupal:`
@@ -150,7 +151,7 @@ Other layouts are reported without a fix.
 
 ??? note "Compared with Coder"
 
-    - Coder reports a missing `@see`, punctuation after the url, a wrong layout and missing extra
+    - Coder reports a missing `@see`, punctuation after the URL, a wrong layout and missing extra
       info as errors. The rule reports every check at warning level.
 
 ---
@@ -267,7 +268,7 @@ formatter](../coder/index.md#comment-whitespace-and-the-formatter).
   of functions and methods.
 
 The reference is read from the tag's own line. The lines below it are a description, which may end
-in a period. The fix is left out for a `@see` after `@deprecated`, whose change-record url is
+in a period. The fix is left out for a `@see` after `@deprecated`, whose change-record URL is
 fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
 
 **Not reported:**
@@ -306,9 +307,9 @@ description of a file docblock are the lines after `@file`, checked like any oth
 - a summary that doesn't start with an upper-case letter. A summary that starts with a digit, `#`,
   `_` or other punctuation counts, and one that starts with a multi-byte character doesn't. The fix
   uppercases a lower-case letter;
-- a summary with no punctuation at the end. The standard asks for a period, but as in Coder, `!`,
-  `?` and `)` pass too. The fix adds a period to a one-line summary that ends with a letter or a
-  digit;
+- a summary with no punctuation at the end. The standard asks for a full stop, but as in Coder,
+  `!`, `?` and `)` pass too. The fix adds a full stop to a one-line summary that ends with a letter
+  or a digit;
 - a summary that spans more than one line;
 - a long description that starts with a lower-case letter. The fix uppercases it.
 
@@ -318,7 +319,7 @@ In the tags:
   the first one below the tag, or the text on the tag's line when the tag doesn't have text below
   it. So `lower Case.` passes and `_lower.` is reported;
 - a `@param` description with no full stop, unless it ends in an `@code` example. The fix adds the
-  full stop unless the description ends in a url, a tag, or `:`, `,` or `;`;
+  full stop unless the description ends in a URL, a tag, or `:`, `,` or `;`;
 - a `@throws` description that starts with a lower-case ASCII letter, or doesn't have a full stop.
 
 [`drupal/long-description-punctuation`](comment-text.md#drupallong-description-punctuation) checks
@@ -364,9 +365,9 @@ the end of the long description.
     - Coder reads a `@throws` description from the lines below the tag only. This rule starts at
       the text on the tag's line, when there is some. So `@throws \Exception Some text` with
       `and more below.` on the next line is reported by Coder as `ThrowsNotCapital`, and isn't
-      reported here. A description on the tag's line only gets just `ThrowsComment` from Coder,
-      which [`drupal/doc-tag-layout`](#drupaldoc-tag-layout) ports. This rule also checks its
-      capital letter and full stop.
+      reported here. A description on the tag's line gets only `ThrowsComment` from Coder, which
+      [`drupal/doc-tag-layout`](#drupaldoc-tag-layout) ports. This rule also checks its capital
+      letter and full stop.
 
 ---
 
@@ -375,7 +376,7 @@ the end of the long description.
 - **Level:** error
 - **Fix:** none
 - **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions)
-- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch`
+- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch` (partly)
 
 > Each parameter of a function must be documented with a `@param` tag (see exceptions below).
 
@@ -725,9 +726,9 @@ A `@return` variable name is read from the tag's own line.
   that stands alone on its line, when the opener is alone on its line too;
 - a comment in the wrong style. A `@codingStandardsIgnoreFile` line stays a directive;
 - a comment at the start of a file with a `namespace` statement and exactly one class, interface,
-  trait or enum. This check runs on every file read by Mago, `.php` files included. The fix deletes
-  a docblock at the start, with the whitespace after it. The text of the docblock is lost, so the
-  fix is potentially unsafe. A plain comment doesn't get a fix;
+  trait or enum. This check runs on every PHP file that Mago reads. The fix deletes a docblock at
+  the start, with the whitespace after it. The text of the docblock is lost, so the fix is
+  potentially unsafe. A plain comment doesn't get a fix;
 - no blank line between a `declare(strict_types=1)` that is the first statement and the comment
   right above it, as `SlevomatCodingStandard.TypeHints.DeclareStrictTypes` asks. Any comment counts
   here, a directive such as `// @mago-expect` too, and the check runs on a class file too. The fix
@@ -964,10 +965,11 @@ inside a run of `//` lines.
 
 **Reports:**
 
-- a file that doesn't start with a comment. This check reads every file with a PHP open tag, `.php`
-  files included. The comment must follow the first open tag. Text before that tag, such as a
-  `#!/usr/bin/env php` line or a byte order mark, which is reported by `drupal/byte-order-mark`,
-  doesn't count. A directive such as `// phpcs:ignoreFile` is skipped.
+- a file that doesn't start with a comment. This check reads every file with a PHP open tag. The
+  comment must follow the first open tag. Text before that tag, such as a `#!/usr/bin/env php`
+  line or a byte order mark, which is reported by
+  [`drupal/byte-order-mark`](files-and-tags.md#drupalbyte-order-mark), doesn't count. A directive
+  such as `// phpcs:ignoreFile` is skipped.
 
 [`drupal/file-comment`](#drupalfile-comment) checks the comment that is there: its style and its
 `@file` tag.

@@ -83,7 +83,7 @@ final class EscapedPlaceholderRule implements Rule
         return new RuleDefinition(
             code: 'drupal/escaped-placeholder',
             name: 'Escaped placeholder',
-            description: 'Reports check_plain() or Html::escape() as the value of an @, % or : placeholder, which escapes the value already.',
+            description: 'Reports a check_plain() or Html::escape() call as the value of an @, % or : placeholder, which escapes the value already.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [...Calls::CALL_KINDS, NodeKind::Instantiation],

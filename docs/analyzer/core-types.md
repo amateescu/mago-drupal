@@ -24,8 +24,8 @@ $url->toString(TRUE);                    // Drupal\Core\GeneratedUrl
 $url->toString($flag);                   // Drupal\Core\GeneratedUrl|string
 ```
 
-- **Config entity IDs.** A config entity's ID is its machine name, so passing one on is a question
-  of the null only.
+- **Config entity IDs.** A config entity's ID is its machine name, so a caller that passes one on
+  only has to handle the null.
 - **Content entity IDs.** A content entity type's ID is an integer, unless its
   `baseFieldDefinitions()` creates the ID field (`$fields['id']` or
   `$fields[$entity_type->getKey('id')]`) as a `string` or `uuid` field, as `Workspace` does. An
@@ -175,9 +175,9 @@ Not translated from phpstan-drupal's stub directory:
   inheritance in the right order. Mago doesn't need them;
 - `twig_escape_filter()`. Twig 3 deprecates the function, and Mago reports a call to it as
   deprecated, which is right for the Twig that core ships;
-- `@phpstan-impure` on `LockBackendInterface::acquire()`. Mago doesn't remember a method's result
-  from one call to the next, so a second `acquire()` after `wait()` isn't taken to return what the
-  first one did.
+- `@phpstan-impure` on `LockBackendInterface::acquire()`. Mago remembers a result from one call to
+  the next only for a mutation-free method, and `acquire()` isn't one, so a second `acquire()` after
+  `wait()` isn't taken to return what the first one did.
 
 Not ported from phpstan-drupal's type extensions:
 

@@ -178,11 +178,11 @@ Mago also reports a typed parameter with a null default before a required one, s
 | Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `Squiz.Arrays.ArrayBracketSpacing` | `mago format` |
-| [`Squiz.Arrays.ArrayDeclaration`](#squizarraysarraydeclaration) | `mago format`, Nothing |
+| [`Squiz.Arrays.ArrayDeclaration`](#squizarraysarraydeclaration) | `mago format`, nothing |
 | [`Squiz.Classes.ClassFileName`](#squizclassesclassfilename) | Mago `file-name`, Mago `single-class-per-file`, partly |
 | `Squiz.ControlStructures.ForEachLoopDeclaration` | `mago format` |
 | [`Squiz.ControlStructures.ForLoopDeclaration`](#squizcontrolstructuresforloopdeclaration) | `mago format`, partly |
-| [`Squiz.ControlStructures.SwitchDeclaration`](#squizcontrolstructuresswitchdeclaration) | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line), [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch), Mago `no-redundant-block`, [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line), Nothing |
+| [`Squiz.ControlStructures.SwitchDeclaration`](#squizcontrolstructuresswitchdeclaration) | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line), [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch), Mago `no-redundant-block`, [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line), nothing |
 | `Squiz.Functions.FunctionDeclarationArgumentSpacing` | `mago format` |
 | [`Squiz.PHP.LowercasePHPFunctions`](#squizphplowercasephpfunctions) | `mago analyze` (`incorrect-function-casing`) |
 | [`Squiz.PHP.NonExecutableCode`](#squizphpnonexecutablecode) | [`drupal/redundant-return`](../rules/statements.md#drupalredundant-return), `mago analyze` (`unevaluated-code`), `mago analyze` (`useless-control-flow`) |
@@ -198,7 +198,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `CommaAfterLast`, `NoSpaceAfterComma`, `NoSpaceAfterDoubleArrow`, `NoSpaceBeforeDoubleArrow`, `SpaceAfterComma`, `SpaceAfterDoubleArrow`, `SpaceAfterKeyword`, `SpaceBeforeComma`, `SpaceBeforeDoubleArrow`, `SpaceInEmptyArray` | `mago format` |
-| `KeySpecified`, `NoKeySpecified` | Nothing |
+| `KeySpecified`, `NoKeySpecified` | nothing |
 
 - `KeySpecified`: An array over several lines whose first entry doesn't have a key and a later one has. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two. Coder also takes the spread of an array element before a key, as in `[...$x['k'], 'k' => 1]`, for an entry without a key.
 - `NoKeySpecified`: An array over several lines with an entry without a key after one with a key. Not ported. Core turns the code off, and the written standard's own array example, `['hello', 'world', 'foo' => 'bar']`, mixes the two.
@@ -228,7 +228,7 @@ With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` und
 | `MissingCase` | [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch) |
 | `SpaceBeforeColonCase`, `SpaceBeforeColonDefault` | `mago format`, Mago `no-redundant-block` |
 | `SpacingAfterBreak` | [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line) |
-| `WrongOpenerCase`, `WrongOpenerDefault` | Nothing |
+| `WrongOpenerCase`, `WrongOpenerDefault` | nothing |
 
 - `SpaceBeforeColonCase`: Coder also reports `case 1: {`. Mago reports the braces as a redundant block.
 - `SpaceBeforeColonDefault`: Coder also reports `default: {`. Mago reports the braces as a redundant block.

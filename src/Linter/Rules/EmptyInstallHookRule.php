@@ -25,7 +25,7 @@ final class EmptyInstallHookRule implements Rule
         return new RuleDefinition(
             code: 'drupal/empty-install-hook',
             name: 'Empty install hook',
-            description: 'Reports hook_install() and hook_uninstall() implementations with an empty body.',
+            description: 'Reports a hook_install() or hook_uninstall() implementation with an empty body.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function],

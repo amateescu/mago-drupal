@@ -38,7 +38,7 @@ final class CurlSslVerifyRule extends CallRule
         return new RuleDefinition(
             code: 'drupal/curl-ssl-verify',
             name: 'Curl SSL verification',
-            description: 'Reports curl_setopt() calls that turn off CURLOPT_SSL_VERIFYPEER.',
+            description: 'Reports a curl_setopt() call that turns off CURLOPT_SSL_VERIFYPEER.',
             defaultLevel: Level::Warning,
             defaultEnabled: true,
             targets: [NodeKind::FunctionCall],

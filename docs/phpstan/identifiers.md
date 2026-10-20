@@ -5,7 +5,8 @@ identifiers of PHPStan and phpstan-deprecation-rules that have Mago issues for t
 Search it for an identifier from a baseline, an `ignoreErrors` entry or a `@phpstan-ignore` comment.
 
 The [`phpstan-ignores` plugin](../analyzer/phpstan-ignores.md) reads the same list. With the plugin
-on, a comment that ignores one of these identifiers drops the Mago issues next to it on its line.
+on, a comment that ignores one of these identifiers drops the matching Mago issues on the line that
+it [covers](../analyzer/phpstan-ignores.md#comment-forms).
 
 An identifier that isn't listed can still have a Mago issue for the same finding. The list holds the
 ones matched by the plugin. The identifiers of phpstan-drupal are on the

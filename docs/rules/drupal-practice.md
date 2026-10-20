@@ -7,10 +7,12 @@ Coder's `Project` class reads the nearest `*.info.yml` or `*.info` file, to find
 a file that isn't named after it and to skip a Drupal 7 module. The rules read the same file, from
 the worker's directory, which is the directory of the Mago config file:
 
-- `drupal/class-prefix` and `drupal/form-alter-comment` read the module name from it;
-- `drupal/global-constant`, `drupal/request-superglobal` and `drupal/global-function` skip a file
-  whose info file is a `*.info` file that names a core version below 8, or no version, as Coder
-  does.
+- [`drupal/class-prefix`](#drupalclass-prefix) and
+  [`drupal/form-alter-comment`](#drupalform-alter-comment) read the module name from it;
+- [`drupal/global-constant`](#drupalglobal-constant),
+  [`drupal/request-superglobal`](#drupalrequest-superglobal) and
+  [`drupal/global-function`](right-api.md#drupalglobal-function) skip a file whose info file is a
+  `*.info` file that names a core version below 8, or no version, as Coder does.
 
 ---
 

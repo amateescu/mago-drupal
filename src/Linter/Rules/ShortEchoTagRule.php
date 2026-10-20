@@ -29,7 +29,7 @@ final class ShortEchoTagRule implements Rule
         return new RuleDefinition(
             code: 'drupal/short-echo-tag',
             name: 'Short echo tag',
-            description: 'Reports the <?= echo tag. Drupal writes <?php echo.',
+            description: 'Reports a <?= echo tag, where Drupal writes <?php echo.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::EchoTag],

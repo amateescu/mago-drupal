@@ -11,8 +11,8 @@ code, or is allowed, and the analyzer drops the report there. Four markers open 
 - a `@group legacy` docblock on a class or a method in test code (any file under a
   `tests` directory). The group is for the test runner, so it doesn't mark anything elsewhere;
 - a `@deprecated` docblock on a class-like or a function, since deprecated code may use other
-  deprecated code. phpstan-deprecation-rules skips the same places, and Mago 1.57.0 and later skip
-  their own deprecation reports in a `@deprecated` function, method or class-like as well;
+  deprecated code. phpstan-deprecation-rules skips the same places, and Mago skips its own
+  deprecation reports in a `@deprecated` function, method or class-like as well;
 - a PHPUnit `#[IgnoreDeprecations]` attribute on a class or a method;
 - the arguments of `DeprecationHelper::backwardsCompatibleCall()`, whose deprecated branch is what
   runs on older core.
@@ -68,7 +68,7 @@ since it is about PHP language features, not about the Drupal API that a legacy 
 
 `--deprecations=12` on the worker command reports only the Drupal deprecations removed in Drupal 12
 or an earlier major. A project getting ready for Drupal 12 can leave the ones removed in Drupal 13
-for later. This is the "fix now" list of upgrade_status.
+for later. This is the "fix now" list of Upgrade Status.
 
 ```toml
 [extension-hosts.drupal]
@@ -350,7 +350,7 @@ favor of `Transaction::commitOrRelease()`, which was added in Drupal 11.3.
 - test code, which exercises the destructor on purpose, and hook documentation in `*.api.php`
   files.
 
-???+ example "Example"
+??? example "Example"
 
     ```php
     // Reported.

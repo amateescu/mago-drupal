@@ -28,7 +28,7 @@ final class EnumCaseNameRule implements Rule
         return new RuleDefinition(
             code: 'drupal/enum-case-name',
             name: 'Enum case name',
-            description: "Reports enum cases that don't use UpperCamelCase.",
+            description: "Reports an enum case that doesn't use UpperCamelCase.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::EnumCase],

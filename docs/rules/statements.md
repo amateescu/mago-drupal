@@ -191,8 +191,8 @@ label with a colon.
 
 ??? note "Compared with Coder"
 
-    - Core's config runs only `WrongOpenercase`. The rule reports `default;` too, also in
-      core.
+    - Core's config runs only `WrongOpenercase`, so core's phpcs doesn't report `default;`. The
+      rule reports it in core too.
     - Mago's parser doesn't accept a label that ends with a close tag, as in `case 1 ?>`, which PHP
       accepts. Coder reports those, and the rule can't. Mago reports a parse error there and leaves
       that switch out, but still checks the rest of the file.
@@ -437,12 +437,13 @@ it look like the code uses the exception.
 
 - a `catch` variable whose name doesn't appear in the catch block, in the `finally` block, or after
   the whole `try` statement in the same function or file, when `php-version` is 8.0 or later. A
-  name in a closure's `use` list, in an arrow function and in an interpolated string counts.
+  name in a closure's `use` list, in an arrow function and in an interpolated string counts. A
+  name inside a nested function, closure body or class doesn't count, since those have variables
+  of their own.
 
 **Not reported:**
 
-- a name inside a nested function, closure body or class, which has variables of its own;
-- a function that may read the variable by a name built at run time, through `compact()`,
+- a function that may read the variable by a name built at runtime, through `compact()`,
   `get_defined_vars()` or a variable variable. The fix would remove a variable that it reads.
 
 [`drupal/unused-variable`](#drupalunused-variable) allows an unused `catch` variable, as Coder's

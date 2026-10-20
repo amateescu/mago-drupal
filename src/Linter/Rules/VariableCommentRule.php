@@ -50,7 +50,7 @@ final class VariableCommentRule implements Rule
         return new RuleDefinition(
             code: 'drupal/variable-comment',
             name: 'Variable comment',
-            description: 'Checks the comment style above a class property and the @var tag of its docblock.',
+            description: 'Reports a comment of the wrong style above a class property, and a missing or malformed @var tag in its docblock.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Property],

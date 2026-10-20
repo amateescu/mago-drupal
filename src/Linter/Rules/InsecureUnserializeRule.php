@@ -57,7 +57,7 @@ final class InsecureUnserializeRule implements Rule
         return new RuleDefinition(
             code: 'drupal/insecure-unserialize',
             name: 'Insecure unserialize',
-            description: "Reports unserialize() calls that don't limit the allowed classes.",
+            description: "Reports an unserialize() call that doesn't limit the allowed classes.",
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Program, NodeKind::FunctionCall, NodeKind::FunctionPartialApplication],

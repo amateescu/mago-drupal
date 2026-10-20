@@ -2,7 +2,8 @@
 
 The analyzer types the plugins created by core's plugin managers and the definitions read by
 plugins. The checks report unknown plugin ids, plugin managers that never call `alterInfo()` or
-`setCacheBackend()`, and plugin annotations with the `context` key removed in Drupal 9.
+`setCacheBackend()`, and plugin annotations that still use the `context` key, which Drupal 9
+removed.
 
 ## Plugin instances
 
@@ -10,7 +11,7 @@ plugins. The checks report unknown plugin ids, plugin managers that never call `
 blocks, actions, conditions, field types, widgets, formatters, layouts, mail, queue workers, render
 elements, typed data, filters, image effects, media sources, REST resources and the other managers
 whose constructor names an attribute class. A contrib manager that extends one of them, or a
-receiver typed by the manager's interface, is recognised through the class ancestry.
+receiver typed by the manager's interface, is recognized through the class ancestry.
 
 ```php
 $blockManager->createInstance('page_title_block');       // Drupal\Core\Block\Plugin\Block\PageTitleBlock
@@ -40,8 +41,8 @@ Contrib still ships legacy docblock annotations such as `@Block(id = "…")` or 
 The analyzer reads them from the `src/Plugin/**/*.php` and `src/Element/*.php` files of every
 extension under the Drupal root, analyzed or in `includes`, from disk through the cache. An
 annotation maps to the attribute of the same short name, and `@SearchPlugin` and `@FormElement` are
-mapped by hand. The legacy `@ContentEntityType` and `@ConfigEntityType` annotations are read the
-same way, see [The entity type index](entities.md#the-entity-type-index).
+mapped by hand. The legacy `@ContentEntityType`, `@ConfigEntityType` and `@EntityType` annotations
+are read the same way, see [The entity type index](entities.md#the-entity-type-index).
 
 - An analyzed file that has an annotation on disk is read from the text analyzed by Mago, so an edit
   in an editor buffer that hasn't been saved counts.
@@ -52,7 +53,7 @@ same way, see [The entity type index](entities.md#the-entity-type-index).
 An annotation doesn't count on an abstract class, in a `@code` sample, or on a class that also has
 the attribute. Two annotated classes that claim one id cancel each other out, as attributed ones do.
 
-## Not modelled
+## Not modeled
 
 These keep the declared types:
 
@@ -94,8 +95,8 @@ keeps the union.
 ### Derivers
 
 A deriver gets its base definition documented the same way, so inside a class that implements
-`DeriverInterface` every such report goes, whatever the variable is called. A deriver for a plugin
-type with definition objects works with them through their methods. A plugin manager's
+`DeriverInterface` every such report is dropped, whatever the variable is called. A deriver for a
+plugin type with definition objects works with them through their methods. A plugin manager's
 `$definition` in `processDefinition()` or in an alter keeps the report.
 
 ---
@@ -266,7 +267,7 @@ discovery runs on every request.
 The calls are read as for
 [`drupal/plugin-manager-alter-info`](#drupalplugin-manager-alter-info), with `parent::__construct()`
 followed into the parent's constructor. A `setCacheBackend()` call without the cache key counts as
-a call. It is Mago's own `too-few-arguments`, since core requires the key.
+a call; Mago reports it as `too-few-arguments`, since core requires the key.
 
 **Not reported:**
 

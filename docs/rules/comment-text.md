@@ -1,8 +1,9 @@
 # Comment text
 
-These rules read only the text of a comment, and don't compare it against the declaration that it
-documents. They cover the part of `Drupal.Commenting.*` that works that way, the `@author` ban and
-the line-length check for comments. For the comment whitespace set by `mago format`, see
+These rules check comments without comparing them against the declaration that they document. They
+cover the part of `Drupal.Commenting.*` that works that way, the DrupalPractice comment checks, the
+`@author` ban, the line-length check for comments and the docblock side of unused imports. For the
+comment whitespace set by `mago format`, see
 [Comment whitespace and the formatter](../coder/index.md#comment-whitespace-and-the-formatter).
 
 ---
@@ -462,7 +463,7 @@ pass applies it.
 - a comment whose first word doesn't start with a letter;
 - a numbered list item;
 - a comment with a `cspell:` line;
-- a comment whose last word holds a url or a function call such as `foo()`, or starts with `@`;
+- a comment whose last word holds a URL or a function call such as `foo()`, or starts with `@`;
 - a comment after a `}` on its line, such as `} // end if`. The `//` lines right below such a
   comment are checked as a comment of their own.
 

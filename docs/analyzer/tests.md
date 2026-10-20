@@ -105,9 +105,9 @@ $block->willImplement(PreviewFallbackInterface::class);
 $block->getPreviewFallbackString()->willReturn('Placeholder');  // found on the added interface
 ```
 
-Prophecy makes a double of an interface that is `Traversable`, but neither an `Iterator` nor an
-`IteratorAggregate`, an `Iterator`. The plugin accepts `current()`, `key()`, `next()`, `rewind()`
-and `valid()` on such a prophecy.
+When an interface extends `Traversable` but neither `Iterator` nor `IteratorAggregate`, Prophecy
+makes its double an `Iterator`. The plugin accepts `current()`, `key()`, `next()`, `rewind()` and
+`valid()` on such a prophecy.
 
 ```php
 $items = $this->prophesize(FieldItemListInterface::class);
@@ -494,7 +494,7 @@ reported once, and not again on the tests below it.
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `TestClassSuffixNameRule`, the part that needs the class's ancestry
 
-PHPUnit runs only the files named `*Test.php`, and so do `phpunit -c core` and run-tests.sh, so a
+PHPUnit runs only the files named `*Test.php`, and so do `phpunit -c core` and `run-tests.sh`, so a
 test class whose name doesn't end in `Test` never runs. The lint rule
 [`drupal/test-class-suffix`](../rules/naming-and-imports.md#drupaltest-class-suffix) reports most of
 them from the parent's name, with no types. The check reports the ones that the lint rule can't
