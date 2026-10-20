@@ -130,4 +130,15 @@ final class PhpcsComments {
     $this->messenger->addStatus('Done.');
   }
 
+  /**
+   * Coder reports a concatenation on the `.` after the first literal.
+   */
+  public function concatenated(string $name): string {
+    // @mago-expect lint:drupal/global-function
+    return (string) t(
+      'A message long enough that the formatter has to break the line before the concatenation, which then sits alone'
+      . $name, // phpcs:ignore Drupal.Semantics.FunctionT.Concat
+    );
+  }
+
 }

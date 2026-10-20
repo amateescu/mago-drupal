@@ -232,8 +232,10 @@ methods.
 
 **Reports:**
 
-- a string built with `.`. [`drupal/translatable-literal`](#drupaltranslatable-literal) reports
-  another string that isn't a literal;
+- a string built with `.`. The issue sits on the `.` after the first literal, as in Coder, so a
+  `phpcs:ignore` comment written for Coder covers it.
+  [`drupal/translatable-literal`](#drupaltranslatable-literal) reports another string that isn't a
+  literal;
 - a string padded with whitespace, and an empty one. For a string built with `.`, the padding of
   the first literal is reported too;
 - a call with no arguments, such as `t()`;

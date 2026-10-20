@@ -14,11 +14,14 @@ use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
 use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
 use function str_contains;
+use function strlen;
+use function strspn;
 use function trim;
 
 /**
@@ -148,6 +151,23 @@ final class TranslatableStringRule implements Rule
     }
 
     /**
+     * The `.` right after the first literal, where Coder reports the
+     * concatenation, so that a phpcs comment written for Coder covers the
+     * same line. The whole argument when something other than whitespace
+     * sits between them.
+     */
+    private static function operator(SourceFile $file, Node $first, Node $message): Span
+    {
+        $offset = $first->span->end;
+        $offset += strspn($file->contents, characters: " \t\r\n", offset: $offset);
+        if ($offset >= strlen($file->contents) || $file->contents[$offset] !== '.') {
+            return $message->span;
+        }
+
+        return new Span($offset, $offset + 1);
+    }
+
+    /**
      * Reports a string built with `.`. Any other argument that is not a
      * plain literal is `drupal/translatable-literal`'s.
      */
@@ -157,16 +177,16 @@ final class TranslatableStringRule implements Rule
             return;
         }
 
+        $first = Values::leftmost($context->file, $message);
+        $value = Values::literalString($context->file, $first);
         $context->report(Issue::new(
             'Do not concatenate a translatable string. Use placeholders instead.',
-            $message->span,
+            $value === null ? $message->span : self::operator($context->file, $first, $message),
         )->withHelp(self::HELP));
 
         // Coder also checks the padding of the first token, so a padded
         // leftmost literal gets its own report. The later parts are not
         // checked.
-        $first = Values::leftmost($context->file, $message);
-        $value = Values::literalString($context->file, $first);
         if ($value !== null && self::padded($context->file, $first, $value)) {
             $context->report(Issue::new(self::PADDED, $first->span)->withHelp(self::PADDED_HELP));
         }
