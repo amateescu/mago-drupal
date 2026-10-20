@@ -18,11 +18,11 @@ Both flags also apply Mago's own fixes of that level, such as `strict: true` fro
 ## The strict-behavior fix
 
 With `--potentially-unsafe`, Mago's `strict-behavior` adds `strict: true` to a call such as
-`in_array()` or `array_search()`, which changes what a loose comparison returns. On core, it would break code
-that relies on the loose comparison, such as a float compared with a list of ints, or a value from
-`explode()` that keeps its spaces. So review each change. Mago doesn't have a flag that skips one
-rule's fix. To apply the other potentially unsafe fixes without it, use a config file that extends
-the project's `mago.toml` and turns the rule off:
+`in_array()` or `array_search()`, which changes what a loose comparison returns. On core, it would
+break code that relies on the loose comparison, such as a float compared with a list of ints, or a
+value from `explode()` that keeps its spaces. So review each change. Mago doesn't have a flag that
+skips one rule's fix. To apply the other potentially unsafe fixes without it, use a config file that
+extends the project's `mago.toml` and turns the rule off:
 
 ```toml
 # mago-fix.toml, next to mago.toml.

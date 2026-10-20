@@ -38,7 +38,8 @@ excludes = [
     "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
-    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago doesn't read.
+    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago's own rules don't
+    # read.
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
@@ -65,7 +66,8 @@ excludes = [
     "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
-    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago doesn't read.
+    # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago's own rules don't
+    # read.
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
@@ -132,7 +134,8 @@ no-ini-set = { enabled = false }
 # Core's phpcs.xml.dist leaves tests directories out of Drupal.Files.LineLength. phpcs matches the
 # pattern in any case, so it also leaves out the Tests directories under src/.
 "drupal/comment-line-length" = { exclude = ["**/tests/**", "**/Tests/**"] }
-# The capital P in Parent is on purpose, inside a phpcs:disable range, which Mago doesn't read.
+# The capital P in Parent is on purpose, inside a phpcs:disable range, which Mago's own rules don't
+# read.
 lowercase-keyword = { exclude = ["core/tests/Drupal/Tests/Component/Utility/ReflectionTest.php"] }
 # Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
 # VariableAnalysis sniff.

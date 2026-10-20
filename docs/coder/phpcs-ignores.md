@@ -62,10 +62,9 @@ A rule that ports several codes doesn't tell which one an issue is for. A commen
 them drops the issue, so `phpcs:ignore Drupal.Commenting.DocComment.ShortFullStop` also drops a
 `drupal/doc-sentence` issue for a long description on that line.
 
-An issue counts as on the line where it starts. Most rules start an issue where Coder reports it. A
-rule that starts it elsewhere only gets the comments for its own line. For example,
-`drupal/translated-exception` reports the `t()` call, and Coder the `throw`, so a `phpcs:ignore`
-above a `throw` that spans several lines doesn't reach the call.
+An issue counts as on the line where it starts. The rules start an issue on the line where Coder
+reports it, so a comment written for Coder covers it. A rule that reports a docblock as a whole
+starts the issue on the docblock's first line.
 
 The extension also reads the names of the Coder 8 sniffs that Coder 9 replaced, such as
 `DrupalPractice.CodeAnalysis.VariableAnalysis`, and of the sniffs that core's `phpcs.xml.dist` adds

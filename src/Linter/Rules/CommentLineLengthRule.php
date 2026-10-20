@@ -49,8 +49,7 @@ use function trim;
  * `Implements hook_foo()` and `Contains ...` lines. A line is also exempt if
  * its last word, alone on a line at the same indent, is still past the
  * limit. That exempts URLs and long class paths. A one-line `/* @see *\/`
- * comment is exempt like a `// @see` line, since phpcs never measures a line
- * that ends in `*\/`.
+ * comment is exempt like a `// @see` line.
  *
  * @mago-expect lint:cyclomatic-complexity
  */
