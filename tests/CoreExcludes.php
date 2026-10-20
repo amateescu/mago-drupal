@@ -13,6 +13,10 @@
  * marked, or by itself. A marker inside a string, such as the heredoc of code
  * that DbDumpCommand writes, isn't a comment, and phpcs checks that file.
  *
+ * A file that the preset leaves out of both the linter and the analyzer is
+ * broken on purpose, and Mago reports an error for it that no rule setting
+ * turns off. phpcs checks it, so it isn't compared.
+ *
  * Usage: php tests/CoreExcludes.php <mago binary> <core checkout>
  *
  * The checkout is the directory that holds `core/`.
@@ -112,7 +116,8 @@ final class CoreExcludes
         $expected = array_values(array_unique(array_map(self::normalize(...), $expected)));
         sort($expected);
 
-        $linter = self::coreEntries(self::excludes($mago, 'linter'));
+        $broken = self::coreEntries(self::excludes($mago, 'analyzer'));
+        $linter = array_values(array_diff(self::coreEntries(self::excludes($mago, 'linter')), $broken));
         $formatter = self::coreEntries(self::excludes($mago, 'formatter'));
         $actual = array_values(array_unique([...$linter, ...self::coreEntries(self::excludes($mago, 'source'))]));
 
