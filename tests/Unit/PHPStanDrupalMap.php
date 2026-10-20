@@ -103,11 +103,11 @@ final class PHPStanDrupalMap
         $names = [];
         $inPorts = false;
         foreach (explode(separator: "\n", string: $body) as $line) {
-            if (str_starts_with($line, '- **')) {
-                $inPorts = str_starts_with($line, '- **Ports:**');
-            } elseif (!str_starts_with($line, '  ')) {
-                $inPorts = false;
-            }
+            $inPorts = match (true) {
+                str_starts_with($line, '- **') => str_starts_with($line, '- **Ports:**'),
+                str_starts_with($line, '  ') => $inPorts,
+                default => false,
+            };
 
             if (!$inPorts || !str_contains($line, "phpstan-drupal's")) {
                 continue;
