@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\Nodes;
 use amateescu\MagoDrupal\Internal\TopLevel;
 use Mago\Sdk\Linter\LintContext;
@@ -42,16 +43,6 @@ final class PropertyNameRule implements Rule
         NodeKind::Enum,
         NodeKind::AnonymousClass,
     ];
-
-    /**
-     * @param bool $core Leaves out the leading underscore in the classes that
-     *   may use any case. Core's `phpcs.xml.dist` turns off
-     *   `PSR2.Classes.PropertyDeclaration.Underscore`, which is the only
-     *   check there.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
 
     public function getDefinition(): RuleDefinition
     {
@@ -101,9 +92,10 @@ final class PropertyNameRule implements Rule
 
                 // PSR2.Classes.PropertyDeclaration.Underscore doesn't exempt
                 // any classes, so a leading underscore is still reported there,
-                // except on core.
+                // except in core's own files, since core's phpcs.xml.dist turns
+                // that sniff off.
                 $exempt ??= $this->allowsAnyCase($file, $property);
-                if ($exempt && ($this->core || !str_starts_with($name, '_'))) {
+                if ($exempt && (!str_starts_with($name, '_') || CoreFiles::contains($file->path))) {
                     continue;
                 }
 

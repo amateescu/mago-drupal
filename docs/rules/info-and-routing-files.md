@@ -37,7 +37,7 @@ have them.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.InfoFiles.CoreVersionRequirement.CoreVersionRequirement`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 DrupalPractice asks the `.info.yml` file of an extension for a `core_version_requirement` key.
 Drupal installs the extension only on the core versions that the key names.
@@ -78,7 +78,7 @@ Drupal installs the extension only on the core versions that the key names.
 - **Fix:** none
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.InfoFiles.DependenciesArray.Dependencies`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 Coder asks for the `dependencies` of an `.info.yml` file as a list.
 
@@ -109,7 +109,7 @@ Coder asks for the `dependencies` of an `.info.yml` file as a list.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.InfoFiles.Description`: `Empty`, `Missing`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 DrupalPractice asks the `.info.yml` file of an extension for a description.
 
@@ -158,7 +158,7 @@ comment.
 - **Fix:** none
 - **Source:** Coder's `DrupalPractice` standard
 - **Ports:** `DrupalPractice.Yaml.RoutingAccess`: `OpenCallback`, `PermissionFound`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 Coder's `DrupalPractice` standard checks the access requirements of routes.
 

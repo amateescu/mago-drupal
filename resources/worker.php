@@ -16,8 +16,7 @@
  * installed. An XDEBUG_MODE environment variable wins over the option, so
  * `XDEBUG_MODE=debug` turns Xdebug back on to debug the extension.
  *
- * Add `--core` to the command when you analyze Drupal core. Add
- * `--root=PATH` when the Drupal document root is not the cwd, `web/`,
+ * Add `--root=PATH` when the Drupal document root is not the cwd, `web/`,
  * `docroot/`, `html/`, `public/`, the Composer scaffold's `web-root` or
  * `vendor/drupal` when Composer installed core there as a package. Add
  * `--deprecations=12` to report only the Drupal deprecations removed in

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\FunctionScopes;
 use amateescu\MagoDrupal\Internal\VariableScopes;
 use Mago\Sdk\Linter\LintContext;
@@ -24,14 +25,6 @@ use function str_ends_with;
  */
 final class VariableRedeclarationRule implements Rule
 {
-    /**
-     * @param bool $core Skips the files that core's `phpcs.xml.dist` leaves
-     *   out of VariableAnalysis.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -55,7 +48,7 @@ final class VariableRedeclarationRule implements Rule
         if (
             $context->node->kind !== NodeKind::Program
             || str_ends_with($path, '.tpl.php')
-            || $this->core && !UnusedVariableRule::checkedOnCore($path)
+            || !UnusedVariableRule::checkedOnCore($path) && CoreFiles::contains($path)
         ) {
             return;
         }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Tests;
 
 use amateescu\MagoDrupal\DrupalExtension;
-use amateescu\MagoDrupal\Internal\DefaultOffRule;
+use amateescu\MagoDrupal\Internal\SkippedInCoreRule;
 use amateescu\MagoDrupal\Linter\Rules\DocCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentBlankLineRule;
 use amateescu\MagoDrupal\Linter\Rules\InlineCommentPunctuationRule;
@@ -30,16 +30,16 @@ use Mago\Sdk\Syntax\SourceFile;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function dirname;
 use function pack;
-use function sort;
 use function strlen;
 use function strpos;
 
 /**
  * The three checks that core's `phpcs.xml.dist` turns off are rules of their
- * own, so `--core` can turn them off by default. Core runs the missing short
- * description check in some test directories only, so `--core` scopes
- * `drupal/missing-summary` to them.
+ * own, so they can leave core's files out. Core runs the missing short
+ * description check in some test directories only, so `drupal/missing-summary`
+ * runs only there in core's files.
  */
 final class RuleSwitchesTest extends TestCase
 {
@@ -78,7 +78,7 @@ final class RuleSwitchesTest extends TestCase
         self::assertSame([], self::messages(new DocCommentRule()));
     }
 
-    public function testCoreTurnsOffTheRulesCoreExcludes(): void
+    public function testTheRulesCoreExcludesLeaveCoreOut(): void
     {
         self::assertSame(
             [
@@ -111,9 +111,18 @@ final class RuleSwitchesTest extends TestCase
                 'drupal/untranslated-description',
                 'drupal/untranslated-options',
             ],
-            self::offCodes(DrupalExtension::fromArguments(['--core'])->linterRules),
+            DrupalExtension::SKIPPED_IN_CORE,
         );
-        self::assertSame([], self::offCodes(DrupalExtension::fromArguments([])->linterRules));
+
+        foreach (DrupalExtension::create()->linterRules as $rule) {
+            self::assertTrue($rule->getDefinition()->defaultEnabled, $rule->getDefinition()->code);
+            if ($rule->getDefinition()->code !== 'drupal/inline-comment-punctuation') {
+                continue;
+            }
+
+            self::assertCount(1, self::messages($rule));
+            self::assertSame([], self::messages($rule, directory: self::core() . '/modules/node'));
+        }
     }
 
     public function testCoreChecksTheMissingSummaryInTestDirectoriesOnly(): void
@@ -135,12 +144,12 @@ final class RuleSwitchesTest extends TestCase
             PHP;
         $missing = ['The docblock doesn\'t have a short description.'];
 
-        $core = new MissingSummaryRule(core: true);
+        $rule = new MissingSummaryRule();
 
-        self::assertSame($missing, self::messages(new MissingSummaryRule(), $contents, 'core/lib/Drupal/Core'));
-        self::assertSame([], self::messages($core, $contents, 'core/lib/Drupal/Core'));
-        self::assertSame($missing, self::messages($core, $contents, 'core/tests/Drupal/KernelTests/Core'));
-        self::assertSame($missing, self::messages($core, $contents, 'core/modules/node/tests/src/Unit'));
+        self::assertSame($missing, self::messages($rule, $contents, 'core/lib/Drupal/Core'));
+        self::assertSame([], self::messages($rule, $contents, self::core() . '/lib/Drupal/Core'));
+        self::assertSame($missing, self::messages($rule, $contents, self::core() . '/tests/Drupal/KernelTests/Core'));
+        self::assertSame($missing, self::messages($rule, $contents, self::core() . '/modules/node/tests/src/Unit'));
     }
 
     public function testCoreChecksTheMissingFunctionCommentInCoreDirectoriesOnly(): void
@@ -149,7 +158,7 @@ final class RuleSwitchesTest extends TestCase
 
         self::assertSame(
             [],
-            self::messages(new MissingFunctionCommentRule(core: true), $contents, 'core/modules/node'),
+            self::messages(new MissingFunctionCommentRule(), $contents, self::core() . '/modules/node'),
         );
         self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/modules/node/node.module'));
         self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/modules/node/tests/src/Traits/T.php'));
@@ -182,33 +191,22 @@ final class RuleSwitchesTest extends TestCase
         self::assertTrue(UnusedVariableRule::checkedOnCore('core/modules/node/src/NodeForm.php'));
     }
 
-    public function testARuleThatIsOffStillLints(): void
+    public function testASkippedRuleLintsOutsideCore(): void
     {
-        $rule = new DefaultOffRule(new InlineCommentPunctuationRule());
+        $rule = new SkippedInCoreRule(new InlineCommentPunctuationRule());
 
-        self::assertFalse($rule->getDefinition()->defaultEnabled);
+        self::assertTrue($rule->getDefinition()->defaultEnabled);
         self::assertSame('drupal/inline-comment-punctuation', $rule->getDefinition()->code);
         self::assertCount(1, self::messages($rule));
+        self::assertSame([], self::messages($rule, directory: self::core() . '/modules/node'));
     }
 
     /**
-     * @param list<Rule> $rules
-     * @return list<string>
+     * The corpus's stand-in for Drupal core, which holds `core/lib/Drupal.php`.
      */
-    private static function offCodes(array $rules): array
+    private static function core(): string
     {
-        $codes = [];
-        foreach ($rules as $rule) {
-            if ($rule->getDefinition()->defaultEnabled) {
-                continue;
-            }
-
-            $codes[] = $rule->getDefinition()->code;
-        }
-
-        sort($codes);
-
-        return $codes;
+        return dirname(__DIR__) . '/corpus/core';
     }
 
     /**

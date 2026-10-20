@@ -3,44 +3,6 @@
 The worker takes its arguments from the `command` of its extension host. Add each one as another
 string after the path of `worker.php`.
 
-## Checking Drupal core
-
-`"--core"` is for checking Drupal core itself. `drupal-core.mago.toml` adds it to the command, see
-[Configuration](configuration.md#what-drupal-coremagotoml-adds). It turns off the rules whose checks
-are turned off or not run by core's `phpcs.xml.dist`:
-
-- `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
-  `method-name`, `method-name-underscore` and `short-list`;
-- `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
-- `unsilenced-deprecation`;
-- `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](../rules/drupal-practice.md)
-  `class-prefix`, `curl-ssl-verify`, `escaped-placeholder`, `form-alter-comment`,
-  `global-constant`, `request-superglobal`, `strict-config-schema`, `untranslated-description` and
-  `untranslated-options`, which all port DrupalPractice sniffs;
-- the rules for info and routing files not run by core: `info-core-version-requirement`,
-  `info-dependencies-array`, `info-description` and `routing-access`;
-- `global-class-backslash`, whose check isn't done by any Coder sniff.
-
-`enabled = true` under `[linter.rules]` turns one of these rules back on, see
-[Turning rules off](configuration.md#turning-rules-off).
-
-It limits `missing-summary` and `missing-function-comment` to the directories where core's
-`phpcs.xml.dist` runs them, and keeps `unused-variable` out of the `*.api.php` files and the
-transliteration tables, which that file leaves out. It also leaves out the leading underscore check
-of `property-name` in the classes whose properties may use any case.
-
-It also turns off the five analyzer checks that don't apply to core,
-[`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),
-[`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load),
-[`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message),
-[`drupal/internal-class-extension`](../analyzer/hooks.md#drupalinternal-class-extension) and
-[`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability), and
-makes [`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) check every service
-id, since core looks up only its own services.
-
-A project that starts from core's `phpcs.xml.dist` but isn't core can add `"--core"` to its own
-command. It then loses those analyzer checks too.
-
 ## Finding the Drupal root
 
 The analyzer reads services, config schema and hook documentation from the Drupal root. Without
@@ -109,9 +71,8 @@ Each worker argument has a named argument of `create()`:
 
 | Worker argument | `create()` argument |
 | --- | --- |
-| `--core` | `core: true` |
 | `--root=PATH` | `root: 'PATH'` |
 | `--deprecations=12` | `deprecations: 12` |
 
-For example, `DrupalExtension::create(core: true, deprecations: 12)` does the same as
-`"--core", "--deprecations=12"`.
+For example, `DrupalExtension::create(root: '../drupal', deprecations: 12)` does the same as
+`"--root=../drupal", "--deprecations=12"`.

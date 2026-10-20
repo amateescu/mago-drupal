@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\FunctionScopes;
 use amateescu\MagoDrupal\Internal\ScopeVariable;
 use amateescu\MagoDrupal\Internal\VariableScopes;
@@ -53,14 +54,6 @@ final class UnusedVariableRule implements Rule
         ScopeVariable::BOUND => 'Remove the variable from the use list.',
     ];
 
-    /**
-     * @param bool $core Skips the files that core's `phpcs.xml.dist` leaves
-     *   out of the check.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -84,7 +77,7 @@ final class UnusedVariableRule implements Rule
         if (
             $context->node->kind !== NodeKind::Program
             || str_ends_with($path, '.tpl.php')
-            || $this->core && !self::checkedOnCore($path)
+            || !self::checkedOnCore($path) && CoreFiles::contains($path)
         ) {
             return;
         }

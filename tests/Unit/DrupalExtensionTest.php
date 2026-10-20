@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\DrupalExtension;
 use Composer\InstalledVersions;
 use Mago\Sdk\Reporting\Level;
@@ -196,16 +195,5 @@ final class DrupalExtensionTest extends TestCase
             self::assertNotSame('', $definition->name);
             self::assertNotSame('', $definition->description);
         }
-    }
-
-    public function testCoreFlagReachesTheAnalyzerPlugin(): void
-    {
-        $default = DrupalExtension::create()->analyzerPlugins[0];
-        $core = DrupalExtension::create(core: true)->analyzerPlugins[0];
-
-        self::assertInstanceOf(DrupalPlugin::class, $default);
-        self::assertInstanceOf(DrupalPlugin::class, $core);
-        self::assertFalse($default->isCore());
-        self::assertTrue($core->isCore());
     }
 }

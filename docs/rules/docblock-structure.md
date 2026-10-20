@@ -276,7 +276,7 @@ fixed by [`drupal/deprecated-tag`](#drupaldeprecated-tag).
   `@defgroup`, `@addtogroup`, `@}` or `@coversDefaultClass`, unless it is a function's or a
   method's;
 - a `@see` tag with no reference in a property docblock with `{@inheritdoc}`;
-- with `--core`, the references in a docblock that isn't a function's or a method's, as in core's
+- in Drupal core, the references in a docblock that isn't a function's or a method's, as in core's
   phpcs.
 
 ---
@@ -852,7 +852,7 @@ The rule also reads a method with a `#[Hook]` attribute, which is skipped by Cod
 same summary, `@param` and `@return` checks as for a function. The standard predates OOP hooks and
 doesn't mention methods. Core writes the `Implements hook_foo().` summary on nearly all of its
 `#[Hook]` methods, and the change records for OOP hooks show it too, so the rule asks for it. A
-method's docblock may sit above or below its attributes. With `--core` the rule leaves methods out,
+method's docblock may sit above or below its attributes. In Drupal core the rule leaves methods out,
 as core's phpcs does.
 
 The fix replaces a description that repeats the function name, as in `Implements my_mod_help().`,
@@ -1013,7 +1013,7 @@ inside a run of `//` lines.
 **Not reported:**
 
 - a constructor with nothing above it. A constructor with a docblock is checked by the other rules;
-- with `--core`, a function outside the directories where that check is run by core's
+- in Drupal core, a function outside the directories where that check is run by core's
   `phpcs.xml.dist`: `core/lib`, a module's `src/Plugin`, the `Database`, `Functional`,
   `FunctionalJavascript`, `Kernel`, `KernelTests` and `Unit` directories, and the `HookOrder` test
   module.
@@ -1079,7 +1079,7 @@ still want it.
   missing its braces;
 - a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`;
-- with `--core`, no summary outside the `KernelTests`, `Unit` and `FunctionalJavascript`
+- in Drupal core, no summary outside the `KernelTests`, `Unit` and `FunctionalJavascript`
   directories, where that check is run by core's `phpcs.xml.dist`.
 
 ??? note "Compared with Coder"

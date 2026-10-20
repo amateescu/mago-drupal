@@ -57,10 +57,48 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
 
 - The files that core's `phpcs.xml.dist` checks: `core/` and `composer/`, with `.test` files, and
   `vendor/` read for its symbols.
-- The worker's [`--core` argument](worker-arguments.md#checking-drupal-core).
 - The files that phpcs doesn't check, left out of the formatter and the linter: the paths excluded
   by `phpcs.xml.dist`, and the files marked with `// phpcs:ignoreFile` or
   `// @codingStandardsIgnoreFile`, which Mago doesn't read.
+
+## Checking Drupal core
+
+Core's own `phpcs.xml.dist` asks for less than Drupal's standard, and the extension follows it in
+the files of Drupal core itself. A file is core's when one of its directories is named `core` and
+holds `lib/Drupal.php`. The other files of the same run, such as a site's modules, get Drupal's
+standard.
+
+In core's files, these rules don't report, since core's `phpcs.xml.dist` turns their checks off or
+doesn't run them:
+
+- `case-fall-through`, `const-prefix`, `function-name`, `function-prefix`, `hook-attribute-name`,
+  `method-name`, `method-name-underscore` and `short-list`;
+- `inline-comment-blank-line`, `inline-comment-punctuation` and `long-description-punctuation`;
+- `unsilenced-deprecation`;
+- `author-tag`, `insecure-unserialize` and the [DrupalPractice rules](../rules/drupal-practice.md)
+  `class-prefix`, `curl-ssl-verify`, `escaped-placeholder`, `form-alter-comment`,
+  `global-constant`, `request-superglobal`, `strict-config-schema`, `untranslated-description` and
+  `untranslated-options`, which all port DrupalPractice sniffs;
+- the rules for info and routing files not run by core: `info-core-version-requirement`,
+  `info-dependencies-array`, `info-description` and `routing-access`;
+- `global-class-backslash`, whose check isn't done by any Coder sniff.
+
+`missing-summary` and `missing-function-comment` run only in the directories where core's
+`phpcs.xml.dist` runs them, and `unused-variable` stays out of the `*.api.php` files and the
+transliteration tables, which that file leaves out. `property-name` leaves out its leading
+underscore check in the classes whose properties may use any case.
+
+Five analyzer checks don't apply to core and leave its files out:
+[`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call),
+[`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load),
+[`drupal/untranslated-message`](../analyzer/translation.md#drupaluntranslated-message),
+[`drupal/internal-class-extension`](../analyzer/hooks.md#drupalinternal-class-extension) and
+[`drupal/list-builder-cacheability`](../analyzer/entities.md#drupallist-builder-cacheability).
+[`drupal/unknown-service`](../analyzer/services.md#drupalunknown-service) checks every service id in
+core's files, since core looks up only its own services.
+
+A project that starts from core's `phpcs.xml.dist` but isn't core can turn the same rules off under
+`[linter.rules]`, see [Turning rules off](#turning-rules-off).
 
 ## Turning rules off
 
@@ -76,8 +114,7 @@ Mago takes this extension's rule codes under `[linter.rules]`, with the same `en
 
 `enabled = false` turns a rule off. `exclude` leaves the rule out of the matching paths, which take
 the same globs and directory prefixes as the excludes of Mago's own rules. `level` sets the level of
-every issue that the rule reports. `enabled = true` turns on a rule that the worker's
-[`--core` argument](worker-arguments.md#checking-drupal-core) turns off.
+every issue that the rule reports.
 
 A rule that is turned off still runs when `mago lint --only` names it, and `mago lint --pedantic`
 doesn't read these settings. Mago warns about a code that doesn't name a rule, and the run goes on.

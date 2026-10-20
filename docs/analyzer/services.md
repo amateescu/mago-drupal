@@ -265,7 +265,7 @@ container leaves out the ids that no services file or provider defines, and the 
   which asks for null on purpose;
 - an id whose first segment doesn't name a module in the codebase or start a known id, such as
   `persistent_login.token_manager`. It belongs to a module that the site may not have, so a typo in
-  the first segment goes unreported too. With `--core`, these ids are checked, since core looks up
+  the first segment goes unreported too. In Drupal core, these ids are checked, since core looks up
   only its own services;
 - any id while core's services aren't in the index;
 - test code and hook documentation in `*.api.php` files.

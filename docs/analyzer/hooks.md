@@ -350,7 +350,7 @@ the module handler.
 - **Level:** warning
 - **Source:** phpstan-drupal
 - **Ports:** phpstan-drupal's `ClassExtendsInternalClassRule`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 phpstan-drupal reports a class that extends an `@internal` class of another module. Drupal's
 backwards compatibility policy lets an internal class change in any release.

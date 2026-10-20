@@ -13,6 +13,7 @@ use function array_values;
 use function dirname;
 use function glob;
 use function implode;
+use function in_array;
 use function sort;
 use function strlen;
 use function substr;
@@ -71,11 +72,6 @@ final class DocsTest extends TestCase
 
     public function testEntriesMatchTheRules(): void
     {
-        $rules = [];
-        foreach (DrupalExtension::fromArguments(['--core'])->linterRules as $rule) {
-            $rules[$rule->getDefinition()->code] = $rule->getDefinition();
-        }
-
         $default = [];
         foreach (DrupalExtension::create()->linterRules as $rule) {
             $default[$rule->getDefinition()->code] = $rule->getDefinition();
@@ -85,13 +81,17 @@ final class DocsTest extends TestCase
         $problems = [];
         foreach ($pages->rulePages() as $page) {
             foreach ($page['entries'] as $entry) {
-                $core = $rules[$entry->code] ?? null;
                 $rule = $default[$entry->code] ?? null;
-                if ($core === null || $rule === null) {
+                if ($rule === null) {
                     continue;
                 }
 
-                $problems = array_merge($problems, $entry->problems($rule, $core, $pages->map()->ports($entry->code)));
+                $skipped = in_array($entry->code, DrupalExtension::SKIPPED_IN_CORE, strict: true);
+                $problems = array_merge($problems, $entry->problems(
+                    $rule,
+                    $skipped,
+                    $pages->map()->ports($entry->code),
+                ));
             }
         }
 

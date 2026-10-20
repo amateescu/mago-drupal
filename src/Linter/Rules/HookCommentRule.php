@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\AttributeArguments;
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\DocblockLine;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\HookDocblock;
@@ -46,7 +47,7 @@ use function strlen;
  * hook_x()." summary and does not mention methods. Core writes that summary on
  * its `#[Hook]` methods, so the rule asks for it. A method's docblock may sit
  * above the attributes. Core's `phpcs.xml.dist` doesn't have such a check, so
- * `--core` leaves methods out.
+ * the rule leaves methods out in core's own files.
  *
  * Functions and hook methods together need many branches.
  *
@@ -56,13 +57,6 @@ use function strlen;
 final class HookCommentRule implements Rule
 {
     private const HOOK_CLASS = 'Drupal\Core\Hook\Attribute\Hook';
-
-    /**
-     * @param bool $core Leaves `#[Hook]` methods out, as core's phpcs does.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
 
     private const IMPLEMENTS_HOOK = '/^Implement[^\n]+?hook_[^\n]+/i';
 
@@ -83,7 +77,7 @@ final class HookCommentRule implements Rule
     public function lint(LintContext $context): void
     {
         if ($context->node->kind === NodeKind::Method) {
-            if (!$this->core) {
+            if (!CoreFiles::contains($context->file->path)) {
                 $this->checkMethod($context, $context->node);
             }
 

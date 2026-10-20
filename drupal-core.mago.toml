@@ -4,7 +4,8 @@
 #     extends = "vendor/amateescu/mago-drupal/drupal-core.mago.toml"
 #     php-version = "8.3"
 #
-# It adds what core's phpcs.xml.dist checks to drupal.mago.toml.
+# It adds what core's phpcs.xml.dist checks to drupal.mago.toml. The extension follows core's
+# phpcs.xml.dist in core's own files by itself.
 
 extends = "drupal.mago.toml"
 
@@ -22,11 +23,6 @@ excludes = [
     # The test fixtures of phpcs are .inc files that don't parse on purpose.
     "vendor/squizlabs/php_codesniffer/",
 ]
-
-[extension-hosts.drupal]
-# --core turns off the rules that core's phpcs.xml.dist turns off, limits some rules to the
-# directories where it runs them, and turns off the analyzer checks that don't apply to core.
-command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amateescu/mago-drupal/resources/worker.php", "--core"]
 
 [formatter]
 # The files that phpcs doesn't check. The analyzer still reads them, since core uses their classes.

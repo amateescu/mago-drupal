@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Internal\Attributes;
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\DeprecationScopes;
 use amateescu\MagoDrupal\Internal\FileMembers;
 use amateescu\MagoDrupal\Internal\ServiceIndex;
@@ -118,6 +119,7 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
         if (
             $this->entityLoads && $context->node->kind !== NodeKind::StaticMethodCall
             || TestFiles::isTest($file)
+            || CoreFiles::contains($file)
             || DeprecationScopes::marked($contents, $file)
             && DeprecationScopes::of($contents, $file)->covers($context->node->span)
         ) {

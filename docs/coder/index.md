@@ -83,10 +83,10 @@ standard, and doesn't run some sniffs at all:
 - it runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`, `NamespacedDependency` and part
   of `VariableAnalysis` from the DrupalPractice standard.
 
-The rules that port those checks are on by default for contrib and custom code, and the worker's
-[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off, or limits
-them to the directories where core runs them. `--core` doesn't change Mago's own rules, such as
-`trait-name`, which `mago.toml` sets. A project that turns other sub-codes off in its phpcs config
+The rules that port those checks run on contrib and custom code. In
+[Drupal core](../setup/configuration.md#checking-drupal-core) they're off, or run only in the
+directories where core runs them. That doesn't change Mago's own rules, such as `trait-name`, which
+`mago.toml` sets. A project that turns other sub-codes off in its phpcs config
 can turn off the matching rules under [`[linter.rules]`](../setup/configuration.md#turning-rules-off).
 An `<exclude-pattern>` inside a `<rule>` of the phpcs config becomes an `exclude` of the matching
 rule, such as `"drupal/missing-function-comment" = { exclude = ["tests/"] }`.

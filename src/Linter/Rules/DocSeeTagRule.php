@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\FunctionTags;
 use amateescu\MagoDrupal\Internal\OuterDocblocks;
@@ -32,14 +33,6 @@ use function trim;
  */
 final class DocSeeTagRule implements Rule
 {
-    /**
-     * @param bool $core Checks only the tags of functions and methods and
-     *   the empty `@see` tags of properties, as core's phpcs does.
-     */
-    public function __construct(
-        private readonly bool $core = false,
-    ) {}
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -55,7 +48,7 @@ final class DocSeeTagRule implements Rule
     public function lint(LintContext $context): void
     {
         if ($context->node->kind === NodeKind::Program) {
-            if (!$this->core) {
+            if (!CoreFiles::contains($context->file->path)) {
                 self::checkOtherDocblocks($context);
             }
 

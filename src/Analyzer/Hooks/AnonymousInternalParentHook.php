@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\DrupalFile;
 use amateescu\MagoDrupal\Internal\FileMembers;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -49,6 +50,10 @@ final class AnonymousInternalParentHook implements NodeAnalysisHook
     public function analyze(NodeAnalysisContext $context): void
     {
         $file = $context->source;
+        if (CoreFiles::contains($file->path)) {
+            return;
+        }
+
         foreach ($file->getChildren($context->node) as $child) {
             if ($child->kind !== NodeKind::Extends) {
                 continue;

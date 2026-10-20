@@ -12,7 +12,7 @@ before the first dot. All of them report only in `.module` and `.install` files,
 - **Fix:** none
 - **Standard:** [Constants](https://project.pages.drupalcode.org/coding_standards/php/coding/#constants)
 - **Ports:** `Drupal.Semantics.ConstantName.ConstConstantStart`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 > Module-defined constant names should also be prefixed by an uppercase spelling of the module that
 > defines them.
@@ -112,7 +112,7 @@ Coder asks not to keep an empty `hook_install()` or `hook_uninstall()`.
 - **Fix:** none
 - **Standard:** [Functions and variables](https://project.pages.drupalcode.org/coding_standards/php/coding/#functions-and-variables)
 - **Ports:** `Drupal.NamingConventions.ValidFunctionName.InvalidPrefix`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 > Functions should in addition have the grouping/module name as a prefix, to avoid name collisions
 > between modules.

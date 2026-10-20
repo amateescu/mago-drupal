@@ -195,7 +195,7 @@ They don't check the types in a docblock against the real signature, which is do
 ## DrupalPractice checks
 
 These rules port sniffs of Coder's `DrupalPractice` standard not run by core's `phpcs.xml.dist`, so
-the worker's [`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns them off.
+they're [off in Drupal core](../setup/configuration.md#checking-drupal-core).
 
 | Rule | Level | What it reports |
 | --- | --- | --- |

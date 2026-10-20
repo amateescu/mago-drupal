@@ -7,8 +7,8 @@ namespace amateescu\MagoDrupal;
 use amateescu\MagoDrupal\Analyzer\DrupalPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPStan\PHPStanIgnoresPlugin;
 use amateescu\MagoDrupal\Analyzer\PHPUnit\PHPUnitPlugin;
-use amateescu\MagoDrupal\Internal\DefaultOffRule;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
+use amateescu\MagoDrupal\Internal\SkippedInCoreRule;
 use amateescu\MagoDrupal\Internal\Utf8IssueRule;
 use amateescu\MagoDrupal\Linter\Rules\AuthorTagRule;
 use amateescu\MagoDrupal\Linter\Rules\ByteOrderMarkRule;
@@ -152,10 +152,11 @@ final class DrupalExtension
 
     /**
      * The rules whose checks core's `phpcs.xml.dist` turns off or does not
-     * run. With `--core`, they are off by default, and `enabled = true` under
-     * `[linter.rules]` turns one back on.
+     * run. They don't report in the files of Drupal core itself.
+     *
+     * @internal
      */
-    private const CORE_OFF = [
+    public const SKIPPED_IN_CORE = [
         'drupal/author-tag',
         'drupal/case-fall-through',
         'drupal/class-prefix',
@@ -187,9 +188,9 @@ final class DrupalExtension
     ];
 
     /**
-     * Builds the extension from the worker's arguments: `--core` when the
-     * worker runs on Drupal core, `--root=PATH` for the Drupal document root,
-     * and `--deprecations=N` for the Drupal major whose removals to report.
+     * Builds the extension from the worker's arguments: `--root=PATH` for the
+     * Drupal document root, and `--deprecations=N` for the Drupal major whose
+     * removals to report.
      * The last one of a repeated argument wins, matching how repeated CLI
      * flags behave.
      *
@@ -210,16 +211,12 @@ final class DrupalExtension
         }
 
         return self::create(
-            core: in_array('--core', $arguments, strict: true),
             root: self::option($strings, 'root'),
             deprecations: $deprecations === null ? null : (int) $deprecations,
         );
     }
 
     /**
-     * @param bool $core Turns off the checks that do not apply to Drupal core
-     *   itself, and turns off by default the rules that core's
-     *   `phpcs.xml.dist` turns off.
      * @param string|null $root Drupal document root, absolute or relative to
      *   the worker's cwd. Discovered from the cwd when null.
      * @param int|null $deprecations Reports only the Drupal deprecations
@@ -228,16 +225,13 @@ final class DrupalExtension
      *
      * @throws InvalidArgumentException When $deprecations is not a positive
      *   number.
-     *
-     * @mago-expect lint:no-boolean-flag-parameter
      */
-    public static function create(bool $core = false, ?string $root = null, ?int $deprecations = null): Extension
+    public static function create(?string $root = null, ?int $deprecations = null): Extension
     {
-        $off = $core ? self::CORE_OFF : [];
         $rules = [];
-        foreach (self::linterRules($core) as $rule) {
-            $offByDefault = in_array($rule->getDefinition()->code, $off, strict: true);
-            $rules[] = new Utf8IssueRule($offByDefault ? new DefaultOffRule($rule) : $rule);
+        foreach (self::linterRules() as $rule) {
+            $skipped = in_array($rule->getDefinition()->code, self::SKIPPED_IN_CORE, strict: true);
+            $rules[] = new Utf8IssueRule($skipped ? new SkippedInCoreRule($rule) : $rule);
         }
 
         return new Extension(
@@ -246,7 +240,7 @@ final class DrupalExtension
             version: self::version(),
             linterRules: $rules,
             analyzerPlugins: [
-                new DrupalPlugin($core, $root, $deprecations === null ? null : DeprecationTarget::major($deprecations)),
+                new DrupalPlugin($root, $deprecations === null ? null : DeprecationTarget::major($deprecations)),
                 new PHPUnitPlugin(),
                 new PHPStanIgnoresPlugin(),
             ],
@@ -274,11 +268,9 @@ final class DrupalExtension
     }
 
     /**
-     * @param bool $core Whether the worker runs on Drupal core.
-     *
      * @return list<Rule>
      */
-    private static function linterRules(bool $core): array
+    private static function linterRules(): array
     {
         return [
             new AuthorTagRule(),
@@ -301,7 +293,7 @@ final class DrupalExtension
             new DiscouragedFunctionRule(),
             new DocCommentArraySyntaxRule(),
             new DocCommentRule(),
-            new DocSeeTagRule(core: $core),
+            new DocSeeTagRule(),
             new DocSentenceRule(),
             new DocTagDescriptionsRule(),
             new DocTagGroupsRule(),
@@ -332,7 +324,7 @@ final class DrupalExtension
             new GlobalFunctionRule(),
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
-            new HookCommentRule(core: $core),
+            new HookCommentRule(),
             new InfoAutoAddedKeysRule(),
             new InfoCoreVersionRequirementRule(),
             new InfoDependenciesArrayRule(),
@@ -352,16 +344,16 @@ final class DrupalExtension
             new MethodVisibilityRule(),
             new MissingClassCommentRule(),
             new MissingFileCommentRule(),
-            new MissingFunctionCommentRule(core: $core),
+            new MissingFunctionCommentRule(),
             new MissingPropertyCommentRule(),
-            new MissingSummaryRule(core: $core),
+            new MissingSummaryRule(),
             new NonCapturingCatchRule(),
             new NullCoalesceRule(),
             new OldStyleConstructorRule(),
             new ParameterBlankLineRule(),
             new PostStatementCommentRule(),
             new PregSecurityRule(),
-            new PropertyNameRule(core: $core),
+            new PropertyNameRule(),
             new PropertyPerStatementRule(),
             new PropertyVisibilityRule(),
             new RedundantReturnRule(),
@@ -387,11 +379,11 @@ final class DrupalExtension
             new UnsilencedDeprecationRule(),
             new UntranslatedDescriptionRule(),
             new UntranslatedOptionsRule(),
-            new UnusedVariableRule(core: $core),
+            new UnusedVariableRule(),
             new UseLeadingBackslashRule(),
             new VariableCommentRule(),
             new VariableNameRule(),
-            new VariableRedeclarationRule(core: $core),
+            new VariableRedeclarationRule(),
             new WatchdogMessageRule(),
             new WeakHashRule(),
         ];

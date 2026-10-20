@@ -39,7 +39,7 @@ The tables of the [rules index](rules/index.md) and of the [Coming from Coder](c
 are generated, between `<!-- docs-gen -->` markers. They come from the registered rules and from
 `tests/coder-map.json`, which says what handles each code of Coder's two standards. `just docs-gen`
 rewrites them. `DocsTest` fails when they are out of date, when a rule doesn't have an entry on a
-rule page, and when an entry's level, `--core` line or Ports codes differ from the rule and the map.
+rule page, and when an entry's level, Off in Drupal core line or Ports codes differ from the rule and the map.
 
 When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
 rule with `ext:drupal/<code>` in the map, and run `just docs-gen`.
@@ -88,7 +88,7 @@ half runs as `example.module`. A `title` on the code block, such as
 An analyzer page under `docs/analyzer/` starts with the types for its topic, then has an entry for
 each check, in the same form as a rule entry. The facts are the level, a Source line that names
 where the check comes from, the phpstan-drupal rules or Coder codes ported by the check, and whether
-`--core` turns it off. A check doesn't have a fix, so there isn't a Fix line. A Level line with two
+it's off in Drupal core. A check doesn't have a fix, so there isn't a Fix line. A Level line with two
 levels names the case for the second, as in "error, or warning for extra arguments". Then come a
 **Reports:** list, a **Not reported:** list, an example, and the differences from phpstan-drupal or
 Coder in a collapsed `??? note "Compared with phpstan-drupal"` or `??? note "Compared with Coder"`

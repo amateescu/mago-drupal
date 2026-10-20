@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
+use amateescu\MagoDrupal\Internal\CoreFiles;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
@@ -66,7 +67,7 @@ final class InternalParentHook implements ClassLikeAnalysisHook
 
     public function analyze(NodeAnalysisContext $context): void
     {
-        if ($context->node->kind !== NodeKind::Class_) {
+        if ($context->node->kind !== NodeKind::Class_ || CoreFiles::contains($context->source->path)) {
             return;
         }
 

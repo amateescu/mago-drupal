@@ -1,9 +1,8 @@
 # DrupalPractice standard
 
 Core's `phpcs.xml.dist` runs only `ExpectedException`, `ExceptionT`, `GlobalFunction`,
-`NamespacedDependency` and part of `VariableAnalysis` from this standard. The worker's
-[`--core` argument](../setup/worker-arguments.md#checking-drupal-core) turns off the rules and the
-analyzer checks that port the other sniffs.
+`NamespacedDependency` and part of `VariableAnalysis` from this standard. The rules and the analyzer
+checks that port the other sniffs are [off in Drupal core](../setup/configuration.md#checking-drupal-core).
 
 <!-- docs-gen:coder-practice -->
 

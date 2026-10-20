@@ -177,7 +177,7 @@ name, or a docblock that writes the short name in the same case.
 - **Fix:** none
 - **Standard:** [Functions and variables](https://project.pages.drupalcode.org/coding_standards/php/coding/#functions-and-variables)
 - **Ports:** `Drupal.NamingConventions.ValidFunctionName.InvalidName`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 > Functions should be named using lowercase, and words should be separated with an underscore.
 
@@ -203,7 +203,7 @@ by Coder. The [configuration](../setup/configuration.md) turns it off.
 - **Fix:** safe. It adds the backslash.
 - **Standard:** ["use"-ing classes](https://project.pages.drupalcode.org/coding_standards/php/namespaces/#use-ing-classes)
 - **Ports:** none. Coder doesn't have such a sniff.
-- **Off with `--core`**
+- **Off in Drupal core**
 
 > Classes and interfaces without a backslash `\` inside their fully-qualified name (for example, the
 > built-in PHP Exception class) must be fully qualified. For example: `new \Exception();`.
@@ -235,7 +235,7 @@ Mago's `no-fully-qualified-global-class-like`, off by default, asks for the oppo
 - **Fix:** none
 - **Source:** Coder's `Drupal` standard
 - **Ports:** `Drupal.Attributes.ValidHookName.HookPrefix`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 Coder asks for the hook name in a `#[Hook]` attribute without the `hook_` prefix. The attribute
 holds the hook name without the prefix, so a name with it is never invoked.
@@ -342,7 +342,7 @@ does.
 - **Fix:** none
 - **Standard:** [Classes, methods and properties](https://project.pages.drupalcode.org/coding_standards/php/coding/#classes-methods-and-properties)
 - **Ports:** `Drupal.NamingConventions.ValidFunctionName`: `NotCamelCaps`, `ScopeNotCamelCaps`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 > Methods and class properties should use lowerCamel naming.
 >
@@ -412,7 +412,7 @@ rule.
 - **Ports:**
     - `Drupal.NamingConventions.ValidFunctionName.MethodDoubleUnderscore`
     - `PSR2.Methods.MethodDeclaration.Underscore`
-- **Off with `--core`**
+- **Off in Drupal core**
 
 > Method names must not be prefixed with a single underscore to indicate protected or private
 > visibility. That is, an underscore prefix explicitly has no meaning.
@@ -513,7 +513,7 @@ of that name, as `non-existent-method`. That is the other code of the sniff, `Ol
 - a property of a config entity or a plugin annotation, which may use any case: a class whose
   parent name contains `ConfigEntity` or is `Plugin` or `ViewsPluginAnnotationBase`, and a class
   that implements `AnnotationInterface`. A name that starts with an underscore is still reported in
-  these classes, except with `--core`, since core's `phpcs.xml.dist` turns that check off.
+  these classes, except in Drupal core, since core's `phpcs.xml.dist` turns that check off.
 
 The names are compared as written, so `\Drupal\Core\Config\Entity\ConfigEntityBase` counts, while
 an alias of `Plugin` or `\Drupal\Component\Annotation\Plugin` doesn't. Only the first parent of an
@@ -524,7 +524,7 @@ class declared inside an `if` or a function is checked.
 ??? note "Compared with Coder"
 
     - Core's config turns `PSR2.Classes.PropertyDeclaration.Underscore` off. The rule still reports
-      a leading underscore under `--core`. The lowerCamelCase check covers it in most classes, but
+      a leading underscore in core. The lowerCamelCase check covers it in most classes, but
       not in the config entities and plugin annotations above, where Coder doesn't report anything
       under core's config.
 
