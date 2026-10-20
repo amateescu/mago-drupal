@@ -38,6 +38,10 @@ excludes = [
     "**/config/optional/**/*.yml",
     "**/config/schema/**/*.yml",
     "**/config/sync/**/*.yml",
+    # phpcs skips a file whose name starts with a dot. Every site has this router script, which
+    # composer copies from core. A glob for every dot-file would also match each file of a project
+    # inside a dot-directory, since Mago matches globs against the absolute path too.
+    "**/.ht.router.php",
 ]
 
 [linter.rules]
@@ -49,6 +53,11 @@ trait-name = { psr = true }
 # under a module's tests directory and the helper classes in their files.
 file-name = { enabled = true, exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
 single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
+# Tests are full of fake credentials.
+no-literal-password = { exclude = ["**/tests/**"] }
+# Drupal's documentation standard puts topic documentation in an api.php file, which then doesn't
+# hold any code. A test fixture can stand in for a file whose content doesn't matter.
+no-redundant-file = { exclude = ["**/*.api.php", "**/tests/**/fixtures/**"] }
 
 # These rules contradict Drupal's standard, or repeat a rule of this extension.
 # drupal/function-name checks function names the way Coder does. function-name wants snake case,
@@ -90,6 +99,7 @@ no-empty = { enabled = false }
 no-empty-catch-clause = { enabled = false }
 no-isset = { enabled = false }
 no-multi-assignments = { enabled = false }
+no-nested-ternary = { enabled = false }
 no-shorthand-ternary = { enabled = false }
 prefer-arrow-function = { enabled = false }
 prefer-early-continue = { enabled = false }
@@ -97,6 +107,7 @@ prefer-first-class-callable = { enabled = false }
 prefer-static-closure = { enabled = false }
 readable-literal = { enabled = false }
 too-many-methods = { enabled = false }
+too-many-properties = { enabled = false }
 # Drupal's standard doesn't ask for strict types. Core declares them in its tests, and many contrib
 # modules declare them everywhere.
 strict-types = { enabled = false }

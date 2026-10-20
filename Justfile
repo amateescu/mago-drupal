@@ -69,10 +69,13 @@ test-examples:
     php tests/CheckExamples.php {{mago}}
 
 # Loads the config files that projects extend. Mago fails on a setting or a
-# rule name that it doesn't know.
+# rule name that it doesn't know. Then compares the files that the linter
+# reads in tests/presets, a site that extends drupal.mago.toml, with
+# tests/presets/linter-files.txt.
 test-presets:
     {{mago}} --config drupal.mago.toml config > /dev/null
     {{mago}} --config drupal-core.mago.toml config > /dev/null
+    {{mago}} --workspace tests/presets list-files --command linter | LC_ALL=C sort | diff tests/presets/linter-files.txt -
 
 # Compares the files that drupal-core.mago.toml leaves out with what a core
 # checkout's phpcs skips, such as `just check-core-excludes ../drupal`. Not
