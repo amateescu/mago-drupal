@@ -16,9 +16,6 @@ use function implode;
 use function in_array;
 use function ltrim;
 use function preg_replace;
-use function preg_replace_callback;
-use function str_repeat;
-use function strlen;
 use function strpos;
 use function strtolower;
 use function trim;
@@ -344,13 +341,8 @@ final class Operands
     public static function questionMark(SourceFile $file, Node $condition, Node $then): Span
     {
         $start = $condition->span->end;
-        $gap = $file->getText(new Span($start, $then->span->start));
-        $code = preg_replace_callback(
-            '~/\*.*?\*/|//[^\n]*|#[^\n]*~s',
-            static fn(array $comment): string => str_repeat(' ', strlen($comment[0])),
-            $gap,
-        );
-        $offset = strpos($code ?? $gap, needle: '?');
+        $code = CodeMask::fragmentComments($file->getText(new Span($start, $then->span->start)));
+        $offset = strpos($code, needle: '?');
         if ($offset !== false) {
             return new Span($start + $offset, $start + $offset + 1);
         }
