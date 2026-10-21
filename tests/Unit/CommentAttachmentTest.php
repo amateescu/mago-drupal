@@ -152,4 +152,25 @@ final class CommentAttachmentTest extends TestCase
         self::assertFalse(CommentAttachment::isDirective($file, $trivia[3]));
         self::assertFalse(CommentAttachment::isDirective($file, $trivia[4]));
     }
+
+    public function testFindsACommentBetweenTwoOffsets(): void
+    {
+        $contents = "<?php\n#[A('// x')] f('# y', /* z */ 1); // w ?>\n<?php g(); # v\n";
+        $file = self::sourceFileWithTrivia($contents, [
+            [TriviaKind::MultiLineComment,  '/* z */'],
+            [TriviaKind::SingleLineComment, '// w '],
+            [TriviaKind::HashComment,       '# v'],
+        ]);
+        $code = self::span($contents, "#[A('// x')] f('# y', ");
+        $block = self::span($contents, '/* z */');
+        $close = self::span($contents, "?>\n<?php g(); ");
+
+        self::assertFalse(CommentAttachment::hasCommentBetween($file, $code->start, $code->end));
+        self::assertTrue(CommentAttachment::hasCommentBetween($file, $code->start, $block->start + 1));
+        self::assertTrue(CommentAttachment::hasCommentBetween($file, $block->end - 1, $block->end + 2));
+        self::assertFalse(CommentAttachment::hasCommentBetween($file, $block->end, $block->end + 4));
+        self::assertFalse(CommentAttachment::hasCommentBetween($file, $close->start, $close->end));
+        self::assertTrue(CommentAttachment::hasCommentBetween($file, $close->start, $close->end + 1));
+        self::assertFalse(CommentAttachment::hasCommentBetween($file, $block->start, $block->start));
+    }
 }

@@ -202,6 +202,23 @@ final class CommentAttachment
     }
 
     /**
+     * Whether any part of a comment lies between the offsets. The parser's
+     * trivia says where the comments are, so a `//` in a string or a `#[`
+     * attribute doesn't count.
+     */
+    public static function hasCommentBetween(SourceFile $file, int $start, int $end): bool
+    {
+        if ($end <= $start) {
+            return false;
+        }
+
+        $trivia = $file->getTrivia();
+        $index = self::lastTriviaIndexStartingBefore($trivia, $end - 1);
+
+        return $index !== null && $trivia[$index]->span->end > $start;
+    }
+
+    /**
      * Returns the index of the last trivia entry that starts at or before
      * $position. Returns null if the first entry starts after it.
      *
