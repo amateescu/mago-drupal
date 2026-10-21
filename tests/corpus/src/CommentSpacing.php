@@ -51,11 +51,32 @@ final class CommentSpacing {
    * Draws a tree in comment lines.
    */
   public function tree(): void {
-    // Coder joins the lines into `root-`, which holds punctuation.
-    // @mago-expect lint:drupal/inline-comment(1)
+    // Coder joins the lines into `root-`, which isn't a plain word.
     // @mago-expect lint:drupal/inline-comment-punctuation(1)
     // root
     // - child
+  }
+
+  /**
+   * Holds one-word first lines that run into the next line.
+   *
+   * Coder joins the lines of a comment with nothing between them. The first
+   * comment starts with `rootChild`, which isn't all lower case, and the
+   * second with `rootchild`, which is. The third ends with `foo()later`,
+   * which holds a call.
+   */
+  public function joinedWords(): int {
+    $a = 1;
+    // root
+    // Child items follow.
+    $b = 2;
+    // @mago-expect lint:drupal/inline-comment(1)
+    // root
+    // child items follow.
+    $c = 3;
+    // See foo()
+    // later
+    return $a + $b + $c;
   }
 
   /**

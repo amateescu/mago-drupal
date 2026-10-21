@@ -348,7 +348,10 @@ Coder doesn't allow gendered pronouns in comments.
 - a `//` comment after a `}` on its line, such as `} // end if`. The `//` lines right below such a
   comment are checked as a comment of their own;
 - an `@code` example and a `phpcs:` line;
-- a docblock outside every body.
+- a docblock outside every body;
+- a comment whose first word isn't all lower-case letters once the lines are joined. As in Coder,
+  the lines of a comment are joined with nothing between them, so a one-word line runs into the
+  next one: `// root` above `// - child` starts with `root-`.
 
 ??? example "Example"
 
@@ -380,10 +383,6 @@ Coder doesn't allow gendered pronouns in comments.
     - Coder reports the docblock of an enum case and of a property declared `readonly` with no
       visibility keyword, because its list of declaration keywords has neither. The rule takes both
       for declarations, as PHP does.
-    - The rule takes the first word of a comment from its first line. Coder joins the trimmed
-      lines of a comment run with nothing between them, so in a tree such as `// root` above
-      `// - child`, its first word is `root-`. That word holds punctuation, so Coder doesn't
-      report the lower-case `root`. The rule reports it, as the standard asks.
 
 ---
 

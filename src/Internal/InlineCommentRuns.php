@@ -82,25 +82,24 @@ final class InlineCommentRuns
      */
     public static function words(SourceFile $file, array $run): array
     {
-        $words = [];
-        $spellDirective = false;
+        // Coder joins the trimmed lines with no space between them, so a
+        // one-word line runs into the first word of the next line. `// root`
+        // above `// - child` gives the word `root-`, which is not prose.
+        $text = '';
         foreach ($run as $trivia) {
-            $text = trim(substr($file->getText($trivia->span), offset: 2));
-            if ($text === '') {
-                continue;
-            }
-
-            if (preg_match('/(cspell|spell-checker|spellchecker):/i', $text) === 1) {
-                $spellDirective = true;
-            }
-
-            $split = preg_split('/\s+/', $text);
-            foreach ($split === false ? [] : $split as $word) {
-                $words[] = $word;
-            }
+            $text .= trim(substr($file->getText($trivia->span), offset: 2));
         }
 
-        return [$words, $spellDirective];
+        if ($text === '') {
+            return [[], false];
+        }
+
+        $words = preg_split('/\s+/', $text);
+
+        return [
+            $words === false ? [] : $words,
+            preg_match('/(cspell|spell-checker|spellchecker):/i', $text) === 1,
+        ];
     }
 
     /**
