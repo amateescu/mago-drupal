@@ -45,9 +45,18 @@ final class TestClassSuffix
     /**
      * The first class declaration in a class's text: its modifiers, its name
      * and its parent as written. The text starts at the attributes or the
-     * modifiers.
+     * modifiers. Comments may sit between the tokens.
      */
-    private const DECLARATION = '/(?<![\w$\\\\])((?:(?:abstract|final|readonly)\s++)*+)class\s++(\w++)(?:\s++extends\s++([\\\\\w]++))?/i';
+    private const DECLARATION =
+        '/(?<![\w$\\\\:])((?:(?:abstract|final|readonly)(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . ')*+)class(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . '(\w++)(?:'
+            . SourceText::GAP
+            . 'extends(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . '([\\\\\w]++))?/i';
 
     private function __construct() {}
 
@@ -116,9 +125,16 @@ final class TestClassSuffix
 
         $declaration = [];
         $pattern =
-            '/^[ \t]*+(?:(?:abstract|final|readonly)\s++)*class\s++'
+            '/^[ \t]*+(?:(?:abstract|final|readonly)(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . ')*+class(?![\w\x80-\xff])'
+            . SourceText::GAP
             . preg_quote($parent, delimiter: '/')
-            . '\b(?:\s++extends\s++([\\\\\w]++))?/mi';
+            . '(?![\w\x80-\xff])(?:'
+            . SourceText::GAP
+            . 'extends(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . '([\\\\\w]++))?/mi';
         if (preg_match($pattern, $contents, $declaration) !== 1) {
             return false;
         }

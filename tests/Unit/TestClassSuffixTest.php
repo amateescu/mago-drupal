@@ -61,6 +61,17 @@ final class TestClassSuffixTest extends TestCase
             $unit,
             "<?php\n\nclass NodeTestBase extends Helper {}\n",
         ));
+        // Comments between the tokens of the declarations.
+        self::assertTrue(TestClassSuffix::mayBeMisnamed(
+            "final /* Checks. */ class NodeChecks # Base.\n extends TestCase {",
+            'modules/node/src/Testing/NodeChecks.php',
+            '',
+        ));
+        self::assertTrue(TestClassSuffix::mayBeMisnamed(
+            'class NodeChecks extends NodeTestBase {',
+            $unit,
+            "<?php\n\nclass /* A helper. */ NodeTestBase {}\n",
+        ));
     }
 
     public function testReadsTheParentAsWritten(): void
