@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Analyzer\Checks;
 
 use amateescu\MagoDrupal\Internal\CallbackUse;
 use amateescu\MagoDrupal\Internal\ClassFacts;
+use amateescu\MagoDrupal\Internal\SourceText;
 use amateescu\MagoDrupal\Internal\TraitComposers;
 use amateescu\MagoDrupal\Internal\TrustedCallbackClasses;
 use amateescu\MagoDrupal\Internal\TrustedCallbacks;
@@ -59,7 +60,16 @@ final class TrustedCallbackOverrideCheck implements MetadataCheck
     ) {
         $this->methods = array_flip($methods);
         $names = array_map(static fn(string $name): string => preg_quote($name, delimiter: '/'), $methods);
-        $this->gate = '/\bfunction\s++&?\s*+(?:' . implode('|', $names) . ')\s*+\(/i';
+        $this->gate =
+            '/\bfunction(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . '(?:&'
+            . SourceText::GAP
+            . ')?(?:'
+            . implode('|', $names)
+            . ')'
+            . SourceText::GAP
+            . '\(/i';
     }
 
     /**
