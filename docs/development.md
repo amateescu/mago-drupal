@@ -32,6 +32,37 @@ linter doesn't name the analyzer, the analyzer doesn't name the linter, and `Int
 either of them. `LayersTest` fails when a file breaks this. Only `DrupalExtension` wires the two
 halves together.
 
+## Reading code
+
+Rules and checks read code structure from the syntax tree. When the tree doesn't have what they
+need, such as the code past the end of a node in a linter snapshot, or a file that isn't in the
+run, they read the text through the toolkit classes in `src/Internal`. Those know that a comment
+can sit between two tokens, that `?>` ends a `//` comment, that `#[` opens an attribute, and that
+a string or a heredoc can hold text that looks like code:
+
+- `SourceText`: `GAP`, a regex fragment for the whitespace and comments between two tokens, and
+  `skipBlank()`, `skipLineBlank()` and `commentEnd()`, which step over them.
+- `CodeMask`: a file or a piece of code with its comments turned into spaces, and with the text
+  of its strings and heredocs too when you ask for it. The offsets don't change, so a regex over
+  the mask reads only code.
+- `PhpTokens`: the tokens of a file, kept for the last file, and moves over them, such as the
+  token at an offset, the next or previous code token, the closer of a bracket and the end of a
+  declaration.
+- `DeclarationTokens`: the name that a `function` token declares, and where an attribute starts.
+- `ClassLikeRanges`: the byte range and name of each class-like in a file, and the quick checks
+  for a file that can declare one.
+- `PhpcsTokens`: a file split into tokens the way phpcs splits it, for its ignore comments.
+- `QuotedStrings`, `LiteralText` and `EscapedQuotes`: the value of a string literal, of literals
+  joined with `.`, and a literal that escapes its own quote.
+- `LineEnding`: the line ending that a fix writes.
+- `CommentAttachment::hasCommentBetween()`: whether the parser's comments include one between two
+  offsets.
+
+A raw regex over code is only for a gate: a quick reject before the real work, where a match in a
+comment or a string costs time and nothing else. A gate must pass every file that the real check
+reports on, so it lets comments sit between tokens with `SourceText::GAP`, matches PHP's keywords
+and names in any case, and allows a leading `\` on a name.
+
 ## Rule codes
 
 Rule codes are stable. Projects that we don't control write them into baselines and into
