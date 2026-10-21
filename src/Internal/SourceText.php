@@ -6,7 +6,6 @@ namespace amateescu\MagoDrupal\Internal;
 
 use function preg_match;
 use function str_contains;
-use function strcspn;
 use function strlen;
 use function strpos;
 use function strrpos;
@@ -35,18 +34,25 @@ final class SourceText
      * A regex fragment for the whitespace and comments that PHP allows
      * between two tokens, such as a callee and its parenthesis.
      *
-     * It escapes `/` and `#`, so it fits a pattern with either delimiter.
-     * The quantifiers are possessive, so a pattern that fails after it
-     * doesn't backtrack into it.
+     * A `//` or `#` comment ends at its line break or at a `?>`, which
+     * leaves PHP. `#[` opens an attribute, not a comment. The fragment
+     * escapes `/` and `#`, so it fits a pattern with either delimiter. The
+     * quantifiers are possessive, so a pattern that fails after it doesn't
+     * backtrack into it.
      */
-    public const GAP = '(?:\s++|\/\*(?:[^*]++|\*(?!\/))*+\*\/|(?:\/\/|\#(?!\[))[^\r\n]*+)*+';
+    public const GAP = '(?:\s++|\/\*(?:[^*]++|\*(?!\/))*+\*\/|(?:\/\/|\#(?!\[))(?:[^\r\n?]++|\?(?!>))*+)*+';
+
+    /**
+     * A `//` or `#` comment at the offset, up to its line break or a `?>`.
+     */
+    private const LINE_COMMENT = '/\G(?:\/\/|#(?!\[))(?:[^\r\n?]++|\?(?!>))*+/';
 
     private function __construct() {}
 
     /**
      * Returns the offset after the comment that starts at $offset, or null
      * when a comment doesn't start there. A `//` or `#` comment ends before its
-     * line break.
+     * line break or before a `?>`, which leaves PHP.
      */
     public static function commentEnd(string $contents, int $offset): ?int
     {
@@ -57,12 +63,11 @@ final class SourceText
             return $close === false ? strlen($contents) : $close + 2;
         }
 
-        // `#[` opens an attribute, not a comment.
-        if ($start === '//' || $start !== '#[' && ($contents[$offset] ?? '') === '#') {
-            return $offset + strcspn($contents, characters: "\r\n", offset: $offset);
-        }
+        $matches = [];
 
-        return null;
+        return preg_match(self::LINE_COMMENT, $contents, $matches, offset: $offset) === 1
+            ? $offset + strlen($matches[0])
+            : null;
     }
 
     /**
