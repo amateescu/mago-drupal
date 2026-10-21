@@ -17,17 +17,17 @@ use Mago\Sdk\Syntax\TriviaKind;
  * The comment right above a class-like, a function, a method or a property.
  *
  * The rules for a missing docblock, for the comment style and for the tags
- * all read the comment of the same declaration. The worker passes one
- * `LintContext` to every rule that targets a node, so the result for the
- * last context is kept and the lookup runs once per node.
+ * all read the comment of the same declaration, so the result is kept per
+ * node in FileMemo and the lookup runs once per node.
  *
  * @internal
  */
 final class DeclarationComment
 {
-    private static ?LintContext $context = null;
-
-    private static ?self $last = null;
+    /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
 
     private function __construct(
         private readonly Node $declaration,
@@ -37,19 +37,24 @@ final class DeclarationComment
 
     public static function of(LintContext $context): self
     {
-        if (self::$last !== null && self::$context === $context) {
-            return self::$last;
-        }
+        $file = $context->file;
+        $node = $context->node;
 
+        self::$memo ??= new FileMemo();
+        $memo = self::$memo;
+        $id = $node->id;
+
+        return $memo->has($file, $id) ? $memo->value($id) : $memo->keep($file, self::find($file, $node), $id);
+    }
+
+    private static function find(SourceFile $file, Node $node): self
+    {
         // The attributes of a property belong to the plain or hooked property
         // inside the declaration.
-        $declaration = $context->node->kind === NodeKind::Property
-            ? $context->file->getChildren($context->node)[0] ?? $context->node
-            : $context->node;
-        $anchor = CommentAttachment::commentAnchor($context->file, $declaration);
-        self::$context = $context;
+        $declaration = $node->kind === NodeKind::Property ? $file->getChildren($node)[0] ?? $node : $node;
+        $anchor = CommentAttachment::commentAnchor($file, $declaration);
 
-        return self::$last = new self($declaration, $anchor, CommentAttachment::closest($context->file, $anchor));
+        return new self($declaration, $anchor, CommentAttachment::closest($file, $anchor));
     }
 
     /**

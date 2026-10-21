@@ -22,9 +22,8 @@ use const PREG_OFFSET_CAPTURE;
  * A call to t() or another translation entry point, for the rules that read
  * its translatable strings.
  *
- * Both rules that read these calls target the same nodes, and the worker
- * passes one `LintContext` to each of them for a node. The result for the
- * last context is kept, so the call is found once per node.
+ * Both rules that read these calls target the same nodes, so the call is
+ * kept per node in a FileMemo and found once per node.
  *
  * @internal
  *
@@ -85,14 +84,15 @@ final class TranslatableCall
 
     private static ?FileGate $gate = null;
 
-    private static ?string $methodContents = null;
+    /**
+     * @var FileMemo<?self>|null
+     */
+    private static ?FileMemo $callMemo = null;
 
-    /** @var list<int> */
-    private static array $methodOffsets = [];
-
-    private static ?LintContext $context = null;
-
-    private static ?self $last = null;
+    /**
+     * @var FileMemo<list<int>>|null
+     */
+    private static ?FileMemo $offsetMemo = null;
 
     /**
      * @param string $name The normalized name, a class's basename for an
@@ -114,13 +114,14 @@ final class TranslatableCall
      */
     public static function of(LintContext $context): ?self
     {
-        if (self::$context === $context) {
-            return self::$last;
-        }
+        $file = $context->file;
+        $node = $context->node;
 
-        self::$context = $context;
+        self::$callMemo ??= new FileMemo();
+        $memo = self::$callMemo;
+        $id = $node->id;
 
-        return self::$last = self::find($context->file, $context->node);
+        return $memo->has($file, $id) ? $memo->value($id) : $memo->keep($file, self::find($file, $node), $id);
     }
 
     /**
@@ -202,14 +203,7 @@ final class TranslatableCall
      */
     private static function spanHoldsMethodEntryPoint(SourceFile $file, Node $node): bool
     {
-        // The bytes are the key, as in FileGate.
-        $known = self::$methodContents === $file->contents;
-        self::$methodContents = $file->contents;
-        if (!$known) {
-            self::$methodOffsets = self::matchOffsets(self::METHOD_GATE, $file->contents);
-        }
-
-        $offsets = self::$methodOffsets;
+        $offsets = self::methodOffsets($file->contents);
         $low = 0;
         $high = count($offsets) - 1;
         while ($low <= $high) {
@@ -223,6 +217,21 @@ final class TranslatableCall
         }
 
         return ($offsets[$low] ?? PHP_INT_MAX) < $node->span->end;
+    }
+
+    /**
+     * The sorted byte offsets of the METHOD_GATE matches, kept for the file's
+     * text.
+     *
+     * @return list<int>
+     */
+    private static function methodOffsets(string $contents): array
+    {
+        $build = static fn(): array => self::matchOffsets(self::METHOD_GATE, $contents);
+
+        self::$offsetMemo ??= new FileMemo();
+
+        return self::$offsetMemo->get($contents, $build);
     }
 
     /**

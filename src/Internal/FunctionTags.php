@@ -13,17 +13,14 @@ use Mago\Sdk\Span;
  *
  * Coder doesn't check the tags of a function with no docblock, with a comment
  * in the wrong style, or with a docblock tagged `@file`, which belongs to the
- * file. Those don't get any tags here. The result is kept for the last lint
- * context, as in `DeclarationComment`, so the tags are read once per function.
+ * file. Those don't get any tags here. The result is kept per node in
+ * FileMemo, as in `DeclarationComment`, so the tags are read once per
+ * function.
  *
  * @internal
  */
 final class FunctionTags
 {
-    private static ?LintContext $context = null;
-
-    private static ?self $last = null;
-
     /**
      * @var null|list<array{DocblockTag, ?ParamTag}>
      */
@@ -32,6 +29,11 @@ final class FunctionTags
     private ?ReturnTag $return = null;
 
     private bool $returnRead = false;
+
+    /**
+     * @var FileMemo<?self>|null
+     */
+    private static ?FileMemo $memo = null;
 
     /**
      * @param list<DocblockTag> $tags
@@ -43,15 +45,20 @@ final class FunctionTags
 
     public static function of(LintContext $context): ?self
     {
-        if (self::$context === $context) {
-            return self::$last;
-        }
+        self::$memo ??= new FileMemo();
+        $memo = self::$memo;
+        $file = $context->file;
+        $id = $context->node->id;
 
+        return $memo->has($file, $id) ? $memo->value($id) : $memo->keep($file, self::read($context), $id);
+    }
+
+    private static function read(LintContext $context): ?self
+    {
         $comment = DeclarationComment::of($context);
         $docblock = $comment->docblock();
-        self::$context = $context;
 
-        return self::$last = $docblock === null || $comment->hasFileTag($context->file)
+        return $docblock === null || $comment->hasFileTag($context->file)
             ? null
             : new self($docblock, Docblocks::tags($context->file, $docblock));
     }
