@@ -14,6 +14,7 @@ use function implode;
 use function preg_match;
 use function preg_quote;
 use function preg_replace;
+use function stripos;
 use function strlen;
 use function strtolower;
 use function substr;
@@ -38,6 +39,8 @@ use const T_VARIABLE;
  * variable between the two calls cancels the guard.
  *
  * @internal
+ *
+ * @mago-expect lint:cyclomatic-complexity
  */
 final class EntityKeyGuards
 {
@@ -58,11 +61,27 @@ final class EntityKeyGuards
     private function __construct() {}
 
     /**
+     * Whether the text names a getter. GETTER only matches text that does,
+     * and the comment mask only turns text into spaces, so this check runs
+     * first: masking the file costs a tokenizer pass.
+     */
+    private static function namesGetter(string $text): bool
+    {
+        return stripos($text, needle: 'getKey') !== false || stripos($text, needle: 'getLinkTemplate') !== false;
+    }
+
+    /**
      * Whether the getter call between the byte offsets runs only when its
      * check is true for the same receiver and key.
+     *
+     * @mago-expect lint:halstead
      */
     public static function guarded(string $contents, int $start, int $end): bool
     {
+        if (!self::namesGetter(substr($contents, $start, $end - $start))) {
+            return false;
+        }
+
         // The patterns read the code with its comments turned into spaces,
         // so a comment between the tokens doesn't hide a call.
         $code = CodeMask::comments($contents);
