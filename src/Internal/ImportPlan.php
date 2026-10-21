@@ -361,22 +361,32 @@ final class ImportPlan
 
     /**
      * The namespace's name and the offset after its `;`, or null for a
-     * braced namespace.
+     * braced namespace or one that a `?>` ends.
      *
      * @return array{string, int}|null
      */
     private static function header(SourceFile $file, Node $namespace): ?array
     {
-        $text = $file->getText($namespace);
-        $semicolon = strpos($text, needle: ';');
-        $brace = strpos($text, needle: '{');
-        if ($semicolon === false || $brace !== false && $brace < $semicolon) {
-            return null;
+        $name = '';
+        $terminator = null;
+        foreach ($file->getChildren($namespace) as $child) {
+            if ($child->kind === NodeKind::Identifier) {
+                $name = $file->getText($child);
+            }
+
+            if ($child->kind === NodeKind::NamespaceBody) {
+                $body = $file->getChildren($child)[0] ?? null;
+                $terminator = $body?->kind === NodeKind::NamespaceImplicitBody
+                    ? $file->getChildren($body)[0] ?? null
+                    : null;
+            }
         }
 
-        $name = trim(substr($text, offset: strlen('namespace'), length: $semicolon - strlen('namespace')));
-
-        return [$name, $namespace->span->start + $semicolon + 1];
+        return (
+            $terminator?->kind === NodeKind::Terminator && $file->getText($terminator) === ';'
+                ? [$name, $terminator->span->end]
+                : null
+        );
     }
 
     /**
