@@ -18,15 +18,16 @@ use function gc_collect_cycles;
 final class FileMembersTest extends TestCase
 {
     /**
-     * A worker analyzes thousands of files, so the cache entry for one has to
-     * go when its snapshot does. It only does while nothing in the entry
-     * points back at the snapshot: PHP 8.1 and 8.2 never collect a weak map
-     * entry whose value references its own key.
+     * A worker analyzes thousands of files, so the memo entry for one has to
+     * go once its snapshot is gone and another file is read. It only does
+     * while nothing in the entry points back at the snapshot: PHP 8.1 and 8.2
+     * never collect a weak map entry whose value references its own key.
      */
     public function testTheCacheLetsGoOfASnapshot(): void
     {
         $file = self::sourceFile();
         FileMembers::of($file);
+        FileMembers::of(self::sourceFile());
 
         $reference = WeakReference::create($file);
         unset($file);

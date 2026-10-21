@@ -9,7 +9,6 @@ use Mago\Sdk\Analyzer\Metadata\ClassLikeMetadata;
 use Mago\Sdk\Analyzer\Metadata\MethodMetadataProjection;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\SourceFile;
-use WeakMap;
 
 use function array_key_exists;
 use function preg_match;
@@ -21,13 +20,9 @@ use function strtolower;
  * A method-call hook receives the call node alone. The file's resolved names
  * give every class declared in it, the codebase gives their locations, and
  * the innermost location holding the span is the enclosing declaration. Both
- * lookups are cached per source file snapshot, which the hooks of one request
- * share.
- *
- * The snapshot is the key of a weak map and is handed back in on every call,
- * never kept here. A value that references its own key keeps the entry alive
- * on PHP 8.1 and 8.2, where the cycle collector does not reach into a weak
- * map, and every file a worker ever analyzed would stay in memory.
+ * lookups are kept in FileMemo per snapshot, which the hooks of one request
+ * share. The codebase answers belong to the snapshot's analysis, so they
+ * aren't keyed by the text.
  *
  * @internal
  *
@@ -42,11 +37,6 @@ final class FileMembers
     private const ANONYMOUS = '/\bnew\s++(?:#\[|readonly\b|class\b)/i';
 
     /**
-     * @var WeakMap<SourceFile, self>|null
-     */
-    private static ?WeakMap $files = null;
-
-    /**
      * @var list<ClassLikeMetadata>|null
      */
     private ?array $classes = null;
@@ -56,17 +46,18 @@ final class FileMembers
      */
     private array $methods = [];
 
+    /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
+
     private function __construct() {}
 
     public static function of(SourceFile $file): self
     {
-        self::$files ??= new WeakMap();
-        $files = self::$files;
-        if (!$files->offsetExists($file)) {
-            $files->offsetSet($file, new self());
-        }
+        self::$memo ??= (new FileMemo())->keepingSnapshots();
 
-        return $files->offsetGet($file);
+        return self::$memo->get($file, static fn(): self => new self());
     }
 
     public function classAt(Codebase $codebase, SourceFile $file, Span $span): ?ClassLikeMetadata

@@ -7,7 +7,6 @@ namespace amateescu\MagoDrupal\Internal;
 use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\ResolvedName;
 use Mago\Sdk\Syntax\SourceFile;
-use WeakMap;
 
 use function array_key_exists;
 use function count;
@@ -22,19 +21,13 @@ use function usort;
  *
  * The SDK decodes every name of the file on each `getResolvedNames()` call,
  * and several hooks ask about the same class node, so the names are read
- * once per file and a span's names found by a binary search.
+ * once per snapshot, kept in FileMemo, and a span's names found by a binary
+ * search.
  *
  * @internal
- *
- * @mago-expect lint:cyclomatic-complexity
  */
 final class FileNames
 {
-    /**
-     * @var WeakMap<SourceFile, self>|null
-     */
-    private static ?WeakMap $files = null;
-
     /**
      * Answers so far, keyed by `start:end`, or the empty string for the whole
      * file.
@@ -42,6 +35,11 @@ final class FileNames
      * @var array<string, array{array<string, true>, list<non-empty-string>}>
      */
     private array $answers = [];
+
+    /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
 
     /**
      * @param list<ResolvedName> $names Sorted by start offset.
@@ -52,15 +50,14 @@ final class FileNames
 
     public static function of(SourceFile $file): self
     {
-        self::$files ??= new WeakMap();
-        $files = self::$files;
-        if (!$files->offsetExists($file)) {
+        self::$memo ??= (new FileMemo())->keepingSnapshots();
+
+        return self::$memo->get($file, static function () use ($file): self {
             $names = $file->getResolvedNames();
             usort($names, static fn(ResolvedName $a, ResolvedName $b): int => $a->span->start <=> $b->span->start);
-            $files->offsetSet($file, new self($names));
-        }
 
-        return $files->offsetGet($file);
+            return new self($names);
+        });
     }
 
     /**
