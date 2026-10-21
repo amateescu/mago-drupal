@@ -863,8 +863,11 @@ check. The [configuration](../setup/configuration.md) turns it off.
       branch and reads in the `else` branch on a later pass.
     - A `= &` binding that walks down an array, as `$target = &$target[$key]` in a loop, reads
       `$target`. Coder reports the binding before it.
-    - Coder takes a `foreach` key for the value of a `$key => $value` pair when the loop's array holds
-      a `=>`, as in `foreach (['a' => 1] as $key => $value)`, and never reports it. The rule does.
+    - Coder treats a `foreach` variable as the value of a `$key => $value` pair when any `=>` comes
+      before it inside the parentheses, the looped array included. So it never reports the key in
+      `foreach (['a' => 1] as $key => $value)`, the value in `foreach (['a' => 1] as $value)`, or
+      the list elements in `foreach (['k' => [1, 2]] as [$a, $b])` and
+      `foreach ($rows as ['x' => $x])`. The rule reports each of them when it's never read.
     - In `fn($a) => fn($b) => $a + $b`, the inner `$a` reads the outer arrow function's parameter.
       Coder counts it as a read of an `$a` around the arrow functions.
     - `compact(['name'])` reads `$name`. Coder reads only string arguments and `array(...)`.
