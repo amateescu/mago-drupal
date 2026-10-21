@@ -28,6 +28,16 @@ final class TestClassCheckTest extends TestCase
         self::assertTrue(TestClassCheck::mayReport(
             'final class NodeTest extends TestCase { public array $modules = [];',
         ));
+        // Other orders, cases and modifiers, and comments between them.
+        self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { static public $modules;'));
+        self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { STATIC $modules;'));
+        self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { var $modules;'));
+        self::assertTrue(TestClassCheck::mayReport(
+            "final class NodeTest extends TestCase { public /* Old. */ static ?array \$modules = [];",
+        ));
+        self::assertFalse(TestClassCheck::mayReport(
+            "final class NodeTest extends TestCase { private\nstatic \$modules = [];",
+        ));
     }
 
     public function testFindsFilesThatMayDeclareComponentTests(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Analyzer\Metadata\PropertyMetadata;
 use Mago\Sdk\Analyzer\Type\Visibility;
 use Mago\Sdk\SourceLocation;
@@ -56,9 +57,17 @@ final class TestClassCheck
     private const COMPONENT_TESTS = 'drupal\tests\component\\';
 
     /**
-     * A public `$modules` declaration, static or not, typed or not.
+     * A public `$modules` declaration, static or not, typed or not. A
+     * property with only `static` or `var` is public too. The modifiers come
+     * in any order and case, with comments between them. A `static` right
+     * after `protected` or `private` isn't public.
      */
-    private const PUBLIC_MODULES = '/\bpublic\s+(?:static\s+)?(?:\??array\s+)?\$modules\b/';
+    private const PUBLIC_MODULES =
+        '/(?<![\w$])(?<!protected[ \t\n])(?<!private[ \t\n])(?:(?:public|static|var|readonly|final)(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . ')++(?:\??[\w\\\\|]++'
+            . SourceText::GAP
+            . ')?\$modules(?![\w\x80-\xff])/i';
 
     private function __construct() {}
 
