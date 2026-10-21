@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use Mago\Sdk\Analyzer\Codebase;
+use Mago\Sdk\Span;
 
 use function in_array;
 use function preg_match;
 use function strtolower;
+use function substr;
 
 /**
  * Tells entity storage types apart from other types named like them.
@@ -64,22 +66,27 @@ final class StorageTypes
     }
 
     /**
-     * Whether a class's text names a storage where the injection check can
-     * report it: in the constructor's parameters, in a property declaration
-     * or in a `@var` tag. A method parameter such as `postSave()`'s does not
-     * count. A file importing a storage under another name always counts,
-     * since the text then shows the alias.
+     * Whether the text of the class in the span names a storage where the
+     * injection check can report it: in the constructor's parameters, in a
+     * property declaration or in a `@var` tag. A method parameter such as
+     * `postSave()`'s does not count. A file importing a storage under another
+     * name always counts, since the text then shows the alias.
+     *
+     * The constructor and the properties are read off CodeMask's code, so a
+     * comment between the tokens or a parenthesis in a default string
+     * doesn't hide them.
      */
-    public static function declaredLike(string $classText, string $fileText): bool
+    public static function declaredLike(string $contents, Span $class): bool
     {
+        $code = substr(CodeMask::code($contents), $class->start, $class->length());
         $matches = [];
 
         return (
-            preg_match(self::CONSTRUCTOR, $classText, $matches) === 1
+            preg_match(self::CONSTRUCTOR, $code, $matches) === 1
             && preg_match(self::NAME, $matches[1]) === 1
-            || preg_match(self::PROPERTY, $classText) === 1
-            || self::documentedLike($classText)
-            || preg_match(self::ALIASED, $fileText) === 1
+            || preg_match(self::PROPERTY, $code) === 1
+            || self::documentedLike(substr($contents, $class->start, $class->length()))
+            || preg_match(self::ALIASED, $contents) === 1
         );
     }
 

@@ -91,7 +91,7 @@ final class ClassMetadataHook implements NodeAnalysisHook
         $names = array_keys($mentions);
         $text = $file->getText($context->node->span);
         if (
-            StorageTypes::namedLike($names) && StorageTypes::declaredLike($text, $file->contents)
+            StorageTypes::namedLike($names) && StorageTypes::declaredLike($file->contents, $context->node->span)
             || StorageTypes::documentedLike($text)
         ) {
             $checks[] = $this->storage;
