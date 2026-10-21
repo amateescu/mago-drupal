@@ -1673,3 +1673,99 @@ function coalesce_miss_else_coalesce(
   // @mago-expect analysis:redundant-null-coalesce
   return $a === NULL ? '' : $a ?? 'z';
 }
+
+/**
+ * Case miss_parenthesized_isset.
+ *
+ * @param \Drupal\corpus\NullCoalesceHolder $obj
+ *   The holder.
+ * @param string|null $a
+ *   The first value.
+ * @param string|null $b
+ *   The second value.
+ * @param bool $flag
+ *   A flag.
+ * @param array<array-key, string|null> $arr
+ *   The array.
+ * @param int $i
+ *   A counter.
+ *
+ * @return mixed
+ *   The result.
+ */
+function coalesce_miss_parenthesized_isset(
+  NullCoalesceHolder $obj,
+  ?string $a = NULL,
+  ?string $b = NULL,
+  bool $flag = FALSE,
+  array $arr = [],
+  int $i = 0,
+): mixed {
+  // @mago-format-ignore-start
+  return (isset($a)) ? $a : '';
+  // @mago-format-ignore-end
+}
+
+/**
+ * Case miss_parenthesized_null_check.
+ *
+ * @param \Drupal\corpus\NullCoalesceHolder $obj
+ *   The holder.
+ * @param string|null $a
+ *   The first value.
+ * @param string|null $b
+ *   The second value.
+ * @param bool $flag
+ *   A flag.
+ * @param array<array-key, string|null> $arr
+ *   The array.
+ * @param int $i
+ *   A counter.
+ *
+ * @return mixed
+ *   The result.
+ */
+function coalesce_miss_parenthesized_null_check(
+  NullCoalesceHolder $obj,
+  ?string $a = NULL,
+  ?string $b = NULL,
+  bool $flag = FALSE,
+  array $arr = [],
+  int $i = 0,
+): mixed {
+  // @mago-format-ignore-start
+  return ($a !== NULL) ? $a : '';
+  // @mago-format-ignore-end
+}
+
+/**
+ * Case miss_parenthesized_yoda.
+ *
+ * @param \Drupal\corpus\NullCoalesceHolder $obj
+ *   The holder.
+ * @param string|null $a
+ *   The first value.
+ * @param string|null $b
+ *   The second value.
+ * @param bool $flag
+ *   A flag.
+ * @param array<array-key, string|null> $arr
+ *   The array.
+ * @param int $i
+ *   A counter.
+ *
+ * @return mixed
+ *   The result.
+ */
+function coalesce_miss_parenthesized_yoda(
+  NullCoalesceHolder $obj,
+  ?string $a = NULL,
+  ?string $b = NULL,
+  bool $flag = FALSE,
+  array $arr = [],
+  int $i = 0,
+): mixed {
+  // @mago-format-ignore-start
+  return (NULL === $a) ? '' : $a;
+  // @mago-format-ignore-end
+}

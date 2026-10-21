@@ -27,7 +27,8 @@ use function trim;
  * Ports SlevomatCodingStandard.ControlStructures.RequireShortTernaryOperator,
  * which core's `phpcs.xml.dist` runs. Two shapes match: `X ? X : B` and
  * `!X ? B : X`. Both become `X ?: B`. Operands match by syntax tree, as in
- * `drupal/null-coalesce`.
+ * `drupal/null-coalesce`. A condition in parentheses isn't reported, as with
+ * the sniff, unless the middle part has parentheses too.
  *
  * The fix runs only when X is a plain variable, property, index or constant
  * read, because `X ?: B` reads X once where the ternary reads it twice. In the
@@ -66,6 +67,13 @@ final class ShortTernaryRule implements Rule
         }
 
         [$condition, $then, $else] = $parts;
+
+        // The sniff compares the condition's text with the middle part, so
+        // `(X) ? X : B` doesn't match.
+        if (Operands::isParenthesized($file, $condition) && !Operands::isParenthesized($file, $then)) {
+            return;
+        }
+
         $edits = null;
         if (Operands::signature($file, $condition) === Operands::signature($file, $then)) {
             $edits = Operands::isPure($file, Operands::core($file, $then))

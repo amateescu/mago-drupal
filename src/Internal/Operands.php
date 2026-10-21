@@ -114,6 +114,14 @@ final class Operands
     }
 
     /**
+     * Whether an expression is written inside parentheses, as in `(X)`.
+     */
+    public static function isParenthesized(SourceFile $file, Node $node): bool
+    {
+        return ($file->getChildren($node)[0] ?? $node)->kind === NodeKind::Parenthesized;
+    }
+
+    /**
      * The children of a node that are expressions.
      *
      * @return list<Node>
