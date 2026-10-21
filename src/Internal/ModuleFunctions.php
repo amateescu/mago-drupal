@@ -36,7 +36,18 @@ use function strtolower;
  */
 final class ModuleFunctions
 {
-    private const DECLARATION = '/\bfunction\s++&?\s*+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*+\(/';
+    /**
+     * A function or method declaration and its name. PHP reads the keyword in
+     * any case, with comments allowed between the tokens.
+     */
+    private const DECLARATION =
+        '/\bfunction(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . '(?:&'
+            . SourceText::GAP
+            . ')?([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*+)'
+            . SourceText::GAP
+            . '\(/i';
 
     /**
      * The directory that doesn't hold any function a module declares besides

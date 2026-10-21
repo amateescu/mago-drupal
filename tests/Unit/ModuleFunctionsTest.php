@@ -20,7 +20,10 @@ final class ModuleFunctionsTest extends TestCase
         $names = array_keys(ModuleFunctions::names(self::FIXTURE));
         sort($names);
 
-        self::assertSame(['foo_admin_validate', 'foo_form_submit', 'foo_sub_submit'], $names);
+        self::assertSame(
+            ['foo_admin_validate', 'foo_comment_save', 'foo_exists', 'foo_form_submit', 'foo_sub_submit'],
+            $names,
+        );
     }
 
     public function testTheInnermostModuleOwnsAFile(): void
