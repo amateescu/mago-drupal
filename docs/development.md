@@ -24,6 +24,14 @@ runs `test-presets`, `test-corpus`, `test-fixes` and `test-examples`.
 
 Set `MAGO=/path/to/mago` to run the checks against a different build.
 
+## Layers
+
+The linter rules live in the `amateescu\MagoDrupal\Linter` namespace, the analyzer plugins in
+`amateescu\MagoDrupal\Analyzer`, and the code that both use in `amateescu\MagoDrupal\Internal`. The
+linter doesn't name the analyzer, the analyzer doesn't name the linter, and `Internal` doesn't name
+either of them. `LayersTest` fails when a file breaks this. Only `DrupalExtension` wires the two
+halves together.
+
 ## Rule codes
 
 Rule codes are stable. Projects that we don't control write them into baselines and into
