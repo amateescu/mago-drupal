@@ -83,7 +83,7 @@ final class LayersTest extends TestCase
              */
             final class Example
             {
-                private const NAME = 'amateescu\\MagoDrupal\\Analyzer\\Hooks\\TestClassHook';
+                private const NAME = 'amateescu\\MagoDrupal\\Analyzer\\Test\\TestClassHook';
             }
             PHP;
 

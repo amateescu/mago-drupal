@@ -165,7 +165,7 @@ final class Utf8IssueRuleTest extends TestCase
         );
         foreach ($files as $file) {
             $path = (string) $file;
-            if (!str_ends_with($path, '.php') || str_ends_with($path, '/Checks/Reporter.php')) {
+            if (!str_ends_with($path, '.php') || str_ends_with($path, '/Support/Reporter.php')) {
                 continue;
             }
 

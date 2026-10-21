@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Checks\ListBuilderCacheabilityCheck;
+use amateescu\MagoDrupal\Analyzer\Entity\ListBuilderCacheabilityCheck;
 use PHPUnit\Framework\TestCase;
 
 final class ListBuilderCacheabilityCheckTest extends TestCase

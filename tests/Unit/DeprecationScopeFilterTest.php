@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecationScopeFilter;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\IssueFilterContext;
 use Mago\Sdk\Analyzer\IssueFilterDecision;

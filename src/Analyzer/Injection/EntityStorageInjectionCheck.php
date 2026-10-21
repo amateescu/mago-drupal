@@ -1,0 +1,165 @@
+<?php
+
+declare(strict_types=1);
+
+namespace amateescu\MagoDrupal\Analyzer\Injection;
+
+use amateescu\MagoDrupal\Analyzer\Support\HookMethods;
+use amateescu\MagoDrupal\Analyzer\Support\MetadataCheck;
+use amateescu\MagoDrupal\Analyzer\Support\Reporter;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Entity\StorageTypes;
+use amateescu\MagoDrupal\Internal\Traits\TraitRoots;
+use amateescu\MagoDrupal\Internal\Type\Types;
+use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
+use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
+use Mago\Sdk\Analyzer\Metadata\ParameterMetadata;
+
+use function array_filter;
+use function count;
+use function in_array;
+use function ltrim;
+use function str_replace;
+use function strtolower;
+
+/**
+ * Reports entity storages held as constructor parameters or properties.
+ *
+ * Ports phpstan-drupal's EntityStorageDirectInjectionRule and
+ * EntityStoragePropertyAssignmentRule. A storage handler can be swapped by
+ * another module at runtime, so code asks the entity type manager for it at
+ * the call site instead of holding on to one. A property counts by its
+ * effective type, so a `@var` docblock on an untyped property is read too.
+ * An entity handler may hold its own storage: the entity type manager hands
+ * a list builder or views data its storage on purpose, and the handler keeps
+ * it in a property. Core names it `$storage`, or `$storage_controller` in
+ * views data. A trait is checked on its own and counts as a handler when
+ * every class using it is one. A constructor also takes, unreported, as many
+ * storages as its parent's constructor does, under any name, as
+ * phpstan-drupal does: a subclass passes the parent's storage on and cannot
+ * drop it.
+ *
+ * @internal
+ *
+ * @mago-expect lint:cyclomatic-complexity
+ */
+final class EntityStorageInjectionCheck implements MetadataCheck
+{
+    public const INJECTION_CODE = 'entity-storage-injection';
+
+    public const PROPERTY_CODE = 'entity-storage-property';
+
+    public const HELP = 'Inject \Drupal\Core\Entity\EntityTypeManagerInterface and call getStorage() where the storage is used.';
+
+    public const LINK = 'https://mglaman.dev/blog/dependency-injection-anti-patterns-drupal';
+
+    private const HANDLER = 'Drupal\Core\Entity\EntityHandlerInterface';
+
+    /**
+     * The names of a handler's own storage, lowercased and without
+     * underscores.
+     */
+    private const OWN_STORAGE = ['storage', 'storagecontroller'];
+
+    public function __construct(
+        private readonly TraitRoots $traitRoots,
+    ) {}
+
+    public function textGate(): ?string
+    {
+        return null;
+    }
+
+    public function check(ClassFacts $class, Reporter $reporter): void
+    {
+        $handler = $this->handler($class);
+        $constructor = $class->constructor();
+        $inherited = $constructor === null ? 0 : self::parentStorages($class);
+        foreach ($constructor === null ? [] : HookMethods::parameters($constructor) as $parameter) {
+            if (!StorageTypes::any($class->codebase, Types::names($parameter->declaredType?->type))) {
+                continue;
+            }
+
+            if ($inherited > 0) {
+                $inherited--;
+                continue;
+            }
+
+            if ($handler && self::own($parameter->name)) {
+                continue;
+            }
+
+            $reporter->warning(self::INJECTION_CODE, Reporter::issue(
+                "Entity storage is injected through {$parameter->name}.",
+                $parameter->location,
+                self::HELP,
+                self::LINK,
+            ));
+        }
+
+        foreach ($class->properties() as $property) {
+            $location = $property->nameLocation ?? $property->location;
+            $type = $property->type ?? $property->declaredType;
+            // A promoted property is its constructor parameter, which the
+            // injection report already covers, as phpstan-drupal does.
+            if (
+                $location === null
+                || $property->flags->contains(MetadataFlags::PROMOTED_PROPERTY)
+                || $handler && self::own($property->name)
+                || !StorageTypes::any($class->codebase, Types::names($type?->type))
+            ) {
+                continue;
+            }
+
+            $reporter->warning(self::PROPERTY_CODE, Reporter::issue(
+                "Entity storage is kept in {$property->name}.",
+                $location,
+                self::HELP,
+                self::LINK,
+            ));
+        }
+    }
+
+    /**
+     * Whether the class is an entity handler, or a trait whose users all are.
+     */
+    private function handler(ClassFacts $class): bool
+    {
+        return (
+            $class->class->kind === ClassLikeKind::Trait
+                ? $this->traitRoots->allImplement($class->codebase, $class->name(), self::HANDLER)
+                : $class->implementsAny([self::HANDLER])
+        );
+    }
+
+    /**
+     * How many storages the parent's constructor takes, declared there or
+     * inherited.
+     */
+    private static function parentStorages(ClassFacts $class): int
+    {
+        $parent = $class->class->directParentClass;
+        $constructor = $parent === null
+            ? null
+            : $class->codebase->findMethods(class: $parent, name: '__construct', fields: ClassFacts::METHOD_FIELDS)[0]
+            ?? null;
+
+        return count(array_filter(
+            $constructor === null ? [] : HookMethods::parameters($constructor),
+            static fn(ParameterMetadata $parameter): bool => StorageTypes::any(
+                $class->codebase,
+                Types::names($parameter->declaredType?->type),
+            ),
+        ));
+    }
+
+    /**
+     * Whether a handler's parameter or property is named for its own storage.
+     */
+    private static function own(string $name): bool
+    {
+        $name = str_replace(search: '_', replace: '', subject: ltrim($name, characters: '$'));
+
+        return in_array(strtolower($name), self::OWN_STORAGE, strict: true);
+    }
+}

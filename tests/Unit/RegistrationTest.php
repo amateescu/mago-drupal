@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
+use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\DrupalExtension;
 use Closure;
 use Mago\Sdk\Analyzer\Plugin;

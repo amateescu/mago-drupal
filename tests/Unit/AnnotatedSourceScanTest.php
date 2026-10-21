@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Hooks\AnnotatedSourceScan;
+use amateescu\MagoDrupal\Analyzer\Support\AnnotatedSourceScan;
 use PHPUnit\Framework\TestCase;
 
 use function getcwd;

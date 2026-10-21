@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Checks\TestClassCheck;
+use amateescu\MagoDrupal\Analyzer\Test\TestClassCheck;
 use PHPUnit\Framework\TestCase;
 
 final class TestClassCheckTest extends TestCase
