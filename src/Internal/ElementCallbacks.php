@@ -679,6 +679,21 @@ final class ElementCallbacks
     }
 
     /**
+     * Whether the pattern for a reference or foreach binding matches in the
+     * function. A match in the raw text is checked again on CodeMask's code,
+     * so a comment or a string that holds one doesn't count.
+     */
+    private function rebinds(Node $function, string $pattern): bool
+    {
+        $span = $function->span;
+
+        return (
+            preg_match($pattern, $this->file->getText($function)) === 1
+            && preg_match($pattern, substr(CodeMask::code($this->file->contents), $span->start, $span->length())) === 1
+        );
+    }
+
+    /**
      * The class a variable holds when the function it is used in assigns it
      * once, with `=`, from an expression classOf() reads, as element info does
      * with `$class = get_class($this)`. Mago types get_class() as a plain
@@ -692,7 +707,7 @@ final class ElementCallbacks
         $function = $this->ancestor($variable, self::FUNCTION_LIKES);
         $name = trim($this->file->getText($variable));
         $quoted = preg_quote($name, delimiter: '/') . '\b/';
-        if ($function === null || preg_match(self::REBINDS . $quoted, $this->file->getText($function)) === 1) {
+        if ($function === null || $this->rebinds($function, self::REBINDS . $quoted)) {
             return null;
         }
 

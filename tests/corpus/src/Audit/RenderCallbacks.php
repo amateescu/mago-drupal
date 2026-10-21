@@ -755,6 +755,19 @@ class RenderCallbackBuilder {
   }
 
   /**
+   * A comment that loops over the variable doesn't bind it.
+   */
+  public function assignedClassComment(): array {
+    // The parent loops as $class over the children here.
+    $class = get_class($this);
+
+    return [
+      // @mago-expect analysis:drupal/unknown-callback
+      '#pre_render' => [[$class, 'missingFromCommentedClass']],
+    ];
+  }
+
+  /**
    * A variable set to get_class($this) naming an instance method.
    */
   public function assignedClassInstance(): array {
