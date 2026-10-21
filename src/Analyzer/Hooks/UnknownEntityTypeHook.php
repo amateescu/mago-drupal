@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Arguments;
+use amateescu\MagoDrupal\Internal\CodeMask;
 use amateescu\MagoDrupal\Internal\EntityTypeIndex;
 use amateescu\MagoDrupal\Internal\Expressions;
 use amateescu\MagoDrupal\Internal\TestFiles;
@@ -150,9 +151,16 @@ final class UnknownEntityTypeHook implements MethodCallAnalysisHook
             return false;
         }
 
+        // A match in the raw text is checked again without the comments, so
+        // a check that a comment holds doesn't count.
         $scope = Expressions::scopeOf($file, $call);
-        $before = substr($file->contents, $scope->span->start, $call->span->start - $scope->span->start);
+        $start = $scope->span->start;
+        $length = $call->span->start - $start;
+        $pattern = '/\bhasDefinition\(\s*([\'"])' . preg_quote($id, delimiter: '/') . '\1\s*\)/';
 
-        return preg_match('/\bhasDefinition\(\s*([\'"])' . preg_quote($id, delimiter: '/') . '\1\s*\)/', $before) === 1;
+        return (
+            preg_match($pattern, substr($file->contents, $start, $length)) === 1
+            && preg_match($pattern, substr(CodeMask::comments($file->contents), $start, $length)) === 1
+        );
     }
 }
