@@ -69,6 +69,16 @@ final class Docblocks
      */
     private const MARKUP_TAGS = ['code', 'endcode', 'link', 'endlink'];
 
+    /**
+     * @var FileMemo<array{list<DocblockLine>, list<DocblockTag>}>|null
+     */
+    private static ?FileMemo $parseMemo = null;
+
+    /**
+     * @var FileMemo<array{list<DocblockLine>, list<DocblockLine>}>|null
+     */
+    private static ?FileMemo $paragraphMemo = null;
+
     private function __construct() {}
 
     /**
@@ -152,15 +162,13 @@ final class Docblocks
      */
     public static function paragraphs(SourceFile $file, Span $span): array
     {
-        static $source = null;
-        static $memo = [];
+        self::$paragraphMemo ??= new FileMemo();
+        $memo = self::$paragraphMemo;
+        $start = $span->start;
 
-        if ($source !== $file) {
-            $source = $file;
-            $memo = [];
-        }
-
-        return $memo[$span->start] ??= self::splitParagraphs($file, $span);
+        return $memo->has($file->contents, $start)
+            ? $memo->value($start)
+            : $memo->keep($file->contents, self::splitParagraphs($file, $span), $start);
     }
 
     /**
@@ -214,25 +222,22 @@ final class Docblocks
      * The result is memoized per docblock. Several rules in this extension
      * call `lines()`, `tags()` or `paragraphs()` on the same docblock in one
      * file. Without the cache, each of those calls parses the same docblock
-     * again. The cache holds the docblocks of one `SourceFile`, and the
-     * next one clears it, so a path linted again with new contents gets a
-     * fresh parse. A worker lints the targets of one file in sequence, so
-     * the memory holds the docblocks of one file at a time and does not grow
-     * with the worker.
+     * again. FileMemo keeps the docblocks of the last file text, so a path
+     * linted again with new contents gets a fresh parse. A worker lints the
+     * targets of one file in sequence, so the memory holds the docblocks of
+     * one file at a time and doesn't grow with the worker.
      *
      * @return array{list<DocblockLine>, list<DocblockTag>}
      */
     private static function parse(SourceFile $file, Span $span): array
     {
-        static $source = null;
-        static $memo = [];
+        self::$parseMemo ??= new FileMemo();
+        $memo = self::$parseMemo;
+        $start = $span->start;
 
-        if ($source !== $file) {
-            $source = $file;
-            $memo = [];
-        }
-
-        return $memo[$span->start] ??= self::parseDocblock($file, $span);
+        return $memo->has($file->contents, $start)
+            ? $memo->value($start)
+            : $memo->keep($file->contents, self::parseDocblock($file, $span), $start);
     }
 
     /**

@@ -43,15 +43,10 @@ final class FileDocblock
         NodeKind::Method,
     ];
 
-    private static ?SourceFile $file = null;
-
     /**
-     * The class-likes, whether there is a namespace, and the functions and
-     * methods of the last file.
-     *
-     * @var array{list<Node>, bool, list<Node>}
+     * @var FileMemo<array{list<Node>, bool, list<Node>}>|null
      */
-    private static array $declarations = [[], false, []];
+    private static ?FileMemo $memo = null;
 
     private function __construct() {}
 
@@ -154,10 +149,16 @@ final class FileDocblock
      */
     private static function declarations(SourceFile $file): array
     {
-        if (self::$file === $file) {
-            return self::$declarations;
-        }
+        self::$memo ??= new FileMemo();
 
+        return self::$memo->get($file, static fn(): array => self::collect($file));
+    }
+
+    /**
+     * @return array{list<Node>, bool, list<Node>}
+     */
+    private static function collect(SourceFile $file): array
+    {
         $classLikes = [];
         $namespaced = false;
         $functions = [];
@@ -170,8 +171,6 @@ final class FileDocblock
             };
         }
 
-        self::$file = $file;
-
-        return self::$declarations = [$classLikes, $namespaced, $functions];
+        return [$classLikes, $namespaced, $functions];
     }
 }

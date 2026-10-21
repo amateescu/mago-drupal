@@ -33,9 +33,6 @@ use function trim;
  * The text check in isGroup() runs before the line read for every docblock.
  *
  * @internal
- *
- * @mago-expect lint:cyclomatic-complexity
- * @mago-expect lint:kan-defect
  */
 final class OuterDocblocks
 {
@@ -51,12 +48,10 @@ final class OuterDocblocks
      */
     private const GROUP_MARKERS = ['@defgroup', '@addtogroup', '@coversdefaultclass', '@}'];
 
-    private static ?SourceFile $file = null;
-
     /**
-     * @var array{list<Span>, list<Span>}
+     * @var FileMemo<array{list<Span>, list<Span>}>|null
      */
-    private static array $partition = [[], []];
+    private static ?FileMemo $memo = null;
 
     private function __construct() {}
 
@@ -96,12 +91,9 @@ final class OuterDocblocks
      */
     private static function partition(SourceFile $file): array
     {
-        if (self::$file !== $file) {
-            self::$file = $file;
-            self::$partition = self::split($file);
-        }
+        self::$memo ??= new FileMemo();
 
-        return self::$partition;
+        return self::$memo->get($file, static fn(): array => self::split($file));
     }
 
     /**

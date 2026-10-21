@@ -31,6 +31,11 @@ use const PREG_SET_ORDER;
  */
 final class DocblockRows
 {
+    /**
+     * @var FileMemo<non-empty-list<DocblockRow>>|null
+     */
+    private static ?FileMemo $memo = null;
+
     private function __construct() {}
 
     /**
@@ -43,15 +48,15 @@ final class DocblockRows
      */
     public static function of(SourceFile $file, Span $span): array
     {
-        static $source = null;
-        static $memo = [];
+        $contents = $file->contents;
 
-        if ($source !== $file) {
-            $source = $file;
-            $memo = [];
-        }
+        self::$memo ??= new FileMemo();
+        $memo = self::$memo;
+        $start = $span->start;
 
-        return $memo[$span->start] ??= self::parse($file->contents, $span);
+        return $memo->has($contents, $start)
+            ? $memo->value($start)
+            : $memo->keep($contents, self::parse($contents, $span), $start);
     }
 
     /**

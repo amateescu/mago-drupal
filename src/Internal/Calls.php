@@ -9,7 +9,6 @@ use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
-use function array_key_exists;
 use function chr;
 use function count;
 use function in_array;
@@ -50,6 +49,11 @@ final class Calls
         NodeKind::QualifiedIdentifier,
         NodeKind::FullyQualifiedIdentifier,
     ];
+
+    /**
+     * @var FileMemo<array{?string, bool}>|null
+     */
+    private static ?FileMemo $memo = null;
 
     private function __construct() {}
 
@@ -127,43 +131,22 @@ final class Calls
      * doesn't need a second check, because the scanned name covers every name
      * that the walk can find.
      *
-     * The result is memoized per node. Several call rules subscribe to the
-     * same call kinds, so the worker dispatches each of them for the same
-     * node. Without the cache, each of them derives the same name again. The
-     * cache holds the names of one `SourceFile`, and the next one clears it.
-     * `Docblocks::lines()` uses the same pattern.
+     * The result is kept per node in FileMemo, keyed by the snapshot.
+     * Several call rules subscribe to the same call kinds, so the worker
+     * dispatches each of them for the same node. Without the memo, each of
+     * them derives the same name again.
      *
      * @param array<string, true> $wanted
      */
     public static function matchWanted(SourceFile $file, Node $node, array $wanted): ?string
     {
-        static $source = null;
-        /** @var array<int, string|null> $names */
-        static $names = [];
-        /** @var array<int, true> $resolved */
-        static $resolved = [];
-
-        if ($source !== $file) {
-            $source = $file;
-            $names = [];
-            $resolved = [];
-        }
-
+        self::$memo ??= new FileMemo();
+        /** @var FileMemo<array{?string, bool}> $memo */
+        $memo = self::$memo;
         $id = $node->id;
-        if (!array_key_exists($id, $names)) {
-            $name = null;
-            if (in_array($node->kind, self::FUNCTION_KINDS, strict: true)) {
-                $imported = $file->getResolvedName($node);
-                if ($imported !== null && $imported->imported) {
-                    $name = $imported->name;
-                    $resolved[$id] = true;
-                }
-            }
-
-            $names[$id] = $name ?? self::writtenNameFast($file, $node);
-        }
-
-        $name = $names[$id];
+        [$name, $resolved] = $memo->has($file, $id)
+            ? $memo->value($id)
+            : $memo->keep($file, self::scannedName($file, $node), $id);
         if ($name === null) {
             return null;
         }
@@ -173,13 +156,31 @@ final class Calls
             return null;
         }
 
-        if ($resolved[$id] ?? false) {
+        if ($resolved) {
             return $name;
         }
 
         $precise = self::name($file, $node);
 
         return $precise !== null && self::normalize($precise) === $name ? $name : null;
+    }
+
+    /**
+     * The imported name of a function call, or else its written name from
+     * the text scan, and whether it is the imported one.
+     *
+     * @return array{?string, bool}
+     */
+    private static function scannedName(SourceFile $file, Node $node): array
+    {
+        if (in_array($node->kind, self::FUNCTION_KINDS, strict: true)) {
+            $imported = $file->getResolvedName($node);
+            if ($imported !== null && $imported->imported) {
+                return [$imported->name, true];
+            }
+        }
+
+        return [self::writtenNameFast($file, $node), false];
     }
 
     /**
