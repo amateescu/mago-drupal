@@ -195,4 +195,15 @@ final class RedundantAssertionsTest extends TestCase {
     $this->assertNull($_corpus_flag);
   }
 
+  /**
+   * A comment that says global $label doesn't share the variable.
+   *
+   * @param string $label
+   *   A label.
+   */
+  public function testCommentedGlobal(string $label): void {
+    // @mago-expect analysis:phpunit/redundant-assertion
+    self::assertIsString($label);
+  }
+
 }
