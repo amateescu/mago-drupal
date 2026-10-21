@@ -163,10 +163,6 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'variable.undefined' => ['possibly-undefined-variable', 'undefined-variable'],
     ];
 
-    private string $contents = '';
-
-    private ?PHPStanIgnores $ignores = null;
-
     public function getCodes(): array
     {
         return array_values(array_unique(array_merge(...array_values(self::CODES))));
@@ -176,7 +172,7 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
     {
         $code = $context->issue->code;
         $annotations = $context->issue->annotations;
-        $ignores = $this->ignores($context->contents);
+        $ignores = PHPStanIgnores::of($context->contents);
         if ($code === null || $annotations === [] || $ignores === null) {
             return IssueFilterDecision::Keep;
         }
@@ -213,21 +209,5 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         }
 
         return false;
-    }
-
-    /**
-     * The comments of the file the issue is in, read once for its issues.
-     *
-     * The bytes are the key, not the path: an editor session analyzes the
-     * same path again after every edit.
-     */
-    private function ignores(string $contents): ?PHPStanIgnores
-    {
-        if ($this->contents !== $contents) {
-            $this->contents = $contents;
-            $this->ignores = PHPStanIgnores::of($contents);
-        }
-
-        return $this->ignores;
     }
 }

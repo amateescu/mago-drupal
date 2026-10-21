@@ -40,6 +40,11 @@ final class DrupalFile
      */
     private const NAMED_EXTENSIONS = ['module', 'install', 'profile', 'theme'];
 
+    /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
+
     private function __construct(
         public readonly string $extension,
         public readonly string $name,
@@ -51,19 +56,14 @@ final class DrupalFile
      */
     public static function fromSource(SourceFile $file): self
     {
-        // One memo slot, keyed by path. The rules call this once per target
-        // node, and a worker lints the nodes of one file in sequence, so
-        // there is one parse per file, and the memo does not grow.
-        /** @var array<string, self> $memo */
-        static $memo = [];
+        // The conventions come from the path alone, so the path is the key.
+        // The rules call this once per target node, and a worker lints the
+        // nodes of one file in sequence, so there is one parse per file.
+        $path = $file->path;
 
-        $parsed = $memo[$file->path] ?? null;
-        if ($parsed === null) {
-            $parsed = self::fromPath($file->path);
-            $memo = [$file->path => $parsed];
-        }
+        self::$memo ??= new FileMemo();
 
-        return $parsed;
+        return self::$memo->get($path, static fn(): self => self::fromPath($path));
     }
 
     /**

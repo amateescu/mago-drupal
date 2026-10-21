@@ -44,10 +44,6 @@ final class PluginDefinitionArrayFilter implements IssueFilterHook
 
     private const DERIVER = 'drupal\component\plugin\derivative\deriverinterface';
 
-    private string $contents = '';
-
-    private ?NamedFunctions $functions = null;
-
     public function getCodes(): array
     {
         return ['invalid-array-access'];
@@ -63,7 +59,7 @@ final class PluginDefinitionArrayFilter implements IssueFilterHook
         // The first annotation is the one the issue points at.
         $span = $issue->annotations[0]->span;
 
-        $owner = $this->functions($context->contents)->at($span->start)[2] ?? null;
+        $owner = NamedFunctions::of($context->contents)->at($span->start)[2] ?? null;
         $class = $owner === null ? null : $context->codebase->getClassLike($owner);
         if ($class === null) {
             return IssueFilterDecision::Keep;
@@ -81,19 +77,5 @@ final class PluginDefinitionArrayFilter implements IssueFilterHook
         && PluginDefinitions::ownAreArrays($context->codebase, $class)
             ? IssueFilterDecision::Remove
             : IssueFilterDecision::Keep;
-    }
-
-    /**
-     * The named functions of the file the issue is in, tokenized once for
-     * the issues of that file.
-     */
-    private function functions(string $contents): NamedFunctions
-    {
-        if ($this->functions === null || $this->contents !== $contents) {
-            $this->functions = NamedFunctions::of($contents);
-            $this->contents = $contents;
-        }
-
-        return $this->functions;
     }
 }

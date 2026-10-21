@@ -34,6 +34,11 @@ use const PREG_OFFSET_CAPTURE;
  */
 final class YamlFile
 {
+    /**
+     * @var FileMemo<array<array-key, mixed>|null>|null
+     */
+    private static ?FileMemo $memo = null;
+
     private function __construct() {}
 
     /**
@@ -53,15 +58,13 @@ final class YamlFile
      */
     public static function parse(SourceFile $file): ?array
     {
-        // One memo slot. Several rules read the same file, and a worker lints
-        // the rules of one file in sequence.
-        /** @var array{string, array<array-key, mixed>|null}|null $memo */
-        static $memo = null;
-        if ($memo === null || $memo[0] !== $file->contents) {
-            $memo = [$file->contents, self::decode($file->contents)];
-        }
+        // Several rules read the same file, and a worker lints the rules of
+        // one file in sequence.
+        $contents = $file->contents;
 
-        return $memo[1];
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($contents, static fn(): ?array => self::decode($contents));
     }
 
     /**
