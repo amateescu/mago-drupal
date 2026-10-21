@@ -6,12 +6,18 @@ namespace amateescu\MagoDrupal\Internal\Cache;
 
 use Closure;
 use Composer\InstalledVersions;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Revolt\EventLoop;
 use Revolt\EventLoop\Suspension;
+use SplFileInfo;
+use UnexpectedValueException;
 
 use function basename;
 use function class_exists;
 use function clearstatcache;
+use function dirname;
 use function fclose;
 use function filemtime;
 use function filesize;
@@ -30,6 +36,7 @@ use function preg_replace;
 use function rename;
 use function serialize;
 use function sha1;
+use function sort;
 use function str_contains;
 use function str_starts_with;
 use function strlen;
@@ -532,10 +539,9 @@ final class DiskCache
 
     /**
      * A hash of the code that builds the payloads: the path, modification
-     * time and size of every file next to this one, and the parser versions
-     * (see parserVersions()). Payloads are instances of these classes and the
-     * output of their parsers, so an entry written by other code must never
-     * be read.
+     * time and size of every PHP file under src/, and the parser versions
+     * (see parserVersions()). Payloads come from scanners and parsers all
+     * over src/, so an entry written by other code must never be read.
      */
     private static function code(): string
     {
@@ -543,9 +549,25 @@ final class DiskCache
             return self::$code;
         }
 
-        $files = glob(__DIR__ . '/*.php');
+        $files = [];
+        try {
+            $entries = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(dirname(__DIR__, levels: 2), FilesystemIterator::SKIP_DOTS),
+            );
+            foreach ($entries as $entry) {
+                if (!$entry instanceof SplFileInfo || $entry->getExtension() !== 'php') {
+                    continue;
+                }
+
+                $files[] = $entry->getPathname();
+            }
+        } catch (UnexpectedValueException) {
+            $files = [];
+        }
+
+        sort($files);
         $lines = self::parserVersions();
-        foreach ($files === false ? [] : $files as $file) {
+        foreach ($files as $file) {
             $lines .= $file . '|' . (string) (int) filemtime($file) . '|' . (string) (int) filesize($file) . "\n";
         }
 
