@@ -19,7 +19,7 @@
  * `modules/example/example.module`, or at the path that its `title` gives,
  * from the workspace root. A YAML block needs a title.
  *
- * Usage: php tests/CheckExamples.php <mago binary> [page.md...]
+ * Usage: php tests/Tools/CheckExamples.php <mago binary> [page.md...]
  *
  * With page names, such as `services.md`, only those pages are checked.
  */
@@ -271,7 +271,7 @@ function check(string $mago, string $root, string $name, string $code, string $l
 
 $mago = $argv[1] ?? null;
 if ($mago === null) {
-    fwrite(STDERR, "Usage: php tests/CheckExamples.php <mago binary> [page.md...]\n");
+    fwrite(STDERR, "Usage: php tests/Tools/CheckExamples.php <mago binary> [page.md...]\n");
     exit(2);
 }
 
@@ -281,7 +281,7 @@ if (!str_starts_with($mago, '/')) {
     $mago = realpath($mago) ?: $mago;
 }
 
-$root = dirname(__DIR__);
+$root = dirname(__DIR__, levels: 2);
 $only = array_slice($argv, offset: 2);
 $failures = 0;
 $count = 0;

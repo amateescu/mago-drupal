@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Rewrites the PHP classes that hold the ports of `tests/coder-map.json` and
- * `tests/phpstan-drupal-map.json`. `PortClassesTest` fails when one of them
- * is out of date.
+ * Rewrites the PHP classes that hold the ports of
+ * `tests/data/coder-map.json` and `tests/data/phpstan-drupal-map.json`.
+ * `PortClassesTest` fails when one of them is out of date.
  *
- * Usage: php tests/GeneratePorts.php
+ * Usage: php tests/Tools/GeneratePorts.php
  */
 
 declare(strict_types=1);
@@ -18,9 +18,9 @@ use function fwrite;
 
 use const STDOUT;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__, levels: 2) . '/vendor/autoload.php';
 
-$classes = new PortClasses(dirname(__DIR__));
+$classes = new PortClasses(dirname(__DIR__, levels: 2));
 foreach (PortClasses::GENERATED as $file) {
     $text = $classes->render($file);
     if ($text === $classes->read($file)) {

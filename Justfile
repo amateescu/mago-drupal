@@ -42,9 +42,9 @@ fix:
 # issue, and an issue that no expectation takes as well. Mago lets an
 # expectation inside a function body take any later issue of its code in the
 # file, though, so the last step runs the corpus again through
-# tests/CorpusPins.php, which holds every issue to the lines its expectation is
-# written above. The fixtures are bad on purpose, so the lint run is
-# limited to the rule codes of this extension. That keeps the built-in rules
+# tests/Tools/CorpusPins.php, which holds every issue to the lines its
+# expectation is written above. The fixtures are bad on purpose, so the lint
+# run is limited to the rule codes of this extension. That keeps the built-in rules
 # from failing the run. The lint run poses as the GitLab merge request of issue
 # 3456789, so drupal/todo-current-issue has an issue to compare links with.
 # The first step compares the rules that Mago registers
@@ -57,21 +57,21 @@ test-corpus:
     {{mago}} --workspace tests/corpus extension list --json | php -r '$registered = json_decode(json: stream_get_contents(STDIN), associative: true, flags: JSON_THROW_ON_ERROR); $actual = []; foreach ($registered["extensions"] as $extension) { foreach ($extension["linter-rules"] as $rule) { $actual[] = $rule["code"]; } } sort($actual); $expected = array_map("trim", file("tests/corpus/expected-rules.txt")); sort($expected); if ($actual === $expected) { exit(0); } fwrite(STDERR, "Registered rules drifted from tests/corpus/expected-rules.txt\n"); foreach (array_diff($expected, $actual) as $code) { fwrite(STDERR, "  no longer registered: " . $code . "\n"); } foreach (array_diff($actual, $expected) as $code) { fwrite(STDERR, "  not pinned: " . $code . "\n"); } exit(1);'
     CI_MERGE_REQUEST_SOURCE_BRANCH_NAME=3456789-corpus {{mago}} --workspace tests/corpus lint --only "$(paste -sd, - < tests/corpus/expected-rules.txt)"
     {{mago}} --workspace tests/corpus analyze
-    php tests/CorpusPins.php {{mago}}
-    php tests/CorpusPins.php {{mago}} tests/ignores
+    php tests/Tools/CorpusPins.php {{mago}}
+    php tests/Tools/CorpusPins.php {{mago}} tests/ignores
 
 # Runs every rule's fix over the before and after pairs in tests/fixes. See
-# tests/FixCases.php for the layout.
+# tests/Tools/FixCases.php for the layout.
 test-fixes:
-    php tests/FixCases.php {{mago}}
+    php tests/Tools/FixCases.php {{mago}}
 
 # Lints the reported and the fine half of every example in the rule docs, and
 # runs the fix where the example says it turns one into the other. See
-# tests/DocExamples.php for the format. Then analyzes both halves of every
-# example in the analyzer docs, see tests/CheckExamples.php.
+# tests/Tools/DocExamples.php for the format. Then analyzes both halves of
+# every example in the analyzer docs, see tests/Tools/CheckExamples.php.
 test-examples:
-    php tests/DocExamples.php {{mago}}
-    php tests/CheckExamples.php {{mago}}
+    php tests/Tools/DocExamples.php {{mago}}
+    php tests/Tools/CheckExamples.php {{mago}}
 
 # Loads the config files that projects extend. Mago fails on a setting or a
 # rule name that it doesn't know. Then compares the files that the linter
@@ -86,18 +86,18 @@ test-presets:
 # checkout's phpcs skips, such as `just check-core-excludes ../drupal`. Not
 # part of check-all, since CI doesn't have a core checkout.
 check-core-excludes checkout:
-    php tests/CoreExcludes.php {{mago}} {{checkout}}
+    php tests/Tools/CoreExcludes.php {{mago}} {{checkout}}
 
 # Rewrites the classes in src/Internal that hold the ports of
-# tests/coder-map.json and tests/phpstan-drupal-map.json, which are edited by
-# hand. PortClassesTest fails when they are out of date.
+# tests/data/coder-map.json and tests/data/phpstan-drupal-map.json, which are
+# edited by hand. PortClassesTest fails when they are out of date.
 ports-gen:
-    php tests/GeneratePorts.php
+    php tests/Tools/GeneratePorts.php
 
 # Rewrites the generated parts of the docs pages from the registered rules
 # and the two maps. DocsTest fails when they are out of date.
 docs-gen: ports-gen
-    php tests/GenerateDocs.php
+    php tests/Tools/GenerateDocs.php
 
 # Serves the docs site with live reload on http://127.0.0.1:8000.
 docs: docs-env

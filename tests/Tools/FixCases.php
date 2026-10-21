@@ -20,7 +20,7 @@
  * The cases of one rule, safety level and PHP version run together, in a
  * temporary workspace whose config loads this checkout's worker.
  *
- * Usage: php tests/FixCases.php <mago binary> [--update]
+ * Usage: php tests/Tools/FixCases.php <mago binary> [--update]
  *
  * `--update` writes what the fixes produce into the `.fixed.php` files
  * instead of comparing. Read the result before committing it.
@@ -67,7 +67,7 @@ use const STDOUT;
 
 $mago = $argv[1] ?? null;
 if ($mago === null) {
-    fwrite(STDERR, "Usage: php tests/FixCases.php <mago binary> [--update]\n");
+    fwrite(STDERR, "Usage: php tests/Tools/FixCases.php <mago binary> [--update]\n");
     exit(2);
 }
 
@@ -84,7 +84,7 @@ if (!str_starts_with($mago, '/')) {
  */
 const CASE_NAME = '/^(.+)\.(php|module|install|inc|theme)$/';
 
-$root = dirname(__DIR__);
+$root = dirname(__DIR__, levels: 2);
 $worker = $root . '/resources/worker.php';
 
 /**

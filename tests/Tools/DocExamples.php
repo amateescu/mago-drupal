@@ -18,7 +18,7 @@
  * docblock, and a YAML block, which needs a title such as `example.info.yml`,
  * gets the code alone.
  *
- * Usage: php tests/DocExamples.php <mago binary>
+ * Usage: php tests/Tools/DocExamples.php <mago binary>
  */
 
 declare(strict_types=1);
@@ -184,7 +184,7 @@ function check(string $name, string $rule, array $lint, string $workspace, strin
 
 $mago = $argv[1] ?? null;
 if ($mago === null) {
-    fwrite(STDERR, "Usage: php tests/DocExamples.php <mago binary>\n");
+    fwrite(STDERR, "Usage: php tests/Tools/DocExamples.php <mago binary>\n");
     exit(2);
 }
 
@@ -194,7 +194,7 @@ if (!str_starts_with($mago, '/')) {
     $mago = realpath($mago) ?: $mago;
 }
 
-$root = dirname(__DIR__);
+$root = dirname(__DIR__, levels: 2);
 $worker = $root . '/resources/worker.php';
 $failures = 0;
 $count = 0;

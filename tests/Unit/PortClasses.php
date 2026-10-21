@@ -19,9 +19,9 @@ use function strlen;
  * Renders the PHP classes that hold the ports of the two maps, so the worker
  * doesn't read JSON.
  *
- * `tests/coder-map.json` and `tests/phpstan-drupal-map.json` are written by
- * hand. `just ports-gen` writes the classes from them, and `PortClassesTest`
- * fails when a class is out of date.
+ * `tests/data/coder-map.json` and `tests/data/phpstan-drupal-map.json` are
+ * written by hand. `just ports-gen` writes the classes from them, and
+ * `PortClassesTest` fails when a class is out of date.
  *
  * @mago-expect lint:kan-defect
  */
@@ -65,7 +65,7 @@ final class PortClasses
 
     private function coderPorts(): string
     {
-        $map = CoderMap::load($this->root . '/tests/coder-map.json');
+        $map = CoderMap::load($this->root . '/tests/data/coder-map.json');
         $ports = [];
         foreach ($map->sniffs as $sniff) {
             foreach ($sniff['codes'] as $code) {
@@ -80,7 +80,7 @@ final class PortClasses
             class: 'CoderPorts',
             summary: [
                 'The Coder codes that each rule and analyzer check of this extension ports,',
-                'from `tests/coder-map.json`, which the package doesn\'t ship.',
+                'from `tests/data/coder-map.json`, which the package doesn\'t ship.',
             ],
             constant: [
                 'The codes of Coder 9\'s `Drupal` and `DrupalPractice` standards, by the',
@@ -92,7 +92,7 @@ final class PortClasses
 
     private function phpstanDrupalPorts(): string
     {
-        $map = PHPStanDrupalMap::load($this->root . '/tests/phpstan-drupal-map.json');
+        $map = PHPStanDrupalMap::load($this->root . '/tests/data/phpstan-drupal-map.json');
         $ports = [];
         $isRule = static fn(string $handler): bool => str_starts_with($handler, 'ext:');
         foreach ($map->rules as $rule) {
@@ -107,8 +107,8 @@ final class PortClasses
             class: 'PHPStanDrupalPorts',
             summary: [
                 'The PHPStan error identifiers of the linter rules that port a rule of',
-                'phpstan-drupal, from `tests/phpstan-drupal-map.json`, which the package',
-                'doesn\'t ship.',
+                'phpstan-drupal, from `tests/data/phpstan-drupal-map.json`, which the',
+                'package doesn\'t ship.',
             ],
             constant: [
                 'The identifiers of phpstan-drupal\'s rules, by the linter rule that',

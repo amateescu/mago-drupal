@@ -4,10 +4,10 @@
  * Rewrites the generated parts of the docs pages.
  *
  * The tables of the rules index and of the Coder pages come from the
- * registered rules and `tests/coder-map.json`. `DocsTest` fails when one of
- * them is out of date.
+ * registered rules and `tests/data/coder-map.json`. `DocsTest` fails when
+ * one of them is out of date.
  *
- * Usage: php tests/GenerateDocs.php
+ * Usage: php tests/Tools/GenerateDocs.php
  */
 
 declare(strict_types=1);
@@ -20,9 +20,9 @@ use function fwrite;
 
 use const STDOUT;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__, levels: 2) . '/vendor/autoload.php';
 
-$pages = new DocsPages(dirname(__DIR__));
+$pages = new DocsPages(dirname(__DIR__, levels: 2));
 foreach (DocsPages::GENERATED as $page) {
     $text = $pages->render($page);
     if ($text === $pages->read($page)) {

@@ -17,7 +17,7 @@
  * broken on purpose, and Mago reports an error for it that no rule setting
  * turns off. phpcs checks it, so it isn't compared.
  *
- * Usage: php tests/CoreExcludes.php <mago binary> <core checkout>
+ * Usage: php tests/Tools/CoreExcludes.php <mago binary> <core checkout>
  *
  * The checkout is the directory that holds `core/`.
  */
@@ -106,7 +106,7 @@ final class CoreExcludes
         $mago = $arguments[1] ?? null;
         $checkout = $arguments[2] ?? null;
         if ($mago === null || $checkout === null || !is_dir($checkout . '/core')) {
-            fwrite(STDERR, data: "Usage: php tests/CoreExcludes.php <mago binary> <core checkout>\n");
+            fwrite(STDERR, data: "Usage: php tests/Tools/CoreExcludes.php <mago binary> <core checkout>\n");
 
             return 2;
         }
@@ -281,7 +281,7 @@ final class CoreExcludes
      */
     private static function excludes(string $mago, string $section): array
     {
-        $config = dirname(__DIR__) . '/drupal-core.mago.toml';
+        $config = dirname(__DIR__, levels: 2) . '/drupal-core.mago.toml';
         $pipes = [];
         $process = proc_open([$mago, '--config', $config, 'config', '--show', $section], [1 => ['pipe', 'w']], $pipes);
         if ($process === false) {
@@ -353,6 +353,6 @@ final class CoreExcludes
     }
 }
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__, levels: 2) . '/vendor/autoload.php';
 
 exit(CoreExcludes::main($argv));

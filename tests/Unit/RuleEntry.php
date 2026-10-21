@@ -55,7 +55,7 @@ final class RuleEntry
         $listed = $this->ports();
         if ($listed !== $ports) {
             $problems[] =
-                "{$this->code}: the Ports line differs from tests/coder-map.json. The map has "
+                "{$this->code}: the Ports line differs from tests/data/coder-map.json. The map has "
                 . self::names($ports)
                 . ', and the entry has '
                 . self::names($listed)

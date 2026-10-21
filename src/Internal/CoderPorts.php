@@ -6,7 +6,7 @@ namespace amateescu\MagoDrupal\Internal;
 
 /**
  * The Coder codes that each rule and analyzer check of this extension ports,
- * from `tests/coder-map.json`, which the package doesn't ship.
+ * from `tests/data/coder-map.json`, which the package doesn't ship.
  *
  * `just ports-gen` writes this file. Don't edit it by hand.
  *
