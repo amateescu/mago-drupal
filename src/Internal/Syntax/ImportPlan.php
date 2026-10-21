@@ -61,6 +61,11 @@ use function trim;
  */
 final class ImportPlan
 {
+    /**
+     * A use statement that imports one class, with an optional alias.
+     */
+    private const PLAIN_IMPORT = '/\Guse\s+\\\\?([A-Za-z_]\w*(?:\\\\[A-Za-z_]\w*)*)(?:\s+as\s+([A-Za-z_]\w*))?\s*;/';
+
     private function __construct() {}
 
     /**
@@ -531,6 +536,19 @@ final class ImportPlan
      */
     public static function singleImport(SourceFile $file, Node $use): ?array
     {
+        // Most statements are `use Foo\Bar;` or `use Foo\Bar as Baz;`, which
+        // the text gives without the node walk. Any other shape, such as one
+        // with a comment, goes through the nodes.
+        $match = [];
+        if (
+            preg_match(self::PLAIN_IMPORT, $file->contents, $match, offset: $use->span->start) === 1
+            && ($use->span->start + strlen($match[0])) === $use->span->end
+        ) {
+            $segments = explode('\\', $match[1]);
+
+            return [$match[1], $match[2] ?? end($segments)];
+        }
+
         $items = $file->getFirstDescendant($use, NodeKind::UseItems);
         $sequence = $items === null ? null : $file->getChildren($items)[0] ?? null;
         $list = $sequence?->kind === NodeKind::UseItemSequence ? $file->getChildren($sequence) : [];

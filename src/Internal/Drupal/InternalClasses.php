@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Internal\Drupal;
 use function array_keys;
 use function count;
 use function file_get_contents;
+use function is_array;
 use function is_file;
 use function ltrim;
 use function preg_match;
@@ -57,28 +58,66 @@ final class InternalClasses
      */
     public static function fromFiles(array $files): self
     {
-        $classes = [];
+        $held = [];
         foreach ($files as $file) {
-            $source = is_file($file) ? file_get_contents($file) : false;
-            $namespace = [];
-            if (
-                $source === false
-                || !str_contains($source, '@internal')
-                || preg_match(self::NAMESPACE, $source, $namespace) !== 1
-            ) {
+            $held[$file] = self::file($file);
+        }
+
+        return self::merge($held);
+    }
+
+    /**
+     * The internal classes one file declares, lowercased name to the name as
+     * written.
+     *
+     * @return array<string, non-empty-string>
+     */
+    public static function file(string $file): array
+    {
+        $source = is_file($file) ? file_get_contents($file) : false;
+        $namespace = [];
+        if (
+            $source === false
+            || !str_contains($source, '@internal')
+            || preg_match(self::NAMESPACE, $source, $namespace) !== 1
+        ) {
+            return [];
+        }
+
+        $classes = [];
+        $matches = [];
+        preg_match_all(self::DECLARATION, $source, $matches, PREG_SET_ORDER);
+        foreach ($matches as [$_, $docblock, $modifiers, $name]) {
+            if (str_contains($modifiers, 'final') || preg_match(self::TAG, $docblock) !== 1) {
                 continue;
             }
 
-            $matches = [];
-            preg_match_all(self::DECLARATION, $source, $matches, PREG_SET_ORDER);
-            foreach ($matches as [$_, $docblock, $modifiers, $name]) {
-                if (str_contains($modifiers, 'final') || preg_match(self::TAG, $docblock) !== 1) {
-                    continue;
-                }
+            $class = ltrim($namespace[1], characters: '\\') . '\\' . $name;
+            $classes[strtolower($class)] = $class;
+        }
 
-                $class = ltrim($namespace[1], characters: '\\') . '\\' . $name;
-                $classes[strtolower($class)] = $class;
+        return $classes;
+    }
+
+    /**
+     * The index from what file() gave for each file.
+     *
+     * @param array<string, mixed> $held
+     */
+    public static function merge(array $held): self
+    {
+        $classes = [];
+        /** @var mixed $one */
+        foreach ($held as $one) {
+            if (!is_array($one)) {
+                continue;
             }
+
+            // The keys are lowercased names, never numeric, so a spread
+            // keeps each where it first came.
+            /** @var array<string, non-empty-string> $names */
+            $names = $one;
+            $classes = [...$classes, ...$names];
         }
 
         return new self($classes);

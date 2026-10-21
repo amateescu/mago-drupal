@@ -12,9 +12,15 @@ use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
+use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\NodeKind;
+use Mago\Sdk\Syntax\SourceFile;
 
+use function max;
+use function min;
 use function preg_match;
+use function preg_replace;
+use function str_contains;
 use function substr;
 
 /**
@@ -63,12 +69,7 @@ final class DescendantMetadataHook implements ClassLikeAnalysisHook
         // The gate reads the class without its comments, so code that a
         // comment holds, such as a commented-out property, doesn't count.
         $gate = $this->check->textGate();
-        $span = $context->node->span;
-        if (
-            $gate !== null
-            && preg_match($gate, substr(CodeMask::comments($context->source->contents), $span->start, $span->length()))
-                !== 1
-        ) {
+        if ($gate !== null && preg_match($gate, self::code($context->source, $context->node->span)) !== 1) {
             return;
         }
 
@@ -79,5 +80,37 @@ final class DescendantMetadataHook implements ClassLikeAnalysisHook
         }
 
         $this->check->check(new ClassFacts($class, $context->codebase, $mentions), new Reporter($context));
+    }
+
+    /**
+     * The class text with its comments turned into spaces. The host sends
+     * the comments' spans, so the file isn't tokenized again. A class with a
+     * `?>` can hold text outside PHP, which the file's mask also blanks.
+     */
+    private static function code(SourceFile $source, Span $span): string
+    {
+        $contents = $source->contents;
+        $text = $source->getText($span);
+        if (str_contains($text, '?>')) {
+            return substr(CodeMask::comments($contents), $span->start, $span->length());
+        }
+
+        $code = '';
+        $at = $span->start;
+        foreach ($source->getTrivia() as $trivia) {
+            $from = max($trivia->span->start, $at);
+            $to = min($trivia->span->end, $span->end);
+            if ($from >= $to) {
+                continue;
+            }
+
+            $comment = substr($contents, $from, $to - $from);
+            $code .=
+                substr($contents, $at, $from - $at)
+                . (string) preg_replace('/[^\r\n]/', replacement: ' ', subject: $comment);
+            $at = $to;
+        }
+
+        return $code . substr($contents, $at, $span->end - $at);
     }
 }

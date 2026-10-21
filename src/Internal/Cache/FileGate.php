@@ -22,9 +22,11 @@ use function stripos;
 final class FileGate
 {
     /**
-     * @var FileMemo<bool>
+     * The text of the last file, compared as FileMemo compares it.
      */
-    private readonly FileMemo $passes;
+    private ?string $contents = null;
+
+    private bool $passes = false;
 
     /**
      * @param list<string> $needles Case-insensitive substrings. One hit passes.
@@ -33,16 +35,19 @@ final class FileGate
     public function __construct(
         private readonly array $needles = [],
         private readonly ?string $pattern = null,
-    ) {
-        $this->passes = new FileMemo();
-    }
+    ) {}
 
     public function passes(SourceFile $file): bool
     {
+        // A gate runs for every node of the file, so it checks the last text
+        // here instead of through a FileMemo call.
         $contents = $file->contents;
-        $memo = $this->passes;
+        if ($this->contents !== $contents) {
+            $this->contents = $contents;
+            $this->passes = $this->scan($contents);
+        }
 
-        return $memo->has($contents) ? $memo->value() : $memo->keep($contents, $this->scan($contents));
+        return $this->passes;
     }
 
     private function scan(string $contents): bool

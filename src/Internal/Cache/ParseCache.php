@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Internal\Cache;
 
 use Closure;
 
+use function array_filter;
 use function implode;
 use function sha1;
 
@@ -13,9 +14,9 @@ use function sha1;
  * Loads parsed forms of a list of files through the disk cache, keyed by the
  * files' modification times and sizes.
  *
- * Several indexes read the same file lists, so the fingerprint and the
- * stamps of each list are taken once and kept for the life of this object.
- * Without a disk cache every load parses.
+ * Several indexes read the same file lists, so the fingerprint of each list
+ * and the stamp of each file are taken once and kept for the life of this
+ * object. Without a disk cache every load parses.
  *
  * @internal
  */
@@ -29,10 +30,10 @@ final class ParseCache
     private array $fingerprints = [];
 
     /**
-     * The stamps of the files of the lists scanned so far, by a hash of the
-     * list.
+     * The stamps of the files read so far, by path. A file still being
+     * written doesn't have a stamp and isn't kept.
      *
-     * @var array<string, array<string, string|null>>
+     * @var array<string, string>
      */
     private array $stamps = [];
 
@@ -52,7 +53,8 @@ final class ParseCache
      */
     public function cached(string $kind, array $paths, Closure $parse, array $classes = []): mixed
     {
-        if ($this->cache === null) {
+        $cache = $this->cache;
+        if ($cache === null) {
             return $parse();
         }
 
@@ -60,7 +62,7 @@ final class ParseCache
         // files are checked once per worker. A list with a file still being
         // written doesn't have a fingerprint, and is checked again next time.
         $list = sha1(implode("\0", $paths));
-        $fingerprint = $this->fingerprints[$list] ?? DiskCache::fingerprint($paths);
+        $fingerprint = $this->fingerprints[$list] ?? $this->fingerprint($paths);
         if ($fingerprint !== null) {
             $this->fingerprints[$list] = $fingerprint;
         }
@@ -72,13 +74,13 @@ final class ParseCache
         }
 
         /** @var T|null $cached */
-        $cached = $this->cache->get($kind, $fingerprint, $classes);
+        $cached = $cache->get($kind, $fingerprint, $classes);
         if ($cached !== null) {
             return $cached;
         }
 
         $parsed = $parse();
-        $this->cache->set($kind, $fingerprint, $parsed);
+        $cache->set($kind, $fingerprint, $parsed);
 
         return $parsed;
     }
@@ -122,14 +124,51 @@ final class ParseCache
     }
 
     /**
-     * The stamps of the files (see DiskCache::stamps()), taken once per list
-     * and kept, since several indexes scan the same list.
+     * The stamps of the files (see DiskCache::stamps()). Each file is stat'd
+     * once, since several indexes read the same files in different lists.
      *
      * @param list<string> $paths
      * @return array<string, string|null>
      */
     public function stamps(array $paths): array
     {
-        return $this->stamps[sha1(implode("\0", $paths))] ??= DiskCache::stamps($paths);
+        $missing = [];
+        foreach ($paths as $path) {
+            if (($this->stamps[$path] ?? null) !== null) {
+                continue;
+            }
+
+            $missing[] = $path;
+        }
+
+        $taken = $missing === [] ? [] : DiskCache::stamps($missing);
+        $this->stamps = [...$this->stamps, ...array_filter($taken, static fn(?string $stamp): bool => $stamp !== null)];
+        $stamps = [];
+        foreach ($paths as $path) {
+            $stamps[$path] = $this->stamps[$path] ?? null;
+        }
+
+        return $stamps;
+    }
+
+    /**
+     * The list's fingerprint from its stamps, the same hash as
+     * DiskCache::fingerprint() gives, or null while a file is still being
+     * written.
+     *
+     * @param list<string> $paths
+     */
+    private function fingerprint(array $paths): ?string
+    {
+        $lines = '';
+        foreach ($this->stamps($paths) as $path => $stamp) {
+            if ($stamp === null) {
+                return null;
+            }
+
+            $lines .= $path . '|' . $stamp . "\n";
+        }
+
+        return sha1($lines);
     }
 }

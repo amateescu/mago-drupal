@@ -48,6 +48,7 @@ use function preg_match;
 use function preg_replace;
 use function proc_close;
 use function proc_open;
+use function putenv;
 use function realpath;
 use function rmdir;
 use function scandir;
@@ -86,6 +87,10 @@ const CASE_NAME = '/^(.+)\.(php|module|install|inc|theme)$/';
 
 $root = dirname(__DIR__, levels: 2);
 $worker = $root . '/resources/worker.php';
+
+// Each case runs in a new workspace, so a cache entry keyed on its root
+// would never be read again.
+putenv('MAGO_DRUPAL_CACHE=0');
 
 /**
  * The cases, grouped by rule and by the safety flag they run with.

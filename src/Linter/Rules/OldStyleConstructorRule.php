@@ -12,6 +12,7 @@ use Mago\Sdk\Reporting\Issue;
 use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
+use function stripos;
 use function strtolower;
 
 /**
@@ -42,6 +43,15 @@ final class OldStyleConstructorRule implements Rule
         $file = $context->file;
         $className = strtolower(Nodes::declaredName($file, $context->node) ?? '');
         if ($className === '') {
+            return;
+        }
+
+        // The class name is in the text once for the declaration. A method
+        // with the same name puts it there a second time.
+        $span = $context->node->span;
+        $first = stripos($file->contents, $className, $span->start);
+        $second = $first === false ? false : stripos($file->contents, $className, $first + 1);
+        if ($second === false || $second >= $span->end) {
             return;
         }
 

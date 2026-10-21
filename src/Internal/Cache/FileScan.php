@@ -21,7 +21,7 @@ final class FileScan
 {
     /**
      * @param array<string, array{string|null, mixed}> $files Path to the
-     *   stamp the file had when it was read (see DiskCache::stamp()) and
+     *   stamp the file had when it was read (see DiskCache::stamps()) and
      *   what was read. A file with a null stamp is read again next time.
      */
     private function __construct(

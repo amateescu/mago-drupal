@@ -290,10 +290,11 @@ final class DrupalRoot
     {
         $files = $this->sourceFiles();
 
-        return $this->parses->cached(
+        return $this->parses->scanned(
             'internal',
             $files,
-            static fn(): InternalClasses => InternalClasses::fromFiles($files),
+            InternalClasses::file(...),
+            InternalClasses::merge(...),
             [InternalClasses::class],
         );
     }
