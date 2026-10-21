@@ -47,6 +47,7 @@ use function preg_quote;
 use function preg_replace;
 use function proc_close;
 use function proc_open;
+use function putenv;
 use function realpath;
 use function rmdir;
 use function rtrim;
@@ -196,6 +197,10 @@ if (!str_starts_with($mago, '/')) {
 
 $root = dirname(__DIR__, levels: 2);
 $worker = $root . '/resources/worker.php';
+
+// Each case runs in a new workspace, so a cache entry keyed on its root
+// would never be read again.
+putenv('MAGO_DRUPAL_CACHE=0');
 $failures = 0;
 $count = 0;
 foreach (glob($root . '/docs/rules/*.md') ?: [] as $page) {
