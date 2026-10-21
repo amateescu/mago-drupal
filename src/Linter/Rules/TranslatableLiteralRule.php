@@ -19,9 +19,9 @@ use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
+use function count;
 use function ctype_digit;
 use function in_array;
-use function preg_replace;
 use function strcspn;
 use function strip_tags;
 use function substr;
@@ -115,10 +115,7 @@ final class TranslatableLiteralRule implements Rule
         }
 
         foreach ($context->file->getChildren($context->node) as $child) {
-            if (
-                $child->kind !== NodeKind::PartialArgumentList
-                || preg_replace('/\s+/', replacement: '', subject: $context->file->getText($child)) !== '(...)'
-            ) {
+            if ($child->kind !== NodeKind::PartialArgumentList || !self::onlyVariadic($context->file, $child)) {
                 continue;
             }
 
@@ -127,6 +124,17 @@ final class TranslatableLiteralRule implements Rule
                 $context->node->span,
             )->withHelp(self::HELP));
         }
+    }
+
+    /**
+     * Whether the argument list is `(...)` and nothing else, comments aside.
+     */
+    private static function onlyVariadic(SourceFile $file, Node $list): bool
+    {
+        $arguments = $file->getChildren($list);
+        $placeholder = count($arguments) === 1 ? $file->getChildren($arguments[0])[0] ?? null : null;
+
+        return $placeholder?->kind === NodeKind::VariadicPlaceholderArgument;
     }
 
     /**

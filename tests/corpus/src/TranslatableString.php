@@ -101,6 +101,14 @@ function first_class_callable_plural(TranslationManager $translation): \Closure 
 }
 
 // @mago-expect lint:drupal/missing-function-comment
+function first_class_callable_with_a_comment(array $names): array {
+  // @mago-format-ignore-start
+  // @mago-expect lint:drupal/translatable-literal
+  return array_map(t(/* Each name. */ ...), $names);
+  // @mago-format-ignore-end
+}
+
+// @mago-expect lint:drupal/missing-function-comment
 function first_class_callable_of_another_function(array $names): array {
   return array_map(trim(...), $names);
 }
