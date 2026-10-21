@@ -112,6 +112,14 @@ final class ThemedTest extends BrowserTestBase {
 final class ThemelessTest extends BrowserTestBase {}
 
 /**
+ * A functional test whose theme is only in a comment.
+ */
+// @mago-expect analysis:drupal/browser-test-default-theme
+final class CommentedThemeTest extends BrowserTestBase {
+  // It used to set $defaultTheme = 'stark'.
+}
+
+/**
  * A profile with a theme of its own needs none.
  */
 final class StandardProfileTest extends BrowserTestBase {

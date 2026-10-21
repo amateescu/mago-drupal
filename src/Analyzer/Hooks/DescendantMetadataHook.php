@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 use amateescu\MagoDrupal\Analyzer\Checks\MetadataCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\ClassFacts;
+use amateescu\MagoDrupal\Internal\CodeMask;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
@@ -16,6 +17,7 @@ use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function preg_match;
+use function substr;
 
 /**
  * Runs one check on every class descending from the given ancestors, from
@@ -60,8 +62,15 @@ final class DescendantMetadataHook implements ClassLikeAnalysisHook
             return;
         }
 
+        // The gate reads the class without its comments, so code that a
+        // comment holds, such as a commented-out property, doesn't count.
         $gate = $this->check->textGate();
-        if ($gate !== null && preg_match($gate, $context->source->getText($context->node->span)) !== 1) {
+        $span = $context->node->span;
+        if (
+            $gate !== null
+            && preg_match($gate, substr(CodeMask::comments($context->source->contents), $span->start, $span->length()))
+                !== 1
+        ) {
             return;
         }
 
