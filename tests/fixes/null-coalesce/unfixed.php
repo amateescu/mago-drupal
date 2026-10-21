@@ -25,5 +25,8 @@ function not_reported($a, $b): array
         (string) $a === null ? '' : $a,
         $b + $a === null ? '' : $a,
         (array) isset($a) ? $a : '',
+        (isset($a)) ? $a : '',
+        ($a !== null) ? $a : '',
+        (null === $a) ? '' : $a,
     ];
 }

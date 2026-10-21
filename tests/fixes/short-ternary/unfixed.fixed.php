@@ -13,5 +13,8 @@ function calls($a, $b): array
         $a ? $b : $a,
         !$a ? $a : $b,
         $a ?: $b,
+        // The sniff doesn't match a condition in parentheses.
+        ($a) ? $a : $b,
+        (!$a) ? $b : $a,
     ];
 }

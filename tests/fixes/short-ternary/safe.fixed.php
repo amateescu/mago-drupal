@@ -8,7 +8,6 @@ function repeated($a, $b, $obj): array
         $a["k"] ?: '',
         $obj->a->b ?: NULL,
         self::$cache ?: [],
-        ($a) ?: '',
         $a ?: $b,
     ];
 }
@@ -18,6 +17,5 @@ function negated($a, $b): array
     return [
         $a ?: $b,
         $a['k'] ?: 'none',
-        $a ?: $b,
     ];
 }

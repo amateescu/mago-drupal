@@ -32,8 +32,8 @@ use function trim;
  * Ports SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator.
  * Two shapes match: `isset(X) ? X : B` and a strict null comparison with X
  * on one side and the other branch equal to X. Operands match by syntax tree,
- * so quotes, spacing and parentheses do not matter, and the result is the
- * same before and after `mago format`.
+ * so quotes, spacing and parentheses around an operand don't matter. A
+ * condition in parentheses isn't reported, as with the sniff.
  *
  * The rule reports every match and fixes only the ones that keep behavior: X is
  * a plain variable, property, index or constant read, and B doesn't need
@@ -76,6 +76,12 @@ final class NullCoalesceRule implements Rule
         }
 
         [$condition, $then, $else] = $parts;
+
+        // The sniff looks for `?` right after the isset() or the null check,
+        // so a condition in parentheses doesn't match.
+        if (Operands::isParenthesized($file, $condition)) {
+            return;
+        }
 
         $match = $this->matchIsset($file, $condition, $then, $else) ?? $this->matchNullCheck(
             $file,

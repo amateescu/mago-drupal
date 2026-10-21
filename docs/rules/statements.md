@@ -499,8 +499,9 @@ it look like the code uses the exception.
     - `X === null ? B : X`
     - `X !== null ? X : B`
 
-Operands match by syntax tree, so quotes, spacing and parentheses don't matter, and the report is
-the same before and after `mago format`.
+Operands match by syntax tree, so quotes, spacing and parentheses around an operand don't matter.
+A condition in parentheses, as in `(isset(X)) ? X : B`, isn't reported, as with the sniff.
+`mago format` removes those parentheses, and the ternary is then reported.
 
 The fix writes `X ?? B` when X is a plain variable, property, index or constant read and B doesn't
 need parentheses after `??`. These are reported without a fix:
@@ -529,10 +530,13 @@ need parentheses after `??`. These are reported without a fix:
 
     - The rule also reports a ternary after `and`, `or` and `xor`. The formatter adds parentheses
       there, and the sniff then reports it.
-    - It also reports a parenthesized condition or operand, operands that differ only in quotes,
-      and an `isset` whose key holds a call with a comma, such as `isset($a[max(1, 2)])`. The sniff
-      skips all of these. It ignores spacing and comments in the operands, but not quotes or
-      parentheses, and it skips an `isset` with any comma.
+    - It also reports a parenthesized operand, operands that differ only in quotes, and an `isset`
+      whose key holds a call with a comma, such as `isset($a[max(1, 2)])`. The sniff skips all of
+      these. It ignores spacing and comments in the operands, but not quotes or parentheses, and it
+      skips an `isset` with any comma.
+    - It also reports a `null` check with `null` first and an operand longer than one token, such
+      as `NULL === $a['k'] ? '' : $a['k']`. The sniff reads only the token after `===` as the
+      operand.
     - It doesn't report `!$a === null ? '' : $a`, `(string) $a === null ? '' : $a` or
       `$b + $a === null ? '' : $a`. The compared operand is `!$a`, `(string) $a` or `$b + $a`, and a
       fix would change the result.
@@ -720,7 +724,9 @@ A function ends the same way without a `return;` as its last statement.
 
 Both become `X ?: B`. Operands match by syntax tree, as in
 [`drupal/null-coalesce`](#drupalnull-coalesce), so quotes, spacing, comments and parentheses don't
-matter.
+matter. A condition in parentheses, as in `(X) ? X : B`, isn't reported, as with the sniff, unless
+the middle part has parentheses too. `mago format` removes those parentheses, and the ternary is
+then reported.
 
 The fix runs when X is a plain variable, property, index or constant read, since `X ?: B` reads X
 once where the ternary reads it twice. In the second shape B moves to the end, so it also needs to
@@ -746,8 +752,10 @@ off.
 
 ??? note "Compared with the sniff"
 
-    - The sniff compares the source text, so it skips `($a) ? $a : $b`, operands that differ in
-      quotes, spacing or comments, and `(!$a) ? $b : $a`.
+    - The sniff compares the source text, so it skips operands that differ in quotes, spacing or
+      comments. The rule reports them.
+    - The sniff stops reading the condition at a comma, so it skips a condition such as
+      `foo($a, $b) ? foo($a, $b) : 'x'`. The rule reports it.
 
 ---
 
