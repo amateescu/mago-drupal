@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
@@ -52,11 +53,11 @@ final class DeprecatedClassReferenceHook implements NodeAnalysisHook
      */
     private const STATIC_CALL =
         '/\G(\\\\?[A-Za-z_][\w\\\\]*)'
-            . DeprecatedUse::GAP
+            . SourceText::GAP
             . '::'
-            . DeprecatedUse::GAP
+            . SourceText::GAP
             . '([A-Za-z_]\w*)'
-            . DeprecatedUse::GAP
+            . SourceText::GAP
             . '\(/';
 
     /**

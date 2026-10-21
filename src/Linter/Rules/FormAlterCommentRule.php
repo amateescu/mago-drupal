@@ -9,6 +9,7 @@ use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\InfoFile;
 use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -19,14 +20,12 @@ use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
-use function preg_replace;
 use function str_starts_with;
 use function strcasecmp;
 use function strlen;
 use function strspn;
 use function strtolower;
 use function substr;
-use function trim;
 
 /**
  * Reports a function whose docblock says `Implements hook_form_alter().`
@@ -123,10 +122,9 @@ final class FormAlterCommentRule implements Rule
             return null;
         }
 
-        $between = substr($file->contents, $keyword->span->end, $identifier->span->start - $keyword->span->end);
-        $stripped = preg_replace('~/\*.*?\*/|(?://|#)[^\n]*~s', replacement: '', subject: $between);
-
-        return trim((string) $stripped) === '' ? $identifier : null;
+        return SourceText::skipBlank($file->contents, $keyword->span->end) === $identifier->span->start
+            ? $identifier
+            : null;
     }
 
     /**

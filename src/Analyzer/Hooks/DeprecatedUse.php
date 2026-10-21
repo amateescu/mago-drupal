@@ -30,13 +30,6 @@ use function strtolower;
  */
 final class DeprecatedUse
 {
-    /**
-     * Whitespace and comments, which PHP accepts between the tokens of an
-     * access such as `Foo::BAR`. `#[` opens an attribute, not a comment. The
-     * slashes are escaped so any pattern delimiter can hold it.
-     */
-    public const GAP = '(?:\s++|\/\*(?:[^*]|\*(?!\/))*+\*\/|(?:\/\/|#(?!\[))[^\n]*+)*+';
-
     public function __construct(
         private readonly DeprecationTarget $target,
     ) {}

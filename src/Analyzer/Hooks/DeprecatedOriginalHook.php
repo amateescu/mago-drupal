@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\MagicProperties;
+use amateescu\MagoDrupal\Internal\SourceText;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -58,7 +59,7 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
      * The arrow before the property name, with any whitespace and comments
      * around it.
      */
-    private const ARROW = '/' . DeprecatedUse::GAP . '\??->' . DeprecatedUse::GAP . '\z/';
+    private const ARROW = '/' . SourceText::GAP . '\??->' . SourceText::GAP . '\z/';
 
     /**
      * Per file, whether each receiver, keyed by its source text, was an

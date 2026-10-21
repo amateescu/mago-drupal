@@ -25,8 +25,9 @@ final class AlignedDocblocks
      * keyword is the next token after the docblock and any comments.
      */
     private const DECLARATION_PATTERN =
-        '/\G(?>\s+|\/\/[^\r\n]*|#(?!\[)[^\r\n]*|\/\*.*?\*\/)*+'
-            . '(?:class|interface|function|public|private|protected|static|abstract|var)(?![\w\x80-\xff])/is';
+        '/\G'
+            . SourceText::GAP
+            . '(?:class|interface|function|public|private|protected|static|abstract|var)(?![\w\x80-\xff])/i';
 
     private function __construct() {}
 

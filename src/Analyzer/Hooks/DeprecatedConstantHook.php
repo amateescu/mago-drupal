@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
@@ -40,7 +41,7 @@ final class DeprecatedConstantHook implements NodeAnalysisHook
      * else before `::`, such as `$object::X`, does not match.
      */
     private const ACCESS =
-        '/\A(\\\\?[A-Za-z_][\w\\\\]*)' . DeprecatedUse::GAP . '::' . DeprecatedUse::GAP . '([A-Za-z_]\w*)\z/';
+        '/\A(\\\\?[A-Za-z_][\w\\\\]*)' . SourceText::GAP . '::' . SourceText::GAP . '([A-Za-z_]\w*)\z/';
 
     /**
      * Prefixes that name the enclosing class or its parent. A class that

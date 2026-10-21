@@ -9,7 +9,6 @@ use Mago\Sdk\Syntax\SourceFile;
 use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
-use function strspn;
 use function substr;
 
 /**
@@ -79,16 +78,7 @@ final class InlineDocblocks
             return false;
         }
 
-        $after = $span->end;
-        while (true) {
-            $after += strspn($file->contents, characters: " \t\r\n\v\f", offset: $after);
-            $end = SourceText::commentEnd($file->contents, $after);
-            if ($end === null) {
-                break;
-            }
-
-            $after = $end;
-        }
+        $after = SourceText::skipBlank($file->contents, $span->end);
 
         return (
             preg_match(self::DECLARES, $file->contents, offset: $after) !== 1

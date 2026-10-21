@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -28,17 +29,11 @@ use function strlen;
 final class UseLeadingBackslashRule implements Rule
 {
     /**
-     * Whitespace and comments, which PHP skips between tokens. A `?>` ends a
-     * line comment.
-     */
-    private const TRIVIA = '(?:\\s++|\\/\\*.*?\\*\\/|(?:\\/\\/|#)(?:[^\\r\\n?]|\\?(?!>))*+)*+';
-
-    /**
      * The `use` keyword and the type before a first name that starts with a
      * backslash, up to and including that backslash.
      */
     private const LEADING_BACKSLASH =
-        '/\\Guse' . self::TRIVIA . '(?:(?:function|const)(?![\\w\\x80-\\xff])' . self::TRIVIA . ')?\\\\/is';
+        '/\\Guse' . SourceText::GAP . '(?:(?:function|const)(?![\\w\\x80-\\xff])' . SourceText::GAP . ')?\\\\/i';
 
     public function getDefinition(): RuleDefinition
     {
