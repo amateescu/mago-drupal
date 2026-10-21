@@ -219,8 +219,9 @@ final class Indexes
     private function yaml(): array
     {
         if ($this->yaml === null) {
-            $files = $this->root()->serviceFiles();
-            $this->yaml = $this->root()->cached(
+            $root = $this->root();
+            $files = $root->serviceFiles();
+            $this->yaml = $root->parses()->cached(
                 'services',
                 [...$files, ...ServiceModuleInfo::infoFiles($files)],
                 static fn(): array => ServiceYaml::read($files),
@@ -315,8 +316,9 @@ final class Indexes
     private function schema(): ConfigSchema
     {
         if ($this->configSchema === null) {
-            $files = $this->root()->schemaFiles();
-            $this->configSchema = ConfigSchema::fromDefinitions($this->root()->cached(
+            $root = $this->root();
+            $files = $root->schemaFiles();
+            $this->configSchema = ConfigSchema::fromDefinitions($root->parses()->cached(
                 'schema',
                 $files,
                 static fn(): array => ConfigSchema::fromFiles($files)->all(),
@@ -367,8 +369,9 @@ final class Indexes
     private function hooks(): HookFunctions
     {
         if ($this->hookFunctions === null) {
-            $files = $this->root()->apiFiles();
-            $this->hookFunctions = $this->root()->cached(
+            $root = $this->root();
+            $files = $root->apiFiles();
+            $this->hookFunctions = $root->parses()->cached(
                 'hooks',
                 $files,
                 static fn(): HookFunctions => HookFunctions::fromApiFiles($files),

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
-use Closure;
 use Throwable;
 
 use function array_fill_keys;
@@ -19,7 +18,6 @@ use function json_decode;
 use function preg_match;
 use function realpath;
 use function rtrim;
-use function sha1;
 use function str_ends_with;
 use function str_starts_with;
 use function strtolower;
@@ -28,7 +26,8 @@ use const DIRECTORY_SEPARATOR;
 use const GLOB_ONLYDIR;
 
 /**
- * Locates the Drupal document root.
+ * Locates the Drupal document root, lists the files under it and reads the
+ * indexes built from them.
  *
  * Mago starts workers in the directory of the effective `mago.toml`, so the
  * search starts from the worker's cwd. The root is found in this order: an
@@ -36,6 +35,9 @@ use const GLOB_ONLYDIR;
  * holding `core/lib/Drupal.php`, core installed as a plain Composer package,
  * and finally the cwd itself. The last fallback keeps a workspace without
  * core usable, such as this package's own corpus.
+ *
+ * The indexes load through ParseCache, which keys them by the files they
+ * read.
  *
  * @internal
  *
@@ -105,21 +107,6 @@ final class DrupalRoot
     private ?array $alteredServiceIds = null;
 
     /**
-     * Fingerprints of the file lists read so far, by a hash of the list.
-     *
-     * @var array<string, string>
-     */
-    private array $fingerprints = [];
-
-    /**
-     * The stamps of the files of the lists scanned so far, by a hash of the
-     * list.
-     *
-     * @var array<string, array<string, string|null>>
-     */
-    private array $stamps = [];
-
-    /**
      * @var list<string>|null
      */
     private ?array $sourceFiles = null;
@@ -127,6 +114,8 @@ final class DrupalRoot
     private ?ExtensionFileSet $files = null;
 
     private readonly ?DiskCache $cache;
+
+    private readonly ParseCache $parses;
 
     /**
      * @param list<string> $outside Extension directories outside the root
@@ -139,6 +128,7 @@ final class DrupalRoot
     ) {
         $real = realpath($path);
         $this->cache = $cache?->scoped(implode("\0", [$real === false ? $path : $real, ...$outside]));
+        $this->parses = new ParseCache($this->cache);
     }
 
     /**
@@ -230,6 +220,14 @@ final class DrupalRoot
     }
 
     /**
+     * Loads parsed files under this root through the cache scoped to it.
+     */
+    public function parses(): ParseCache
+    {
+        return $this->parses;
+    }
+
+    /**
      * Every `*.services.yml` owned by an extension under this root.
      *
      * @return list<string>
@@ -278,7 +276,7 @@ final class DrupalRoot
     {
         $files = $this->sourceFiles();
 
-        return $this->cached(
+        return $this->parses->cached(
             'internal',
             $files,
             static fn(): InternalClasses => InternalClasses::fromFiles($files),
@@ -335,7 +333,7 @@ final class DrupalRoot
             $files[] = $file;
         }
 
-        return $this->annotated = $this->scanned(
+        return $this->annotated = $this->parses->scanned(
             'annotated',
             $files,
             AnnotatedDeclarations::file(...),
@@ -356,7 +354,7 @@ final class DrupalRoot
         $kind = 'composers-' . strtolower($trait);
         $cache = $this->cache;
 
-        return $this->cached(
+        return $this->parses->cached(
             $kind,
             $files,
             function () use ($cache, $kind, $files, $trait): TraitComposers {
@@ -365,7 +363,7 @@ final class DrupalRoot
                 $scan = TraitComposerScan::update(
                     $earlier instanceof TraitComposerScan ? $earlier : null,
                     $files,
-                    $this->stamps($files),
+                    $this->parses->stamps($files),
                     $trait,
                 );
                 $cache?->set('scan-' . $kind, 'root', $scan);
@@ -384,7 +382,7 @@ final class DrupalRoot
     {
         $files = $this->sourceFiles();
 
-        return $this->scanned(
+        return $this->parses->scanned(
             'trusted-callbacks',
             $files,
             TrustedCallbackClasses::file(...),
@@ -402,7 +400,7 @@ final class DrupalRoot
     {
         $files = $this->sourceFiles();
 
-        return $this->scanned(
+        return $this->parses->scanned(
             'deprecated',
             $files,
             DeprecatedSymbolScan::file(...),
@@ -434,7 +432,7 @@ final class DrupalRoot
 
         $configs = array_fill_keys($this->files()->fieldConfigs, value: true);
 
-        return $this->fieldNames = $this->scanned(
+        return $this->fieldNames = $this->parses->scanned(
             'field-names',
             [...$sources, ...array_keys($configs)],
             static fn(string $path): array => array_key_exists($path, $configs)
@@ -467,7 +465,7 @@ final class DrupalRoot
             $files[] = $file;
         }
 
-        return $this->providerIds = $this->cached(
+        return $this->providerIds = $this->parses->cached(
             'provider-ids',
             $files,
             static fn(): array => ServiceDefinitions::idsInFiles($files),
@@ -497,7 +495,7 @@ final class DrupalRoot
             $files[] = $file;
         }
 
-        return $this->alteredServiceIds = $this->cached(
+        return $this->alteredServiceIds = $this->parses->cached(
             'altered-services',
             $files,
             static fn(): array => ServiceDefinitions::alteredIdsInFiles($files),
@@ -609,99 +607,6 @@ final class DrupalRoot
         $this->cache?->set('walk', 'root', $this->files);
 
         return $this->files;
-    }
-
-    /**
-     * Loads a parsed form of the files through the cache, keyed by their
-     * current modification times and sizes.
-     *
-     * @template T
-     * @param list<string> $paths
-     * @param Closure(): T $parse
-     * @param list<class-string> $classes Classes the parsed value may contain.
-     * @return T
-     */
-    public function cached(string $kind, array $paths, Closure $parse, array $classes = []): mixed
-    {
-        if ($this->cache === null) {
-            return $parse();
-        }
-
-        // Several indexes read the same source file list, so each list's
-        // files are checked once per worker. A list with a file still being
-        // written doesn't have a fingerprint, and is checked again next time.
-        $list = sha1(implode("\0", $paths));
-        $fingerprint = $this->fingerprints[$list] ?? DiskCache::fingerprint($paths);
-        if ($fingerprint !== null) {
-            $this->fingerprints[$list] = $fingerprint;
-        }
-
-        if ($fingerprint === null) {
-            // A file is still being written. An entry keyed on it now would
-            // never be read again.
-            return $parse();
-        }
-
-        /** @var T|null $cached */
-        $cached = $this->cache->get($kind, $fingerprint, $classes);
-        if ($cached !== null) {
-            return $cached;
-        }
-
-        $parsed = $parse();
-        $this->cache->set($kind, $fingerprint, $parsed);
-
-        return $parsed;
-    }
-
-    /**
-     * Loads an index built from what each file holds through the cache, the
-     * way cached() does. After a file changed, it reads only the changed
-     * files again: what each file held at the last build is kept in a
-     * `scan-<kind>` entry (see FileScan).
-     *
-     * @template T
-     * @param list<string> $paths
-     * @param Closure(string): mixed $read What one file holds, from its path.
-     * @param Closure(array<string, mixed>): T $build The index, from what
-     *   each file holds, by path in the order of `$paths`.
-     * @param list<class-string> $classes Classes the index, or what one file
-     *   holds, may contain.
-     * @return T
-     */
-    public function scanned(string $kind, array $paths, Closure $read, Closure $build, array $classes = []): mixed
-    {
-        $cache = $this->cache;
-
-        return $this->cached(
-            $kind,
-            $paths,
-            function () use ($cache, $kind, $paths, $read, $build, $classes): mixed {
-                /** @var mixed $earlier */
-                $earlier = $cache?->get('scan-' . $kind, 'root', [FileScan::class, ...$classes]);
-                [$scan, $holds] = FileScan::update(
-                    $earlier instanceof FileScan ? $earlier : null,
-                    $this->stamps($paths),
-                    $read,
-                );
-                $cache?->set('scan-' . $kind, 'root', $scan);
-
-                return $build($holds);
-            },
-            $classes,
-        );
-    }
-
-    /**
-     * The stamps of the files (see DiskCache::stamps()), taken once per list
-     * and kept, since several indexes scan the same list.
-     *
-     * @param list<string> $paths
-     * @return array<string, string|null>
-     */
-    private function stamps(array $paths): array
-    {
-        return $this->stamps[sha1(implode("\0", $paths))] ??= DiskCache::stamps($paths);
     }
 
     /**
