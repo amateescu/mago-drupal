@@ -8,12 +8,11 @@ use Mago\Sdk\Analyzer\Metadata\FunctionLikeMetadata;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 
 use function count;
-use function preg_match;
 use function str_contains;
 use function strcasecmp;
-use function substr;
 
 use const T_ATTRIBUTE;
+use const T_FUNCTION;
 
 /**
  * Reads procedural functions off a file's text, the way Drupal's hook
@@ -23,17 +22,6 @@ use const T_ATTRIBUTE;
  */
 final class ProceduralFunctions
 {
-    /**
-     * The function's own name, the first one after `function`.
-     */
-    private const NAME = '/\bfunction\s+&?\s*([A-Za-z_]\w*)/';
-
-    /**
-     * How much of a function's start to read for its name, attributes
-     * included.
-     */
-    private const HEAD = 512;
-
     /**
      * The attribute that stops Drupal's scan of the file for procedural
      * hooks, at its function.
@@ -48,13 +36,29 @@ final class ProceduralFunctions
     private function __construct() {}
 
     /**
-     * The name of the function declared at the offset, or null.
+     * The name of the function declared at the offset, or null. The tokens
+     * step over the attributes, so a `function` in an attribute's string
+     * isn't taken for the keyword.
      */
     public static function nameAt(string $contents, int $start): ?string
     {
-        $matches = [];
+        $tokens = PhpTokens::of($contents);
+        $count = count($tokens);
+        $index = PhpTokens::at($tokens, $start) ?? $count;
+        while ($index < $count) {
+            $token = $tokens[$index];
+            if ($token->is(T_FUNCTION)) {
+                return DeclarationTokens::functionName($tokens, $index);
+            }
 
-        return preg_match(self::NAME, substr($contents, $start, self::HEAD), $matches) === 1 ? $matches[1] : null;
+            if (!$token->is(T_ATTRIBUTE) && !$token->isIgnorable()) {
+                return null;
+            }
+
+            $index = $token->is(T_ATTRIBUTE) ? PhpTokens::closer($tokens, $index, '[', ']') + 1 : $index + 1;
+        }
+
+        return null;
     }
 
     /**
