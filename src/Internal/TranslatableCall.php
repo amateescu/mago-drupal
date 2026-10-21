@@ -59,24 +59,33 @@ final class TranslatableCall
      *
      * `t` and `formatPlural` are too short for a bare text search, so they
      * need an anchor. The anchor is the name alone before an opening
-     * parenthesis, or the name after `new` as a class name. A comment between
-     * a callee and its parenthesis defeats the first anchor. Real code
-     * doesn't write that.
+     * parenthesis, or the name after `new` as a class name. Whitespace and
+     * comments may sit between the tokens.
      */
-    private const GATE = '/(?<!\w)(?:t|formatplural)\s*\(|new\s+[\w\\\\]*(?:t|formatplural)\b/i';
+    private const GATE =
+        '/(?<!\w)(?:t|formatplural)'
+            . SourceText::GAP
+            . '\(|new\b'
+            . SourceText::GAP
+            . '[\w\\\\]*(?:t|formatplural)\b/i';
 
     /**
      * The shape of a method or static call to a translation entry point.
      *
      * Every such call has its selector between an arrow or double colon and
      * an opening parenthesis. The file-wide match offsets show which spans
-     * can hold one. The same comment limit as for GATE applies.
+     * can hold one.
      */
-    private const METHOD_GATE = '/(?:->|::)\s*(?:t|formatplural|translatablemarkup|translationwrapper)\s*\(/i';
+    private const METHOD_GATE =
+        '/(?:->|::)'
+            . SourceText::GAP
+            . '(?:t|formatplural|translatablemarkup|translationwrapper)'
+            . SourceText::GAP
+            . '\(/i';
 
     private static ?FileGate $gate = null;
 
-    private static string $methodPath = '';
+    private static ?string $methodContents = null;
 
     /** @var list<int> */
     private static array $methodOffsets = [];
@@ -193,8 +202,10 @@ final class TranslatableCall
      */
     private static function spanHoldsMethodEntryPoint(SourceFile $file, Node $node): bool
     {
-        if (self::$methodPath !== $file->path) {
-            self::$methodPath = $file->path;
+        // The bytes are the key, as in FileGate.
+        $known = self::$methodContents === $file->contents;
+        self::$methodContents = $file->contents;
+        if (!$known) {
             self::$methodOffsets = self::matchOffsets(self::METHOD_GATE, $file->contents);
         }
 

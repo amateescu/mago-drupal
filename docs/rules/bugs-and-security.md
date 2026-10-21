@@ -24,7 +24,10 @@ payload decides which objects PHP builds, and their destructors run.
 
 - a payload that the same function built with `serialize()`, which can't hold a foreign class:
   `unserialize(serialize($x))`, and a local variable whose every assignment is a `serialize()`
-  call. That is the shape of a serialization test;
+  call. That is the shape of a serialization test. A read inside an arrow function sees the
+  variable of the function around it, as it was when the arrow function was created. So an
+  assignment that comes after the arrow function doesn't count. An assignment inside a nested
+  closure or arrow function doesn't count either, because it writes to a variable of its own;
 - a call that spreads an array into its arguments, as in `unserialize(...$args)`, because the
   spread can hold the options.
 

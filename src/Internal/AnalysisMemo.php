@@ -35,6 +35,9 @@ final class AnalysisMemo
      * same key in between; both compute the same answer. A value computed
      * for an analysis that has since been replaced is returned, not kept.
      *
+     * When the generation can't be read, nothing tells one analysis from the
+     * next, so every call computes the value and nothing is kept.
+     *
      * @param Closure(): T $compute
      *
      * @return T
@@ -42,6 +45,13 @@ final class AnalysisMemo
     public function get(Codebase $codebase, string $key, Closure $compute): mixed
     {
         $generation = AnalysisGeneration::of($codebase);
+        if ($generation === null) {
+            $this->values = [];
+            $this->generation = null;
+
+            return $compute();
+        }
+
         if ($generation !== $this->generation) {
             $this->values = [];
             $this->generation = $generation;

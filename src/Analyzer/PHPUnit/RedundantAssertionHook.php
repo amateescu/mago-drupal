@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Arguments;
+use amateescu\MagoDrupal\Internal\SourceText;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
@@ -114,7 +116,8 @@ final class RedundantAssertionHook implements MethodCallAnalysisHook
             $literal !== null => $literal ? 'always `true`' : 'always `false`',
             default => 'already `' . self::describe((string) $value) . '`',
         };
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(
@@ -184,7 +187,7 @@ final class RedundantAssertionHook implements MethodCallAnalysisHook
      */
     private function argument(NodeAnalysisContext $context): ?CallArgument
     {
-        $named = '/(?:->|::)\s*' . $this->method . '\s*\(/i';
+        $named = '/(?:->|::)' . SourceText::GAP . $this->method . SourceText::GAP . '\(/i';
         if (preg_match($named, $context->source->getText($context->node->span)) !== 1) {
             return null;
         }

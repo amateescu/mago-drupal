@@ -10,8 +10,24 @@ use function count;
 use function str_contains;
 use function strlen;
 
+use const T_CASE;
 use const T_CURLY_OPEN;
+use const T_DECLARE;
+use const T_DEFAULT;
 use const T_DOLLAR_OPEN_CURLY_BRACES;
+use const T_ELSE;
+use const T_ELSEIF;
+use const T_ENDDECLARE;
+use const T_ENDFOR;
+use const T_ENDFOREACH;
+use const T_ENDIF;
+use const T_ENDSWITCH;
+use const T_ENDWHILE;
+use const T_FOR;
+use const T_FOREACH;
+use const T_IF;
+use const T_SWITCH;
+use const T_WHILE;
 
 /**
  * Low-level moves over a tokenized PHP file.
@@ -26,6 +42,17 @@ use const T_DOLLAR_OPEN_CURLY_BRACES;
  */
 final class PhpTokens
 {
+    /**
+     * The keywords that open an alternative syntax block when a colon
+     * follows them or their condition.
+     */
+    private const ALTERNATIVE_OPENERS = [T_IF, T_FOREACH, T_FOR, T_WHILE, T_SWITCH, T_DECLARE];
+
+    /**
+     * The keywords that close an alternative syntax block.
+     */
+    private const ALTERNATIVE_ENDS = [T_ENDIF, T_ENDFOREACH, T_ENDFOR, T_ENDWHILE, T_ENDSWITCH, T_ENDDECLARE];
+
     private function __construct() {}
 
     /**
@@ -189,16 +216,35 @@ final class PhpTokens
     }
 
     /**
-     * Whether a piece of code never closes more braces than it opens, so it
-     * stays inside the block it starts in.
+     * Whether a piece of code stays inside the block it starts in.
+     *
+     * The code leaves its block when it closes more blocks than it opens. A
+     * block is a pair of braces or an alternative syntax block, such as
+     * `if (...):` up to `endif;`. An `else:` or `elseif (...):` of that syntax
+     * and a `case` or `default` label of a `switch` at the starting level also
+     * leave the block, since the code after them runs on another path.
      */
     public static function staysInBlock(string $code): bool
     {
+        $tokens = PhpToken::tokenize('<?php ' . $code);
         $depth = 0;
-        foreach (PhpToken::tokenize('<?php ' . $code) as $token) {
+        foreach ($tokens as $index => $token) {
+            // A `case` or `default` label, or an alternative syntax `else` or
+            // `elseif`, starts another branch of the block.
+            if (
+                $depth === 0
+                && (
+                    $token->is([T_CASE, T_DEFAULT])
+                    || $token->is([T_ELSE, T_ELSEIF]) && self::takesColon($tokens, $index)
+                )
+            ) {
+                return false;
+            }
+
             $depth += match (true) {
                 $token->text === '{', $token->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES]) => 1,
-                $token->text === '}' => -1,
+                $token->text === '}', $token->is(self::ALTERNATIVE_ENDS) => -1,
+                $token->is(self::ALTERNATIVE_OPENERS) => self::takesColon($tokens, $index) ? 1 : 0,
                 default => 0,
             };
             if ($depth < 0) {
@@ -207,5 +253,21 @@ final class PhpTokens
         }
 
         return true;
+    }
+
+    /**
+     * Whether the control keyword at `$index` opens an alternative syntax
+     * block: a colon follows the keyword or its parenthesized condition.
+     *
+     * @param list<PhpToken> $tokens
+     */
+    private static function takesColon(array $tokens, int $index): bool
+    {
+        $next = self::next($tokens, $index + 1);
+        if ($next !== null && $tokens[$next]->text === '(') {
+            $next = self::next($tokens, self::closer($tokens, $next, '(', ')') + 1);
+        }
+
+        return $next !== null && $tokens[$next]->text === ':';
     }
 }

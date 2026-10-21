@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\Configs;
 use amateescu\MagoDrupal\Internal\ConfigSchema;
 use amateescu\MagoDrupal\Internal\DrupalFile;
@@ -73,7 +74,8 @@ final class ConfigUnknownKeyHook implements MethodCallAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Error,
             self::CODE,
             Issue::new(

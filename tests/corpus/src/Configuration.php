@@ -182,6 +182,9 @@ final class Configuration {
   public function unknownNames(): void {
     // @mago-expect analysis:drupal/config-unknown-name
     \Drupal::config('corpus.setings');
+    // A byte that isn't valid UTF-8 is escaped in the message.
+    // @mago-expect analysis:drupal/config-unknown-name
+    \Drupal::config("corpus.bad\xFF");
     // A wildcard schema covers the name.
     \Drupal::config('corpus.item.second');
     // The module is not in the codebase, so its schema cannot be checked.

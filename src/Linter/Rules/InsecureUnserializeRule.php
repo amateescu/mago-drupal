@@ -35,7 +35,10 @@ use function trim;
  * the same function built with `serialize()` cannot hold a foreign class.
  * The rule therefore skips `unserialize(serialize($x))`. It also skips a
  * local variable whose every assignment is a `serialize()` call. That is
- * the shape of a serialization test.
+ * the shape of a serialization test. Only an assignment in the variable's
+ * own scope counts, so one in a nested closure doesn't. For a read inside an
+ * arrow function, an outer assignment that comes after the arrow function
+ * doesn't count either.
  *
  * The rule reads the calls from the file's target list, the same way that
  * `DeprecationMessageRule` does. That is why `FunctionCall` and
@@ -201,22 +204,43 @@ final class InsecureUnserializeRule implements Rule
      *
      * A parameter of the same name has a value of its own. It does not
      * qualify, even when the function assigns it again.
+     *
+     * An arrow function reads the variables of the function around it, so the
+     * variable of a read inside one belongs to the first function, method or
+     * closure above it. Only an assignment in that scope, or in an arrow
+     * function around the read, counts as building the payload. An arrow
+     * function copies the outer value when PHP creates it, so an assignment
+     * in an outer scope counts only when it comes before the arrow function.
+     * An assignment in a nested closure or arrow function writes to a
+     * variable of its own. Any other write to the name still disqualifies it,
+     * because a closure that imports the variable by reference writes to the
+     * outer one.
      */
     private function onlySerializedInto(SourceFile $file, Node $variable): bool
     {
-        $scope = $this->enclosingFunctionLike($file, $variable);
-        if ($scope === null) {
-            return false;
-        }
-
         $name = $file->getText($variable);
-        foreach ($file->getChildren($scope) as $child) {
-            if (
-                $child->kind === NodeKind::FunctionLikeParameterList
-                && preg_match('/\\' . $name . '\\b/', $file->getText($child)) === 1
-            ) {
+        // Maps each scope that the read sees to the offset where an
+        // assignment in it must end. That is the start of the arrow function
+        // inside it that holds the read, and no limit in the innermost scope.
+        $readScopes = [];
+        $cutoff = PHP_INT_MAX;
+        $scope = $this->enclosingFunctionLike($file, $variable);
+        while ($scope !== null) {
+            if (self::declaresParameter($file, $scope, $name)) {
                 return false;
             }
+
+            $readScopes[$scope->id] = $cutoff;
+            if ($scope->kind !== NodeKind::ArrowFunction) {
+                break;
+            }
+
+            $cutoff = $scope->span->start;
+            $scope = $this->enclosingFunctionLike($file, $scope);
+        }
+
+        if ($scope === null) {
+            return false;
         }
 
         $assigned = false;
@@ -237,10 +261,28 @@ final class InsecureUnserializeRule implements Rule
                 return false;
             }
 
-            $assigned = true;
+            $limit = $readScopes[$this->enclosingFunctionLike($file, $assignment)->id ?? -1] ?? null;
+            $assigned = $assigned || $limit !== null && $assignment->span->end <= $limit;
         }
 
         return $assigned;
+    }
+
+    /**
+     * Whether the function-like has a parameter with the variable's name.
+     */
+    private static function declaresParameter(SourceFile $file, Node $scope, string $name): bool
+    {
+        foreach ($file->getChildren($scope) as $child) {
+            if (
+                $child->kind === NodeKind::FunctionLikeParameterList
+                && preg_match('/\\' . $name . '\\b/', $file->getText($child)) === 1
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function enclosingFunctionLike(SourceFile $file, Node $node): ?Node

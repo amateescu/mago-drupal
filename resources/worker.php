@@ -37,6 +37,19 @@ use Mago\Sdk\Worker;
 // @mago-expect lint:no-ini-set
 ini_set('display_errors', value: 'stderr');
 
+// The same goes for text that a project's autoloader prints, such as an
+// `autoload.files` bootstrap that echoes. The SDK moves stray output to stderr
+// in the same way, but only while the worker runs. This buffer catches what
+// comes before that. Mago's frames don't pass through it, since the SDK
+// writes them to the STDOUT stream directly.
+ob_start(static function (string $output): string {
+    if ($output !== '') {
+        fwrite(STDERR, $output);
+    }
+
+    return '';
+}, chunk_size: 1);
+
 (static function (array $arguments): void {
     $cwd = getcwd();
     $candidates = [

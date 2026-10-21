@@ -6,15 +6,18 @@ namespace amateescu\MagoDrupal\Tests;
 
 use amateescu\MagoDrupal\Internal\DiskCache;
 use amateescu\MagoDrupal\Internal\HookFunctions;
+use Composer\InstalledVersions;
 use ErrorException;
 use PHPUnit\Framework\TestCase;
 use Revolt\EventLoop;
 
 use function array_filter;
 use function chmod;
+use function clearstatcache;
 use function file_put_contents;
 use function fileowner;
 use function fileperms;
+use function getmypid;
 use function glob;
 use function is_dir;
 use function is_file;
@@ -33,6 +36,8 @@ use function set_error_handler;
 use function str_ends_with;
 use function str_starts_with;
 use function stream_get_contents;
+use function stream_wrapper_register;
+use function stream_wrapper_unregister;
 use function strlen;
 use function substr;
 use function symlink;
@@ -45,6 +50,7 @@ use function usleep;
 use function var_export;
 
 use const PHP_BINARY;
+use const PHP_VERSION;
 
 /**
  * @mago-expect lint:too-many-methods
@@ -334,9 +340,29 @@ final class DiskCacheTest extends TestCase
     }
 
     /**
+     * Another PHP or symfony/yaml version can parse the same files
+     * differently, so both go into the entry names.
+     */
+    public function testParserVersionsGoIntoTheEntryNames(): void
+    {
+        $versions = DiskCache::parserVersions();
+
+        self::assertStringContainsString('php|' . PHP_VERSION . "\n", $versions);
+        self::assertStringContainsString(
+            'symfony/yaml|'
+            . (string) InstalledVersions::getVersion('symfony/yaml')
+            . '|'
+            . (string) InstalledVersions::getReference('symfony/yaml')
+            . "\n",
+            $versions,
+        );
+    }
+
+    /**
      * Another local user could create the shared temporary directory first,
      * or plant entries in one this user left open. A link is not used at
-     * all; an open directory of this user's is closed and emptied first.
+     * all; an open directory of this user's is moved aside, emptied and
+     * replaced by a closed one first.
      */
     public function testTakesBackAnOpenDirectoryAndRefusesALink(): void
     {
@@ -351,6 +377,7 @@ final class DiskCacheTest extends TestCase
         self::assertNull($open->get('hooks', 'a'));
         self::assertSame(0o700, fileperms($this->directory) & 0o777);
         self::assertSame(['.', '..'], scandir($this->directory));
+        self::assertSame([], glob($this->directory . '.reclaimed-*'));
         $open->set('hooks', 'a', ['x']);
         self::assertSame(['x'], $open->get('hooks', 'a'));
 
@@ -364,6 +391,86 @@ final class DiskCacheTest extends TestCase
         } finally {
             unlink($link);
         }
+    }
+
+    /**
+     * An open directory is moved off its path before it is emptied, so an
+     * entry that can't be deleted stays in the moved directory and doesn't
+     * keep the cache from working.
+     */
+    public function testReplacesAnOpenDirectoryThatCannotBeEmptied(): void
+    {
+        if (posix_geteuid() === 0) {
+            self::markTestSkipped('Root can delete from a read-only directory.');
+        }
+
+        mkdir($this->directory . '/stuck', permissions: 0o700, recursive: true);
+        touch($this->directory . '/stuck/planted');
+        chmod($this->directory . '/stuck', permissions: 0o500);
+        chmod($this->directory, permissions: 0o777);
+
+        $cache = new DiskCache($this->directory . '/root', owned: $this->directory);
+        $cache->set('hooks', 'a', ['x']);
+        $aside = glob($this->directory . '.reclaimed-*');
+        self::assertIsArray($aside);
+        self::assertCount(1, $aside);
+        chmod($aside[0] . '/stuck', permissions: 0o700);
+        self::remove($aside[0]);
+
+        self::assertSame(0o700, fileperms($this->directory) & 0o777);
+        self::assertFileDoesNotExist($this->directory . '/stuck');
+        self::assertSame(['x'], $cache->get('hooks', 'a'));
+    }
+
+    /**
+     * A worker that saw the directory open can rename it aside after another
+     * worker replaced and checked it, and another user can then create the
+     * path. The worker that checked it must not read or write there. See
+     * RacingCacheDirectory for the steps.
+     */
+    public function testDoesNotUseAnotherUsersDirectoryAtTheCheckedPath(): void
+    {
+        RacingCacheDirectory::reset();
+        stream_wrapper_register(RacingCacheDirectory::SCHEME, RacingCacheDirectory::class);
+        try {
+            $directory = RacingCacheDirectory::SCHEME . '://cache';
+            $first = new DiskCache($directory . '/root', owned: $directory);
+            self::assertNull($first->get('probe', 'a'));
+
+            $second = RacingCacheDirectory::$second;
+            self::assertNotNull($second);
+            self::assertSame(['own'], RacingCacheDirectory::$before);
+            self::assertNull($second->get('probe', 'a'));
+            $second->set('probe', 'a', ['x']);
+            self::assertFalse(RacingCacheDirectory::$writtenAfter);
+        } finally {
+            stream_wrapper_unregister(RacingCacheDirectory::SCHEME);
+            clearstatcache();
+        }
+    }
+
+    /**
+     * The temporary file of a write has a name anyone can guess. A link
+     * planted there must not send the write to the file it points to.
+     */
+    public function testDoesNotWriteThroughALinkAtTheTemporaryPath(): void
+    {
+        $cache = new DiskCache($this->directory . '/root', owned: $this->directory);
+        $cache->set('hooks', 'a', ['x']);
+        $target = $this->directory . '/target';
+        file_put_contents($target, data: 'kept');
+        $entry = glob($this->directory . '/root/hooks-a-*.cache');
+        self::assertIsArray($entry);
+        self::assertCount(1, $entry);
+        symlink($target, $entry[0] . '.' . (string) getmypid() . '.tmp');
+
+        $cache->set('hooks', 'a', ['y']);
+        self::assertStringEqualsFile($target, 'kept');
+        self::assertSame(['x'], $cache->get('hooks', 'a'));
+
+        $cache->set('hooks', 'a', ['y']);
+        self::assertSame(['y'], $cache->get('hooks', 'a'));
+        self::assertSame(0o600, fileperms($entry[0]) & 0o777);
     }
 
     /**

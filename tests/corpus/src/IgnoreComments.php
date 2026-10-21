@@ -52,6 +52,15 @@ final class IgnoreComments {
   }
 
   /**
+   * In a comment over several lines, the line form covers the last line.
+   */
+  public function lineFormInLongComment(): int {
+    // @mago-expect analysis:invalid-return-statement
+    return 'not an integer'; /* The caller casts it.
+     * @phpstan-ignore-line */
+  }
+
+  /**
    * Another identifier keeps the issue.
    */
   public function otherIdentifier(): int {
@@ -114,6 +123,108 @@ final class IgnoreComments {
       // @mago-expect analysis:unevaluated-code
       $flag = TRUE;
     }
+  }
+
+  /**
+   * The comment stops at the end of an alternative syntax block.
+   */
+  public function deadCodeInAlternativeSyntax(bool $flag): void {
+    if ($flag):
+      return;
+      // @phpstan-ignore deadCode.unreachable
+      $flag = FALSE;
+    endif;
+    $flag = TRUE;
+    return;
+    // @mago-expect analysis:unevaluated-code
+    $flag = FALSE;
+  }
+
+  /**
+   * The comment stops at an alternative syntax `else`.
+   */
+  public function deadCodeBeforeAlternativeElse(bool $flag): void {
+    if ($flag):
+      return;
+      // @phpstan-ignore deadCode.unreachable
+      $flag = FALSE;
+    else:
+      return;
+      // @mago-expect analysis:unevaluated-code
+      $flag = TRUE;
+    endif;
+  }
+
+  /**
+   * The comment stops at the next `case` label.
+   */
+  public function deadCodeInSwitch(int $value): void {
+    switch ($value) {
+      case 1:
+        return;
+        // @phpstan-ignore deadCode.unreachable
+        $value = 2;
+
+      case 2:
+        return;
+        // @mago-expect analysis:unevaluated-code
+        $value = 3;
+    }
+  }
+
+  /**
+   * A block that the covered line opens stays in the dead run.
+   */
+  public function deadCodeOpensBlock(array $items): void {
+    return;
+    // @phpstan-ignore deadCode.unreachable
+    foreach ($items as $item):
+      $item++;
+    endforeach;
+    foreach ($items as $item) {
+      $item++;
+    }
+    $items = [];
+  }
+
+  /**
+   * A block that the covered line opens before the dead code ends the run.
+   */
+  public function deadCodeAfterOpenerOnLine(bool $flag): void {
+    // @mago-format-ignore-start
+    if ($flag): return; $flag = FALSE; // @phpstan-ignore deadCode.unreachable
+    endif;
+    return;
+    // @mago-expect analysis:unevaluated-code
+    $flag = TRUE;
+    // @mago-format-ignore-end
+  }
+
+  /**
+   * The same holds for a brace on the covered line.
+   */
+  public function deadCodeAfterBraceOnLine(bool $flag): void {
+    // @mago-format-ignore-start
+    if ($flag) { return; $flag = FALSE; // @phpstan-ignore deadCode.unreachable
+    }
+    return;
+    // @mago-expect analysis:unevaluated-code
+    $flag = TRUE;
+    // @mago-format-ignore-end
+  }
+
+  /**
+   * And for a comment on the line above the covered line.
+   */
+  public function deadCodeAfterOpenerBelowComment(bool $flag): void {
+    // @mago-format-ignore-start
+    // @phpstan-ignore deadCode.unreachable
+    if ($flag): return; $flag = FALSE;
+    endif;
+    return;
+    // @mago-expect analysis:unevaluated-code
+    $flag = TRUE;
+    // @mago-format-ignore-end
   }
 
   /**

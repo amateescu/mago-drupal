@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Imported names next to a global class.
+ */
+
+use Exception as Failure;
+use RuntimeException;
+
+/**
+ * Throws things.
+ */
+function imported_throw(bool $runtime): void {
+  if ($runtime) {
+    throw new RuntimeException('Runtime.');
+  }
+  if (Failure::class === \LogicException::class) {
+    throw new \LogicException('Logic.');
+  }
+  throw new Failure('Failure.');
+}

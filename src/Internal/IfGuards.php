@@ -7,7 +7,7 @@ namespace amateescu\MagoDrupal\Internal;
 use PhpToken;
 
 use function in_array;
-use function strlen;
+use function ltrim;
 use function strtolower;
 use function substr;
 
@@ -15,6 +15,10 @@ use const T_BOOLEAN_OR;
 use const T_COALESCE;
 use const T_ELSEIF;
 use const T_IF;
+use const T_IS_EQUAL;
+use const T_IS_IDENTICAL;
+use const T_IS_NOT_EQUAL;
+use const T_IS_NOT_IDENTICAL;
 use const T_LOGICAL_OR;
 use const T_LOGICAL_XOR;
 use const T_RETURN;
@@ -23,15 +27,19 @@ use const T_THROW;
 /**
  * Says whether a check guards a later token.
  *
- * Three shapes count:
+ * The check is true when it stands alone or is compared with `true`, as in
+ * `$check === true`. It is false when it is negated with `!` or compared
+ * with `false`, as in `$check === false` or `false == $check`. Three shapes
+ * count:
  *
- * - an `if` condition holds the check as one of its `&&` parts, and the
- *   token comes later in the condition or in the statement that the `if`
- *   guards;
- * - an `if` condition is the check negated with `!` and nothing else, its
- *   block ends in `throw` or `return`, and the token comes after the block,
- *   still inside the block that holds the `if`;
- * - a statement holds the check as one of its `&&` parts outside any
+ * - an `if` or `elseif` condition holds the true check as one of its `&&`
+ *   parts, and the token comes later in the condition or in the statement
+ *   that the `if` guards;
+ * - an `if` condition is the false check and nothing else, its block ends in
+ *   `throw` or `return`, and the token comes after the block, still inside
+ *   the block that holds the `if`. The `if` must start a statement, so an
+ *   `elseif`, an `else if` or the body of another `if` doesn't count;
+ * - a statement holds the true check as one of its `&&` parts outside any
  *   parentheses, as in `$a = $check && f($b);`, and the token comes later in
  *   the same `&&` chain.
  *
@@ -49,6 +57,23 @@ final class IfGuards
      */
     private const DISJUNCTIONS = [T_BOOLEAN_OR, T_LOGICAL_OR, T_LOGICAL_XOR, T_COALESCE];
 
+    /**
+     * The comparisons a check can be in, keyed by token id: true for the
+     * ones that hold when both sides are equal, false for the ones that hold
+     * when they differ.
+     */
+    private const COMPARISONS = [
+        T_IS_IDENTICAL => true,
+        T_IS_EQUAL => true,
+        T_IS_NOT_IDENTICAL => false,
+        T_IS_NOT_EQUAL => false,
+    ];
+
+    /**
+     * The operators that join the `&&` parts of a condition.
+     */
+    private const ANDS = ['&&', 'and'];
+
     private function __construct() {}
 
     /**
@@ -59,38 +84,119 @@ final class IfGuards
      */
     public static function guards(string $contents, array $tokens, int $check, int $checkEnd, int $at): bool
     {
-        $before = PhpTokens::previous($tokens, $check - 1);
-        $negated = $before !== null && $tokens[$before]->text === '!';
-        $open = $negated ? PhpTokens::previous($tokens, $before - 1) : self::conditionOpen($tokens, $check);
-        if (!$negated && $open === null) {
-            return $before !== null && self::chainHoldsFor($tokens, $before, $checkEnd, $at);
+        $end = PhpTokens::at($tokens, $checkEnd - 1);
+        if ($end === null) {
+            return false;
         }
 
-        $keyword = $open === null ? null : PhpTokens::previous($tokens, $open - 1);
+        [$first, $last, $true] = self::guard($tokens, $check, $end);
+        $before = PhpTokens::previous($tokens, $first - 1);
+        $after = PhpTokens::next($tokens, $last + 1);
+        if ($before === null || $after === null || $at <= $last) {
+            return false;
+        }
+
+        if (!$true) {
+            // An `if` that doesn't start a statement may not run at all.
+            $keyword = self::keyword($tokens, $before);
+            $previous = $keyword === null ? null : PhpTokens::previous($tokens, $keyword - 1);
+
+            return (
+                $keyword !== null
+                && $tokens[$keyword]->is(T_IF)
+                && ($previous === null || in_array($tokens[$previous]->text, [';', '{', '}'], strict: true))
+                && PhpTokens::closer($tokens, $before, '(', ')') === $after
+                && self::exitsBefore($contents, $tokens, $after, $at)
+            );
+        }
+
+        $open = self::conditionOpen($tokens, $first);
+        if ($open === null) {
+            return self::chainHoldsFor($tokens, $before, $after, $at);
+        }
+
+        $keyword = self::keyword($tokens, $open);
         if (
-            $open === null
-            || $keyword === null
-            || $tokens[$open]->text !== '('
+            $keyword === null
             || !$tokens[$keyword]->is([T_IF, T_ELSEIF])
+            || !in_array(strtolower($tokens[$before]->text), ['(', ...self::ANDS], strict: true)
+            || !in_array(strtolower($tokens[$after]->text), [')', ...self::ANDS], strict: true)
         ) {
             return false;
         }
 
-        $close = PhpTokens::closer($tokens, $open, '(', ')');
+        return self::holdsFor($tokens, $open, PhpTokens::closer($tokens, $open, '(', ')'), $last, $at);
+    }
 
-        return $negated
-            ? self::exitsBefore($contents, $tokens, $close, $checkEnd, $at)
-            : self::holdsFor($tokens, $open, $close, $check, $at);
+    /**
+     * The first and last token of the check with its `!` and its comparison
+     * with a `true` or `false` literal, and whether that expression is true
+     * when the check is.
+     *
+     * The check ends at the token `$end`. `!` binds tighter than a
+     * comparison, so `!$check === false` is true when the check is.
+     *
+     * @param list<PhpToken> $tokens
+     *
+     * @return array{int, int, bool}
+     */
+    private static function guard(array $tokens, int $check, int $end): array
+    {
+        $first = $check;
+        $true = true;
+        $before = PhpTokens::previous($tokens, $check - 1);
+        if ($before !== null && $tokens[$before]->text === '!') {
+            $first = $before;
+            $true = false;
+        }
+
+        // The comparison after the check, then the mirrored one before it.
+        $after = PhpTokens::next($tokens, $end + 1);
+        $previous = PhpTokens::previous($tokens, $first - 1);
+        foreach ([
+            [$after, $after === null ? null : PhpTokens::next($tokens, $after + 1)],
+            [$previous, $previous === null ? null : PhpTokens::previous($tokens, $previous - 1)],
+        ] as [$operator, $literal]) {
+            if ($operator === null || $literal === null) {
+                continue;
+            }
+
+            $equal = self::COMPARISONS[$tokens[$operator]->id] ?? null;
+            $value = match (strtolower(ltrim($tokens[$literal]->text, characters: '\\'))) {
+                'true' => true,
+                'false' => false,
+                default => null,
+            };
+            if ($equal !== null && $value !== null) {
+                $holds = $true === ($equal === $value);
+
+                return $operator === $after ? [$first, $literal, $holds] : [$literal, $end, $holds];
+            }
+        }
+
+        return [$first, $end, $true];
+    }
+
+    /**
+     * The index of the keyword before the `(` at `$open`, or null when the
+     * token isn't a `(`.
+     *
+     * @param list<PhpToken> $tokens
+     */
+    private static function keyword(array $tokens, int $open): ?int
+    {
+        return $tokens[$open]->text === '(' ? PhpTokens::previous($tokens, $open - 1) : null;
     }
 
     /**
      * Whether the condition between the parentheses at `$open` and `$close`
-     * holds the check as one of its `&&` parts, and the token `$at` comes
-     * later in it or in the statement it guards.
+     * doesn't have a `||`, `or`, `xor`, `??` or `?`, and the token `$at`
+     * comes after the check, which ends at the token `$last`, in the
+     * condition or in the statement it guards.
      *
      * @param list<PhpToken> $tokens
      */
-    private static function holdsFor(array $tokens, int $open, int $close, int $check, int $at): bool
+    private static function holdsFor(array $tokens, int $open, int $close, int $last, int $at): bool
     {
         for ($i = $open + 1; $i < $close; $i++) {
             if (self::splits($tokens[$i])) {
@@ -98,7 +204,7 @@ final class IfGuards
             }
         }
 
-        if ($at > $check && $at < $close) {
+        if ($at > $last && $at < $close) {
             return true;
         }
 
@@ -106,24 +212,21 @@ final class IfGuards
     }
 
     /**
-     * Whether the check outside any parentheses, with the token `$before`
-     * before it and ending at byte offset `$checkEnd`, is one `&&` part of
-     * its statement, and the token `$at` comes later in the same `&&` chain.
+     * Whether the check outside any parentheses, between the tokens
+     * `$before` and `$after`, is one `&&` part of its statement, and the
+     * token `$at` comes later in the same `&&` chain.
      * A `||`, `or`, `xor`, `??` or `?` anywhere from the start of the
      * statement to the token cancels the guard, and so does a comma, a `=>`
      * or a `;` outside brackets between the check and the token.
      *
      * @param list<PhpToken> $tokens
      */
-    private static function chainHoldsFor(array $tokens, int $before, int $checkEnd, int $at): bool
+    private static function chainHoldsFor(array $tokens, int $before, int $after, int $at): bool
     {
-        $end = PhpTokens::at($tokens, $checkEnd);
-        $after = $end === null ? null : PhpTokens::next($tokens, $end);
         if (
-            $after === null
-            || $at <= $after
-            || !in_array(strtolower($tokens[$after]->text), ['&&', 'and'], strict: true)
-            || !in_array(strtolower($tokens[$before]->text), ['&&', 'and', '=', 'return'], strict: true)
+            $at <= $after
+            || !in_array(strtolower($tokens[$after]->text), self::ANDS, strict: true)
+            || !in_array(strtolower($tokens[$before]->text), [...self::ANDS, '=', 'return'], strict: true)
         ) {
             return false;
         }
@@ -164,22 +267,16 @@ final class IfGuards
     }
 
     /**
-     * Whether the condition ending at `$close` is the negated check alone,
-     * its block ends in `throw` or `return`, and the token `$at` comes after
-     * the block, still inside the block that holds the `if`.
+     * Whether the block of the `if` whose condition ends at `$close` ends in
+     * `throw` or `return`, and the token `$at` comes after the block, still
+     * inside the block that holds the `if`.
      *
      * @param list<PhpToken> $tokens
      */
-    private static function exitsBefore(string $contents, array $tokens, int $close, int $checkEnd, int $at): bool
+    private static function exitsBefore(string $contents, array $tokens, int $close, int $at): bool
     {
-        $last = PhpTokens::previous($tokens, $close - 1);
         $body = PhpTokens::next($tokens, $close + 1);
-        if (
-            $last === null
-            || $body === null
-            || ($tokens[$last]->pos + strlen($tokens[$last]->text)) !== $checkEnd
-            || $tokens[$body]->text !== '{'
-        ) {
+        if ($body === null || $tokens[$body]->text !== '{') {
             return false;
         }
 

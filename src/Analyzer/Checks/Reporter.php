@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
+use amateescu\MagoDrupal\Internal\Utf8Issue;
 use Mago\Sdk\Analyzer\LifecycleContext;
 use Mago\Sdk\PHPVersion;
 use Mago\Sdk\Reporting\Issue;
@@ -12,7 +13,11 @@ use Mago\Sdk\SourceLocation;
 use Mago\Sdk\Span;
 
 /**
- * Reports check findings on the current lifecycle context.
+ * Reports check and hook findings on the current lifecycle context.
+ *
+ * Every analyzer issue of the extension goes through report(), which makes
+ * its text valid UTF-8. Mago stops the whole analysis on an issue whose text
+ * isn't.
  *
  * @internal
  */
@@ -28,12 +33,20 @@ final class Reporter
 
     public function error(string $code, Issue $issue): void
     {
-        $this->context->report(Level::Error, $code, $issue);
+        self::report($this->context, Level::Error, $code, $issue);
     }
 
     public function warning(string $code, Issue $issue): void
     {
-        $this->context->report(Level::Warning, $code, $issue);
+        self::report($this->context, Level::Warning, $code, $issue);
+    }
+
+    /**
+     * Reports the issue with its text made valid UTF-8.
+     */
+    public static function report(LifecycleContext $context, Level $level, string $code, Issue $issue): void
+    {
+        $context->report($level, $code, Utf8Issue::valid($issue));
     }
 
     /**

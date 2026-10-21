@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\DeclaredClass;
 use amateescu\MagoDrupal\Internal\TraitDeclarations;
 use amateescu\MagoDrupal\Internal\TraitRoots;
@@ -76,7 +77,8 @@ final class TraitStaticCallHook implements NodeAnalysisHook
             }
 
             $method = ($declared->identifier->class ?? '') . '::' . $declared->originalName;
-            $context->report(
+            Reporter::report(
+                $context,
                 Level::Error,
                 self::CODE,
                 Issue::new(

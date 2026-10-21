@@ -330,6 +330,10 @@ final class Container {
     $this->container->get('corpus.not_defined')->missing();
     // @mago-expect analysis:drupal/unknown-service
     \Drupal::service('corpus.not_defined');
+    // An id with a byte that isn't valid UTF-8 is quoted with the byte
+    // escaped, since Mago rejects issue text that isn't valid UTF-8.
+    // @mago-expect analysis:drupal/unknown-service
+    \Drupal::service("corpus.bad\xFF");
     // An abstract definition never becomes a service.
     // @mago-expect analysis:drupal/unknown-service
     // @mago-expect analysis:possible-method-access-on-null

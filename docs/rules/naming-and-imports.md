@@ -130,11 +130,14 @@ A name that fails several checks gets one issue for each.
 - a namespaced function call or first-class callable;
 - an `.api.php` file.
 
-In a file with no namespace, the fix puts the import below the `@file` docblock and any `declare`,
-or below the open tag, and after the last `use` when the file has one. There isn't a fix in a file
-with several namespaces or a braced one, where the import would go below code or a constant, and
-when the file already uses the short name for something else: another import, a class of that
-name, or a docblock that writes the short name in the same case.
+In a file with no namespace, the fix puts the import below the `@file` docblock and any `declare`
+that ends at its `;`, or below the open tag, and after the last `use` when the file has one. A
+`declare` with a body, such as `declare(ticks=1) { ... }`, holds code, so the import goes above
+it. There isn't a fix in a file with several namespaces or a braced one, where the import would go
+below code or a constant, such as code on the same line as the last `use` or the namespace, or
+outside PHP, as when a close tag ends that line or a comment on it. There isn't one either when
+the file already uses the short name for something else: another import, a class of that name, or
+a docblock that writes the short name in the same case.
 
 ??? example "Example"
 
@@ -213,7 +216,9 @@ by Coder. The [configuration](../setup/configuration.md) turns it off.
 
 **Not reported:**
 
-- a name that a `use` statement imports;
+- a name that a `use` statement imports, also when the import is a global class, as `Failure` after
+  `use Exception as Failure;`. A leading backslash would turn it into a class that doesn't exist.
+  `drupal/redundant-use` reports the import, and its fix writes the class in full;
 - `self`, `static`, `parent` and the built-in types, which aren't class names;
 - an `.api.php` file. Its examples leave out the imports, so a short name there, such as `Url`,
   stands for a namespaced class.

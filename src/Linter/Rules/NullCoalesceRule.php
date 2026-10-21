@@ -37,7 +37,17 @@ use function trim;
  *
  * The rule reports every match and fixes only the ones that keep behavior: X is
  * a plain variable, property, index or constant read, and B doesn't need
- * parentheses after `??`. A fix that drops a comment is potentially unsafe.
+ * parentheses after `??`. The fix of `isset(X) ? X : B` is safe when X is a
+ * variable, a constant or a static property, or one of those with one
+ * property or index step, as in `$a->b` or `$a['k']`. `isset()` and `??`
+ * both run `__isset` and then `__get`, or `offsetExists` and then
+ * `offsetGet`, on that step. It is potentially unsafe when X reads a
+ * property or an index before its last step or in an index, as in
+ * `$o->data['value']`, since the ternary runs that read twice and `??` runs
+ * it once. The fix of a null check is safe when X is a variable, a constant
+ * or a static property. It is potentially unsafe when X reads a property or
+ * an index anywhere in it, since `??` runs `__isset` or `offsetExists` and
+ * the null check doesn't. A fix that drops a comment is potentially unsafe.
  *
  * The two shapes and the checks before a fix need many branches.
  *
@@ -101,7 +111,9 @@ final class NullCoalesceRule implements Rule
                 $dropped .= $file->getText($span);
             }
 
-            $safety = preg_match('~/\*|//|#~', $dropped) === 1 ? Safety::PotentiallyUnsafe : Safety::Safe;
+            $safety = $match['member'] || preg_match('~/\*|//|#~', $dropped) === 1
+                ? Safety::PotentiallyUnsafe
+                : Safety::Safe;
             foreach ($edits as [$span, $text]) {
                 $issue = $issue->withEdit(TextEdit::replace($span, $text)->withSafety($safety));
             }
@@ -113,7 +125,7 @@ final class NullCoalesceRule implements Rule
     /**
      * Matches `isset(X) ? X : B`, with at most one scalar cast on the isset.
      *
-     * @return array{keep: string, operand: Node, branch: Node, fixable: bool}|null
+     * @return array{keep: string, operand: Node, branch: Node, fixable: bool, member: bool}|null
      */
     private function matchIsset(SourceFile $file, Node $condition, Node $then, Node $else): ?array
     {
@@ -153,13 +165,17 @@ final class NullCoalesceRule implements Rule
             'operand' => $operand,
             'branch' => $else,
             'fixable' => !$cast && Operands::isPure($file, $operand) && Operands::bindsTighter($file, $else),
+            // isset() and ?? both run __isset and then __get, or
+            // offsetExists and then offsetGet, on the last step. The isset
+            // shape runs the reads before it twice.
+            'member' => Operands::readsInnerMember($file, $operand),
         ];
     }
 
     /**
      * Matches `X === null ? B : X` and `X !== null ? X : B`, either way round.
      *
-     * @return array{keep: string, operand: Node, branch: Node, fixable: bool}|null
+     * @return array{keep: string, operand: Node, branch: Node, fixable: bool, member: bool}|null
      */
     private function matchNullCheck(SourceFile $file, Node $condition, Node $then, Node $else): ?array
     {
@@ -200,13 +216,15 @@ final class NullCoalesceRule implements Rule
             'operand' => $operator === '===' ? $operand : Operands::core($file, $then),
             'branch' => $branch,
             'fixable' => Operands::isPure($file, $operand) && Operands::bindsTighter($file, $branch),
+            // ?? runs __isset or offsetExists, which the null check doesn't.
+            'member' => Operands::readsMember($file, $operand),
         ];
     }
 
     /**
      * The edits that turn the ternary into `X ?? B`.
      *
-     * @param array{keep: string, operand: Node, branch: Node, fixable: bool} $match
+     * @param array{keep: string, operand: Node, branch: Node, fixable: bool, member: bool} $match
      *
      * @return list<array{Span, string}>
      */

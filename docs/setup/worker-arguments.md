@@ -70,8 +70,14 @@ declare(strict_types=1);
 use amateescu\MagoDrupal\DrupalExtension;
 use Mago\Sdk\Worker;
 
-// Mago reads the worker's stdout as its protocol stream, so PHP errors go to stderr.
+// Mago reads the worker's stdout as its protocol stream, so PHP errors and
+// text that the autoloader prints go to stderr.
 ini_set('display_errors', 'stderr');
+ob_start(static function (string $output): string {
+    fwrite(STDERR, $output);
+
+    return '';
+}, 1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 

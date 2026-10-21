@@ -21,6 +21,9 @@ use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\Extension\ModuleUninstallValidatorInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\GeneratedUrl;
+use Drupal\Core\Queue\Batch;
+use Drupal\Core\Queue\DatabaseQueue;
+use Drupal\Core\Queue\Memory;
 use Drupal\Core\Queue\QueueInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
@@ -99,19 +102,36 @@ final class CoreTypes {
   }
 
   /**
-   * A claimed queue item has its data, ID and creation time.
+   * An item claimed from core's queues has its data, ID and creation time.
    */
-  public function queueItem(QueueInterface $queue): mixed {
+  public function queueItem(DatabaseQueue $queue, Memory $memory): mixed {
+    $item = $queue->claimItem();
+    $other = $memory->claimItem();
+    return $item === FALSE || $other === FALSE ? NULL : [$item->data, $other->created];
+  }
+
+  /**
+   * An item claimed from core's queues is a stdClass, as they build it.
+   */
+  public function queueItemClass(Batch $queue): int|string|null {
+    $item = $queue->claimItem();
+    return $item instanceof \stdClass ? $item->item_id : NULL;
+  }
+
+  /**
+   * An item claimed through the interface is typed as core's queues build it.
+   */
+  public function queueItemOnInterface(QueueInterface $queue): mixed {
     $item = $queue->claimItem();
     return $item === FALSE ? NULL : $item->data;
   }
 
   /**
-   * A claimed queue item is a stdClass, as core's queues build it.
+   * A queue that declares its own claimItem() keeps what it declares.
    */
-  public function queueItemClass(QueueInterface $queue): int|string|null {
+  public function queueItemDeclared(CorpusQueue $queue): string {
     $item = $queue->claimItem();
-    return $item instanceof \stdClass ? $item->item_id : NULL;
+    return $item === FALSE ? '' : $item->payload;
   }
 
   /**

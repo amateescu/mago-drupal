@@ -39,7 +39,10 @@ $url->toString($flag);                   // Drupal\Core\GeneratedUrl|string
 - **Queue items.** `claimItem()` is documented as `bool|object` and never returns TRUE. The
   properties of the item come from the description of the method, and the database queue reads
   `item_id` and `created` as strings. Core's queues build the item as a `stdClass`, and the type
-  says so, since Mago takes an object shape alone for something that can never be one.
+  says so on `QueueInterface` and on core's queue classes, since Mago takes an object shape alone
+  for something that can never be one. A queue outside core that returns an item of its own class
+  through the interface gets an `impossible-condition` on `instanceof`. A queue class that declares
+  its own `claimItem()` keeps what it declares.
 - **Scanned files.** The files that `scanDirectory()` and `getTestFiles()` find are the objects
   their descriptions list, built as a `stdClass`, which is what `uploadNodeImage()` in core's image
   tests takes. Core's `previewNodeImage()` documents an `ImageInterface` for the same files, so

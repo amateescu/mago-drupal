@@ -29,10 +29,11 @@ use function trim;
  * Drupal's coding standards say that a class whose name doesn't have a
  * backslash is always written fully qualified, and show it in a `.module` file.
  * In a file with no namespace both forms name the same class, so the fix adds
- * the backslash. A name that a `use` statement imports resolves to a namespaced
- * class and is left alone. An API file is skipped: its examples leave out their
- * imports, so a short name there stands for a namespaced class. Coder doesn't
- * have such a sniff.
+ * the backslash. A name that a `use` statement imports is left alone, also
+ * when the import is a global class. `drupal/redundant-use` reports that
+ * import, and its fix writes the class in full. An API file is skipped: its
+ * examples leave out their imports, so a short name there stands for a
+ * namespaced class. Coder doesn't have such a sniff.
  *
  * The places where a class name can stand need many branches.
  *
@@ -91,7 +92,13 @@ final class GlobalClassBackslashRule implements Rule
                 continue;
             }
 
-            if (str_contains(Nodes::resolved($file, $identifier) ?? '\\', '\\')) {
+            // An imported name, such as `Failure` after `use Exception as
+            // Failure;`, isn't the name of a global class. A leading
+            // backslash would point it at a class that doesn't exist.
+            if (
+                $file->getResolvedName($identifier)?->imported === true
+                || str_contains(Nodes::resolved($file, $identifier) ?? '\\', '\\')
+            ) {
                 continue;
             }
 

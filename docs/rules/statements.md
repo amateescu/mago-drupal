@@ -444,7 +444,13 @@ it look like the code uses the exception.
 **Not reported:**
 
 - a function that may read the variable by a name built at runtime, through `compact()`,
-  `get_defined_vars()` or a variable variable. The fix would remove a variable that it reads.
+  `get_defined_vars()` or a variable variable. The fix would remove a variable that it reads;
+- a name that appears anywhere in a `for`, `foreach`, `while` or `do` loop around the `try`, other
+  than as another `catch` variable. The next pass of the loop reads it;
+- a name that shares its value with code outside the function: a `&$e` parameter, a closure's
+  `use (&$e)` list, a `global $e` or `static $e` declaration, `&$e` as in `$x = &$e` or
+  `foreach ($items as &$e)`, and `$e = &$x`. The catch writes through it. A variadic `&...$e`
+  parameter doesn't count, since the catch replaces the array of references.
 
 [`drupal/unused-variable`](#drupalunused-variable) allows an unused `catch` variable, as Coder's
 `UnusedVariable` does, so this rule is the one that reports it.
@@ -479,13 +485,19 @@ it look like the code uses the exception.
 
     - The sniff doesn't skip a function that calls `compact()`, so its fix can remove a variable that
       `compact()` reads.
+    - The sniff reports a name that a loop around the `try` reads before it, and a name that shares
+      its value through a reference, `global` or `static`. Its fix then changes what the code does.
 
 ---
 
 ## drupal/null-coalesce
 
 - **Level:** error
-- **Fix:** safe, or potentially unsafe when it drops a comment.
+- **Fix:** safe for `isset(X) ? X : B` when X reads at most one property or index, as its last
+  step, and for a null check when X is a variable, a constant or a static property. Potentially
+  unsafe for `isset(X) ? X : B` when X reads a property or an index other than as its last step,
+  for a null check when X reads a property or an index anywhere in it, and when the fix drops a
+  comment.
 - **Standard:** [Operators](https://project.pages.drupalcode.org/coding_standards/php/coding/#operators)
 - **Ports:** `SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator.NullCoalesceOperatorNotUsed`
 
@@ -504,7 +516,17 @@ A condition in parentheses, as in `(isset(X)) ? X : B`, isn't reported, as with 
 `mago format` removes those parentheses, and the ternary is then reported.
 
 The fix writes `X ?? B` when X is a plain variable, property, index or constant read and B doesn't
-need parentheses after `??`. These are reported without a fix:
+need parentheses after `??`. `isset()` and `??` both run `__isset` and then `__get` on an object,
+or `offsetExists` and then `offsetGet`, so the `isset` shape keeps its result when X is a variable,
+a constant or a static property, or one of those with one step, as in `$a->b`, `$a['k']` or
+`self::$cache['k']`. With two steps or more, as in `$o->data['value']` or `$a['k']['j']`, or a
+property or an index read inside an index, as in `$a[$b->c]`, `isset()` runs every read but the
+last one, and X runs them again. `??` runs them once, so `__get` or `offsetGet` can give a
+different result, and the fix of the `isset` shape is potentially unsafe there. A null check doesn't run
+`__isset` or `offsetExists`, and `??` does. When X reads a property, as `$a->b` or `$a?->b`, or
+an index, as `$a['k']`, anywhere in it, an object with those methods can give a different result,
+so the fix of a null check is potentially unsafe there. A static property, such as `self::$cache`,
+doesn't have such methods. These are reported without a fix:
 
 - an X that is a call, a variable variable such as `$$a`, or a property with its name in braces,
   such as `$a->{$b}`;
@@ -708,7 +730,8 @@ A function ends the same way without a `return;` as its last statement.
 ## drupal/short-ternary
 
 - **Level:** error
-- **Fix:** safe, or potentially unsafe when it drops a comment.
+- **Fix:** safe when X is a variable, a constant or a static property. Potentially unsafe when X
+  reads a property or an index anywhere in it, and when the fix drops a comment.
 - **Standard:** [Operators](https://project.pages.drupalcode.org/coding_standards/php/coding/#operators)
 - **Ports:** core's `SlevomatCodingStandard.ControlStructures.RequireShortTernaryOperator`, which
   is left out of Coder's rulesets.
@@ -731,6 +754,9 @@ then reported.
 The fix runs when X is a plain variable, property, index or constant read, since `X ?: B` reads X
 once where the ternary reads it twice. In the second shape B moves to the end, so it also needs to
 bind tighter than `??`, as in `drupal/null-coalesce`. Other matches are reported without a fix.
+When X reads a property, as `$a->b` or `$a?->b`, or an index, as `$a['k']`, anywhere in it, the
+fix is potentially unsafe: on an object, `__get` or `offsetGet` then runs once instead of twice. A
+static property, such as `self::$cache`, doesn't have such methods.
 
 Mago's own `no-shorthand-ternary` asks for the opposite. The
 [configuration](../setup/configuration.md#turn-off-what-drupals-standard-doesnt-ask-for) turns it

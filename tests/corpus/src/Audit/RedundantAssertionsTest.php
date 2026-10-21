@@ -65,6 +65,19 @@ final class RedundantAssertionsTest extends TestCase {
     $this->assertNotFalse($name);
   }
 
+  // @mago-format-ignore-start
+  /**
+   * A comment between the method name and its parenthesis.
+   *
+   * @param \Drupal\corpus\Nested\Thing $thing
+   *   A thing.
+   */
+  public function testCommentBeforeParenthesis(Thing $thing): void {
+    // @mago-expect analysis:phpunit/redundant-assertion
+    $this->assertNotNull /* Reason. */ ($thing);
+  }
+  // @mago-format-ignore-end
+
   /**
    * Each of these can fail.
    *

@@ -31,6 +31,16 @@ final class SourceText
      */
     private const CONSTANT_STRING = '/\G(?:\'(?:[^\'\\\\]++|\\\\.)*+\'|"(?:[^"\\\\${]++|\\\\.|\$(?![a-zA-Z_\x80-\xff{])|\{(?!\$))*+")/s';
 
+    /**
+     * A regex fragment for the whitespace and comments that PHP allows
+     * between two tokens, such as a callee and its parenthesis.
+     *
+     * It escapes `/` and `#`, so it fits a pattern with either delimiter.
+     * The quantifiers are possessive, so a pattern that fails after it
+     * doesn't backtrack into it.
+     */
+    public const GAP = '(?:\s++|\/\*(?:[^*]++|\*(?!\/))*+\*\/|(?:\/\/|\#(?!\[))[^\r\n]*+)*+';
+
     private function __construct() {}
 
     /**

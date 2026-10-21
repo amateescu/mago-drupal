@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Arguments;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use Closure;
@@ -72,7 +73,8 @@ final class LoadIncludeHook implements MethodCallAnalysisHook
         $name = $name === '' ? $module : $name;
         $directory = ($this->modules)($context->codebase)[$module] ?? null;
         if ($directory === null) {
-            $context->report(
+            Reporter::report(
+                $context,
                 Level::Warning,
                 self::CODE,
                 Issue::new(
@@ -92,7 +94,8 @@ final class LoadIncludeHook implements MethodCallAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Error,
             self::CODE,
             Issue::new(
