@@ -19,6 +19,8 @@ function isset_shapes($a, $b, $obj): array
             ? $a
             : '',
         isset($a) ? $a : ($b ? 1 : 2),
+        isset($a['#key']) ? $a['#key'] : '',
+        isset($a['//']) ? $a['//'] : '',
     ];
 }
 
@@ -37,5 +39,6 @@ function null_shapes($a, $b, $obj): array
         ($a) === null ? 'x' : $a,
         $a === null ? ($b ? 1 : 2) : $a,
         $b and $a === null ? '' : $a,
+        $a === null ? '#none' : $a,
     ];
 }

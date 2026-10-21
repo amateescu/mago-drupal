@@ -321,6 +321,23 @@ final class Operands
     }
 
     /**
+     * Whether a comment sits in the text that the edits replace, so a fix
+     * made of them would drop it.
+     *
+     * @param list<array{Span, string}> $edits
+     */
+    public static function dropsComment(SourceFile $file, array $edits): bool
+    {
+        foreach ($edits as [$span]) {
+            if (CommentAttachment::hasCommentBetween($file, $span->start, $span->end)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * The span of the `?` between a ternary's condition and its middle part.
      * A comment in between may hold a `?` too, so comments are blanked first.
      */

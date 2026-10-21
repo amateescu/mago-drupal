@@ -18,7 +18,6 @@ use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 
 use function count;
-use function preg_match;
 use function trim;
 
 /**
@@ -132,12 +131,7 @@ final class ShortTernaryRule implements Rule
             return Safety::PotentiallyUnsafe;
         }
 
-        $dropped = '';
-        foreach ($edits as [$span]) {
-            $dropped .= $file->getText($span);
-        }
-
-        return preg_match('~/\*|//|#~', $dropped) === 1 ? Safety::PotentiallyUnsafe : Safety::Safe;
+        return Operands::dropsComment($file, $edits) ? Safety::PotentiallyUnsafe : Safety::Safe;
     }
 
     /**
