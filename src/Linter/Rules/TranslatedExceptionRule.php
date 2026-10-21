@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -43,10 +44,11 @@ final class TranslatedExceptionRule implements Rule
 
     public function lint(LintContext $context): void
     {
-        // A match has `t` directly before a parenthesis, as a plain call or
-        // as a method selector. The second branch keeps a file with a
-        // function import, for the case of an aliased import.
-        $this->gate ??= new FileGate(pattern: '/(?<!\w)t\s*\(|\buse\s[^;]*\bfunction\b/i');
+        // A match has `t` before a parenthesis, with only whitespace and
+        // comments between them, as a plain call or as a method selector.
+        // The second branch keeps a file with a function import, for the
+        // case of an aliased import.
+        $this->gate ??= new FileGate(pattern: '/(?<!\w)t' . SourceText::GAP . '\(|\buse\s[^;]*\bfunction\b/i');
         if (!$this->gate->passes($context->file)) {
             return;
         }

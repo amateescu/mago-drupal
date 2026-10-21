@@ -56,6 +56,29 @@ final class EntityKeyGuardsTest extends TestCase
         yield 'in an array later in an && chain' => [
             "\$a = \$type->hasKey('owner') && f([1, \$type->getKey('owner')]);",
         ];
+        yield 'compared with true' => ["if (\$type->hasKey('owner') === TRUE) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'true on the left of an && part' => [
+            "if (\$a && TRUE == \$type->hasKey('owner')) {\n  f(\$type->getKey('owner'));\n}",
+        ];
+        yield 'not false' => ["if (\$type->hasKey('owner') !== FALSE) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'a negation compared with false' => [
+            "if (!\$type->hasKey('owner') === FALSE) {\n  f(\$type->getKey('owner'));\n}",
+        ];
+        yield 'compared with true in an && chain' => [
+            "\$a = \$type->hasKey('owner') === \\true && f(\$type->getKey('owner'));",
+        ];
+        yield 'after a return when compared with false' => [
+            "if (\$type->hasKey('owner') === FALSE) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'after a throw when false is on the left' => [
+            "if (FALSE == \$type->hasKey('owner')) {\n  throw new \\LogicException();\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'after a return when not true' => [
+            "if (\$type->hasKey('owner') !== TRUE) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'after a return when true is on the left' => [
+            "if (TRUE != \$type->hasKey('owner')) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
     }
 
     /**
@@ -113,6 +136,39 @@ final class EntityKeyGuardsTest extends TestCase
         yield 'another array element' => ["\$a = [\$b && \$type->hasKey('owner'), f(\$type->getKey('owner'))];"];
         yield 'a chain in an earlier statement' => [
             "\$a = \$type->hasKey('owner') && \$b;\nf(\$type->getKey('owner'));",
+        ];
+        yield 'compared with false' => ["if (\$type->hasKey('owner') === FALSE) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'loosely compared with false' => [
+            "if (\$type->hasKey('owner') == false) {\n  f(\$type->getKey('owner'));\n}",
+        ];
+        yield 'not true' => ["if (\$type->hasKey('owner') !== TRUE) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'not equal to true' => ["if (\$type->hasKey('owner') != TRUE) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'false on the left' => ["if (FALSE === \$type->hasKey('owner')) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'not true on the left' => ["if (TRUE !== \$type->hasKey('owner')) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'compared with false in an && part' => [
+            "if (\$a && \$type->hasKey('owner') === FALSE) {\n  f(\$type->getKey('owner'));\n}",
+        ];
+        yield 'a negation compared with true' => [
+            "if (!\$type->hasKey('owner') === TRUE) {\n  f(\$type->getKey('owner'));\n}",
+        ];
+        yield 'compared with a variable' => ["if (\$type->hasKey('owner') != \$a) {\n  f(\$type->getKey('owner'));\n}"];
+        yield 'compared with false in an && chain' => [
+            "\$a = \$type->hasKey('owner') == FALSE && f(\$type->getKey('owner'));",
+        ];
+        yield 'after a return when compared with true' => [
+            "if (\$type->hasKey('owner') === TRUE) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'after a return when compared with false in an && part' => [
+            "if (\$a && \$type->hasKey('owner') === FALSE) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'an exit in an elseif' => [
+            "if (\$a) {\n  \$b = 1;\n}\nelseif (!\$type->hasKey('owner')) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'an exit in an else if' => [
+            "if (\$a) {\n  \$b = 1;\n}\nelse if (!\$type->hasKey('owner')) {\n  return;\n}\nf(\$type->getKey('owner'));",
+        ];
+        yield 'an exit in the body of another if' => [
+            "if (\$a) if (!\$type->hasKey('owner')) {\n  return;\n}\nf(\$type->getKey('owner'));",
         ];
     }
 

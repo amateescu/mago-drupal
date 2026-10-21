@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\CallStyle;
 use amateescu\MagoDrupal\Internal\ElementCallback;
 use amateescu\MagoDrupal\Internal\ElementCallbacks;
@@ -165,7 +166,8 @@ final class ElementCallbackHook implements NodeAnalysisHook
                 continue;
             }
 
-            $context->report(
+            Reporter::report(
+                $context,
                 Level::Error,
                 self::INVALID,
                 Issue::new(
@@ -189,7 +191,8 @@ final class ElementCallbackHook implements NodeAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Error,
             self::FORM_CLOSURE,
             Issue::new(
@@ -541,7 +544,7 @@ final class ElementCallbackHook implements NodeAnalysisHook
 
     private function report(NodeAnalysisContext $context, ElementCallback $callback, string $code, Issue $issue): void
     {
-        $context->report($callback->use->level(), $code, $issue);
+        Reporter::report($context, $callback->use->level(), $code, $issue);
     }
 
     private static function method(Codebase $codebase, string $class, string $name): ?MethodMetadataProjection

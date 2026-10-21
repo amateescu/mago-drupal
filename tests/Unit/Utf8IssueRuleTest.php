@@ -24,10 +24,17 @@ use Mago\Sdk\Syntax\Node;
 use Mago\Sdk\Syntax\NodeKind;
 use Mago\Sdk\Syntax\SourceFile;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
+use function dirname;
+use function file_get_contents;
+use function preg_match;
+use function str_ends_with;
 
 /**
- * Mago stops the whole lint run on an issue whose text is not valid UTF-8,
- * so the wrapper must make every text field valid and keep the rest.
+ * Mago stops the whole lint or analyze run on an issue whose text is not
+ * valid UTF-8, so every text field must be made valid and the rest kept.
  */
 final class Utf8IssueRuleTest extends TestCase
 {
@@ -144,5 +151,29 @@ final class Utf8IssueRuleTest extends TestCase
         $issue = Issue::new("a\xE2\x82 b\xED\xA0\x80 c\xC0\xAF d\xE2\x82", new Span(0, 5));
 
         self::assertSame('a\xE2\x82 b\xED\xA0\x80 c\xC0\xAF d\xE2\x82', self::lint($issue)[0]->message);
+    }
+
+    /**
+     * Analyzer hooks report through Reporter::report(), which makes the text
+     * valid. The corpus has a hook issue with an invalid byte.
+     */
+    public function testAnalyzerIssuesGoThroughTheReporter(): void
+    {
+        $direct = [];
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(dirname(__DIR__, levels: 2) . '/src/Analyzer'),
+        );
+        foreach ($files as $file) {
+            $path = (string) $file;
+            if (!str_ends_with($path, '.php') || str_ends_with($path, '/Checks/Reporter.php')) {
+                continue;
+            }
+
+            if (preg_match('/\$\w+->report\(\s*Level::|context->report\(/', (string) file_get_contents($path)) === 1) {
+                $direct[] = $path;
+            }
+        }
+
+        self::assertSame([], $direct, 'These files report on the context directly.');
     }
 }

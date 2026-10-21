@@ -15,7 +15,8 @@ use function strrpos;
 use const PREG_SPLIT_NO_EMPTY;
 
 /**
- * The line one `@phpstan-ignore` tag covers, with what it ignores there.
+ * The line one `@phpstan-ignore` tag with identifiers covers, with the
+ * identifiers. `PHPStanLineForm` handles the line forms.
  *
  * @internal
  */
@@ -24,30 +25,30 @@ final class PHPStanIgnoreTag
     private function __construct() {}
 
     /**
-     * The line one tag covers, with what it ignores there.
+     * The line one tag covers, with the identifiers it ignores there.
      *
      * @param list<PhpToken> $tokens
-     * @return array{int, int, list<string>|true}|null
+     * @return array{int, int, list<string>}|null
      */
-    public static function covered(string $contents, array $tokens, int $index, string $kind, string $ids): ?array
+    public static function covered(string $contents, array $tokens, int $index, string $ids): ?array
     {
-        $comment = $tokens[$index];
-        if ($kind === '-line') {
-            return [...self::lineAround($contents, $comment->pos), true];
-        }
-
-        if ($kind === '-next-line') {
-            // A `//` comment stops before its newline and a `/* */` one after
-            // its last character, so the search starts on that character.
-            $newline = strpos($contents, needle: "\n", offset: $comment->pos + strlen($comment->text) - 1);
-
-            return $newline === false ? null : [...self::lineAround($contents, $newline + 1), true];
-        }
-
         $identifiers = self::identifiers($ids);
-        $target = self::codeBefore($tokens, $index) ? $comment->pos : self::nextCode($tokens, $index);
+        $target = self::codeBefore($tokens, $index) ? $tokens[$index]->pos : self::nextCode($tokens, $index);
 
         return $identifiers === [] || $target === null ? null : [...self::lineAround($contents, $target), $identifiers];
+    }
+
+    /**
+     * The first and last offset of the line holding the offset.
+     *
+     * @return array{int, int}
+     */
+    public static function lineAround(string $contents, int $offset): array
+    {
+        $before = $offset === 0 ? false : strrpos($contents, needle: "\n", offset: $offset - strlen($contents) - 1);
+        $after = strpos($contents, needle: "\n", offset: $offset);
+
+        return [$before === false ? 0 : $before + 1, $after === false ? strlen($contents) : $after];
     }
 
     /**
@@ -91,18 +92,5 @@ final class PHPStanIgnoreTag
         $next = PhpTokens::next($tokens, $index + 1);
 
         return $next === null ? null : $tokens[$next]->pos;
-    }
-
-    /**
-     * The first and last offset of the line holding the offset.
-     *
-     * @return array{int, int}
-     */
-    private static function lineAround(string $contents, int $offset): array
-    {
-        $before = $offset === 0 ? false : strrpos($contents, needle: "\n", offset: $offset - strlen($contents) - 1);
-        $after = strpos($contents, needle: "\n", offset: $offset);
-
-        return [$before === false ? 0 : $before + 1, $after === false ? strlen($contents) : $after];
     }
 }

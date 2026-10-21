@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -18,6 +19,7 @@ use Mago\Sdk\Syntax\SourceFile;
 
 use function in_array;
 use function preg_match;
+use function substr;
 
 /**
  * Reports a `catch` variable that's never read, which PHP 8.0 lets the
@@ -28,9 +30,13 @@ use function preg_match;
  * when its name appears in the catch block, in the `finally` block, or
  * anywhere after the whole `try` statement in the same function. A name
  * inside a nested function or class doesn't count, and a name in a
- * closure's `use` list or an arrow function does. The fix removes the
- * variable, so a function that may read it by another way, through
- * `compact()`, `get_defined_vars()` or a variable variable, is skipped.
+ * closure's `use` list or an arrow function does. The rule also counts the
+ * name as read where the sniff doesn't: anywhere in a loop around the `try`,
+ * since the next pass reads it, and anywhere in the function as a reference
+ * or a `global` or `static` name, whose value code outside the function
+ * sees. The fix removes the variable, so a function that may read it by
+ * another way, through `compact()`, `get_defined_vars()` or a variable
+ * variable, is skipped.
  *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -58,9 +64,20 @@ final class NonCapturingCatchRule implements Rule
     private const FUNCTION_LIKE = [NodeKind::Function, NodeKind::Method, NodeKind::Closure];
 
     /**
+     * Kinds of a loop.
+     */
+    private const LOOPS = [NodeKind::For, NodeKind::Foreach, NodeKind::While, NodeKind::DoWhile];
+
+    /**
      * Code that reads variables by a name built at run time.
      */
-    private const DYNAMIC_READ = '/\bcompact\s*\(|\bget_defined_vars\s*\(|\$\$|\$\{/i';
+    private const DYNAMIC_READ = '/\b(?:compact|get_defined_vars)' . SourceText::GAP . '\(|\$\$|\$\{/i';
+
+    /**
+     * A `&` at the end of a parameter's text before its variable, with any
+     * space or comments after it.
+     */
+    private const BY_REFERENCE = '/&' . SourceText::GAP . '$/';
 
     public function getDefinition(): RuleDefinition
     {
@@ -114,11 +131,11 @@ final class NonCapturingCatchRule implements Rule
         }
 
         foreach ($catches as $catch) {
-            $this->checkCatch($context, $catch, $finally, $scope, $try->span->end);
+            $this->checkCatch($context, $catch, $finally, $scope, $try);
         }
     }
 
-    private function checkCatch(LintContext $context, Node $catch, ?Node $finally, Node $scope, int $tryEnd): void
+    private function checkCatch(LintContext $context, Node $catch, ?Node $finally, Node $scope, Node $try): void
     {
         $file = $context->file;
         $hint = null;
@@ -141,7 +158,8 @@ final class NonCapturingCatchRule implements Rule
         if (
             $this->reads($file, $block, $name, start: 0)
             || $finally !== null && $this->reads($file, $finally, $name, start: 0)
-            || $this->reads($file, $scope, $name, start: $tryEnd)
+            || $this->reads($file, $scope, $name, start: $try->span->end)
+            || $this->readsElsewhere($file, $scope, $variable, $this->outerLoop($file, $try, $scope))
         ) {
             return;
         }
@@ -169,6 +187,106 @@ final class NonCapturingCatchRule implements Rule
         }
 
         return false;
+    }
+
+    /**
+     * Whether other code can read what the catch writes. That is the name
+     * anywhere in a loop around the `try`, other than as a catch variable,
+     * since the next pass runs that code again. It is also the name anywhere
+     * in the scope as a reference or a `global` or `static` name, which code
+     * outside the function sees.
+     */
+    private function readsElsewhere(SourceFile $file, Node $scope, Node $variable, ?Node $loop): bool
+    {
+        $name = $file->getText($variable);
+        foreach ($file->getDescendants($scope, NodeKind::DirectVariable) as $candidate) {
+            $parent = $file->getParent($candidate);
+            if (
+                $parent === null
+                || $candidate->id === $variable->id
+                || $file->getText($candidate) !== $name
+                || !$this->inSameScope($file, $candidate, $scope)
+            ) {
+                continue;
+            }
+
+            if (
+                $loop !== null && $parent->kind !== NodeKind::TryCatchClause && $loop->span->contains($candidate->span)
+                || $this->isShared($file, $candidate, $parent)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a variable shares its value with code outside the function: a
+     * `&$e` parameter, a `use (&$e)` variable, a `global` or `static` name,
+     * `&$e` as in `$x = &$e` or `foreach ($items as &$e)`, and the left side
+     * of `$e = &$x`.
+     */
+    private function isShared(SourceFile $file, Node $variable, Node $parent): bool
+    {
+        $contents = $file->contents;
+        // A variadic `&...$e` is a new array of references. A write to $e
+        // replaces the array and doesn't reach the caller.
+        if ($parent->kind === NodeKind::FunctionLikeParameter) {
+            $before = substr($contents, $parent->span->start, $variable->span->start - $parent->span->start);
+
+            return preg_match(self::BY_REFERENCE, $before) === 1;
+        }
+
+        if ($parent->kind === NodeKind::ClosureUseClauseVariable) {
+            return $contents[$parent->span->start] === '&';
+        }
+
+        if ($parent->kind === NodeKind::StaticAbstractItem || $parent->kind === NodeKind::StaticConcreteItem) {
+            return true;
+        }
+
+        $holder = $parent->kind === NodeKind::Variable ? $file->getParent($parent) : null;
+        if ($holder?->kind === NodeKind::Global) {
+            return true;
+        }
+
+        $context = $holder?->kind === NodeKind::Expression ? $file->getParent($holder) : null;
+        if ($context?->kind === NodeKind::UnaryPrefix) {
+            return $contents[$context->span->start] === '&';
+        }
+
+        if ($holder === null || $context?->kind !== NodeKind::Assignment) {
+            return false;
+        }
+
+        $right = $file->getChildren($context)[2] ?? null;
+        $value = $right === null ? null : $file->getChildren($right)[0] ?? null;
+
+        return (
+            $holder->span->start === $context->span->start
+            && $value?->kind === NodeKind::UnaryPrefix
+            && $contents[$value->span->start] === '&'
+        );
+    }
+
+    /**
+     * The outermost `for`, `foreach`, `while` or `do` loop around the `try`
+     * in its scope, or null.
+     */
+    private function outerLoop(SourceFile $file, Node $try, Node $scope): ?Node
+    {
+        $loop = null;
+        $parent = $file->getParent($try);
+        while ($parent !== null && $parent->id !== $scope->id) {
+            if (in_array($parent->kind, self::LOOPS, strict: true)) {
+                $loop = $parent;
+            }
+
+            $parent = $file->getParent($parent);
+        }
+
+        return $loop;
     }
 
     /**

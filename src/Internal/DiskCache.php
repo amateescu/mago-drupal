@@ -5,22 +5,24 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal;
 
 use Closure;
+use Composer\InstalledVersions;
 use Revolt\EventLoop;
 use Revolt\EventLoop\Suspension;
 
 use function basename;
 use function chmod;
+use function class_exists;
 use function clearstatcache;
 use function fclose;
-use function file_get_contents;
-use function file_put_contents;
 use function filemtime;
 use function fileowner;
 use function fileperms;
 use function filesize;
 use function flock;
 use function fopen;
+use function fstat;
 use function function_exists;
+use function fwrite;
 use function getenv;
 use function getmypid;
 use function glob;
@@ -43,11 +45,14 @@ use function set_error_handler;
 use function sha1;
 use function str_contains;
 use function str_starts_with;
+use function stream_get_contents;
 use function strlen;
 use function substr;
 use function sys_get_temp_dir;
 use function tempnam;
 use function time;
+use function umask;
+use function uniqid;
 use function unlink;
 use function unserialize;
 
@@ -55,6 +60,7 @@ use const LOCK_EX;
 use const LOCK_NB;
 use const LOCK_UN;
 use const PHP_OS_FAMILY;
+use const PHP_VERSION;
 
 /**
  * Keeps parsed disk-backed indexes between runs and between workers.
@@ -66,8 +72,9 @@ use const PHP_OS_FAMILY;
  * of the input files, so an edited file misses the cache. A same-size edit
  * within the second of the previous read is the one case that would not, so
  * files touched in the last two seconds are not cached at all. Every entry
- * name also carries a hash of this package's own code (see code()), so an
- * update never reads a payload an older version wrote.
+ * name also carries a hash of this package's own code, the PHP version and
+ * the symfony/yaml version (see code()), so an update of any of them never
+ * reads a payload an older version wrote.
  *
  * Metadata-backed indexes cannot outlive a run, but within one run every
  * worker builds the same ones from the same frozen codebase. `shared()` lets
@@ -75,8 +82,10 @@ use const PHP_OS_FAMILY;
  *
  * `MAGO_DRUPAL_CACHE=0` turns the cache off; any other value is the directory
  * to use. The default sits under the system temporary directory, one per
- * user, and is only used while it belongs to that user (see trusted()). With
- * no way to tell the user's id, there isn't a default cache.
+ * user, and is only used while it belongs to that user (see trusted()). Every
+ * entry read from it must belong to that user too (see read()), and every
+ * write checks the directory again. With no way to tell the user's id, there
+ * isn't a default cache.
  * `scoped()` gives each Drupal root its own subdirectory, so the
  * one-entry-per-kind sweep never crosses roots.
  *
@@ -117,6 +126,12 @@ final class DiskCache
     private const RUN_FRESHNESS = 1_800;
 
     private const RECENT = 2;
+
+    /**
+     * The packages whose output goes into payloads. symfony/yaml parses the
+     * services and config schema files.
+     */
+    private const PARSERS = ['symfony/yaml'];
 
     /**
      * Seconds between two attempts at a lock another worker holds.
@@ -301,8 +316,7 @@ final class DiskCache
         }
 
         // Another worker's sweep can remove the entry at any moment.
-        $file = $this->file($kind, $fingerprint);
-        $data = self::quietly(static fn(): string|false => file_get_contents($file));
+        $data = $this->read($this->file($kind, $fingerprint));
         if ($data === false || $data === '') {
             return null;
         }
@@ -340,9 +354,10 @@ final class DiskCache
 
         $this->dropOrphanedTemporaries($kind);
         $temporary = $file . '.' . (string) getmypid() . '.tmp';
-        $data = serialize($value);
-        if (self::quietly(static fn(): int|false => file_put_contents($temporary, $data)) === false) {
-            // A full disk leaves part of the file behind.
+        if (!self::create($temporary, serialize($value))) {
+            // A full disk leaves part of the file behind. A file that was
+            // already at the path, such as one left by a dead worker with the
+            // same process id, stops the write. Either one is removed here.
             self::quietly(static fn(): bool => unlink($temporary));
 
             return;
@@ -350,6 +365,74 @@ final class DiskCache
 
         if (!self::quietly(static fn(): bool => rename($temporary, $file))) {
             self::quietly(static fn(): bool => unlink($temporary));
+        }
+    }
+
+    /**
+     * The contents of an entry, or false when it can't be read or isn't
+     * this user's.
+     *
+     * trusted() checks the owned directory once, but the path can lead
+     * somewhere else later. Another worker that saw the directory open can
+     * move the checked one aside (see reclaim()), and another user can then
+     * create the path. So each entry is checked on its open handle, and the
+     * file checked is the file read. Another user can't create a file that
+     * belongs to this user.
+     */
+    private function read(string $file): string|false
+    {
+        $handle = self::quietly(static fn() => fopen($file, mode: 'r'));
+        if ($handle === false) {
+            return false;
+        }
+
+        try {
+            if ($this->owned !== null && !self::own(self::quietly(static fn(): array|false => fstat($handle)))) {
+                // The next read or write checks the directory again.
+                $this->trusted = false;
+
+                return false;
+            }
+
+            return self::quietly(static fn(): string|false => stream_get_contents($handle));
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    /**
+     * Whether a file's stat shows that it belongs to this user and that
+     * others can't write to it.
+     *
+     * @param array<array-key, int>|false $stat
+     */
+    private static function own(array|false $stat): bool
+    {
+        return $stat !== false && ($stat['uid'] ?? null) === self::user() && (($stat['mode'] ?? 0o022) & 0o022) === 0;
+    }
+
+    /**
+     * Writes a new file that only this user can read or write. It fails when
+     * anything is at the path already, a link included, so a planted link
+     * can't send the write to another file.
+     */
+    private static function create(string $path, string $data): bool
+    {
+        $mask = umask(mask: 0o077);
+        try {
+            $handle = self::quietly(static fn() => fopen($path, mode: 'x'));
+        } finally {
+            umask($mask);
+        }
+
+        if ($handle === false) {
+            return false;
+        }
+
+        try {
+            return self::quietly(static fn(): int|false => fwrite($handle, $data)) === strlen($data);
+        } finally {
+            fclose($handle);
         }
     }
 
@@ -467,8 +550,12 @@ final class DiskCache
      * Creates the directory, readable by this user only.
      *
      * The owned directory is created and checked before anything under it,
-     * since taking it back empties it (see trusted()). Another worker may
-     * create either directory first; the second checks cover that.
+     * since replacing it drops what is under it (see trusted()). Another
+     * worker may create either directory first; the second checks cover that.
+     *
+     * Every write checks the owned directory again instead of relying on an
+     * earlier check, since the path may lead to another directory by now
+     * (see read()). Writes are rare enough for the extra stat calls.
      */
     private function prepare(): bool
     {
@@ -477,6 +564,7 @@ final class DiskCache
             self::quietly(static fn(): bool => mkdir($owned, permissions: 0o700, recursive: true));
         }
 
+        $this->trusted = false;
         if (!$this->trusted()) {
             return false;
         }
@@ -494,8 +582,9 @@ final class DiskCache
      * Whether entries may be read and written. The default cache sits in the
      * shared temporary directory, where another local user could create the
      * directory first and plant entries or links in it. It is used only while
-     * it is a real directory that belongs to this user, and one that others
-     * can write to is taken back first (see reclaim()).
+     * it is a real directory that belongs to this user and that others can't
+     * write to. One that others can write to is replaced first (see
+     * reclaim()).
      */
     private function trusted(): bool
     {
@@ -505,35 +594,71 @@ final class DiskCache
 
         $owned = $this->owned;
         $user = self::user();
-        if (
-            $user === null
-            || is_link($owned)
-            || !is_dir($owned)
-            || self::quietly(static fn(): int|false => fileowner($owned)) !== $user
-        ) {
+        if ($user === null) {
             return false;
         }
 
-        $open = ((int) self::quietly(static fn(): int|false => fileperms($owned)) & 0o022) !== 0;
-        $this->trusted = !$open || self::reclaim($owned);
+        // PHP keeps the last stat result, which may be from an earlier check
+        // of the same path.
+        clearstatcache();
+        $closed = self::closed($owned, $user);
+        if ($closed === false && self::reclaim($owned)) {
+            $closed = self::closed($owned, $user);
+        }
 
-        return $this->trusted;
+        return $this->trusted = $closed === true;
     }
 
     /**
-     * Closes a directory of this user's to everyone else, then deletes what
-     * is in it, since any of it may have been planted while it was open.
-     * Closing it first means more entries can't be added. Links are removed,
-     * never followed. An entry that cannot be deleted, such as another
-     * user's subdirectory, leaves the cache refused.
+     * Whether a directory of this user's is closed to everyone else: true
+     * when it is, false when others can write to it, and null when it isn't
+     * a real directory of this user's.
+     */
+    private static function closed(string $directory, int $user): ?bool
+    {
+        if (
+            is_link($directory)
+            || !is_dir($directory)
+            || self::quietly(static fn(): int|false => fileowner($directory)) !== $user
+        ) {
+            return null;
+        }
+
+        return ((int) self::quietly(static fn(): int|false => fileperms($directory)) & 0o022) === 0;
+    }
+
+    /**
+     * Replaces an open directory of this user's with a new, closed one.
      *
-     * Another worker may be taking it back at the same time, or already
-     * writing to it once it is closed. Deleting an entry it wrote only costs
-     * a cache miss.
+     * Anything in the open directory may have been planted. The rename takes
+     * the directory off its path in one step, so another worker never finds
+     * a closed directory at the path with planted entries still in it. The
+     * moved directory is then closed and emptied. Links are removed, never
+     * followed. An entry that can't be deleted, such as another user's
+     * subdirectory, leaves the moved directory behind.
+     *
+     * Another worker may be replacing it at the same time, and may move the
+     * new directory aside after this one makes it. Deleting an entry it
+     * wrote only costs a cache miss. The caller checks the new directory
+     * again, since anyone could create the path between the rename and the
+     * mkdir(). A worker that checked the directory before it was moved
+     * doesn't notice the move, so it checks each entry it reads (see
+     * read()) and the directory before each write (see prepare()).
      */
     private static function reclaim(string $directory): bool
     {
-        return self::quietly(static fn(): bool => chmod($directory, permissions: 0o700)) && self::clear($directory);
+        $aside = $directory . '.reclaimed-' . (string) getmypid() . '-' . uniqid();
+        if (!self::quietly(static fn(): bool => rename($directory, $aside))) {
+            return false;
+        }
+
+        if (self::quietly(static fn(): bool => chmod($aside, permissions: 0o700)) && self::clear($aside)) {
+            self::quietly(static fn(): bool => rmdir($aside));
+        }
+
+        self::quietly(static fn(): bool => mkdir($directory, permissions: 0o700));
+
+        return true;
     }
 
     /**
@@ -639,10 +764,34 @@ final class DiskCache
     }
 
     /**
-     * A hash of this package's own index code: the path, modification time
-     * and size of every file next to this one. Payloads are instances of
-     * these classes and the output of their parsers, so an entry written by
-     * other code must never be read.
+     * The PHP version and the installed version of each package in PARSERS,
+     * one per line. PHP's tokenizer reads the PHP files, so the PHP version
+     * counts as one. A package that isn't installed, or a run without
+     * Composer's autoloader, leaves its version empty.
+     */
+    public static function parserVersions(): string
+    {
+        $lines = 'php|' . PHP_VERSION . "\n";
+        $composer = class_exists(InstalledVersions::class);
+        foreach (self::PARSERS as $package) {
+            $installed = $composer && InstalledVersions::isInstalled($package);
+            $version = $installed
+                ? (string) InstalledVersions::getVersion($package)
+                . '|'
+                . (string) InstalledVersions::getReference($package)
+                : '';
+            $lines .= $package . '|' . $version . "\n";
+        }
+
+        return $lines;
+    }
+
+    /**
+     * A hash of the code that builds the payloads: the path, modification
+     * time and size of every file next to this one, and the parser versions
+     * (see parserVersions()). Payloads are instances of these classes and the
+     * output of their parsers, so an entry written by other code must never
+     * be read.
      */
     private static function code(): string
     {
@@ -651,7 +800,7 @@ final class DiskCache
         }
 
         $files = glob(__DIR__ . '/*.php');
-        $lines = '';
+        $lines = self::parserVersions();
         foreach ($files === false ? [] : $files as $file) {
             $lines .= $file . '|' . (string) (int) filemtime($file) . '|' . (string) (int) filesize($file) . "\n";
         }

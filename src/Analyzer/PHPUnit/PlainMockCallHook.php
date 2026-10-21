@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
+use amateescu\MagoDrupal\Internal\SourceText;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
@@ -81,7 +83,8 @@ final class PlainMockCallHook implements MethodCallAnalysisHook
         }
 
         $type = implode('|', $classes);
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(
@@ -104,7 +107,7 @@ final class PlainMockCallHook implements MethodCallAnalysisHook
     {
         $span = $context->node->span;
         $matches = [];
-        $pattern = '/^(.*->\s*)' . $this->method . '\s*\(/is';
+        $pattern = '/^(.*->' . SourceText::GAP . ')' . $this->method . SourceText::GAP . '\(/is';
         if (preg_match($pattern, $context->source->getText($span), $matches) !== 1) {
             return $span;
         }

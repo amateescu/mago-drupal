@@ -70,6 +70,87 @@ final class PHPStanIgnoresTest extends TestCase
     }
 
     /**
+     * In a comment over several lines, the line forms cover the lines
+     * PHPStan 2.2 covers.
+     */
+    public function testLineFormsInCommentsOverSeveralLines(): void
+    {
+        $code = <<<'PHP'
+            <?php
+            return 'a'; /* Explanation.
+              @phpstan-ignore-line */
+            /* @phpstan-ignore-line
+              */ return 'b';
+            return 'c'; /** Explanation.
+              @phpstan-ignore-line */
+            /** @phpstan-ignore-line
+              */ return 'd';
+            /* @phpstan-ignore-next-line
+              Explanation. */
+            return 'e';
+            /* @phpstan-ignore-line @phpstan-ignore-next-line
+              */ return 'f';
+            return 'g';
+            PHP;
+
+        $ignores = PHPStanIgnores::of($code);
+
+        self::assertNotNull($ignores);
+        // A comment's last line, and a docblock's line that holds the tag.
+        self::assertNull($ignores->at(self::at($code, "return 'a'")));
+        self::assertTrue($ignores->at(self::at($code, '@phpstan-ignore-line */')));
+        self::assertTrue($ignores->at(self::at($code, "return 'b'")));
+        self::assertNull($ignores->at(self::at($code, "return 'c'")));
+        self::assertNull($ignores->at(self::at($code, "return 'd'")));
+        self::assertTrue($ignores->at(self::at($code, '/** @phpstan-ignore-line')));
+        // The line after the comment, and only that one when both forms are
+        // there.
+        self::assertTrue($ignores->at(self::at($code, "return 'e'")));
+        self::assertNull($ignores->at(self::at($code, "return 'f'")));
+        self::assertTrue($ignores->at(self::at($code, "return 'g'")));
+    }
+
+    /**
+     * In a docblock, `@phpstan-ignore-next-line` covers the line after the
+     * tag, or the line after the docblock when no tag follows it.
+     */
+    public function testNextLineInDocblocks(): void
+    {
+        $code = <<<'PHP'
+            <?php
+            /**
+             * @phpstan-ignore-next-line
+             * @see something
+             */
+            return 'a';
+            /**
+             * @see something
+             * @phpstan-ignore-next-line
+             */
+            return 'b';
+            /** @phpstan-ignore-next-line
+              */ return 'c';
+            return 'd';
+            /**
+             * @phpstan-ignore-next-line
+             * @phpstan-ignore return.type
+             */
+            return 'e';
+            PHP;
+
+        $ignores = PHPStanIgnores::of($code);
+
+        self::assertNotNull($ignores);
+        self::assertTrue($ignores->at(self::at($code, '* @see something')));
+        self::assertNull($ignores->at(self::at($code, "return 'a'")));
+        self::assertTrue($ignores->at(self::at($code, "return 'b'")));
+        self::assertNull($ignores->at(self::at($code, "return 'c'")));
+        self::assertTrue($ignores->at(self::at($code, "return 'd'")));
+        // A comment with a line form doesn't read identifiers.
+        self::assertNull($ignores->at(self::at($code, "return 'e'")));
+    }
+
+    /**
      * A tag without identifiers, a longer tag name and a tag in a string
      * don't cover anything.
      */

@@ -7,6 +7,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -31,7 +32,7 @@ final class SymfonyYamlParseRule implements Rule
     {
         // Mago dispatches every static call in the file here, so the rule
         // first checks the file text for the call shape.
-        $this->gate = new FileGate(pattern: '/::\s*parse\s*\(/i');
+        $this->gate = new FileGate(pattern: '/::' . SourceText::GAP . 'parse' . SourceText::GAP . '\(/i');
     }
 
     public function getDefinition(): RuleDefinition

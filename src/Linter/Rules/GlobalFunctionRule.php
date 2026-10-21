@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\InfoFile;
 use amateescu\MagoDrupal\Internal\InjectableClass;
 use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -144,7 +145,7 @@ final class GlobalFunctionRule implements Rule
                 delimiter: '/',
             ), array_keys(self::REPLACEMENTS));
 
-            $pattern = '/(?<![>\w$])(' . implode('|', $names) . ')\s*\(/i';
+            $pattern = '/(?<![>\w$])(' . implode('|', $names) . ')' . SourceText::GAP . '\(/i';
         }
 
         return $pattern;

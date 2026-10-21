@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter;
 
 use amateescu\MagoDrupal\Internal\Calls;
 use amateescu\MagoDrupal\Internal\FileGate;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Syntax\CallExpression;
@@ -80,15 +81,14 @@ abstract class CallRule implements Rule
     /**
      * Builds the file gate from the rule's call names.
      *
-     * Every match puts a wanted name in the source directly before an
-     * opening parenthesis. This holds for a plain call, a first-class
-     * callable such as `dpm(...)`, a method selector and a fully qualified
-     * call. The one exception is a call through an aliased `use function`
-     * import. The second branch keeps that case in, because it passes every
-     * file with a function import. The anchor on the parenthesis lets a
-     * one-letter name such as `l` gate its files. A comment between the
-     * callee and its parenthesis defeats the anchor, but real code doesn't
-     * write that.
+     * Every match puts a wanted name in the source before an opening
+     * parenthesis, with only whitespace and comments between them. This
+     * holds for a plain call, a first-class callable such as `dpm(...)`, a
+     * method selector and a fully qualified call. The one exception is a
+     * call through an aliased `use function` import. The second branch keeps
+     * that case in, because it passes every file with a function import. The
+     * anchor on the parenthesis lets a one-letter name such as `l` gate its
+     * files.
      *
      * @param list<string> $names
      */
@@ -99,6 +99,6 @@ abstract class CallRule implements Rule
             delimiter: '/',
         ), $names));
 
-        return new FileGate(pattern: "/(?<!\\w)(?:{$alternation})\\s*\\(|\\buse\\s[^;]*\\bfunction\\b/i");
+        return new FileGate(pattern: "/(?<!\\w)(?:{$alternation})" . SourceText::GAP . '\(|\buse\s[^;]*\bfunction\b/i');
     }
 }

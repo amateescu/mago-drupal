@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\Containers;
 use amateescu\MagoDrupal\Analyzer\Providers\ServiceIds;
 use amateescu\MagoDrupal\Internal\DeprecationTarget;
@@ -78,7 +79,8 @@ final class DeprecatedServiceHook implements MethodCallAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new("The \"{$id}\" service is deprecated.", $context->node->span, 'deprecated service')->withNote(

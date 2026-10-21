@@ -85,6 +85,11 @@ final class Operands
     private const LOOSE_OPERATORS = ['and', 'or', 'xor', '|>'];
 
     /**
+     * Kinds that read a property or an index of an object or array.
+     */
+    private const MEMBER_KINDS = [NodeKind::ArrayAccess, NodeKind::PropertyAccess, NodeKind::NullSafePropertyAccess];
+
+    /**
      * Kinds of a call whose result can stand as the compared operand.
      */
     private const CALL_KINDS = [
@@ -227,6 +232,57 @@ final class Operands
         }
 
         return true;
+    }
+
+    /**
+     * Whether the tree under a node reads a property or an index, as in
+     * `$a->b`, `$a?->b` or `$a['k']`. Such a read can run `__get`,
+     * `__isset`, `offsetGet` or `offsetExists`, so a fix that changes how
+     * often or how X is read can change the result. A static property
+     * doesn't have such hooks.
+     */
+    public static function readsMember(SourceFile $file, Node $node): bool
+    {
+        if (in_array($node->kind, self::MEMBER_KINDS, strict: true)) {
+            return true;
+        }
+
+        foreach ($file->getChildren($node) as $child) {
+            if (self::readsMember($file, $child)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether X reads a property or an index anywhere but in its last step,
+     * as in `$o->data['value']`, `$a['k']['j']`, `$a[$b->c]` or
+     * `$o->class::$x`. `isset(X) ? X : B` runs those reads twice, once in
+     * `isset()` and once in X, and `X ?? B` runs them once, so `__get` or
+     * `offsetGet` can give a different result. A last step on its own, as in
+     * `$a->b` or `self::$x['k']`, runs `__isset` and `__get`, or
+     * `offsetExists` and `offsetGet`, once in both.
+     */
+    public static function readsInnerMember(SourceFile $file, Node $node): bool
+    {
+        $core = self::core($file, $node);
+        if ($core->kind === NodeKind::Access) {
+            $core = $file->getChildren($core)[0] ?? $core;
+        }
+
+        if (!in_array($core->kind, self::MEMBER_KINDS, strict: true)) {
+            return self::readsMember($file, $core);
+        }
+
+        foreach ($file->getChildren($core) as $child) {
+            if (self::readsMember($file, $child)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

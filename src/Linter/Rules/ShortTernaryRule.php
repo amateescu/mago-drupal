@@ -33,7 +33,10 @@ use function trim;
  * The fix runs only when X is a plain variable, property, index or constant
  * read, because `X ?: B` reads X once where the ternary reads it twice. In the
  * second shape B moves to the end, so it also needs to bind tighter than the
- * ternary. A fix that drops a comment is potentially unsafe.
+ * ternary. The fix is safe when X is a variable, a constant or a static
+ * property. It is potentially unsafe when X reads a property or an index
+ * anywhere in it, since `__get` or `offsetGet` then runs once instead of
+ * twice, and when it drops a comment.
  *
  * The two shapes and the checks before a fix need many branches.
  *
@@ -75,8 +78,10 @@ final class ShortTernaryRule implements Rule
         }
 
         $edits = null;
+        $operand = null;
         if (Operands::signature($file, $condition) === Operands::signature($file, $then)) {
-            $edits = Operands::isPure($file, Operands::core($file, $then))
+            $operand = Operands::core($file, $then);
+            $edits = Operands::isPure($file, $operand)
                 ? [[new Span($condition->span->end, $else->span->start), ' ?: ']]
                 : [];
         }
@@ -87,7 +92,8 @@ final class ShortTernaryRule implements Rule
                 return;
             }
 
-            $edits = Operands::isPure($file, Operands::core($file, $negated)) && Operands::bindsTighter($file, $then)
+            $operand = Operands::core($file, $negated);
+            $edits = Operands::isPure($file, $operand) && Operands::bindsTighter($file, $then)
                 ? [
                     [new Span($ternary->span->start, $negated->span->start), ''],
                     [new Span($negated->span->end, $then->span->start), ' ?: '],
@@ -101,17 +107,37 @@ final class ShortTernaryRule implements Rule
         }
 
         $issue = Issue::new(self::MESSAGE, Operands::questionMark($file, $condition, $then));
-        $dropped = '';
-        foreach ($edits as [$span]) {
-            $dropped .= $file->getText($span);
-        }
-
-        $safety = preg_match('~/\*|//|#~', $dropped) === 1 ? Safety::PotentiallyUnsafe : Safety::Safe;
+        $safety = $operand === null ? Safety::Safe : $this->safety($file, $edits, $operand);
         foreach ($edits as [$span, $text]) {
             $issue = $issue->withEdit(TextEdit::replace($span, $text)->withSafety($safety));
         }
 
         $context->report($issue);
+    }
+
+    /**
+     * The safety of the edits that write `X ?: B`.
+     *
+     * @param list<array{Span, string}> $edits
+     */
+    private function safety(SourceFile $file, array $edits, Node $operand): Safety
+    {
+        if ($edits === []) {
+            return Safety::Safe;
+        }
+
+        // X ?: B reads X once, so a property or an index with __get or
+        // offsetGet behind it runs that once instead of twice.
+        if (Operands::readsMember($file, $operand)) {
+            return Safety::PotentiallyUnsafe;
+        }
+
+        $dropped = '';
+        foreach ($edits as [$span]) {
+            $dropped .= $file->getText($span);
+        }
+
+        return preg_match('~/\*|//|#~', $dropped) === 1 ? Safety::PotentiallyUnsafe : Safety::Safe;
     }
 
     /**

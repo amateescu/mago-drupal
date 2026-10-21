@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\DependencySerializationCheck;
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\ClassFacts;
 use amateescu\MagoDrupal\Internal\FileMembers;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
@@ -93,7 +94,8 @@ final class LoggerFromFactoryHook implements MethodCallAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Error,
             self::CODE,
             Issue::new(

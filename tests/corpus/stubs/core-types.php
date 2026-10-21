@@ -86,6 +86,48 @@ namespace Drupal\Core\Queue {
          */
         public function claimItem(int $lease_time = 3600);
     }
+
+    class DatabaseQueue implements QueueInterface
+    {
+        public function claimItem(int $lease_time = 30)
+        {
+            return false;
+        }
+    }
+
+    class Batch extends DatabaseQueue
+    {
+        public function claimItem(int $lease_time = 0)
+        {
+            return false;
+        }
+    }
+
+    class Memory implements QueueInterface
+    {
+        public function claimItem(int $lease_time = 30)
+        {
+            return false;
+        }
+    }
+}
+
+namespace Drupal\corpus {
+    final class CorpusQueueItem
+    {
+        public string $payload = '';
+    }
+
+    final class CorpusQueue extends \Drupal\Core\Queue\Memory
+    {
+        /**
+         * @return CorpusQueueItem|false
+         */
+        public function claimItem(int $lease_time = 30)
+        {
+            return false;
+        }
+    }
 }
 
 namespace Drupal\Core\File {

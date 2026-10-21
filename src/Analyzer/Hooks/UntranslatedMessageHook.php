@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Arguments;
 use amateescu\MagoDrupal\Internal\PhpcsCommentFilter;
 use amateescu\MagoDrupal\Internal\TestFiles;
@@ -109,7 +110,8 @@ final class UntranslatedMessageHook implements MethodCallAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new('Wrap the message in t() or $this->t().', $argument->value->span)->withHelp(

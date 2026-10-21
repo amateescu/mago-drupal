@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Attributes;
 use amateescu\MagoDrupal\Internal\DeprecationScopes;
 use amateescu\MagoDrupal\Internal\FileMembers;
@@ -145,12 +146,13 @@ final class GlobalDrupalCallHook implements MethodCallAnalysisHook
         }
 
         if ($this->entityLoads) {
-            $context->report(Level::Warning, self::ENTITY_LOAD_CODE, self::entityLoad($context));
+            Reporter::report($context, Level::Warning, self::ENTITY_LOAD_CODE, self::entityLoad($context));
 
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(

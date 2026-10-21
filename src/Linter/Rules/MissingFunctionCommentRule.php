@@ -35,7 +35,7 @@ final class MissingFunctionCommentRule implements Rule
         '#(?:^|/)core/(?:.*/src/Plugin/|lib/|modules/system/tests/modules/HookOrder/)'
             . '|/(?:Database|FunctionalJavascript|Kernel|KernelTests|Functional|Unit)/#';
 
-    private string $mentionPath = '';
+    private ?string $mentionContents = null;
 
     /**
      * @var list<int>
@@ -98,11 +98,13 @@ final class MissingFunctionCommentRule implements Rule
         }
 
         // A method whose text does not have the name cannot be the
-        // constructor. The rule finds the file's mentions once. Checking a
-        // method against them excludes almost every method without reading
-        // its nodes. The name lookup below must read the nodes.
-        if ($this->mentionPath !== $context->file->path) {
-            $this->mentionPath = $context->file->path;
+        // constructor. The rule finds the mentions once for each file text,
+        // keyed by the bytes as in FileGate. Checking a method against them
+        // excludes almost every method without reading its nodes. The name
+        // lookup below must read the nodes.
+        $known = $this->mentionContents === $context->file->contents;
+        $this->mentionContents = $context->file->contents;
+        if (!$known) {
             $this->constructorMentions = self::mentionOffsets($context->file->contents);
         }
 

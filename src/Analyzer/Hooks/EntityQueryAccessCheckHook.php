@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\EntityQueries;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
@@ -47,7 +48,8 @@ final class EntityQueryAccessCheckHook implements MethodCallAnalysisHook
             }
 
             $subject = $entityType === EntityQueries::UNKNOWN ? 'This' : "This {$entityType}";
-            $context->report(
+            Reporter::report(
+                $context,
                 Level::Error,
                 self::CODE,
                 Issue::new(

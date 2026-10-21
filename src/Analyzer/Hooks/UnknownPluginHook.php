@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\PluginManagerProvider;
 use amateescu\MagoDrupal\Internal\PluginIndex;
 use amateescu\MagoDrupal\Internal\PluginManagers;
@@ -81,7 +82,8 @@ final class UnknownPluginHook implements MethodCallAnalysisHook
         $help = $fallback === null
             ? 'Check the id against the plugin classes, or make sure the module providing it is part of the analyzed code.'
             : "The manager falls back to the \"{$fallback}\" plugin at runtime, so this does not throw but does not do what the code expects either.";
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(

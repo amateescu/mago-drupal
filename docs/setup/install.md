@@ -59,8 +59,9 @@ rule or an analyzer check.
 
 The analyzer caches what it reads from disk under the system temporary directory, in
 `mago-drupal-<uid>/`. An entry is keyed by the modification times and sizes of its files, so the
-next run picks up an edit. `MAGO_DRUPAL_CACHE=/dir` moves the cache, and `MAGO_DRUPAL_CACHE=0` turns
-it off.
+next run picks up an edit. The key also holds the extension's code, the PHP version and the
+symfony/yaml version, so an update of any of them doesn't read older entries.
+`MAGO_DRUPAL_CACHE=/dir` moves the cache, and `MAGO_DRUPAL_CACHE=0` turns it off.
 
 A watch or editor session keeps some lists until its workers restart: the `@internal` and
 `@deprecated` classes, and the classes that use `DependencySerializationTrait` or declare a

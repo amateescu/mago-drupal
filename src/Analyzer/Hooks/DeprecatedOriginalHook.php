@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\MagicProperties;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use amateescu\MagoDrupal\Internal\Types;
@@ -122,7 +123,8 @@ final class DeprecatedOriginalHook implements NodeAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(self::MESSAGE, $span, 'deprecated property')->withHelp(

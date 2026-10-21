@@ -31,6 +31,13 @@ final class EntityKeyGuards {
     if ($type->hasKey($key)) {
       $this->field($type->getKey($key));
     }
+    if ($type->hasKey('bundle') === TRUE) {
+      $this->field($type->getKey('bundle'));
+    }
+    if ($type->hasKey('revision') === FALSE) {
+      throw new \LogicException('The entity type has no revision key.');
+    }
+    $this->field($type->getKey('revision'));
     if (!$type->hasKey('uuid')) {
       throw new \LogicException('The entity type has no UUID key.');
     }
@@ -66,6 +73,75 @@ final class EntityKeyGuards {
       // @mago-expect analysis:possibly-false-argument
       $this->field($type->getKey('owner'));
     }
+    // The key is missing in these branches.
+    if ($type->hasKey('label') === FALSE) {
+      // @mago-expect analysis:possibly-false-argument
+      $this->field($type->getKey('label'));
+    }
+    if (TRUE !== $type->hasKey('label')) {
+      // @mago-expect analysis:possibly-false-argument
+      $this->field($type->getKey('label'));
+    }
+    if ($flag) {
+      $flag = FALSE;
+    }
+    elseif (!$type->hasKey('label')) {
+      return;
+    }
+    // The elseif doesn't run when the if does.
+    // @mago-expect analysis:possibly-false-argument
+    $this->field($type->getKey('label'));
+  }
+
+  /**
+   * A guard drops the reports about the false, not the ones about the rest.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $type
+   *   The entity type.
+   * @param list<string> $labels
+   *   The labels.
+   * @param array<array-key, string> $names
+   *   The names.
+   */
+  public function restOfTheType(EntityTypeInterface $type, array $labels, array $names): int {
+    if ($type->hasKey('label')) {
+      $names[$type->getKey('label')] = 'label';
+      $this->field($names[$type->getKey('label')]);
+      // A list doesn't take a string key either.
+      // @mago-expect analysis:mismatched-array-index
+      $this->field($labels[$type->getKey('label')]);
+      // A string isn't an int either.
+      // @mago-expect analysis:invalid-return-statement
+      return $type->getKey('label');
+    }
+
+    return 0;
+  }
+
+  /**
+   * A guarded string fits a nullable string.
+   */
+  public function nullableKey(EntityTypeInterface $type): ?string {
+    if ($type->hasKey('label')) {
+      return $type->getKey('label');
+    }
+
+    return NULL;
+  }
+
+  /**
+   * A literal type that holds the text of a string type is still a literal.
+   *
+   * @return ')|string|('
+   *   The literal.
+   */
+  public function literalKey(EntityTypeInterface $type): string {
+    if ($type->hasKey('label')) {
+      // @mago-expect analysis:invalid-return-statement
+      return $type->getKey('label');
+    }
+
+    return ')|string|(';
   }
 
   /**

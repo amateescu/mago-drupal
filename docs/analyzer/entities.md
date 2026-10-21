@@ -113,16 +113,27 @@ Mago doesn't narrow one call's result by another call on the same object, so `ge
 `string|false` after `hasKey()` is true for the same key, and `getLinkTemplate()` stays
 `string|false` after `hasLinkTemplate()`. The plugin drops the reports about the possible `false`
 instead, when the code around the call shows the check. The reports are
-`falsable-return-statement`, `invalid-return-statement`, `possibly-false-argument`,
-`possibly-false-operand` and `mismatched-array-index`, on the `getKey()` or `getLinkTemplate()` call
-itself. The call is on a variable or a chain of properties, with a string literal or a variable as
-the key, and in the same function:
+`falsable-return-statement`, `possibly-false-argument` and `possibly-false-operand`, on the
+`getKey()` or `getLinkTemplate()` call itself. `invalid-return-statement` and
+`mismatched-array-index` on the call are about the whole `string|false` type, so they're dropped
+only when a string fits: the declared return type holds every string, as `string`, `?string` or
+`int|string` do, or the call is the key of an array write, or of a read from an array whose key type
+holds every string, such as `array<string, mixed>`. Mago prints a literal string type without
+escaping the quotes in it, so the plugin doesn't read the text between quotes in the type. A
+declared type such as `string|'a'` still fits a string, but a key type next to a literal, as in
+`array<string, 'a'>`, doesn't count, and the report stays.
+
+The call is on a variable or a chain of properties, with a string literal or a variable as the key,
+and in the same function. The check can stand alone or be compared with `TRUE`, as in
+`hasKey('owner') === TRUE`, and the negated check is `!hasKey('owner')` or a comparison with
+`FALSE`, as in `hasKey('owner') === FALSE` or `FALSE == hasKey('owner')`:
 
 - an `if` or `elseif` condition holds the check on the same receiver with the same key, joined to
   its other parts by `&&` only, and the call comes later in that condition or in the statement that
   the `if` guards;
-- an `if (!$entity_type->hasKey('owner'))` block ends in `throw` or `return`, and the call comes
-  after it, in the same block as the `if`;
+- an `if` whose whole condition is the negated check, such as
+  `if (!$entity_type->hasKey('owner'))`, has a block that ends in `throw` or `return`, and the call
+  comes after it, in the same block as the `if`. The `if` starts a statement of its own;
 - a statement, such as an assignment or a `return`, holds the check as one of its `&&` parts outside
   any parentheses, and the call comes later in the same `&&` chain.
 
@@ -136,6 +147,8 @@ $pin = $type->hasLinkTemplate('edit') && str_contains($type->getLinkTemplate('ed
 
 **Still reported:**
 
+- a guarded call whose string doesn't fit either, such as one returned from a function declared to
+  return `int`, or used as a key to read a `list`;
 - a call after an assignment to the receiver or to the key variable, made between the check and the
   call;
 - a call in an `else` branch, after the `if`, in a ternary, or in a closure or an arrow function
@@ -143,6 +156,10 @@ $pin = $type->hasLinkTemplate('edit') && str_contains($type->getLinkTemplate('ed
 - a call guarded by a condition or a statement with `||`, `or`, `xor`, `??` or `?`, an
   `if (!hasKey())` whose block doesn't end in `throw` or `return`, and a negated check in an `&&`
   chain;
+- a call in the branch where the check is false, as in
+  `if ($entity_type->hasKey('owner') === FALSE)`, and a call after an `elseif (!hasKey())` or an
+  `else if (!hasKey())` that exits, since that branch doesn't run when an earlier one does;
+- a call after a check compared with anything other than `TRUE` or `FALSE`;
 - a call after a check held in another call, as in `check($entity_type->hasKey('owner')) && ...`,
   and a call after a comma or a `=>`, as in another element of an array;
 - a call after a check of the getter itself, as in `if ($entity_type->getKey('label') !== FALSE)`;

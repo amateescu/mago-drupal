@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Arguments;
 use amateescu\MagoDrupal\Internal\Types;
 use Mago\Sdk\Analyzer\Codebase;
@@ -113,7 +114,8 @@ final class CacheableDependencyHook implements MethodCallAnalysisHook
             return;
         }
 
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(

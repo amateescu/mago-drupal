@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
+use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\Expressions;
 use amateescu\MagoDrupal\Internal\TestFiles;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
@@ -96,7 +97,8 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
 
         [$value, $parent] = Expressions::unwrap($file, $call);
         if ($parent?->kind === NodeKind::ExpressionStatement) {
-            $context->report(
+            Reporter::report(
+                $context,
                 Level::Warning,
                 self::CODE,
                 Issue::new(
@@ -117,7 +119,8 @@ final class ImplicitTransactionCommitHook implements MethodCallAnalysisHook
         }
 
         $variable = $file->getText($target);
-        $context->report(
+        Reporter::report(
+            $context,
             Level::Warning,
             self::CODE,
             Issue::new(

@@ -21,6 +21,7 @@ use function ltrim;
 use function max;
 use function preg_match;
 use function preg_quote;
+use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
 use function strlen;
@@ -220,7 +221,7 @@ final class ImportPlan
         $codeStart = strlen($file->contents);
         foreach (array_slice($statements, offset: 1) as $statement) {
             $inner = $file->getChildren($statement)[0] ?? null;
-            if ($inner?->kind === NodeKind::Declare) {
+            if ($inner?->kind === NodeKind::Declare && self::isDirective($file, $inner)) {
                 $point = max($point, $statement->span->end);
 
                 continue;
@@ -236,6 +237,18 @@ final class ImportPlan
         $point = max($point, self::fileDocblockEnd($file, $codeStart) ?? 0);
 
         return ['', $point];
+    }
+
+    /**
+     * Whether a `declare` ends at its `;`, as `declare(strict_types=1);`. A
+     * `declare` with a body, as `declare(ticks=1) { ... }`, holds code, so
+     * an import below it comes after the names in that code.
+     */
+    private static function isDirective(SourceFile $file, Node $declare): bool
+    {
+        $body = $file->getFirstDescendant($declare, NodeKind::DeclareBody);
+
+        return $body !== null && trim($file->getText($body)) === ';';
     }
 
     /**
@@ -260,7 +273,9 @@ final class ImportPlan
      *
      * The import goes on its own line after the last import, or after the
      * namespace line, past any comment that ends that line. A file without a
-     * namespace gets it below the open tag and what must stay above it.
+     * namespace gets it below the open tag and what must stay above it. A
+     * file with code or a close tag after the last import or the namespace,
+     * on the same line, doesn't get any edits.
      *
      * @param list<Node> $namespaces
      * @param list<Node> $uses
@@ -277,21 +292,33 @@ final class ImportPlan
             return null;
         }
 
+        // The import goes at the end of the line. Code after the anchor on
+        // that line would come before the import, and a heredoc that starts
+        // there would take the import as its text. A close tag ends a line
+        // comment and leaves PHP, and `#[` starts an attribute, so neither
+        // counts as part of a comment. A `use` that a close tag ends leaves
+        // PHP too.
         $last = end($uses);
+        $anchorEnd = $last === false ? $header[1] : $last->span->end;
+        if (
+            $last !== false && !str_ends_with(trim($file->getText($last)), ';')
+            || preg_match(
+                '/\G[ \t]*(?:(?:\/\/|#(?!\[))(?:[^\r\n?]|\?(?!>))*)?(?:\r?\n|$)/',
+                $file->contents,
+                offset: $anchorEnd,
+            ) !== 1
+        ) {
+            return null;
+        }
+
         $eol = LineEnding::of($file->contents);
-        $insertAt = self::lineEnd($file->contents, $last === false ? $header[1] : $last->span->end);
+        $insertAt = self::lineEnd($file->contents, $anchorEnd);
         if ($last !== false) {
             return [$header[0], $insertAt, $eol, ''];
         }
 
         if ($namespaces === []) {
-            $free = '/\G[ \t]*(?:(?:\/\/|#)[^\r\n]*)?(?:\r?\n|$)/';
-
-            return (
-                preg_match($free, $file->contents, offset: $header[1]) === 1
-                    ? [$header[0], $insertAt, $eol . $eol, self::blankBelow($file->contents, $insertAt, $eol)]
-                    : null
-            );
+            return [$header[0], $insertAt, $eol . $eol, self::blankBelow($file->contents, $insertAt, $eol)];
         }
 
         return [$header[0], $insertAt, $eol . $eol, ''];

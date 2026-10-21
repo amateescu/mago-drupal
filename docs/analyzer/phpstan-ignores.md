@@ -31,6 +31,17 @@ The plugin reads PHPStan's forms:
 PHPStan wants that code on the very next line, and calls a comment with anything in between unused.
 The plugin skips blank lines and other comments, so a `@mago-expect` can sit between the two.
 
+A comment over several lines covers what PHPStan covers. In a `/* */` comment, the line forms count
+from the comment's last line, and when the comment holds both, it only covers the next line. In a
+docblock, they count from the line that holds the tag, and a `@phpstan-ignore-next-line` that is
+the docblock's last tag covers the line after the docblock. A comment that holds a line form doesn't
+read identifiers from `@phpstan-ignore`.
+
+```php
+return NULL; /* The caller handles NULL.
+  @phpstan-ignore-line */            // covers this line, not the `return`
+```
+
 ## Which issues a comment drops
 
 An identifier drops only the Mago codes listed for it by the plugin, so
@@ -54,7 +65,12 @@ phpstan-deprecation-rules.
 An issue counts as being on the covered line when it starts there. Unreachable code is the one
 exception. PHPStan reports the first unreachable statement of a block, and Mago reports every one of
 them, so a comment that ignores `deadCode.unreachable` also drops Mago's `unevaluated-code` on the
-lines after it, up to the end of its block.
+lines after it, up to the end of its block. The block ends at its closing brace or at the `endif`,
+`endforeach` or other end keyword of the alternative syntax. An alternative syntax `else:` or
+`elseif`, and the next `case` or `default` label of a `switch`, end it too. When the covered line
+holds a `return`, `throw`, `exit`, `continue` or `break` statement, the run starts at the statement
+after it. So on a line such as `if ($flag): return; echo 'a';`, the run starts at the `echo` and
+ends with the `if` block.
 
 ```php
 $this->markTestSkipped('Blocked by a core issue.');

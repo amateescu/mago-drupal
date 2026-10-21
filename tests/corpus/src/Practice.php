@@ -122,6 +122,46 @@ class Practice {
     $mixed = $payload;
     // @mago-expect lint:drupal/insecure-unserialize
     unserialize($mixed);
+
+    // An arrow function reads the payload this function serialized.
+    $captured = serialize([self::class]);
+    array_map(fn () => unserialize($captured), [1]);
+  }
+
+  // @mago-expect lint:drupal/missing-function-comment
+  public function unserializingOtherScopes(): array {
+    global $_corpus_shared;
+    assert(is_string($_corpus_shared));
+    // A closure's assignment writes to a variable of its own.
+    $closure = function () {
+      $_corpus_shared = serialize([]);
+      return $_corpus_shared;
+    };
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($_corpus_shared);
+
+    // An arrow function's assignment doesn't leave the arrow function.
+    $arrow = fn () => $_corpus_shared = serialize([]);
+    // @mago-expect lint:drupal/insecure-unserialize
+    unserialize($_corpus_shared);
+
+    // A parameter of the arrow function hides the serialized variable.
+    $serialized = serialize([self::class]);
+    // @mago-expect lint:drupal/insecure-unserialize
+    array_map(fn ($serialized) => unserialize($serialized), [$serialized]);
+
+    // An arrow function copies the value when PHP creates it, so a later
+    // assignment doesn't reach the read.
+    global $_corpus_late;
+    assert(is_string($_corpus_late));
+    // @mago-expect lint:drupal/insecure-unserialize
+    $late = fn () => unserialize($_corpus_late);
+    $_corpus_late = serialize([]);
+    // An assignment before the arrow function, or inside it, does.
+    $early = fn () => unserialize($_corpus_late);
+    $inside = fn () => [$_corpus_inside = serialize([]), unserialize($_corpus_inside)];
+
+    return [$closure, $arrow, $late, $early, $inside];
   }
 
   // @mago-expect lint:drupal/missing-function-comment

@@ -15,7 +15,9 @@ use const PREG_SET_ORDER;
  *
  * `@phpstan-ignore-line` covers its own line and `@phpstan-ignore-next-line`
  * the line after the comment, both for every identifier, whatever follows the
- * tag. `@phpstan-ignore` names its identifiers, optionally with a reason in
+ * tag. `PHPStanLineForm` has the details for comments over several lines.
+ * Like PHPStan, a comment with one of these forms doesn't ignore by
+ * identifier. `@phpstan-ignore` names its identifiers, optionally with a reason in
  * parentheses. It covers its own line when code comes before it there, and
  * otherwise the line of the next code, so other comments in between do not
  * count. PHPStan wants the code on the very next line; skipping blank lines
@@ -28,10 +30,10 @@ final class PHPStanIgnores
     private const TAG = '@phpstan-ignore';
 
     /**
-     * The tag, its suffix and the comma-separated identifiers after it, each
-     * of which may carry a reason in parentheses, as PHPStan's parser allows.
+     * The tag and the comma-separated identifiers after it, each of which may
+     * carry a reason in parentheses, as PHPStan's parser allows.
      */
-    private const TAGS = '/@phpstan-ignore(?<kind>-next-line|-line)?(?![\w-])[ \t]*(?<ids>[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?(?:[ \t]*,[ \t]*[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?)*)?/';
+    private const TAGS = '/@phpstan-ignore(?![\w-])[ \t]*(?<ids>[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?(?:[ \t]*,[ \t]*[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?)*)?/';
 
     /**
      * @param list<array{int, int, list<string>|true}> $lines The first and
@@ -59,16 +61,20 @@ final class PHPStanIgnores
                 continue;
             }
 
+            // PHPStan doesn't read the identifiers of a comment that holds a
+            // line form.
+            if (PHPStanLineForm::in($token->text)) {
+                foreach (PHPStanLineForm::lines($contents, $token) as $line) {
+                    $lines[] = [...$line, true];
+                }
+
+                continue;
+            }
+
             $matches = [];
             preg_match_all(self::TAGS, $token->text, $matches, PREG_SET_ORDER);
             foreach ($matches as $match) {
-                $line = PHPStanIgnoreTag::covered(
-                    $contents,
-                    $tokens,
-                    $index,
-                    $match['kind'] ?? '',
-                    $match['ids'] ?? '',
-                );
+                $line = PHPStanIgnoreTag::covered($contents, $tokens, $index, $match['ids'] ?? '');
                 if ($line !== null) {
                     $lines[] = $line;
                 }
