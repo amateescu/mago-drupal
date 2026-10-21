@@ -47,6 +47,12 @@ rule and extension of phpstan-drupal. `just docs-gen` rewrites them. `DocsTest` 
 out of date, when a rule doesn't have an entry on a rule page, and when an entry's level or Ports
 codes differ from the rule and the map.
 
+The two maps are edited by hand, and the worker doesn't read them. `just ports-gen` writes the codes
+that the rules and checks port into `src/Internal/CoderPorts.php` and
+`src/Internal/PHPStanDrupalPorts.php`, for the phpcs and PHPStan comments that name them.
+`PortClassesTest` fails when those classes are out of date, and `just docs-gen` runs
+`just ports-gen` first.
+
 When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
 rule with `ext:drupal/<code>` in the map, and run `just docs-gen`.
 

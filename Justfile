@@ -88,9 +88,15 @@ test-presets:
 check-core-excludes checkout:
     php tests/CoreExcludes.php {{mago}} {{checkout}}
 
+# Rewrites the classes in src/Internal that hold the ports of
+# tests/coder-map.json and tests/phpstan-drupal-map.json, which are edited by
+# hand. PortClassesTest fails when they are out of date.
+ports-gen:
+    php tests/GeneratePorts.php
+
 # Rewrites the generated parts of the docs pages from the registered rules
-# and tests/coder-map.json. DocsTest fails when they are out of date.
-docs-gen:
+# and the two maps. DocsTest fails when they are out of date.
+docs-gen: ports-gen
     php tests/GenerateDocs.php
 
 # Serves the docs site with live reload on http://127.0.0.1:8000.
