@@ -27,9 +27,24 @@ final class ClassLikeRanges
     private const CLASS_LIKES = [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM];
 
     /**
-     * A class-like declaration starting a line, as every Drupal one does.
+     * A class-like declaration where a statement can start: at the start of
+     * a line, or after a `;`, a brace, an attribute's `]` or the open tag.
+     * Comments may sit before it and between its tokens.
      */
-    private const DECLARES = '/^[ \t]*+(?:(?:abstract|final|readonly)[ \t]++)*+(?:class|interface|trait|enum)[ \t]++[A-Za-z_]/mi';
+    private const DECLARES =
+        '/(?:^|[;{}\]]|<\?php)'
+            . SourceText::GAP
+            . '(?:(?:abstract|final|readonly)(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . ')*+(?:class|interface|trait|enum)(?![\w\x80-\xff])'
+            . SourceText::GAP
+            . '[A-Za-z_\x80-\xff]/mi';
+
+    /**
+     * `new class`, with any attributes or `readonly` before `class`.
+     */
+    private const ANONYMOUS =
+        '/\bnew(?![\w\x80-\xff])' . SourceText::GAP . '(?:#\[|(?:readonly|class)(?![\w\x80-\xff]))/i';
 
     /**
      * @var FileMemo<self>|null
@@ -52,13 +67,31 @@ final class ClassLikeRanges
     {
         // Most procedural files don't declare anything, and don't need any
         // tokenizing to say so.
-        if (preg_match(self::DECLARES, $contents) !== 1) {
+        if (!self::mayDeclare($contents)) {
             return null;
         }
 
         $name = self::of($contents)->at($span->start);
 
         return $name === null ? null : $codebase->getClassLike($name);
+    }
+
+    /**
+     * Whether the text can declare a named class-like. A comment or a string
+     * that looks like a declaration passes too, and only costs the tokenizing.
+     */
+    public static function mayDeclare(string $contents): bool
+    {
+        return preg_match(self::DECLARES, $contents) === 1;
+    }
+
+    /**
+     * Whether the text can hold an anonymous class, checked before the file
+     * is tokenized for one.
+     */
+    public static function mayHoldAnonymous(string $contents): bool
+    {
+        return preg_match(self::ANONYMOUS, $contents) === 1;
     }
 
     /**
@@ -105,7 +138,7 @@ final class ClassLikeRanges
             $name = PhpTokens::next($tokens, $i + 1);
             if (
                 !$token->is(self::CLASS_LIKES)
-                || self::previous($tokens, $i)?->is(T_DOUBLE_COLON) === true
+                || $tokens[PhpTokens::previous($tokens, $i - 1) ?? $i]->is(T_DOUBLE_COLON)
                 || $name !== null && $tokens[$name]->text === ':'
             ) {
                 continue;
@@ -160,21 +193,5 @@ final class ClassLikeRanges
         $name = PhpTokens::next($tokens, $index + 1);
 
         return $name !== null && $tokens[$name]->is([T_STRING, T_NAME_QUALIFIED]) ? $tokens[$name]->text . '\\' : '';
-    }
-
-    /**
-     * The last token before `$index` that is not whitespace or a comment.
-     *
-     * @param list<PhpToken> $tokens
-     */
-    private static function previous(array $tokens, int $index): ?PhpToken
-    {
-        for ($i = $index - 1; $i >= 0; $i--) {
-            if (!$tokens[$i]->isIgnorable()) {
-                return $tokens[$i];
-            }
-        }
-
-        return null;
     }
 }

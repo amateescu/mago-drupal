@@ -11,7 +11,6 @@ use Mago\Sdk\Span;
 use Mago\Sdk\Syntax\SourceFile;
 
 use function array_key_exists;
-use function preg_match;
 use function strtolower;
 
 /**
@@ -30,12 +29,6 @@ use function strtolower;
  */
 final class FileMembers
 {
-    /**
-     * `new class`, with any attributes or `readonly` before `class`, checked
-     * before the file is tokenized for its anonymous classes.
-     */
-    private const ANONYMOUS = '/\bnew\s++(?:#\[|readonly\b|class\b)/i';
-
     /**
      * @var list<ClassLikeMetadata>|null
      */
@@ -76,7 +69,7 @@ final class FileMembers
 
         // Inside an anonymous class, `$this` and `self` are that class, which
         // doesn't have a metadata name to hand back.
-        if ($found !== null && preg_match(self::ANONYMOUS, $file->contents) === 1) {
+        if ($found !== null && ClassLikeRanges::mayHoldAnonymous($file->contents)) {
             return ClassLikeRanges::inAnonymous($file->contents, $span) ? null : $found;
         }
 
