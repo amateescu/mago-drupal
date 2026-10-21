@@ -18,7 +18,7 @@ final class PHPStanDrupalMapTest extends TestCase
     {
         $root = dirname(__DIR__, levels: 2);
         $docs = new DocsPages($root);
-        $map = PHPStanDrupalMap::load($root . '/tests/phpstan-drupal-map.json');
+        $map = PHPStanDrupalMap::load($root . '/tests/data/phpstan-drupal-map.json');
 
         $entries = [];
         foreach ($docs->rulePages() as $page) {
@@ -44,7 +44,7 @@ final class PHPStanDrupalMapTest extends TestCase
             $problems[] =
                 "{$code}: the Ports line names "
                 . ($named === [] ? 'no phpstan-drupal rule' : implode(', ', $named))
-                . ', and tests/phpstan-drupal-map.json has '
+                . ', and tests/data/phpstan-drupal-map.json has '
                 . ($mapped === [] ? 'none' : implode(', ', $mapped))
                 . '.';
         }

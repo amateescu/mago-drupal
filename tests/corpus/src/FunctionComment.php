@@ -735,3 +735,24 @@ function function_comment_at_phpcs_directive(): void {
 }
 
 // @phpcs:enable
+
+/**
+ * Has a method whose default value holds variable-like text.
+ */
+class FunctionCommentDefaultText {
+
+  /**
+   * Formats the text. The `$value` in the default isn't a parameter.
+   *
+   * @param string $text
+   *   The text.
+   * @param string $label
+   *   The label.
+   */
+  public function format(string $text = <<<'EOT'
+      Price: $value
+      EOT, string $label = '$name'): string {
+    return $label . $text;
+  }
+
+}

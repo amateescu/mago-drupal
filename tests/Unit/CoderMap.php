@@ -12,8 +12,9 @@ use function ksort;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * The parity map in `tests/coder-map.json`: every sniff of Coder's `Drupal`
- * and `DrupalPractice` standards, and what handles each of its codes.
+ * The parity map in `tests/data/coder-map.json`: every sniff of Coder's
+ * `Drupal` and `DrupalPractice` standards, and what handles each of its
+ * codes.
  *
  * A sniff lists its handlers in `where`, and a code has a `where` of its own
  * when it goes elsewhere. A handler is `format`, `analyze`, `analyze:<issue>`,

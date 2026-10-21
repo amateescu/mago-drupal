@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\CallbackUse;
-use amateescu\MagoDrupal\Internal\ElementCallbacks;
+use amateescu\MagoDrupal\Internal\Callback\CallbackUse;
+use amateescu\MagoDrupal\Internal\Callback\ElementCallbacks;
 use Mago\Sdk\Reporting\Level;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Text\CodeMask;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -113,8 +114,17 @@ final class NonCapturingCatchRule implements Rule
     private function checkTry(LintContext $context, Node $try): void
     {
         $file = $context->file;
+        // A match in the raw text is checked again on CodeMask's code, so a
+        // comment or a string that names compact() doesn't count.
         $scope = $this->scopeOf($file, $try);
-        if (preg_match(self::DYNAMIC_READ, $file->getText($scope)) === 1) {
+        if (
+            preg_match(self::DYNAMIC_READ, $file->getText($scope)) === 1
+            && preg_match(self::DYNAMIC_READ, substr(
+                CodeMask::code($file->contents),
+                $scope->span->start,
+                $scope->span->length(),
+            )) === 1
+        ) {
             return;
         }
 

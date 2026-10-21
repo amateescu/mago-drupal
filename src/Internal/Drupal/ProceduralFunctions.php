@@ -1,0 +1,132 @@
+<?php
+
+declare(strict_types=1);
+
+namespace amateescu\MagoDrupal\Internal\Drupal;
+
+use amateescu\MagoDrupal\Internal\Cache\FileMemo;
+use amateescu\MagoDrupal\Internal\Declaration\ClassNames;
+use amateescu\MagoDrupal\Internal\Declaration\DeclarationTokens;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Text\PhpTokens;
+use Mago\Sdk\Analyzer\Metadata\FunctionLikeMetadata;
+use Mago\Sdk\Analyzer\NodeAnalysisContext;
+
+use function count;
+use function str_contains;
+use function strcasecmp;
+
+use const T_ATTRIBUTE;
+use const T_FUNCTION;
+
+/**
+ * Reads procedural functions off a file's text, the way Drupal's hook
+ * collector sees them.
+ *
+ * @internal
+ */
+final class ProceduralFunctions
+{
+    /**
+     * The attribute that stops Drupal's scan of the file for procedural
+     * hooks, at its function.
+     */
+    private const SCAN_STOP = 'ProceduralHookScanStop';
+
+    /**
+     * @var FileMemo<?int>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    private function __construct() {}
+
+    /**
+     * The name of the function declared at the offset, or null. The tokens
+     * step over the attributes, so a `function` in an attribute's string
+     * isn't taken for the keyword.
+     */
+    public static function nameAt(string $contents, int $start): ?string
+    {
+        $tokens = PhpTokens::of($contents);
+        $count = count($tokens);
+        $index = PhpTokens::at($tokens, $start) ?? $count;
+        while ($index < $count) {
+            $token = $tokens[$index];
+            if ($token->is(T_FUNCTION)) {
+                return DeclarationTokens::functionName($tokens, $index);
+            }
+
+            if (!$token->is(T_ATTRIBUTE) && !$token->isIgnorable()) {
+                return null;
+            }
+
+            $index = $token->is(T_ATTRIBUTE) ? PhpTokens::closer($tokens, $index, '[', ']') + 1 : $index + 1;
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether the function ending at the offset is the one marked
+     * `#[ProceduralHookScanStop]` or comes after it, where Drupal stops
+     * collecting procedural hooks. The marker sits before the end of either.
+     */
+    public static function afterScanStop(string $contents, int $end): bool
+    {
+        if (!str_contains($contents, self::SCAN_STOP)) {
+            return false;
+        }
+
+        self::$memo ??= new FileMemo();
+        $stop = self::$memo->get($contents, static fn(): ?int => self::scanStop($contents));
+
+        return $stop !== null && $stop < $end;
+    }
+
+    /**
+     * Where the first attribute naming the marker starts, read off the
+     * tokens as Drupal's parser does, so a mention in a comment or a string
+     * does not count.
+     */
+    private static function scanStop(string $contents): ?int
+    {
+        $tokens = PhpTokens::of($contents);
+        $count = count($tokens);
+        for ($i = 0; $i < $count; $i++) {
+            if (!$tokens[$i]->is(T_ATTRIBUTE)) {
+                continue;
+            }
+
+            $close = PhpTokens::closer($tokens, $i, '[', ']');
+            if (PhpTokens::mentions($tokens, $i, $close, self::SCAN_STOP)) {
+                return $tokens[$i]->pos;
+            }
+
+            $i = $close;
+        }
+
+        return null;
+    }
+
+    /**
+     * The metadata of the function the node declares under the short name.
+     * A bare attribute on the function is a resolved name too, so the name
+     * and the position pick the function out.
+     */
+    public static function declared(NodeAnalysisContext $context, string $short): ?FunctionLikeMetadata
+    {
+        $start = $context->node->span->start;
+        foreach (DeclaredClass::candidates($context->source, $context->node) as $candidate) {
+            if (strcasecmp(ClassNames::short($candidate), $short) !== 0) {
+                continue;
+            }
+
+            $function = $context->codebase->getFunction($candidate);
+            if ($function !== null && $function->location->span->start === $start) {
+                return $function;
+            }
+        }
+
+        return null;
+    }
+}

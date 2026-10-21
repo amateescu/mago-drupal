@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\BraceComment;
-use amateescu\MagoDrupal\Internal\ClosingBraces;
-use amateescu\MagoDrupal\Internal\CodeBodies;
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\LineEnding;
+use amateescu\MagoDrupal\Internal\Comment\BraceComment;
+use amateescu\MagoDrupal\Internal\Comment\ClosingBraces;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Syntax\CodeBodies;
+use amateescu\MagoDrupal\Internal\Text\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -121,7 +121,10 @@ final class PostStatementCommentRule implements Rule
                 continue;
             }
 
-            if ($trivia->kind === TriviaKind::DocBlockComment || Docblocks::isDirective($context->file, $trivia)) {
+            if (
+                $trivia->kind === TriviaKind::DocBlockComment
+                || CommentAttachment::isDirective($context->file, $trivia)
+            ) {
                 continue;
             }
 
@@ -297,7 +300,7 @@ final class PostStatementCommentRule implements Rule
     private static function insideOrBelowDocblock(SourceFile $file, int $lineStart): bool
     {
         $trivia = $file->getTrivia();
-        $index = Docblocks::lastTriviaIndexStartingBefore($trivia, $lineStart - 1);
+        $index = CommentAttachment::lastTriviaIndexStartingBefore($trivia, $lineStart - 1);
         $last = $index === null ? null : $trivia[$index];
         if ($last === null) {
             return false;

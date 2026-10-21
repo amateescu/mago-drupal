@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Hooks\StubFiles;
+use amateescu\MagoDrupal\Analyzer\CoreTypes\StubFiles;
 use Closure;
 use Mago\Sdk\Analyzer\InitializationContext;
 use Mago\Sdk\CancellationTokenInterface;

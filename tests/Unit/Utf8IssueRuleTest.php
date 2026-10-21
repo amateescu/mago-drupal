@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\Utf8IssueRule;
+use amateescu\MagoDrupal\Linter\Utf8IssueRule;
 use Closure;
 use Mago\Sdk\CancellationTokenInterface;
 use Mago\Sdk\Internal\Syntax\NodeStore;
@@ -165,7 +165,7 @@ final class Utf8IssueRuleTest extends TestCase
         );
         foreach ($files as $file) {
             $path = (string) $file;
-            if (!str_ends_with($path, '.php') || str_ends_with($path, '/Checks/Reporter.php')) {
+            if (!str_ends_with($path, '.php') || str_ends_with($path, '/Support/Reporter.php')) {
                 continue;
             }
 

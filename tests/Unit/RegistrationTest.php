@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
+use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\DrupalExtension;
 use Closure;
 use Mago\Sdk\Analyzer\Plugin;
@@ -66,9 +66,10 @@ final class RegistrationTest extends TestCase
 
     /**
      * The classes the walk records and looks into: the analyzer and linter
-     * classes, and the wrappers that the extension puts around each rule.
+     * classes, which include the wrappers that the extension puts around each
+     * rule.
      */
-    private const WALKED = '/^amateescu\\\\MagoDrupal\\\\(?:Analyzer\\\\|Linter\\\\|Internal\\\\Utf8IssueRule$)/';
+    private const WALKED = '/^amateescu\\\\MagoDrupal\\\\(?:Analyzer|Linter)\\\\/';
 
     private string|false $cache = false;
 

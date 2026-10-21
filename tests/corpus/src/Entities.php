@@ -128,6 +128,15 @@ final class Entities {
   }
 
   /**
+   * A check that only a comment holds doesn't guard the lookup.
+   */
+  public function commentedGuard(): void {
+    // The check used to be hasDefinition('corpus_gone') on the manager.
+    // @mago-expect analysis:drupal/unknown-entity-type
+    $this->entityTypeManager->getStorage('corpus_gone');
+  }
+
+  /**
    * A named argument fills its parameter wherever it is written.
    */
   public function namedArguments(): void {

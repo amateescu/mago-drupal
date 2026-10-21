@@ -66,7 +66,7 @@ final class DocsPages
 
     public function map(): CoderMap
     {
-        return $this->map ??= CoderMap::load($this->root . '/tests/coder-map.json');
+        return $this->map ??= CoderMap::load($this->root . '/tests/data/coder-map.json');
     }
 
     /**
@@ -143,7 +143,7 @@ final class DocsPages
         $pages += (new CheckPages($this, $this->root))->entryPages();
         $tables = new CoderTables($this->map(), $pages);
         $phpstan = new PHPStanPages(
-            PHPStanDrupalMap::load($this->root . '/tests/phpstan-drupal-map.json'),
+            PHPStanDrupalMap::load($this->root . '/tests/data/phpstan-drupal-map.json'),
             $this,
             $pages,
         );

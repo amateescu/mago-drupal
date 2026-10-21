@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DiskCache;
-use amateescu\MagoDrupal\Internal\TraitComposers;
-use amateescu\MagoDrupal\Internal\TraitComposerScan;
+use amateescu\MagoDrupal\Internal\Cache\DiskCache;
+use amateescu\MagoDrupal\Internal\Traits\TraitComposers;
+use amateescu\MagoDrupal\Internal\Traits\TraitComposerScan;
 use PHPUnit\Framework\TestCase;
 
 use function basename;

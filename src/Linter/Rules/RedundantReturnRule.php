@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Nodes;
-use amateescu\MagoDrupal\Internal\SwitchCases;
+use amateescu\MagoDrupal\Internal\Syntax\Nodes;
+use amateescu\MagoDrupal\Internal\Syntax\SwitchCases;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -44,7 +45,7 @@ final class RedundantReturnRule implements Rule
      * without one doesn't have anything to report, and the text search costs
      * far less than reading its statements.
      */
-    private const BARE_RETURN = '/\breturn(?:\s++|\/\*.*?\*\/|(?:\/\/|#)(?:[^\r\n?]|\?(?!>))*+)*+(?:;|\?>)/is';
+    private const BARE_RETURN = '/\breturn' . SourceText::GAP . '(?:;|\?>)/i';
 
     public function getDefinition(): RuleDefinition
     {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\Indexes;
-use amateescu\MagoDrupal\Internal\ServiceArguments;
+use amateescu\MagoDrupal\Internal\Cache\Indexes;
+use amateescu\MagoDrupal\Internal\Service\ServiceArguments;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;

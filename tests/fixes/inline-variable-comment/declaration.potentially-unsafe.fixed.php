@@ -14,6 +14,9 @@ class InlineVariableDeclaration
     // Explains the property.
     private static $rows;
 
+    /** @var $mode string */
+    PROTECTED $mode;
+
     public function read(array $rows): int
     {
         /** @var $count int */

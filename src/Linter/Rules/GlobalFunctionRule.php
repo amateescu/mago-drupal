@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Calls;
-use amateescu\MagoDrupal\Internal\InfoFile;
-use amateescu\MagoDrupal\Internal\InjectableClass;
-use amateescu\MagoDrupal\Internal\Nodes;
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Cache\FileGate;
+use amateescu\MagoDrupal\Internal\Drupal\InfoFile;
+use amateescu\MagoDrupal\Internal\Service\InjectableClass;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
+use amateescu\MagoDrupal\Internal\Syntax\Nodes;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -61,6 +62,11 @@ final class GlobalFunctionRule implements Rule
         'user_role_load' => 'the "entity_type.manager" service',
     ];
 
+    /**
+     * Passes a file with a `use function` import.
+     */
+    private ?FileGate $imports = null;
+
     public function getDefinition(): RuleDefinition
     {
         // `FunctionCall` is a target so that Rust collects every call into
@@ -86,8 +92,14 @@ final class GlobalFunctionRule implements Rule
         }
 
         // Scanning the source is much cheaper than a pass over the target
-        // list, and most classes don't call any of these functions.
-        if (preg_match(self::candidatePattern(), $context->file->getText($context->node)) !== 1) {
+        // list, and most classes don't call any of these functions. A
+        // function import can give one of them another name, so a file with
+        // one goes on to the pass.
+        $this->imports ??= new FileGate(pattern: '/\buse\s[^;]*\bfunction\b/i');
+        if (
+            preg_match(self::candidatePattern(), $context->file->getText($context->node)) !== 1
+            && !$this->imports->passes($context->file)
+        ) {
             return;
         }
 

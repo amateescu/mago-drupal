@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\NamedObjectType;
 use PHPUnit\Framework\TestCase;

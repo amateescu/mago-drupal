@@ -18,8 +18,9 @@ use function strstr;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * The map in `tests/phpstan-drupal-map.json`. It lists every rule and
- * extension that phpstan-drupal registers, and what handles each of them.
+ * The map in `tests/data/phpstan-drupal-map.json`. It lists every rule
+ * and extension that phpstan-drupal registers, and what handles each of
+ * them.
  *
  * A rule lists its handlers in `where`, and an identifier has a `where` of
  * its own when it goes elsewhere. A handler is `check:<analyzer check code>`,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\Calls;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
 use PHPUnit\Framework\TestCase;
 
 final class CallsTest extends TestCase

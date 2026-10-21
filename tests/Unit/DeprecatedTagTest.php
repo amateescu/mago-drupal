@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DeprecatedTag;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecatedTag;
 use PHPUnit\Framework\TestCase;
 
 use function strpos;

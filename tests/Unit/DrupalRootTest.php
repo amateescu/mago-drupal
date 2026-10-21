@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DiskCache;
-use amateescu\MagoDrupal\Internal\DrupalRoot;
-use amateescu\MagoDrupal\Internal\ExtensionFileSet;
-use amateescu\MagoDrupal\Internal\SourceFileSet;
+use amateescu\MagoDrupal\Internal\Cache\DiskCache;
+use amateescu\MagoDrupal\Internal\Drupal\DrupalRoot;
+use amateescu\MagoDrupal\Internal\Drupal\ExtensionFileSet;
+use amateescu\MagoDrupal\Internal\Drupal\SourceFileSet;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;

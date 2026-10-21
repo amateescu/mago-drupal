@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\CoderCodes;
-use amateescu\MagoDrupal\Internal\PHPStanPorts;
+use amateescu\MagoDrupal\Internal\Ignore\CoderCodes;
+use amateescu\MagoDrupal\Internal\Ignore\PHPStanDrupalPorts;
+use amateescu\MagoDrupal\Internal\Ignore\PHPStanPorts;
 use RuntimeException;
 
 use function implode;
@@ -33,7 +34,7 @@ final class IgnorePages
 
     public function phpstanRuleIdentifiers(): string
     {
-        return $this->lines([...PHPStanPorts::PORTS, ...PHPStanPorts::CORE]);
+        return $this->lines([...PHPStanDrupalPorts::PORTS, ...PHPStanPorts::CORE]);
     }
 
     /**

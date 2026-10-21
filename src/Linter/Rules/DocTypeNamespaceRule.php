@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockTag;
-use amateescu\MagoDrupal\Internal\ImportPlan;
-use amateescu\MagoDrupal\Internal\TagClassNames;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockTag;
+use amateescu\MagoDrupal\Internal\Docblock\TagClassNames;
+use amateescu\MagoDrupal\Internal\Syntax\ImportPlan;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -22,12 +22,9 @@ use Mago\Sdk\Syntax\TriviaKind;
 use function array_key_exists;
 use function array_keys;
 use function explode;
-use function preg_match;
 use function preg_match_all;
 use function preg_quote;
-use function str_contains;
 use function strlen;
-use function strrpos;
 use function strtolower;
 use function substr;
 
@@ -246,7 +243,7 @@ final class DocTypeNamespaceRule implements Rule
                 continue;
             }
 
-            $import = $this->singleImport($context->file->getText($use));
+            $import = ImportPlan::singleImport($context->file, $use);
             if ($import === null) {
                 continue;
             }
@@ -256,37 +253,6 @@ final class DocTypeNamespaceRule implements Rule
         }
 
         return $imports;
-    }
-
-    /**
-     * @return ?array{string, string}
-     */
-    private function singleImport(string $text): ?array
-    {
-        if (
-            str_contains($text, ',')
-            || str_contains($text, '{')
-            || preg_match('/^use\s+(function|const)\s/', $text) === 1
-        ) {
-            return null;
-        }
-
-        $matches = [];
-        if (
-            preg_match(
-                '/^use\s+\\\\?([A-Za-z_][A-Za-z0-9_\\\\]*)(?:\s+as\s+([A-Za-z_][A-Za-z0-9_]*))?\s*;/s',
-                $text,
-                $matches,
-            ) !== 1
-        ) {
-            return null;
-        }
-
-        $fullyQualified = $matches[1];
-        $separator = strrpos($fullyQualified, needle: '\\');
-        $shortName = $matches[2] ?? substr($fullyQualified, $separator === false ? 0 : $separator + 1);
-
-        return [$fullyQualified, $shortName];
     }
 
     /**

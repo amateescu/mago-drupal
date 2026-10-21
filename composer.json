@@ -34,7 +34,10 @@
   "autoload-dev": {
     "psr-4": {
       "amateescu\\MagoDrupal\\Tests\\": "tests/Unit/"
-    }
+    },
+    "classmap": [
+      "tests/Tools/PortClasses.php"
+    ]
   },
   "config": {
     "allow-plugins": false,

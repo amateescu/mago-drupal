@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Calls;
-use amateescu\MagoDrupal\Internal\Values;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
+use amateescu\MagoDrupal\Internal\Syntax\Values;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -19,7 +19,6 @@ use Mago\Sdk\Syntax\SourceFile;
 use function count;
 use function in_array;
 use function ltrim;
-use function preg_match;
 use function stripos;
 use function strtolower;
 use function trim;
@@ -270,15 +269,21 @@ final class InsecureUnserializeRule implements Rule
 
     /**
      * Whether the function-like has a parameter with the variable's name.
+     * The names come from the parameters' nodes, so a default value or a
+     * comment that writes the name doesn't count.
      */
     private static function declaresParameter(SourceFile $file, Node $scope, string $name): bool
     {
         foreach ($file->getChildren($scope) as $child) {
-            if (
-                $child->kind === NodeKind::FunctionLikeParameterList
-                && preg_match('/\\' . $name . '\\b/', $file->getText($child)) === 1
-            ) {
-                return true;
+            if ($child->kind !== NodeKind::FunctionLikeParameterList) {
+                continue;
+            }
+
+            foreach ($file->getChildren($child) as $parameter) {
+                $variable = $file->getFirstDescendant($parameter, NodeKind::DirectVariable);
+                if ($variable !== null && $file->getText($variable) === $name) {
+                    return true;
+                }
             }
         }
 

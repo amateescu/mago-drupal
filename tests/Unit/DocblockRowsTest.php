@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DocblockRow;
-use amateescu\MagoDrupal\Internal\DocblockRows;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockRow;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockRows;
 use Mago\Sdk\Internal\Syntax\NodeStore;
 use Mago\Sdk\Internal\Syntax\ResolvedNameStore;
 use Mago\Sdk\Internal\Syntax\TriviaStore;

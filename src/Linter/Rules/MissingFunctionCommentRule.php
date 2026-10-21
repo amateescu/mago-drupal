@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CoreFiles;
-use amateescu\MagoDrupal\Internal\DeclarationComment;
-use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\Cache\FileMemo;
+use amateescu\MagoDrupal\Internal\Comment\DeclarationComment;
+use amateescu\MagoDrupal\Internal\Drupal\CoreFiles;
+use amateescu\MagoDrupal\Internal\Syntax\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -35,12 +36,10 @@ final class MissingFunctionCommentRule implements Rule
         '#(?:^|/)core/(?:.*/src/Plugin/|lib/|modules/system/tests/modules/HookOrder/)'
             . '|/(?:Database|FunctionalJavascript|Kernel|KernelTests|Functional|Unit)/#';
 
-    private ?string $mentionContents = null;
-
     /**
-     * @var list<int>
+     * @var FileMemo<list<int>>|null
      */
-    private array $constructorMentions = [];
+    private ?FileMemo $constructorMentions = null;
 
     public function getDefinition(): RuleDefinition
     {
@@ -98,18 +97,16 @@ final class MissingFunctionCommentRule implements Rule
         }
 
         // A method whose text does not have the name cannot be the
-        // constructor. The rule finds the mentions once for each file text,
-        // keyed by the bytes as in FileGate. Checking a method against them
-        // excludes almost every method without reading its nodes. The name
-        // lookup below must read the nodes.
-        $known = $this->mentionContents === $context->file->contents;
-        $this->mentionContents = $context->file->contents;
-        if (!$known) {
-            $this->constructorMentions = self::mentionOffsets($context->file->contents);
-        }
-
+        // constructor. The rule finds the mentions once for each file text
+        // and keeps them in FileMemo. Checking a method against them excludes
+        // almost every method without reading its nodes. The name lookup
+        // below must read the nodes.
+        $contents = $context->file->contents;
+        $this->constructorMentions ??= new FileMemo();
+        /** @var list<int> $mentions */
+        $mentions = $this->constructorMentions->get($contents, static fn(): array => self::mentionOffsets($contents));
         $span = $context->node->span;
-        foreach ($this->constructorMentions as $offset) {
+        foreach ($mentions as $offset) {
             if ($offset >= $span->start && $offset < $span->end) {
                 return strtolower(Nodes::declaredName($context->file, $context->node) ?? '') === '__construct';
             }

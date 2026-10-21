@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\EntityKeyGuards;
+use amateescu\MagoDrupal\Internal\Entity\EntityKeyGuards;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -37,6 +37,12 @@ final class EntityKeyGuardsTest extends TestCase
             "if (\$this->entityType->hasKey('owner')) {\n  f(\$this->entityType->getKey('owner'));\n}",
         ];
         yield 'with a variable key' => ["if (\$type->hasKey(\$key)) {\n  f(\$type->getKey(\$key));\n}"];
+        yield 'comments between the tokens' => [
+            "if (\$type->hasKey(/* The owner. */ 'owner')) {\n  f(\$type /* Same. */ ->getKey('owner'));\n}",
+        ];
+        yield 'an assignment in a string' => [
+            "if (\$type->hasKey('owner')) {\n  \$b = '\$type = 1';\n  f(\$type->getKey('owner'));\n}",
+        ];
         yield 'after a throw' => [
             "if (!\$type->hasKey('owner')) {\n  throw new \\LogicException('No; owner.');\n}\nf(\$type->getKey('owner'));",
         ];

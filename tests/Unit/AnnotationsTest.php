@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\Annotations;
+use amateescu\MagoDrupal\Internal\Plugin\Annotations;
 use PHPUnit\Framework\TestCase;
 
 final class AnnotationsTest extends TestCase

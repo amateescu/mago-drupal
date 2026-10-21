@@ -150,6 +150,10 @@ class Practice {
     // @mago-expect lint:drupal/insecure-unserialize
     array_map(fn ($serialized) => unserialize($serialized), [$serialized]);
 
+    // A default value that only writes the name doesn't hide the variable.
+    $named = serialize([self::class]);
+    array_map(fn ($label = '$named') => unserialize($named), [1]);
+
     // An arrow function copies the value when PHP creates it, so a later
     // assignment doesn't reach the read.
     global $_corpus_late;

@@ -5,7 +5,7 @@
  * Exercises drupal/todo-current-issue.
  *
  * The corpus runs as the merge request of issue 3456789, which the Justfile
- * and tests/CorpusPins.php set as the source branch name.
+ * and tests/Tools/CorpusPins.php set as the source branch name.
  */
 
 declare(strict_types=1);

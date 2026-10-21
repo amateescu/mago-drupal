@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Analyzer\Checks\TestClassCheck;
+use amateescu\MagoDrupal\Analyzer\Test\TestClassCheck;
 use PHPUnit\Framework\TestCase;
 
 final class TestClassCheckTest extends TestCase
@@ -27,6 +27,16 @@ final class TestClassCheckTest extends TestCase
         self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { public static $modules;'));
         self::assertTrue(TestClassCheck::mayReport(
             'final class NodeTest extends TestCase { public array $modules = [];',
+        ));
+        // Other orders, cases and modifiers, and comments between them.
+        self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { static public $modules;'));
+        self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { STATIC $modules;'));
+        self::assertTrue(TestClassCheck::mayReport('final class NodeTest extends TestCase { var $modules;'));
+        self::assertTrue(TestClassCheck::mayReport(
+            "final class NodeTest extends TestCase { public /* Old. */ static ?array \$modules = [];",
+        ));
+        self::assertFalse(TestClassCheck::mayReport(
+            "final class NodeTest extends TestCase { private\nstatic \$modules = [];",
         ));
     }
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\AnnotatedDeclarations;
-use amateescu\MagoDrupal\Internal\EntityTypeAttribute;
-use amateescu\MagoDrupal\Internal\EntityTypeDefinition;
-use amateescu\MagoDrupal\Internal\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeAttribute;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeDefinition;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Plugin\AnnotatedDeclarations;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
@@ -116,6 +116,16 @@ final class AnnotatedDeclarationsTest extends TestCase
     private static function block(string $class, string $id): string
     {
         return "<?php\n\nnamespace Drupal\\x\\Plugin\\Block;\n\n/**\n * @Block(\n *   id = \"{$id}\",\n * )\n */\nclass {$class} {}\n";
+    }
+
+    public function testReadsAnAnnotationOnTheFirstLineOfItsDocblock(): void
+    {
+        $contents = "<?php\n\nnamespace Drupal\\x\\Plugin\\Block;\n\n/** @Block(id = \"one_line\") */\nclass OneLine {}\n";
+
+        self::assertSame(
+            [self::BLOCK => ['one_line' => 'Drupal\x\Plugin\Block\OneLine']],
+            AnnotatedDeclarations::fromContents($contents)->plugins,
+        );
     }
 
     public function testNothingToFoldIsAnEmptySet(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\TestFiles;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
 use PHPUnit\Framework\TestCase;
 
 final class TestFilesTest extends TestCase

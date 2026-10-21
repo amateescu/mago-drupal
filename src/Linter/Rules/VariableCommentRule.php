@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DeclarationComment;
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockTag;
-use amateescu\MagoDrupal\Internal\DocType;
-use amateescu\MagoDrupal\Internal\PropertyTags;
+use amateescu\MagoDrupal\Internal\Comment\DeclarationComment;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockTag;
+use amateescu\MagoDrupal\Internal\Docblock\DocType;
+use amateescu\MagoDrupal\Internal\Docblock\PropertyTags;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -156,7 +155,7 @@ final class VariableCommentRule implements Rule
             }
         }
 
-        return $type !== null && DocType::whole($type) ? $type : Docblocks::splitType($line)[0];
+        return $type !== null && DocType::whole($type) ? $type : DocType::split($line)[0];
     }
 
     /**

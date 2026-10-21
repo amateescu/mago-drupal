@@ -147,6 +147,16 @@ function corpus_search_query_node_access_alter(): void {
 function corpus_node_view(): void {
 }
 
+// @mago-format-ignore-start
+// The name comes after a comment.
+/**
+ * Implements hook_search_query_TAG_alter().
+ */
+// @mago-expect analysis:drupal/deprecated-hook
+function /* For the comment tag. */ corpus_search_query_comment_alter(): void {
+}
+// @mago-format-ignore-end
+
 /**
  * Implements hook_search_query_TAG_alter() for a tag ending in "view".
  *

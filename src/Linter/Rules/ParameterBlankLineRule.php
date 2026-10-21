@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -166,7 +166,7 @@ final class ParameterBlankLineRule implements Rule
         }
 
         $trivia = $file->getTrivia();
-        $index = Docblocks::lastTriviaIndexStartingBefore($trivia, $lineStart - 1);
+        $index = CommentAttachment::lastTriviaIndexStartingBefore($trivia, $lineStart - 1);
 
         return $index !== null && $trivia[$index]->span->end > $lineStart;
     }

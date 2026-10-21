@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Operands;
+use amateescu\MagoDrupal\Internal\Syntax\Operands;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -21,7 +21,6 @@ use function array_filter;
 use function array_values;
 use function count;
 use function in_array;
-use function preg_match;
 use function str_contains;
 use function strtolower;
 use function trim;
@@ -106,12 +105,7 @@ final class NullCoalesceRule implements Rule
         $issue = Issue::new(self::MESSAGE, Operands::questionMark($file, $condition, $then));
         $edits = $match['fixable'] ? $this->edits($context->node, $match) : [];
         if ($edits !== []) {
-            $dropped = '';
-            foreach ($edits as [$span]) {
-                $dropped .= $file->getText($span);
-            }
-
-            $safety = $match['member'] || preg_match('~/\*|//|#~', $dropped) === 1
+            $safety = $match['member'] || Operands::dropsComment($file, $edits)
                 ? Safety::PotentiallyUnsafe
                 : Safety::Safe;
             foreach ($edits as [$span, $text]) {

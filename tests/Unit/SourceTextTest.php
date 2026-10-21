@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
+use function preg_match;
 
 final class SourceTextTest extends TestCase
 {
@@ -65,5 +67,40 @@ final class SourceTextTest extends TestCase
     {
         self::assertNull(SourceText::commentEnd('#[Attribute]', 0));
         self::assertSame(3, SourceText::commentEnd("# a\n", 0));
+    }
+
+    public function testEndsALineCommentAtACloseTag(): void
+    {
+        self::assertSame(5, SourceText::commentEnd('// a ?> b', 0));
+        self::assertSame(6, SourceText::commentEnd("# a ? \n", 0));
+        self::assertSame(5, SourceText::skipBlank('x # a?>', 1));
+    }
+
+    /**
+     * Each case is code between a callee and its parenthesis, and whether the
+     * gap takes it all.
+     *
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function gaps(): iterable
+    {
+        yield 'nothing' => ['', true];
+        yield 'whitespace' => [" \t\r\n", true];
+        yield 'block comment' => ['/* a ( */', true];
+        yield 'docblock' => ["/**\n * a\n */", true];
+        yield 'slash comment' => ["// a (\n", true];
+        yield 'hash comment' => ["# a (\n", true];
+        yield 'all three kinds' => ["/* a */ // b\n # c\n", true];
+        yield 'close tag in a slash comment' => ["// a ?>\n", false];
+        yield 'close tag in a hash comment' => ["# a ?>\n", false];
+        yield 'question mark in a comment' => ["// a?\n", true];
+        yield 'attribute' => ['#[A]', false];
+        yield 'code' => ['x', false];
+    }
+
+    #[DataProvider('gaps')]
+    public function testMatchesTheGapBetweenTwoTokens(string $gap, bool $matches): void
+    {
+        self::assertSame($matches, preg_match('/\Gf' . SourceText::GAP . '\(/', 'f' . $gap . '(') === 1);
     }
 }

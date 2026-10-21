@@ -60,6 +60,8 @@ final class Calls {
     $this->loggerFactory = $factory;
     // @mago-expect analysis:drupal/logger-from-factory
     $this->later = $this->loggerFactory->get('corpus');
+    // @mago-expect analysis:drupal/logger-from-factory
+    $this->logger = /* The same channel. */ $factory->get('corpus');
     // A channel held in a local and not kept is fine.
     $channel = $factory->get('corpus');
     // So is a value computed from a channel.

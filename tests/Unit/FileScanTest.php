@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DiskCache;
-use amateescu\MagoDrupal\Internal\FileScan;
+use amateescu\MagoDrupal\Internal\Cache\DiskCache;
+use amateescu\MagoDrupal\Internal\Cache\FileScan;
 use ArrayObject;
 use PHPUnit\Framework\TestCase;
 

@@ -11,6 +11,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 use function format_date;
 use function t;
+use function t as translated;
 
 /**
  * Calls procedural wrappers from a class that cannot get services injected.
@@ -30,6 +31,21 @@ class GlobalFunctionPlain {
    */
   public function format(int $timestamp): string {
     return format_date($timestamp);
+  }
+
+}
+
+/**
+ * Calls t() through an alias.
+ */
+class GlobalFunctionAlias {
+
+  /**
+   * Translates through the alias.
+   */
+  public function greet(): TranslatableMarkup {
+    // @mago-expect lint:drupal/global-function
+    return translated('Hello');
   }
 
 }

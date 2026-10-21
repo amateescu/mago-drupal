@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer;
 
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedClassReferenceHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedConstantHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedInterfaceHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOriginalHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOverrideHook;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedUse;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
-use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationTargetFilter;
-use amateescu\MagoDrupal\Internal\DeprecationTarget;
-use amateescu\MagoDrupal\Internal\Indexes;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecatedClassReferenceHook;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecatedConstantHook;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecatedInterfaceHook;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecatedOverrideHook;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecatedUse;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecationScopeFilter;
+use amateescu\MagoDrupal\Analyzer\Deprecation\DeprecationTargetFilter;
+use amateescu\MagoDrupal\Analyzer\Entity\DeprecatedOriginalHook;
+use amateescu\MagoDrupal\Internal\Cache\Indexes;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationTarget;
 use Mago\Sdk\Analyzer\PluginRegistry;
 
 /**

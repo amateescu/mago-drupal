@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\ExtensionFiles;
-use amateescu\MagoDrupal\Internal\InternalClasses;
+use amateescu\MagoDrupal\Internal\Drupal\ExtensionFiles;
+use amateescu\MagoDrupal\Internal\Drupal\InternalClasses;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockTag;
-use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
-use amateescu\MagoDrupal\Internal\FunctionTags;
-use amateescu\MagoDrupal\Internal\LineEnding;
-use amateescu\MagoDrupal\Internal\ParamTag;
-use amateescu\MagoDrupal\Internal\ReturnTag;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockTag;
+use amateescu\MagoDrupal\Internal\Docblock\DocType;
+use amateescu\MagoDrupal\Internal\Docblock\FunctionCommentSpacing;
+use amateescu\MagoDrupal\Internal\Docblock\FunctionTags;
+use amateescu\MagoDrupal\Internal\Docblock\ParamTag;
+use amateescu\MagoDrupal\Internal\Docblock\ReturnTag;
+use amateescu\MagoDrupal\Internal\Text\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -196,7 +197,7 @@ final class DocTagLayoutRule implements Rule
         }
 
         $below = $tag->textBelow();
-        $index = Docblocks::indexOf($tags, $tag) ?? count($tags);
+        $index = $tag->indexIn($tags) ?? count($tags);
         // Example markers right after the tag belong to its description.
         while ($below === '' && in_array(($tags[++$index] ?? null)?->name, Docblocks::EXAMPLE_TAGS, strict: true)) {
             $below = $tags[$index]->textBelow();
@@ -221,7 +222,7 @@ final class DocTagLayoutRule implements Rule
     {
         $line = $tag->lines[0];
         $first = ltrim($line->text);
-        [$type, $description] = Docblocks::splitType($first);
+        [$type, $description] = DocType::split($first);
         if ($type === null || $description === '' || $tag->textBelow() !== '') {
             return;
         }

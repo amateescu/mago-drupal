@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -123,7 +124,7 @@ final class CommentLineLengthRule implements Rule
 
         $end = $start + strlen($line);
         $comment = $this->commentEndingLine($file, $trivia, $start, $end);
-        if ($comment === null || Docblocks::isDirective($file, $comment)) {
+        if ($comment === null || CommentAttachment::isDirective($file, $comment)) {
             return;
         }
 
@@ -157,7 +158,7 @@ final class CommentLineLengthRule implements Rule
      */
     private function commentEndingLine(SourceFile $file, array $trivia, int $start, int $end): ?Trivia
     {
-        $index = Docblocks::lastTriviaIndexStartingBefore($trivia, $end);
+        $index = CommentAttachment::lastTriviaIndexStartingBefore($trivia, $end);
         if ($index === null) {
             return null;
         }

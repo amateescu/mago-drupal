@@ -7,3 +7,10 @@
 
 function foo_form_submit(array &$form, $form_state) {
 }
+
+FUNCTION /* Saves the form. */ foo_comment_save() {
+}
+
+function foo_exists() {
+  return function_exists('foo_missing');
+}

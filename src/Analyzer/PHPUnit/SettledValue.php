@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
-use amateescu\MagoDrupal\Internal\FileMembers;
+use amateescu\MagoDrupal\Internal\Declaration\FileMembers;
+use amateescu\MagoDrupal\Internal\Text\CodeMask;
 use Closure;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\Type;
@@ -83,14 +84,19 @@ final class SettledValue
      * Whether a `static` or `global` statement in the file declares the
      * variable. Its value then carries over from an earlier call or changes
      * elsewhere, which Mago does not follow. Any such statement in the file
-     * counts, not only one in the function around the call.
+     * counts, not only one in the function around the call. A match in the
+     * raw text is checked again on CodeMask's code, so a comment or a string
+     * that says `global $name` doesn't count.
      */
     private static function shared(SourceFile $source, Node $variable): bool
     {
         $name = preg_quote($source->getText($variable), delimiter: '/');
         $pattern = '/\b(?:static|global)\s+(?:\$\w+[^;,]*,\s*)*' . $name . '\b/';
 
-        return preg_match($pattern, $source->contents) === 1;
+        return (
+            preg_match($pattern, $source->contents) === 1
+            && preg_match($pattern, CodeMask::code($source->contents)) === 1
+        );
     }
 
     /**

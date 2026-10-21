@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocType;
-use amateescu\MagoDrupal\Internal\FileGate;
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Cache\FileGate;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocType;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -51,7 +51,11 @@ use function trim;
  */
 final class InlineVariableCommentRule implements Rule
 {
-    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include(_once)?|require(_once)?)\b/';
+    /**
+     * The keywords that Coder takes for the start of a declaration. PHP reads
+     * a keyword in any case.
+     */
+    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include(_once)?|require(_once)?)\b/i';
 
     private const LOOKAHEAD = 40;
 

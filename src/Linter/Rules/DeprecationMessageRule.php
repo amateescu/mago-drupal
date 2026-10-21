@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Calls;
-use amateescu\MagoDrupal\Internal\DeprecationMessage;
-use amateescu\MagoDrupal\Internal\DeprecationStandard;
-use amateescu\MagoDrupal\Internal\DeprecationText;
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationMessage;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationStandard;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationText;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -168,9 +169,9 @@ final class DeprecationMessageRule implements Rule
     {
         // A docblock can sit above, between or below the attributes. Coder
         // takes the nearest one before the call.
-        $anchor = Docblocks::commentAnchor($file, $declaration);
+        $anchor = CommentAttachment::commentAnchor($file, $declaration);
 
-        return $this->standardOf($file, Docblocks::attachedTo($file, $anchor));
+        return $this->standardOf($file, CommentAttachment::attachedTo($file, $anchor));
     }
 
     /**

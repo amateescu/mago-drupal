@@ -51,6 +51,23 @@ class DroppedAttributeCallbacks extends AttributeCallbacks {
 }
 
 /**
+ * Overrides the trusted method with a comment before its name.
+ */
+class CommentedNameCallbacks extends AttributeCallbacks {
+
+  // @mago-format-ignore-start
+  /**
+   * PHP does not inherit the attribute, so core does not trust this.
+   */
+  // @mago-expect analysis:drupal/trusted-callback-override
+  public static function /* Again. */ preRender(array $element): array {
+    return $element;
+  }
+  // @mago-format-ignore-end
+
+}
+
+/**
  * Overrides the trusted method and repeats the attribute.
  */
 class KeptAttributeCallbacks extends AttributeCallbacks {
@@ -734,6 +751,19 @@ class RenderCallbackBuilder {
     return [
       // @mago-expect analysis:drupal/unknown-callback
       '#pre_render' => [[$class, 'missingFromAssignedClass']],
+    ];
+  }
+
+  /**
+   * A comment that loops over the variable doesn't bind it.
+   */
+  public function assignedClassComment(): array {
+    // The parent loops as $class over the children here.
+    $class = get_class($this);
+
+    return [
+      // @mago-expect analysis:drupal/unknown-callback
+      '#pre_render' => [[$class, 'missingFromCommentedClass']],
     ];
   }
 
