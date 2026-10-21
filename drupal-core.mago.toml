@@ -131,6 +131,29 @@ single-class-per-file = { enabled = false }
 trait-name = { psr = false }
 # Core is the framework that sets PHP's runtime settings for the site.
 no-ini-set = { enabled = false }
+# These rules give general PHP advice and don't port any sniff that core's phpcs.xml.dist runs.
+combine-consecutive-issets = { enabled = false }
+explicit-octal = { enabled = false }
+inline-variable-return = { enabled = false }
+instanceof-stringable = { enabled = false }
+loop-does-not-iterate = { enabled = false }
+no-debug-symbols = { enabled = false }
+no-duplicate-match-arm = { enabled = false }
+no-insecure-comparison = { enabled = false }
+no-literal-password = { enabled = false }
+no-protected-in-final = { enabled = false }
+no-redundant-continue = { enabled = false }
+no-redundant-math = { enabled = false }
+no-redundant-nullsafe = { enabled = false }
+no-redundant-parentheses = { enabled = false }
+no-sprintf-concat = { enabled = false }
+no-variable-variable = { enabled = false }
+require-preg-quote-delimiter = { enabled = false }
+sensitive-parameter = { enabled = false }
+str-contains = { enabled = false }
+str-starts-with = { enabled = false }
+strict-behavior = { enabled = false }
+use-compound-assignment = { enabled = false }
 # Core's phpcs.xml.dist leaves tests directories out of Drupal.Files.LineLength. phpcs matches the
 # pattern in any case, so it also leaves out the Tests directories under src/.
 "drupal/comment-line-length" = { exclude = ["**/tests/**", "**/Tests/**"] }
