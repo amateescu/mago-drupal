@@ -51,7 +51,11 @@ use function trim;
  */
 final class InlineVariableCommentRule implements Rule
 {
-    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include(_once)?|require(_once)?)\b/';
+    /**
+     * The keywords that Coder takes for the start of a declaration. PHP reads
+     * a keyword in any case.
+     */
+    private const DECLARATION_KEYWORDS = '/^(class|interface|trait|enum|function|public|private|protected|final|static|abstract|const|var|include(_once)?|require(_once)?)\b/i';
 
     private const LOOKAHEAD = 40;
 
