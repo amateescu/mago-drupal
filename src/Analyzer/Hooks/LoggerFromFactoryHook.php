@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Analyzer\Checks\DependencySerializationCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Internal\ClassFacts;
 use amateescu\MagoDrupal\Internal\FileMembers;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
 use Mago\Sdk\Analyzer\MethodTarget;
@@ -43,13 +44,14 @@ final class LoggerFromFactoryHook implements MethodCallAnalysisHook
     /**
      * An assignment to a property of `$this` right before the call.
      */
-    private const STORED = '/\$this\s*->\s*\w+\s*=\s*$/';
+    private const STORED =
+        '/\$this' . SourceText::GAP . '->' . SourceText::GAP . '\w+' . SourceText::GAP . '=' . SourceText::GAP . '$/';
 
     /**
-     * The end of the statement right after the call, so the channel itself
-     * is stored and not something read off it.
+     * The end of the statement right after the call, a `;` or a `?>`, so the
+     * channel itself is stored and not something read off it.
      */
-    private const STATEMENT_END = '/\G\s*;/';
+    private const STATEMENT_END = '/\G' . SourceText::GAP . '(?:;|\?>)/';
 
     /**
      * How far back to look for the assignment.
