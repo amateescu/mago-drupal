@@ -60,8 +60,11 @@ final class EntityKeyGuards
      */
     public static function guarded(string $contents, int $start, int $end): bool
     {
+        // The patterns read the code with its comments turned into spaces,
+        // so a comment between the tokens doesn't hide a call.
+        $code = CodeMask::comments($contents);
         $call = [];
-        if (preg_match(self::GETTER, substr($contents, $start, $end - $start), $call) !== 1) {
+        if (preg_match(self::GETTER, substr($code, $start, $end - $start), $call) !== 1) {
             return false;
         }
 
@@ -81,13 +84,14 @@ final class EntityKeyGuards
             if (
                 !$tokens[$i]->is(T_VARIABLE)
                 || $tokens[$i]->text !== $variable
-                || preg_match($check, $contents, $match, offset: $tokens[$i]->pos) !== 1
+                || preg_match($check, $code, $match, offset: $tokens[$i]->pos) !== 1
             ) {
                 continue;
             }
 
+            // An assignment that a string holds doesn't count.
             $checkEnd = $tokens[$i]->pos + strlen($match[0]);
-            $between = substr($contents, $checkEnd, $start - $checkEnd);
+            $between = substr(CodeMask::code($contents), $checkEnd, $start - $checkEnd);
             if (
                 $checkEnd <= $start
                 && IfGuards::guards($contents, $tokens, $i, $checkEnd, $at)
