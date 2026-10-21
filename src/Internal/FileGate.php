@@ -14,22 +14,17 @@ use function stripos;
  *
  * A gate is correct only for a rule whose every match puts a known piece of
  * text in the source, so a rule that reports a missing thing cannot use
- * one. The result is cached for the worker's current file, because the
+ * one. The result is kept in a FileMemo for the file's text, because the
  * rules see the nodes of each file in sequence.
- *
- * The bytes are the cache key, not the path. An editor session lints the
- * same path again after every edit. The gate keeps the string of the last
- * snapshot it saw, so the check for the next node of that snapshot is a
- * pointer check. Two different files almost always differ in length or in
- * their first bytes, so a new file costs a short compare.
  *
  * @internal
  */
 final class FileGate
 {
-    private ?string $contents = null;
-
-    private bool $passes = true;
+    /**
+     * @var FileMemo<bool>
+     */
+    private readonly FileMemo $passes;
 
     /**
      * @param list<string> $needles Case-insensitive substrings. One hit passes.
@@ -38,22 +33,26 @@ final class FileGate
     public function __construct(
         private readonly array $needles = [],
         private readonly ?string $pattern = null,
-    ) {}
+    ) {
+        $this->passes = new FileMemo();
+    }
 
     public function passes(SourceFile $file): bool
     {
-        $known = $this->contents === $file->contents;
-        $this->contents = $file->contents;
-        if ($known) {
-            return $this->passes;
-        }
+        $contents = $file->contents;
+        $memo = $this->passes;
 
+        return $memo->has($contents) ? $memo->value() : $memo->keep($contents, $this->scan($contents));
+    }
+
+    private function scan(string $contents): bool
+    {
         foreach ($this->needles as $needle) {
-            if (stripos($file->contents, $needle) !== false) {
-                return $this->passes = true;
+            if (stripos($contents, $needle) !== false) {
+                return true;
             }
         }
 
-        return $this->passes = $this->pattern !== null && preg_match($this->pattern, $file->contents) === 1;
+        return $this->pattern !== null && preg_match($this->pattern, $contents) === 1;
     }
 }
