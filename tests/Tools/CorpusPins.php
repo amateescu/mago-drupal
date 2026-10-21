@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\Shape;
+use amateescu\MagoDrupal\Internal\Type\Shape;
 use FilesystemIterator;
 use PhpToken;
 use RecursiveDirectoryIterator;

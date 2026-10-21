@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DocType;
+use amateescu\MagoDrupal\Internal\Docblock\DocType;
 use PHPUnit\Framework\TestCase;
 
 final class DocTypeTest extends TestCase

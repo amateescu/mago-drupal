@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\ServiceDefinition;
+use amateescu\MagoDrupal\Internal\Service\ServiceDefinition;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\NamedObjectType;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\ParentProperties;
-use amateescu\MagoDrupal\Internal\TraitComposers;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Traits\ParentProperties;
+use amateescu\MagoDrupal\Internal\Traits\TraitComposers;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\Type\Visibility;
 

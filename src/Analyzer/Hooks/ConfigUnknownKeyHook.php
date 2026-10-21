@@ -6,8 +6,8 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\Configs;
-use amateescu\MagoDrupal\Internal\ConfigSchema;
-use amateescu\MagoDrupal\Internal\DrupalFile;
+use amateescu\MagoDrupal\Internal\Drupal\ConfigSchema;
+use amateescu\MagoDrupal\Internal\Drupal\DrupalFile;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

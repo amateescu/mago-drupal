@@ -6,9 +6,9 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\MagicProperties;
-use amateescu\MagoDrupal\Internal\SourceText;
-use amateescu\MagoDrupal\Internal\TestFiles;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\NodeAnalysisHook;

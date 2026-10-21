@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\PluginIndex;
+use amateescu\MagoDrupal\Internal\Plugin\PluginIndex;
 use PHPUnit\Framework\TestCase;
 
 final class PluginIndexTest extends TestCase

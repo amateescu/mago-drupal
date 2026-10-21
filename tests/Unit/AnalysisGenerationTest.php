@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\AnalysisGeneration;
+use amateescu\MagoDrupal\Internal\Cache\AnalysisGeneration;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Internal\Analyzer\MetadataCache;
 use Mago\Sdk\Internal\HostClient;

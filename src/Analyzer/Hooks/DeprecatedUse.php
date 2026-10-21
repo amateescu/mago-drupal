@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\DeprecationScopes;
-use amateescu\MagoDrupal\Internal\DeprecationTarget;
-use amateescu\MagoDrupal\Internal\FileMembers;
-use amateescu\MagoDrupal\Internal\InheritedDeprecation;
-use amateescu\MagoDrupal\Internal\NamedFunctions;
+use amateescu\MagoDrupal\Internal\Declaration\FileMembers;
+use amateescu\MagoDrupal\Internal\Declaration\NamedFunctions;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationScopes;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationTarget;
+use amateescu\MagoDrupal\Internal\Deprecation\InheritedDeprecation;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;

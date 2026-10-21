@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
-use amateescu\MagoDrupal\Internal\CodeMask;
-use amateescu\MagoDrupal\Internal\FileMembers;
+use amateescu\MagoDrupal\Internal\Declaration\FileMembers;
+use amateescu\MagoDrupal\Internal\Text\CodeMask;
 use Closure;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\Type;

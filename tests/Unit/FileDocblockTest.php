@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\FileDocblock;
+use amateescu\MagoDrupal\Internal\Docblock\FileDocblock;
 use Mago\Sdk\Internal\Syntax\NodeStore;
 use Mago\Sdk\Internal\Syntax\ResolvedNameStore;
 use Mago\Sdk\Internal\Syntax\TriviaStore;

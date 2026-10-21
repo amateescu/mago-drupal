@@ -6,9 +6,9 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\EntityStorageInjectionCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
-use amateescu\MagoDrupal\Internal\StorageTypes;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Entity\StorageTypes;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;

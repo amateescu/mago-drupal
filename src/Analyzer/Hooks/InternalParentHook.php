@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;

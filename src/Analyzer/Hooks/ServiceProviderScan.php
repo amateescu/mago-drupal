@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\ServiceDefinitions;
-use amateescu\MagoDrupal\Internal\ServiceProviders;
+use amateescu\MagoDrupal\Internal\Service\ServiceDefinitions;
+use amateescu\MagoDrupal\Internal\Service\ServiceProviders;
 use Closure;
 use Mago\Sdk\Analyzer\CodebaseScanContext;
 use Mago\Sdk\Analyzer\CodebaseScanHook;
@@ -28,7 +28,7 @@ use Mago\Sdk\Analyzer\CodebaseScanHook;
  *
  * @internal
  *
- * @phpstan-import-type Definition from \amateescu\MagoDrupal\Internal\ServiceYaml
+ * @phpstan-import-type Definition from \amateescu\MagoDrupal\Internal\Service\ServiceYaml
  */
 final class ServiceProviderScan implements CodebaseScanHook
 {

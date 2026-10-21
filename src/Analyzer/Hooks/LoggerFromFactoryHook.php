@@ -6,9 +6,9 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\DependencySerializationCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\FileMembers;
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Declaration\FileMembers;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
 use Mago\Sdk\Analyzer\MethodTarget;

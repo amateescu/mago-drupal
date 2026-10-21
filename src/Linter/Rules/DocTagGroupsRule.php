@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockTag;
-use amateescu\MagoDrupal\Internal\DocTagGroups;
-use amateescu\MagoDrupal\Internal\OuterDocblocks;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockTag;
+use amateescu\MagoDrupal\Internal\Docblock\DocTagGroups;
+use amateescu\MagoDrupal\Internal\Docblock\OuterDocblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

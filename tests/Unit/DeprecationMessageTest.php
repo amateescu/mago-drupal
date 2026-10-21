@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DeprecationMessage;
-use amateescu\MagoDrupal\Internal\DeprecationStandard;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationMessage;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationStandard;
 use PHPUnit\Framework\TestCase;
 
 final class DeprecationMessageTest extends TestCase

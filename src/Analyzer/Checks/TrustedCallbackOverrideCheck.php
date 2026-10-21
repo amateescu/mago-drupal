@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\CallbackUse;
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\SourceText;
-use amateescu\MagoDrupal\Internal\TraitComposers;
-use amateescu\MagoDrupal\Internal\TrustedCallbackClasses;
-use amateescu\MagoDrupal\Internal\TrustedCallbacks;
+use amateescu\MagoDrupal\Internal\Callback\CallbackUse;
+use amateescu\MagoDrupal\Internal\Callback\TrustedCallbackClasses;
+use amateescu\MagoDrupal\Internal\Callback\TrustedCallbacks;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
+use amateescu\MagoDrupal\Internal\Traits\TraitComposers;
 use Closure;
 use Mago\Sdk\Analyzer\Metadata\MethodFields;
 

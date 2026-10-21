@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\CallableSignatureProvider;
 use Mago\Sdk\Analyzer\CallableSignatureProviderContext;
 use Mago\Sdk\Analyzer\Codebase;

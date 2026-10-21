@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\EntityTypeDefinition;
-use amateescu\MagoDrupal\Internal\EntityTypeIndex;
-use amateescu\MagoDrupal\Internal\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeDefinition;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeIndex;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeKind;
 use PHPUnit\Framework\TestCase;
 
 final class EntityTypeIndexTest extends TestCase

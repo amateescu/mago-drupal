@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\ArrayElements;
-use amateescu\MagoDrupal\Internal\Calls;
-use amateescu\MagoDrupal\Internal\FileGate;
-use amateescu\MagoDrupal\Internal\Instantiations;
-use amateescu\MagoDrupal\Internal\Invocation;
-use amateescu\MagoDrupal\Internal\Nodes;
-use amateescu\MagoDrupal\Internal\SourceText;
-use amateescu\MagoDrupal\Internal\Values;
+use amateescu\MagoDrupal\Internal\Cache\FileGate;
+use amateescu\MagoDrupal\Internal\Syntax\ArrayElements;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
+use amateescu\MagoDrupal\Internal\Syntax\Instantiations;
+use amateescu\MagoDrupal\Internal\Syntax\Invocation;
+use amateescu\MagoDrupal\Internal\Syntax\Nodes;
+use amateescu\MagoDrupal\Internal\Syntax\Values;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CommentAttachment;
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\FileGate;
-use amateescu\MagoDrupal\Internal\InfoFile;
-use amateescu\MagoDrupal\Internal\Nodes;
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Cache\FileGate;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Drupal\InfoFile;
+use amateescu\MagoDrupal\Internal\Syntax\Nodes;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

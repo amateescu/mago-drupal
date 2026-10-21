@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\AnalysisGeneration;
-use amateescu\MagoDrupal\Internal\AnalysisMemo;
+use amateescu\MagoDrupal\Internal\Cache\AnalysisGeneration;
+use amateescu\MagoDrupal\Internal\Cache\AnalysisMemo;
 use Mago\Sdk\Analyzer\Codebase;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\DrupalFile;
-use amateescu\MagoDrupal\Internal\FileMembers;
+use amateescu\MagoDrupal\Internal\Declaration\FileMembers;
+use amateescu\MagoDrupal\Internal\Drupal\DrupalFile;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;
 use Mago\Sdk\Analyzer\NodeAnalysisHook;

@@ -6,8 +6,8 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Checks\TestClassCheck;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
-use amateescu\MagoDrupal\Internal\TestClassSuffix;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Drupal\TestClassSuffix;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DocblockRows;
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockSummary;
-use amateescu\MagoDrupal\Internal\DocCommentSpacing;
-use amateescu\MagoDrupal\Internal\DocDoubleDot;
-use amateescu\MagoDrupal\Internal\DocStarSpacing;
-use amateescu\MagoDrupal\Internal\OuterDocblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockRows;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockSummary;
+use amateescu\MagoDrupal\Internal\Docblock\DocCommentSpacing;
+use amateescu\MagoDrupal\Internal\Docblock\DocDoubleDot;
+use amateescu\MagoDrupal\Internal\Docblock\DocStarSpacing;
+use amateescu\MagoDrupal\Internal\Docblock\OuterDocblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

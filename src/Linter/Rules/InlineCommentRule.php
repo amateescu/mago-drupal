@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\InlineCommentRuns;
-use amateescu\MagoDrupal\Internal\InlineCommentSpacing;
-use amateescu\MagoDrupal\Internal\InlineDocblocks;
+use amateescu\MagoDrupal\Internal\Comment\InlineCommentRuns;
+use amateescu\MagoDrupal\Internal\Comment\InlineCommentSpacing;
+use amateescu\MagoDrupal\Internal\Docblock\InlineDocblocks;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

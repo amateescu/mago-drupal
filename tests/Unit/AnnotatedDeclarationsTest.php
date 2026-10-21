@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\AnnotatedDeclarations;
-use amateescu\MagoDrupal\Internal\EntityTypeAttribute;
-use amateescu\MagoDrupal\Internal\EntityTypeDefinition;
-use amateescu\MagoDrupal\Internal\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeAttribute;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeDefinition;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Plugin\AnnotatedDeclarations;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\AnalysisMemo;
-use amateescu\MagoDrupal\Internal\TraitRoots;
+use amateescu\MagoDrupal\Internal\Cache\AnalysisMemo;
+use amateescu\MagoDrupal\Internal\Traits\TraitRoots;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\IssueFilterContext;
 use Mago\Sdk\Analyzer\IssueFilterDecision;

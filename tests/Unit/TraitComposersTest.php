@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\TraitComposers;
+use amateescu\MagoDrupal\Internal\Traits\TraitComposers;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;

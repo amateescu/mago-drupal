@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CommentDocblock;
-use amateescu\MagoDrupal\Internal\DocblockGap;
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\FileDocblock;
-use amateescu\MagoDrupal\Internal\FileTags;
-use amateescu\MagoDrupal\Internal\LineEnding;
+use amateescu\MagoDrupal\Internal\Comment\CommentDocblock;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockGap;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\FileDocblock;
+use amateescu\MagoDrupal\Internal\Docblock\FileTags;
+use amateescu\MagoDrupal\Internal\Text\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

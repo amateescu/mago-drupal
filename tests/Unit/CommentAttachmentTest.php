@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
 use Mago\Sdk\Internal\Syntax\NodeStore;
 use Mago\Sdk\Internal\Syntax\ResolvedNameStore;
 use Mago\Sdk\Internal\Syntax\TriviaStore;

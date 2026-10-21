@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Closure;
 use Mago\Sdk\Analyzer\Metadata\MemberIdentifier;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;

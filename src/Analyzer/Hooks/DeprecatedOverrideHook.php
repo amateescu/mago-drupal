@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\Calls;
-use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
-use amateescu\MagoDrupal\Internal\DeprecatedTag;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecatedSymbols;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecatedTag;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;

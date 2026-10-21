@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\ServiceIndex;
+use amateescu\MagoDrupal\Internal\Service\ServiceIndex;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;

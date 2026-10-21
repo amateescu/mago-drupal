@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\LiteralText;
+use amateescu\MagoDrupal\Internal\Text\LiteralText;
 use amateescu\MagoDrupal\Linter\CallRule;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\RuleDefinition;

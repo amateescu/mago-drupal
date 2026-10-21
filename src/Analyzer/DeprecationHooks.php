@@ -12,8 +12,8 @@ use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedOverrideHook;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecatedUse;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationScopeFilter;
 use amateescu\MagoDrupal\Analyzer\Hooks\DeprecationTargetFilter;
-use amateescu\MagoDrupal\Internal\DeprecationTarget;
-use amateescu\MagoDrupal\Internal\Indexes;
+use amateescu\MagoDrupal\Internal\Cache\Indexes;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationTarget;
 use Mago\Sdk\Analyzer\PluginRegistry;
 
 /**

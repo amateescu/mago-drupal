@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\CallableSignatureOverride;
 use Mago\Sdk\Analyzer\CallableSignatureProviderContext;
 use Mago\Sdk\Analyzer\EffectiveCallableSignature;

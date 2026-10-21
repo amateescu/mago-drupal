@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\Arguments;
-use amateescu\MagoDrupal\Internal\CodeMask;
-use amateescu\MagoDrupal\Internal\EntityTypeIndex;
-use amateescu\MagoDrupal\Internal\Expressions;
-use amateescu\MagoDrupal\Internal\TestFiles;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeIndex;
+use amateescu\MagoDrupal\Internal\Syntax\Arguments;
+use amateescu\MagoDrupal\Internal\Syntax\Expressions;
+use amateescu\MagoDrupal\Internal\Text\CodeMask;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

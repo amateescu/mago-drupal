@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecatedSymbols;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;

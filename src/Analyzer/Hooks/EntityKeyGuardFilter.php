@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\EntityKeyGuards;
-use amateescu\MagoDrupal\Internal\TypeText;
+use amateescu\MagoDrupal\Internal\Entity\EntityKeyGuards;
+use amateescu\MagoDrupal\Internal\Type\TypeText;
 use Mago\Sdk\Analyzer\IssueFilterContext;
 use Mago\Sdk\Analyzer\IssueFilterDecision;
 use Mago\Sdk\Analyzer\IssueFilterHook;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\DeclarationComment;
-use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\Comment\DeclarationComment;
+use amateescu\MagoDrupal\Internal\Syntax\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

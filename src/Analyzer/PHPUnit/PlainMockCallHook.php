@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\SourceText;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
 use Mago\Sdk\Analyzer\MethodTarget;

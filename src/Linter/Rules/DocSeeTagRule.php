@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CommentAttachment;
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\FunctionTags;
-use amateescu\MagoDrupal\Internal\OuterDocblocks;
-use amateescu\MagoDrupal\Internal\PropertyTags;
-use amateescu\MagoDrupal\Internal\SeeTags;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\FunctionTags;
+use amateescu\MagoDrupal\Internal\Docblock\OuterDocblocks;
+use amateescu\MagoDrupal\Internal\Docblock\PropertyTags;
+use amateescu\MagoDrupal\Internal\Docblock\SeeTags;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

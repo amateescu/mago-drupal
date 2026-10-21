@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Tests;
 
 use amateescu\MagoDrupal\DrupalExtension;
-use amateescu\MagoDrupal\Internal\CoderCodes;
-use amateescu\MagoDrupal\Internal\CoderPorts;
+use amateescu\MagoDrupal\Internal\Ignore\CoderCodes;
+use amateescu\MagoDrupal\Internal\Ignore\CoderPorts;
 use PHPUnit\Framework\TestCase;
 
 use function array_intersect;

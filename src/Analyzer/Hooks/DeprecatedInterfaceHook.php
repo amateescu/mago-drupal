@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\ClassTargets;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
-use amateescu\MagoDrupal\Internal\DeprecatedSymbols;
+use amateescu\MagoDrupal\Internal\Declaration\ClassTargets;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecatedSymbols;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

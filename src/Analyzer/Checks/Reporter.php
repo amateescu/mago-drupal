@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\Utf8Issue;
+use amateescu\MagoDrupal\Internal\Text\Utf8Issue;
 use Mago\Sdk\Analyzer\LifecycleContext;
 use Mago\Sdk\PHPVersion;
 use Mago\Sdk\Reporting\Issue;

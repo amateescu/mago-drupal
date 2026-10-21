@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\ClassNames;
-use amateescu\MagoDrupal\Internal\EntityTypeKind;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Declaration\ClassNames;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\Invocation;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\NamedObjectType;

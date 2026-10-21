@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\ClassFacts;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
 
 /**
  * One rule that looks at a class through its metadata.

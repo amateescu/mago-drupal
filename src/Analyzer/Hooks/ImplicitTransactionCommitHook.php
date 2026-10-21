@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\Expressions;
-use amateescu\MagoDrupal\Internal\TestFiles;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
+use amateescu\MagoDrupal\Internal\Syntax\Expressions;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
 use Mago\Sdk\Analyzer\MethodTarget;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;

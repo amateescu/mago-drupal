@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\NamedFunctions;
+use amateescu\MagoDrupal\Internal\Declaration\NamedFunctions;
 use PHPUnit\Framework\TestCase;
 
 use function strpos;

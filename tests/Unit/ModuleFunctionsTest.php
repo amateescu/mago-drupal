@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\ModuleFunctions;
+use amateescu\MagoDrupal\Internal\Drupal\ModuleFunctions;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;

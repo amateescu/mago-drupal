@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\Arguments;
-use amateescu\MagoDrupal\Internal\EntityTypeDefinition;
-use amateescu\MagoDrupal\Internal\EntityTypeIndex;
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeDefinition;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeIndex;
+use amateescu\MagoDrupal\Internal\Syntax\Arguments;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Invocation;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\UncallableTypes;
+use amateescu\MagoDrupal\Internal\Type\UncallableTypes;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\ArrayItem;
 use Mago\Sdk\Analyzer\Type\ArrayKey;

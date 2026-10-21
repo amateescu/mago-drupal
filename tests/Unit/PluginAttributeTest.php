@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\PluginAttribute;
+use amateescu\MagoDrupal\Internal\Plugin\PluginAttribute;
 use Mago\Sdk\Analyzer\Metadata\AttributeArgumentMetadata;
 use Mago\Sdk\Analyzer\Metadata\AttributeMetadata;
 use Mago\Sdk\Analyzer\Type;

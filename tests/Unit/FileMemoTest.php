@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\FileMemo;
+use amateescu\MagoDrupal\Internal\Cache\FileMemo;
 use Mago\Sdk\Internal\Syntax\NodeStore;
 use Mago\Sdk\Internal\Syntax\ResolvedNameStore;
 use Mago\Sdk\Internal\Syntax\TriviaStore;

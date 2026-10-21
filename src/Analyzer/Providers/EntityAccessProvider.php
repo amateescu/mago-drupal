@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\Arguments;
+use amateescu\MagoDrupal\Internal\Syntax\Arguments;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;
 use Mago\Sdk\Analyzer\MethodTarget;
 use Mago\Sdk\Analyzer\ReturnTypeProviderContext;

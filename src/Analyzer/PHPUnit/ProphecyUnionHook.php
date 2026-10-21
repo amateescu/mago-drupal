@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\MethodFields;
 use Mago\Sdk\Analyzer\NodeAnalysisContext;

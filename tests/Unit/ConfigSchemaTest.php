@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\ConfigSchema;
+use amateescu\MagoDrupal\Internal\Drupal\ConfigSchema;
 use Mago\Sdk\Analyzer\Type;
 use Mago\Sdk\Analyzer\Type\KeyedArrayType;
 use PHPUnit\Framework\TestCase;

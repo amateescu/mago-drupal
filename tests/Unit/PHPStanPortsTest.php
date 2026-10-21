@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Tests;
 
 use amateescu\MagoDrupal\DrupalExtension;
-use amateescu\MagoDrupal\Internal\PHPStanDrupalPorts;
-use amateescu\MagoDrupal\Internal\PHPStanPorts;
+use amateescu\MagoDrupal\Internal\Ignore\PHPStanDrupalPorts;
+use amateescu\MagoDrupal\Internal\Ignore\PHPStanPorts;
 use PHPUnit\Framework\TestCase;
 
 use function array_key_exists;

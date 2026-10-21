@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\StorageTypes;
+use amateescu\MagoDrupal\Internal\Entity\StorageTypes;
 use Mago\Sdk\Span;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

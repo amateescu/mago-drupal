@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DiskCache;
-use amateescu\MagoDrupal\Internal\HookFunctions;
+use amateescu\MagoDrupal\Internal\Cache\DiskCache;
+use amateescu\MagoDrupal\Internal\Drupal\HookFunctions;
 use Composer\InstalledVersions;
 use ErrorException;
 use PHPUnit\Framework\TestCase;
@@ -508,12 +508,12 @@ final class DiskCacheTest extends TestCase
     {
         $code =
             'require '
-            . var_export(__DIR__ . '/../../src/Internal/CacheDirectory.php', return: true)
+            . var_export(__DIR__ . '/../../src/Internal/Cache/CacheDirectory.php', return: true)
             . ';'
             . 'require '
-            . var_export(__DIR__ . '/../../src/Internal/DiskCache.php', return: true)
+            . var_export(__DIR__ . '/../../src/Internal/Cache/DiskCache.php', return: true)
             . ';'
-            . '$cache = \\amateescu\\MagoDrupal\\Internal\\DiskCache::fromEnvironment();'
+            . '$cache = \\amateescu\\MagoDrupal\\Internal\\Cache\\DiskCache::fromEnvironment();'
             . '$cache?->set("hooks", "a", ["x"]);'
             . 'echo function_exists("posix_geteuid") ? "posix" : "no posix", $cache === null ? ", none" : ", cache";';
         $pipes = [];

@@ -76,7 +76,7 @@ final class LayersTest extends TestCase
 
             namespace amateescu\MagoDrupal\Internal\Sub;
 
-            use amateescu\MagoDrupal\{Internal\Calls, Linter\CallRule};
+            use amateescu\MagoDrupal\{Internal\Syntax\Calls, Linter\CallRule};
 
             /**
              * @see \amateescu\MagoDrupal\Analyzer\DrupalPlugin

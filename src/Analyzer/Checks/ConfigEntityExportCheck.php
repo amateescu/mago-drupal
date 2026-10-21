@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\EntityTypeIndex;
-use amateescu\MagoDrupal\Internal\EntityTypeKind;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeIndex;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeKind;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;

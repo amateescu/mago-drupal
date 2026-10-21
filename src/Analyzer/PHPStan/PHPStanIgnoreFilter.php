@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPStan;
 
-use amateescu\MagoDrupal\Internal\PHPStanIgnores;
-use amateescu\MagoDrupal\Internal\UnreachableIgnores;
+use amateescu\MagoDrupal\Internal\Ignore\PHPStanIgnores;
+use amateescu\MagoDrupal\Internal\Ignore\UnreachableIgnores;
 use Mago\Sdk\Analyzer\IssueFilterContext;
 use Mago\Sdk\Analyzer\IssueFilterDecision;
 use Mago\Sdk\Analyzer\IssueFilterHook;

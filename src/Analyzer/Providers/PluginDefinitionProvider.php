@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\PluginDefinitions;
-use amateescu\MagoDrupal\Internal\PluginTypes;
+use amateescu\MagoDrupal\Internal\Plugin\PluginDefinitions;
+use amateescu\MagoDrupal\Internal\Plugin\PluginTypes;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;
 use Mago\Sdk\Analyzer\MethodTarget;

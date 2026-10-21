@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\AnalysisMemo;
-use amateescu\MagoDrupal\Internal\TraitDeclarations;
-use amateescu\MagoDrupal\Internal\TraitMethods;
-use amateescu\MagoDrupal\Internal\TraitRoots;
+use amateescu\MagoDrupal\Internal\Cache\AnalysisMemo;
+use amateescu\MagoDrupal\Internal\Traits\TraitDeclarations;
+use amateescu\MagoDrupal\Internal\Traits\TraitMethods;
+use amateescu\MagoDrupal\Internal\Traits\TraitRoots;
 use Mago\Sdk\Analyzer\CallableSignatureProvider;
 use Mago\Sdk\Analyzer\CallableSignatureProviderContext;
 use Mago\Sdk\Analyzer\Codebase;

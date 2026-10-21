@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\Arguments;
-use amateescu\MagoDrupal\Internal\ServiceIndex;
+use amateescu\MagoDrupal\Internal\Service\ServiceIndex;
+use amateescu\MagoDrupal\Internal\Syntax\Arguments;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;

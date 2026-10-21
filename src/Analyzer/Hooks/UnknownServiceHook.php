@@ -6,9 +6,9 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\Containers;
-use amateescu\MagoDrupal\Internal\CoreFiles;
-use amateescu\MagoDrupal\Internal\ServiceIndex;
-use amateescu\MagoDrupal\Internal\TestFiles;
+use amateescu\MagoDrupal\Internal\Drupal\CoreFiles;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
+use amateescu\MagoDrupal\Internal\Service\ServiceIndex;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

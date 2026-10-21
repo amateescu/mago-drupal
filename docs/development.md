@@ -87,8 +87,8 @@ when they are out of date, when a rule doesn't have an entry on a rule page, and
 level or Ports codes differ from the rule and the map.
 
 The two maps are edited by hand, and the worker doesn't read them. `just ports-gen` writes the codes
-that the rules and checks port into `src/Internal/CoderPorts.php` and
-`src/Internal/PHPStanDrupalPorts.php`, for the phpcs and PHPStan comments that name them.
+that the rules and checks port into `src/Internal/Ignore/CoderPorts.php` and
+`src/Internal/Ignore/PHPStanDrupalPorts.php`, for the phpcs and PHPStan comments that name them.
 `PortClassesTest` fails when those classes are out of date, and `just docs-gen` runs
 `just ports-gen` first.
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\TestClassSuffix;
+use amateescu\MagoDrupal\Internal\Drupal\TestClassSuffix;
 use PHPUnit\Framework\TestCase;
 
 final class TestClassSuffixTest extends TestCase

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\AnnotatedDeclarations;
+use amateescu\MagoDrupal\Internal\Plugin\AnnotatedDeclarations;
 use Closure;
 use Mago\Sdk\Analyzer\CodebaseScanContext;
 use Mago\Sdk\Analyzer\CodebaseScanHook;

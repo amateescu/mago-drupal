@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\Arguments;
-use amateescu\MagoDrupal\Internal\PhpcsCommentFilter;
-use amateescu\MagoDrupal\Internal\TestFiles;
-use amateescu\MagoDrupal\Internal\Values;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
+use amateescu\MagoDrupal\Internal\Ignore\PhpcsCommentFilter;
+use amateescu\MagoDrupal\Internal\Syntax\Arguments;
+use amateescu\MagoDrupal\Internal\Syntax\Values;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\MethodCallAnalysisHook;
 use Mago\Sdk\Analyzer\MethodTarget;

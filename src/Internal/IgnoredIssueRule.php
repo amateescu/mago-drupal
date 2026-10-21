@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Internal;
 
+use amateescu\MagoDrupal\Internal\Ignore\PhpcsCommentFilter;
+use amateescu\MagoDrupal\Internal\Ignore\PHPStanCommentFilter;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

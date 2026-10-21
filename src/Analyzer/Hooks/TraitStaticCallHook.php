@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
-use amateescu\MagoDrupal\Internal\TraitDeclarations;
-use amateescu\MagoDrupal\Internal\TraitRoots;
-use amateescu\MagoDrupal\Internal\TraitStaticCalls;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Traits\TraitDeclarations;
+use amateescu\MagoDrupal\Internal\Traits\TraitRoots;
+use amateescu\MagoDrupal\Internal\Traits\TraitStaticCalls;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;
 use Mago\Sdk\Analyzer\Metadata\FunctionLikeMetadata;

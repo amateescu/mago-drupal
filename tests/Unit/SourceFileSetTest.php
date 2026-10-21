@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\SourceFileSet;
+use amateescu\MagoDrupal\Internal\Drupal\SourceFileSet;
 use PHPUnit\Framework\TestCase;
 
 use function mkdir;

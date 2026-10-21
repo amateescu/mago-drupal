@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Checks;
 
-use amateescu\MagoDrupal\Internal\SourceText;
+use amateescu\MagoDrupal\Internal\Text\SourceText;
 use Mago\Sdk\Analyzer\Metadata\PropertyMetadata;
 use Mago\Sdk\Analyzer\Type\Visibility;
 use Mago\Sdk\SourceLocation;

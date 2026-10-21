@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
-use amateescu\MagoDrupal\Internal\DocblockTag;
-use amateescu\MagoDrupal\Internal\DocType;
-use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
-use amateescu\MagoDrupal\Internal\FunctionTags;
-use amateescu\MagoDrupal\Internal\LineEnding;
-use amateescu\MagoDrupal\Internal\ParamTag;
-use amateescu\MagoDrupal\Internal\ReturnTag;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockTag;
+use amateescu\MagoDrupal\Internal\Docblock\DocType;
+use amateescu\MagoDrupal\Internal\Docblock\FunctionCommentSpacing;
+use amateescu\MagoDrupal\Internal\Docblock\FunctionTags;
+use amateescu\MagoDrupal\Internal\Docblock\ParamTag;
+use amateescu\MagoDrupal\Internal\Docblock\ReturnTag;
+use amateescu\MagoDrupal\Internal\Text\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\AnalysisMemo;
-use amateescu\MagoDrupal\Internal\EntityIdField;
-use amateescu\MagoDrupal\Internal\EntityTypeIndex;
+use amateescu\MagoDrupal\Internal\Cache\AnalysisMemo;
+use amateescu\MagoDrupal\Internal\Entity\EntityIdField;
+use amateescu\MagoDrupal\Internal\Entity\EntityTypeIndex;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Metadata\ClassLikeKind;

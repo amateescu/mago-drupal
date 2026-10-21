@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Providers;
 
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\Assertion\TypeAssertion;
 use Mago\Sdk\Analyzer\Assertion\TypeAssertionKind;
 use Mago\Sdk\Analyzer\AssertionProviderContext;

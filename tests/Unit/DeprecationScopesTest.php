@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DeprecationScopes;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationScopes;
 use Mago\Sdk\Span;
 use PHPUnit\Framework\TestCase;
 

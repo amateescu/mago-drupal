@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\PHPUnit;
 
-use amateescu\MagoDrupal\Internal\Types;
+use amateescu\MagoDrupal\Internal\Type\Types;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\Invocation;
 use Mago\Sdk\Analyzer\MethodReturnTypeProvider;

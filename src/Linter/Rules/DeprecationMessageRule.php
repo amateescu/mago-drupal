@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Calls;
-use amateescu\MagoDrupal\Internal\CommentAttachment;
-use amateescu\MagoDrupal\Internal\DeprecationMessage;
-use amateescu\MagoDrupal\Internal\DeprecationStandard;
-use amateescu\MagoDrupal\Internal\DeprecationText;
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationMessage;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationStandard;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationText;
+use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
+use amateescu\MagoDrupal\Internal\Syntax\Calls;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;

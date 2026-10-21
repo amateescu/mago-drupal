@@ -6,9 +6,9 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\MetadataCheck;
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
-use amateescu\MagoDrupal\Internal\ClassFacts;
-use amateescu\MagoDrupal\Internal\CodeMask;
-use amateescu\MagoDrupal\Internal\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Declaration\DeclaredClass;
+use amateescu\MagoDrupal\Internal\Text\CodeMask;
 use Mago\Sdk\Analyzer\ClassLikeAnalysisHook;
 use Mago\Sdk\Analyzer\ClassLikeTarget;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

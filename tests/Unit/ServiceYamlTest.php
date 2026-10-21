@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\ServiceYaml;
+use amateescu\MagoDrupal\Internal\Service\ServiceYaml;
 use PHPUnit\Framework\TestCase;
 
 use function file_put_contents;

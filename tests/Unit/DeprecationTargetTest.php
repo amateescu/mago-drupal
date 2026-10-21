@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DeprecationTarget;
+use amateescu\MagoDrupal\Internal\Deprecation\DeprecationTarget;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
-use amateescu\MagoDrupal\Internal\DrupalRoot;
-use amateescu\MagoDrupal\Internal\FieldNames;
+use amateescu\MagoDrupal\Internal\Drupal\DrupalRoot;
+use amateescu\MagoDrupal\Internal\Entity\FieldNames;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

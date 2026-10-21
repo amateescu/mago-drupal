@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
-use amateescu\MagoDrupal\Internal\NamedFunctions;
-use amateescu\MagoDrupal\Internal\PluginDefinitions;
+use amateescu\MagoDrupal\Internal\Declaration\NamedFunctions;
+use amateescu\MagoDrupal\Internal\Plugin\PluginDefinitions;
 use Mago\Sdk\Analyzer\IssueFilterContext;
 use Mago\Sdk\Analyzer\IssueFilterDecision;
 use Mago\Sdk\Analyzer\IssueFilterHook;

@@ -88,7 +88,7 @@ test-presets:
 check-core-excludes checkout:
     php tests/Tools/CoreExcludes.php {{mago}} {{checkout}}
 
-# Rewrites the classes in src/Internal that hold the ports of
+# Rewrites the classes in src/Internal/Ignore that hold the ports of
 # tests/data/coder-map.json and tests/data/phpstan-drupal-map.json, which are
 # edited by hand. PortClassesTest fails when they are out of date.
 ports-gen:

@@ -6,9 +6,9 @@ namespace amateescu\MagoDrupal\Analyzer\Hooks;
 
 use amateescu\MagoDrupal\Analyzer\Checks\Reporter;
 use amateescu\MagoDrupal\Analyzer\Providers\PluginManagerProvider;
-use amateescu\MagoDrupal\Internal\PluginIndex;
-use amateescu\MagoDrupal\Internal\PluginManagers;
-use amateescu\MagoDrupal\Internal\TestFiles;
+use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
+use amateescu\MagoDrupal\Internal\Plugin\PluginIndex;
+use amateescu\MagoDrupal\Internal\Plugin\PluginManagers;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Mago\Sdk\Analyzer\FileAnalysisRequirement;

@@ -31,8 +31,8 @@ final class PortClasses
      * The generated classes, relative to the repository root.
      */
     public const GENERATED = [
-        'src/Internal/CoderPorts.php',
-        'src/Internal/PHPStanDrupalPorts.php',
+        'src/Internal/Ignore/CoderPorts.php',
+        'src/Internal/Ignore/PHPStanDrupalPorts.php',
     ];
 
     /**
@@ -57,8 +57,8 @@ final class PortClasses
     public function render(string $file): string
     {
         return match ($file) {
-            'src/Internal/CoderPorts.php' => $this->coderPorts(),
-            'src/Internal/PHPStanDrupalPorts.php' => $this->phpstanDrupalPorts(),
+            'src/Internal/Ignore/CoderPorts.php' => $this->coderPorts(),
+            'src/Internal/Ignore/PHPStanDrupalPorts.php' => $this->phpstanDrupalPorts(),
             default => throw new RuntimeException("{$file} isn't a generated class."),
         };
     }
@@ -142,7 +142,7 @@ final class PortClasses
             '',
             'declare(strict_types=1);',
             '',
-            'namespace amateescu\MagoDrupal\Internal;',
+            'namespace amateescu\MagoDrupal\Internal\Ignore;',
             '',
             '/**',
             ...self::comment($summary, indent: ''),

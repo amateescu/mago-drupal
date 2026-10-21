@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\CommentAttachment;
-use amateescu\MagoDrupal\Internal\LineEnding;
-use amateescu\MagoDrupal\Internal\SwitchCases;
+use amateescu\MagoDrupal\Internal\Comment\CommentAttachment;
+use amateescu\MagoDrupal\Internal\Syntax\SwitchCases;
+use amateescu\MagoDrupal\Internal\Text\LineEnding;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
