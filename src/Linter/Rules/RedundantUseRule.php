@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\ImportPlan;
+use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
 use Mago\Sdk\Linter\RuleDefinition;
@@ -41,9 +42,18 @@ final class RedundantUseRule implements Rule
 {
     /**
      * A statement that imports one name with no namespace, with or without an
-     * alias.
+     * alias. Comments may sit between the tokens, and a `?>` may end it.
      */
-    private const SINGLE_GLOBAL_IMPORT = '/^use\s+\\\\?[A-Za-z_][A-Za-z0-9_]*(?:\s+as\s+[A-Za-z_][A-Za-z0-9_]*)?\s*;/i';
+    private const SINGLE_GLOBAL_IMPORT =
+        '/^use'
+            . SourceText::GAP
+            . '\\\\?[A-Za-z_\x80-\xff][\w\x80-\xff]*+(?:'
+            . SourceText::GAP
+            . 'as'
+            . SourceText::GAP
+            . '[A-Za-z_\x80-\xff][\w\x80-\xff]*+)?'
+            . SourceText::GAP
+            . '(?:;|\?>)/i';
 
     public function getDefinition(): RuleDefinition
     {
