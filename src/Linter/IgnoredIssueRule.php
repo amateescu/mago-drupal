@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace amateescu\MagoDrupal\Internal;
+namespace amateescu\MagoDrupal\Linter;
 
 use amateescu\MagoDrupal\Internal\Ignore\PhpcsCommentFilter;
 use amateescu\MagoDrupal\Internal\Ignore\PHPStanCommentFilter;

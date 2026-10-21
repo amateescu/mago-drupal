@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace amateescu\MagoDrupal\Internal;
+namespace amateescu\MagoDrupal\Linter;
 
 use amateescu\MagoDrupal\Internal\Text\Utf8Issue;
 use Mago\Sdk\Linter\LintContext;

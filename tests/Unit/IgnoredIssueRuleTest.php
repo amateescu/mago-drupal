@@ -7,7 +7,7 @@ namespace amateescu\MagoDrupal\Tests;
 use amateescu\MagoDrupal\DrupalExtension;
 use amateescu\MagoDrupal\Internal\Ignore\PhpcsCommentFilter;
 use amateescu\MagoDrupal\Internal\Ignore\PHPStanCommentFilter;
-use amateescu\MagoDrupal\Internal\IgnoredIssueRule;
+use amateescu\MagoDrupal\Linter\IgnoredIssueRule;
 use Mago\Sdk\Extension;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
