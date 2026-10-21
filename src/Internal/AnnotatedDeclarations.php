@@ -37,10 +37,10 @@ use function strtolower;
 final class AnnotatedDeclarations
 {
     /**
-     * A docblock line starting with an annotation, checked before a file is
-     * tokenized.
+     * A docblock line, or the start of a docblock, with an annotation first,
+     * checked before a file is tokenized.
      */
-    public const GATE = '/^\s*\*\s*@[A-Z]/m';
+    public const GATE = '/(?:^\s*\*|\/\*\*)\s*@[A-Z]/m';
 
     private const ENTITY_KINDS = [
         'ContentEntityType' => EntityTypeKind::Content,

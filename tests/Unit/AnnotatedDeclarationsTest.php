@@ -118,6 +118,16 @@ final class AnnotatedDeclarationsTest extends TestCase
         return "<?php\n\nnamespace Drupal\\x\\Plugin\\Block;\n\n/**\n * @Block(\n *   id = \"{$id}\",\n * )\n */\nclass {$class} {}\n";
     }
 
+    public function testReadsAnAnnotationOnTheFirstLineOfItsDocblock(): void
+    {
+        $contents = "<?php\n\nnamespace Drupal\\x\\Plugin\\Block;\n\n/** @Block(id = \"one_line\") */\nclass OneLine {}\n";
+
+        self::assertSame(
+            [self::BLOCK => ['one_line' => 'Drupal\x\Plugin\Block\OneLine']],
+            AnnotatedDeclarations::fromContents($contents)->plugins,
+        );
+    }
+
     public function testNothingToFoldIsAnEmptySet(): void
     {
         $empty = AnnotatedDeclarations::mergeAll([]);
