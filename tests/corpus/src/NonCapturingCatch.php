@@ -111,6 +111,21 @@ final class NonCapturingCatch {
   }
 
   /**
+   * A compact() call that a comment or a string holds doesn't read it.
+   */
+  public function compactedInText(): string {
+    try {
+      $this->unread();
+    }
+    // Nothing here calls compact('e') or reads $$name.
+    // @mago-expect lint:drupal/non-capturing-catch
+    catch (\RuntimeException $e) {
+    }
+
+    return 'get_defined_vars()';
+  }
+
+  /**
    * A reference parameter passes the exception to the caller.
    */
   public function referenceParameter(?\Throwable &$error): void {
