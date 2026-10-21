@@ -97,8 +97,14 @@ final class DocSeeTagRule implements Rule
      */
     private static function functionDocblocks(SourceFile $file): array
     {
+        // The rule targets functions and methods, so they are in the file's
+        // target nodes. A getNodes() call per kind scans the whole tree.
         $starts = [];
-        foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
+        foreach ($file->getTargetNodes() as $function) {
+            if ($function->kind !== NodeKind::Function && $function->kind !== NodeKind::Method) {
+                continue;
+            }
+
             $docblock = CommentAttachment::attachedTo($file, CommentAttachment::commentAnchor($file, $function));
             if ($docblock === null) {
                 continue;

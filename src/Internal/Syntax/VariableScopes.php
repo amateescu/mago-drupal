@@ -14,6 +14,7 @@ use function in_array;
 use function ltrim;
 use function preg_match;
 use function str_contains;
+use function strcspn;
 use function stripos;
 use function strtolower;
 use function substr;
@@ -428,6 +429,14 @@ final class VariableScopes
      */
     private function bindsReference(Node $assignment): bool
     {
+        // Without an `&` in the assignment, its right side can't be a
+        // reference, and the children aren't needed.
+        $span = $assignment->span;
+        $length = $span->end - $span->start;
+        if (strcspn($this->file->contents, characters: '&', offset: $span->start, length: $length) === $length) {
+            return false;
+        }
+
         $right = $this->file->getChildren($assignment)[2] ?? null;
         $value = $right === null ? null : $this->file->getChildren($right)[0] ?? null;
 
