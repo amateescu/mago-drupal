@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Passes a value that a call with a comment in it escapes.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Component\Utility\Html;
+
+/**
+ * Escapes the value under an @ placeholder, with a comment in the call.
+ */
+function escaped_placeholder_gap_translated(string $label): string {
+  // @mago-format-ignore-start
+  // @mago-expect lint:drupal/escaped-placeholder
+  return (string) t('@label tokens.', ['@label' => Html:: /* Plain. */ escape($label)]);
+  // @mago-format-ignore-end
+}

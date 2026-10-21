@@ -10,6 +10,7 @@ use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\Instantiations;
 use amateescu\MagoDrupal\Internal\Invocation;
 use amateescu\MagoDrupal\Internal\Nodes;
+use amateescu\MagoDrupal\Internal\SourceText;
 use amateescu\MagoDrupal\Internal\Values;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -94,7 +95,7 @@ final class EscapedPlaceholderRule implements Rule
     {
         $file = $context->file;
 
-        $this->gate ??= new FileGate(needles: ['check_plain', '::escape']);
+        $this->gate ??= new FileGate(needles: ['check_plain'], pattern: '/::' . SourceText::GAP . 'escape\b/i');
         if (!$this->gate->passes($file)) {
             return;
         }
