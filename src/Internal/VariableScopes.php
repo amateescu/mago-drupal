@@ -89,6 +89,11 @@ final class VariableScopes
     private readonly FunctionScopes $scopes;
 
     /**
+     * @var FileMemo<array<int, array<string, ScopeVariable>>>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    /**
      * @param non-negative-int $program
      */
     private function __construct(
@@ -112,7 +117,9 @@ final class VariableScopes
     {
         // drupal/unused-variable and drupal/variable-redeclaration read the
         // same file in a row, so the walk runs once for both.
-        return LastFile::get(self::class, $file->contents, static fn(): array => self::collect($file, $program));
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($file, static fn(): array => self::collect($file, $program));
     }
 
     /**

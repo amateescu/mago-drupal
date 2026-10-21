@@ -30,6 +30,11 @@ use function substr_count;
 final class PhpcsIgnores
 {
     /**
+     * @var FileMemo<?self>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    /**
      * @param array<int, Ignored> $lines What each covered line ignores.
      */
     private function __construct(
@@ -44,7 +49,9 @@ final class PhpcsIgnores
      */
     public static function of(string $contents): ?self
     {
-        return LastFile::get(self::class, $contents, static fn(): ?self => self::read($contents));
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($contents, static fn(): ?self => self::read($contents));
     }
 
     /**

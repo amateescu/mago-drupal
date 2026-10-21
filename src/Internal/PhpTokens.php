@@ -53,6 +53,11 @@ final class PhpTokens
      */
     private const ALTERNATIVE_ENDS = [T_ENDIF, T_ENDFOREACH, T_ENDFOR, T_ENDWHILE, T_ENDSWITCH, T_ENDDECLARE];
 
+    /**
+     * @var FileMemo<list<PhpToken>>|null
+     */
+    private static ?FileMemo $memo = null;
+
     private function __construct() {}
 
     /**
@@ -63,7 +68,9 @@ final class PhpTokens
      */
     public static function of(string $contents): array
     {
-        return LastFile::get(self::class, $contents, static fn(): array => PhpToken::tokenize($contents));
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($contents, static fn(): array => PhpToken::tokenize($contents));
     }
 
     /**

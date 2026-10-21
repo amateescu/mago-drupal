@@ -32,6 +32,11 @@ final class ClassLikeRanges
     private const DECLARES = '/^[ \t]*+(?:(?:abstract|final|readonly)[ \t]++)*+(?:class|interface|trait|enum)[ \t]++[A-Za-z_]/mi';
 
     /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    /**
      * @param list<array{int, int, ?string}> $ranges Start and end offsets and
      *   the full name, in source order.
      */
@@ -68,7 +73,9 @@ final class ClassLikeRanges
 
     private static function of(string $contents): self
     {
-        return LastFile::get(self::class, $contents, static fn(): self => self::scan(PhpTokens::of($contents)));
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($contents, static fn(): self => self::scan(PhpTokens::of($contents)));
     }
 
     /**

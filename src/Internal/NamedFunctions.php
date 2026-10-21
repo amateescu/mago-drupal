@@ -33,6 +33,11 @@ final class NamedFunctions
     ];
 
     /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    /**
      * @param list<array{int, int, string, string, ?string}> $functions Start
      *   and end offsets, name, docblock and class-like of each function, in
      *   source order.
@@ -43,7 +48,9 @@ final class NamedFunctions
 
     public static function of(string $contents): self
     {
-        return LastFile::get(self::class, $contents, static function () use ($contents): self {
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($contents, static function () use ($contents): self {
             $tokens = PhpTokens::of($contents);
 
             return new self(self::scan($tokens, ClassLikeRanges::scan($tokens)));

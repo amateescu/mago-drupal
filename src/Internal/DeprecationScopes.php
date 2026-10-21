@@ -53,6 +53,11 @@ final class DeprecationScopes
     private const DECLARATIONS = [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM, T_FUNCTION];
 
     /**
+     * @var FileMemo<self>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    /**
      * @param list<array{int, int}> $ranges Half-open byte ranges.
      */
     private function __construct(
@@ -77,15 +82,16 @@ final class DeprecationScopes
 
     public static function of(string $contents, string $path): self
     {
-        // The scopes depend on the bytes and on whether the path is a test,
-        // so each of the two keeps its own last file.
+        // The scopes depend on the bytes and on whether the path is a test.
         $legacy = TestFiles::isTest($path);
 
-        return LastFile::get(
-            $legacy ? self::class . ':test' : self::class,
-            $contents,
-            static fn(): self => new self(self::scan(PhpTokens::of($contents), $legacy)),
-        );
+        self::$memo ??= new FileMemo();
+        $memo = self::$memo;
+        $item = $legacy ? 'test' : 'other';
+
+        return $memo->has($contents, $item)
+            ? $memo->value($item)
+            : $memo->keep($contents, new self(self::scan(PhpTokens::of($contents), $legacy)), $item);
     }
 
     public function covers(Span $span): bool

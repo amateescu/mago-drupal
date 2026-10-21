@@ -36,6 +36,11 @@ final class PHPStanIgnores
     private const TAGS = '/@phpstan-ignore(?![\w-])[ \t]*(?<ids>[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?(?:[ \t]*,[ \t]*[A-Za-z][\w.]*(?:[ \t]*\((?:[^()]|\([^()]*\))*\))?)*)?/';
 
     /**
+     * @var FileMemo<?self>|null
+     */
+    private static ?FileMemo $memo = null;
+
+    /**
      * @param list<array{int, int, list<string>|true}> $lines The first and
      *   last offset of each covered line, with the identifiers it ignores, or
      *   true for all of them.
@@ -45,9 +50,17 @@ final class PHPStanIgnores
     ) {}
 
     /**
-     * The comments of a file, or null when it doesn't have any.
+     * The comments of a file, or null when it doesn't have any. The last
+     * file's are kept, since a file's issues are checked in a row.
      */
     public static function of(string $contents): ?self
+    {
+        self::$memo ??= new FileMemo();
+
+        return self::$memo->get($contents, static fn(): ?self => self::read($contents));
+    }
+
+    private static function read(string $contents): ?self
     {
         if (!str_contains($contents, self::TAG)) {
             return null;

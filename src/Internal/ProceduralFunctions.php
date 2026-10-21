@@ -40,6 +40,11 @@ final class ProceduralFunctions
      */
     private const SCAN_STOP = 'ProceduralHookScanStop';
 
+    /**
+     * @var FileMemo<?int>|null
+     */
+    private static ?FileMemo $memo = null;
+
     private function __construct() {}
 
     /**
@@ -63,7 +68,8 @@ final class ProceduralFunctions
             return false;
         }
 
-        $stop = LastFile::get(self::class, $contents, static fn(): ?int => self::scanStop($contents));
+        self::$memo ??= new FileMemo();
+        $stop = self::$memo->get($contents, static fn(): ?int => self::scanStop($contents));
 
         return $stop !== null && $stop < $end;
     }

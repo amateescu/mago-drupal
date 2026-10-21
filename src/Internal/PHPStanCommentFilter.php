@@ -42,7 +42,7 @@ final class PHPStanCommentFilter
      */
     public function drops(string $contents, int $offset): bool
     {
-        $ignores = LastFile::get(self::class, $contents, static fn(): ?PHPStanIgnores => PHPStanIgnores::of($contents));
+        $ignores = PHPStanIgnores::of($contents);
         $ignored = $ignores?->at($offset);
 
         return $ignored === true || is_array($ignored) && array_intersect($ignored, $this->identifiers) !== [];
