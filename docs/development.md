@@ -32,6 +32,33 @@ linter doesn't name the analyzer, the analyzer doesn't name the linter, and `Int
 either of them. `LayersTest` fails when a file breaks this. Only `DrupalExtension` wires the two
 halves together.
 
+## Source layout
+
+`src/Linter/Rules` holds one class per rule. `src/Linter` holds the base classes that rules extend,
+and the wrappers that `DrupalExtension` puts around every rule.
+
+`src/Analyzer` holds `DrupalPlugin`, which registers the analyzer classes, and `DeprecationHooks`.
+The rest of the analyzer has one folder per page of the [analyzer docs](analyzer/index.md):
+`Config`, `CoreTypes`, `Deprecation`, `Entity`, `Injection`, `Module` for Hooks and modules,
+`Plugin`, `Render`, `Service`, `Test`, `Traits` and `Translation`. A class goes in the folder of the
+page that documents its issue codes or the types it provides, and its name ends in its kind:
+`Provider`, `Hook`, `Filter`, `Check` or `Scan`. `Support` holds what the topics share, such as
+`Reporter` and the hooks that run a `MetadataCheck` on every class. `PHPUnit` and `PHPStan` hold
+the two other plugins.
+
+`src/Internal` has one folder per subject:
+
+- `Syntax` and `Text` read code from the syntax tree and from the source text.
+- `Docblock` and `Comment` read and fix docblocks and other comments.
+- `Declaration` finds the classes and functions that a file declares, and what the codebase knows
+  about a class.
+- `Type` answers questions about types.
+- `Drupal` finds the Drupal root and the files in it, and knows Drupal's file conventions.
+- `Service`, `Entity`, `Plugin`, `Callback`, `Traits` and `Deprecation` build the indexes and
+  readers for their topic.
+- `Ignore` reads the phpcs and PHPStan ignore comments and the codes that they name.
+- `Cache` keeps values for a file, for an analysis and between runs.
+
 ## Reading code
 
 Rules and checks read code structure from the syntax tree. When the tree doesn't have what they
