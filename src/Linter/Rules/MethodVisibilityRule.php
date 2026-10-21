@@ -33,9 +33,10 @@ final class MethodVisibilityRule implements Rule
     /**
      * A method head that declares its visibility. It has the attributes,
      * then any abstract, final or static keyword, then the visibility
-     * keyword. The rule matches it in place at the method's offset.
+     * keyword. The rule matches it in place at the method's offset. A `]`
+     * in an attribute's string or comment doesn't end the attribute.
      */
-    private const DECLARED = '/\G(?:#\[[^\]]*\]\s*)*(?:(?:abstract|final|static)\s+)*(?:public|protected|private)\b/i';
+    private const DECLARED = '/\G(?:#\[(?:[^\]\'"\/]++|\'(?:[^\'\\\\]++|\\\\.)*+\'|"(?:[^"\\\\]++|\\\\.)*+"|\/\*.*?\*\/|\/\/[^\r\n]*+|\/)*+\]\s*)*(?:(?:abstract|final|static)\s+)*(?:public|protected|private)\b/is';
 
     public function getDefinition(): RuleDefinition
     {
