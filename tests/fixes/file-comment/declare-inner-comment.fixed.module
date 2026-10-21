@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Has a comment inside the declare statement.
+ */
+
+// Strict types for the helpers below.
+
+declare(strict_types /* Always. */ = 1);
+
+function declare_inner_comment_help(): string {
+  return '';
+}

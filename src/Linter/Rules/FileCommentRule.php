@@ -223,12 +223,31 @@ final class FileCommentRule implements Rule
                 continue;
             }
 
-            $strict = preg_match('/\bstrict_types\s*=\s*1\b/', $file->getText($inner)) === 1;
-
-            return $inner->kind === NodeKind::Declare && $strict ? $inner : null;
+            return $inner->kind === NodeKind::Declare && self::setsStrictTypes($file, $inner) ? $inner : null;
         }
 
         return null;
+    }
+
+    /**
+     * Whether the declare statement sets `strict_types` to 1. The items come
+     * from the tree, so a comment between the name and the value doesn't
+     * matter. Slevomat matches the name in lowercase only.
+     */
+    private static function setsStrictTypes(SourceFile $file, Node $declare): bool
+    {
+        foreach ($file->getChildren($declare) as $item) {
+            if ($item->kind !== NodeKind::DeclareItem) {
+                continue;
+            }
+
+            [$name, $value] = $file->getChildren($item) + [null, null];
+            if ($name !== null && $file->getText($name) === 'strict_types') {
+                return $value !== null && $file->getText($value) === '1';
+            }
+        }
+
+        return false;
     }
 
     /**
