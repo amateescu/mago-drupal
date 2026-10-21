@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\CaseEnding;
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\CommentAttachment;
 use amateescu\MagoDrupal\Internal\Nodes;
 use Mago\Sdk\Linter\LintContext;
 use Mago\Sdk\Linter\Rule;
@@ -92,7 +92,7 @@ final class CaseFallThroughRule implements Rule
         // next case. Coder takes any comment there as the note that the
         // fall-through is meant.
         return (
-            !Docblocks::hasNoteBetween($file, $last->span->end, $next->span->start)
+            !CommentAttachment::hasNoteBetween($file, $last->span->end, $next->span->start)
             && !CaseEnding::leaves($file, $statements)
         );
     }

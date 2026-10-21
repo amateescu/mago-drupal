@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CommentAttachment;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\FileGate;
 use amateescu\MagoDrupal\Internal\InfoFile;
@@ -68,7 +69,7 @@ final class FormAlterCommentRule implements Rule
             return;
         }
 
-        $docblock = Docblocks::attachedTo($file, $context->node);
+        $docblock = CommentAttachment::attachedTo($file, $context->node);
         if ($docblock === null) {
             return;
         }

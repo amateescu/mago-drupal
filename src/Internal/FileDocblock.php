@@ -75,7 +75,7 @@ final class FileDocblock
                 return null;
             }
 
-            if (!Docblocks::isDirective($file, $trivia)) {
+            if (!CommentAttachment::isDirective($file, $trivia)) {
                 return $trivia;
             }
 

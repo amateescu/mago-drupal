@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\DeclarationComment;
-use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\PropertyTags;
@@ -156,7 +155,7 @@ final class VariableCommentRule implements Rule
             }
         }
 
-        return $type !== null && DocType::whole($type) ? $type : Docblocks::splitType($line)[0];
+        return $type !== null && DocType::whole($type) ? $type : DocType::split($line)[0];
     }
 
     /**

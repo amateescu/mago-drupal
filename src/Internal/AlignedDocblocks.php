@@ -53,7 +53,7 @@ final class AlignedDocblocks
     private static function followsOpenTag(SourceFile $file, Span $span): bool
     {
         $trivia = $file->getTrivia();
-        $index = Docblocks::lastTriviaIndexStartingBefore($trivia, $span->start);
+        $index = CommentAttachment::lastTriviaIndexStartingBefore($trivia, $span->start);
         $start = $span->start;
         while ($index !== null && $index > 0) {
             $previous = $trivia[$index - 1]->span;

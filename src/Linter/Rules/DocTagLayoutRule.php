@@ -6,6 +6,7 @@ namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\DocblockTag;
+use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\FunctionCommentSpacing;
 use amateescu\MagoDrupal\Internal\FunctionTags;
 use amateescu\MagoDrupal\Internal\LineEnding;
@@ -196,7 +197,7 @@ final class DocTagLayoutRule implements Rule
         }
 
         $below = $tag->textBelow();
-        $index = Docblocks::indexOf($tags, $tag) ?? count($tags);
+        $index = $tag->indexIn($tags) ?? count($tags);
         // Example markers right after the tag belong to its description.
         while ($below === '' && in_array(($tags[++$index] ?? null)?->name, Docblocks::EXAMPLE_TAGS, strict: true)) {
             $below = $tags[$index]->textBelow();
@@ -221,7 +222,7 @@ final class DocTagLayoutRule implements Rule
     {
         $line = $tag->lines[0];
         $first = ltrim($line->text);
-        [$type, $description] = Docblocks::splitType($first);
+        [$type, $description] = DocType::split($first);
         if ($type === null || $description === '' || $tag->textBelow() !== '') {
             return;
         }

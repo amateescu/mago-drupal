@@ -10,9 +10,11 @@ use function preg_match;
 use function preg_match_all;
 use function rtrim;
 use function str_contains;
+use function strcspn;
 use function strlen;
 use function strspn;
 use function substr;
+use function trim;
 
 use const PREG_OFFSET_CAPTURE;
 
@@ -80,6 +82,27 @@ final class DocType
         }
 
         return $content;
+    }
+
+    /**
+     * Splits a `@param`, `@return`, `@throws` or `@var` tag's content into
+     * its type and the text after it.
+     *
+     * The type is the leading run of non-whitespace. phpDoc writes a single
+     * type, a `|`-separated union and a generic such as `array<string>`
+     * without embedded spaces. leading() reads a type that has spaces
+     * inside its brackets.
+     *
+     * @return array{?string, string}
+     */
+    public static function split(string $content): array
+    {
+        $length = strcspn($content, self::WHITESPACE);
+        if ($length === 0) {
+            return [null, $content];
+        }
+
+        return [substr($content, offset: 0, length: $length), trim(substr($content, $length))];
     }
 
     /**

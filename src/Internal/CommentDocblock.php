@@ -54,14 +54,17 @@ final class CommentDocblock
      * empty one, a directive, or one holding `*\/`.
      *
      * $anchor is the part of the declaration that the comment sits above,
-     * from Docblocks::commentAnchor().
+     * from CommentAttachment::commentAnchor().
      */
     public static function edit(SourceFile $file, Trivia $comment, Node $declaration, Node $anchor): ?TextEdit
     {
         // A comment below the attributes with a docblock above them doesn't get
         // a fix. The fix would leave two docblocks, and PHP reads only the
         // lower one.
-        if ($anchor->span->start !== $declaration->span->start && Docblocks::attachedTo($file, $declaration) !== null) {
+        if (
+            $anchor->span->start !== $declaration->span->start
+            && CommentAttachment::attachedTo($file, $declaration) !== null
+        ) {
             return null;
         }
 
@@ -127,7 +130,7 @@ final class CommentDocblock
     private static function run(SourceFile $file, Trivia $comment): ?array
     {
         if ($comment->kind === TriviaKind::MultiLineComment) {
-            if (Docblocks::isDirective($file, $comment)) {
+            if (CommentAttachment::isDirective($file, $comment)) {
                 return null;
             }
 
@@ -164,7 +167,7 @@ final class CommentDocblock
         for ($position = $first; $position <= $last; $position++) {
             $line = $trivia[$position];
             $text = rtrim($file->getText($line->span));
-            if (Docblocks::isDirective($file, $line) || str_contains($text, '*/')) {
+            if (CommentAttachment::isDirective($file, $line) || str_contains($text, '*/')) {
                 return null;
             }
 

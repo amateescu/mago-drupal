@@ -32,7 +32,7 @@ final class DeprecatedDeclaration
             $declaration = $first;
         }
 
-        $docblock = Docblocks::attachedTo($file, $declaration);
+        $docblock = CommentAttachment::attachedTo($file, $declaration);
         if ($docblock === null) {
             return false;
         }

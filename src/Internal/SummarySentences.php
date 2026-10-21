@@ -72,7 +72,7 @@ final class SummarySentences
      */
     private static function checkShortCapital(LintContext $context, array $summary): void
     {
-        $content = Docblocks::joinedText($summary);
+        $content = DocblockLine::joined($summary);
         if ($content === '') {
             return;
         }
@@ -139,7 +139,7 @@ final class SummarySentences
         if (
             strtolower($trimmed) === '{@inheritdoc}'
             || in_array($lastChar, ['.', '!', '?', ')'], strict: true)
-            || Docblocks::joinedText($summary) === basename($context->file->path)
+            || DocblockLine::joined($summary) === basename($context->file->path)
         ) {
             return;
         }

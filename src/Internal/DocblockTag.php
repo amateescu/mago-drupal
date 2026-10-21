@@ -74,6 +74,22 @@ final class DocblockTag
     }
 
     /**
+     * Returns the position of this tag in $tags.
+     *
+     * @param list<DocblockTag> $tags
+     */
+    public function indexIn(array $tags): ?int
+    {
+        foreach ($tags as $index => $candidate) {
+            if ($candidate === $this) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the offset of the type, or null when the type does not start
      * the tag's line.
      */

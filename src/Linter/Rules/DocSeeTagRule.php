@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CommentAttachment;
 use amateescu\MagoDrupal\Internal\Docblocks;
 use amateescu\MagoDrupal\Internal\FunctionTags;
 use amateescu\MagoDrupal\Internal\OuterDocblocks;
@@ -98,7 +99,7 @@ final class DocSeeTagRule implements Rule
     {
         $starts = [];
         foreach ([...$file->getNodes(NodeKind::Function), ...$file->getNodes(NodeKind::Method)] as $function) {
-            $docblock = Docblocks::attachedTo($file, Docblocks::commentAnchor($file, $function));
+            $docblock = CommentAttachment::attachedTo($file, CommentAttachment::commentAnchor($file, $function));
             if ($docblock === null) {
                 continue;
             }

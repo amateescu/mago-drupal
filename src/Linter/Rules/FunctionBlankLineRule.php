@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\CommentAttachment;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use amateescu\MagoDrupal\Internal\SourceText;
 use Mago\Sdk\Linter\LintContext;
@@ -184,7 +184,7 @@ final class FunctionBlankLineRule implements Rule
                 return $tool ? $start : null;
             }
 
-            $tool = $tool || Docblocks::isDirective($file, $comment);
+            $tool = $tool || CommentAttachment::isDirective($file, $comment);
             $start = $comment->span->start;
             $offset = $start;
         }
@@ -259,7 +259,7 @@ final class FunctionBlankLineRule implements Rule
         }
 
         $trivia = $file->getTrivia();
-        $index = Docblocks::lastTriviaIndexStartingBefore($trivia, $offset);
+        $index = CommentAttachment::lastTriviaIndexStartingBefore($trivia, $offset);
         $comment = $index === null ? null : $trivia[$index];
 
         return $comment !== null && $comment->span->end > $offset ? $comment : null;

@@ -53,7 +53,7 @@ final class ReturnTag
             return $return;
         }
 
-        [$type, $rest] = Docblocks::splitType($tag->content());
+        [$type, $rest] = DocType::split($tag->content());
 
         return new self($tag, $return->count, $type, $rest);
     }

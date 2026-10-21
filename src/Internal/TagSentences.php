@@ -82,7 +82,7 @@ final class TagSentences
      */
     public static function checkThrows(LintContext $context, DocblockTag $tag): void
     {
-        [$type, $rest] = Docblocks::splitType($tag->content());
+        [$type, $rest] = DocType::split($tag->content());
         if ($type === null || $rest === '') {
             return;
         }
@@ -118,7 +118,7 @@ final class TagSentences
             return true;
         }
 
-        $index = Docblocks::indexOf($tags, $tag);
+        $index = $tag->indexIn($tags);
         if ($index === null) {
             return false;
         }

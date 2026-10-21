@@ -103,7 +103,7 @@ final class SeeTags
 
             // Other text gets one issue, as in Coder. Punctuation at the end
             // is part of that text.
-            [, $rest] = Docblocks::splitType(ltrim($reference));
+            [, $rest] = DocType::split(ltrim($reference));
             if ($rest !== '') {
                 $context->report(Issue::new(
                     'The @see tag must have only a reference, with no other text.',

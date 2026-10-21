@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\CommentAttachment;
 use amateescu\MagoDrupal\Internal\LineEnding;
 use amateescu\MagoDrupal\Internal\SwitchCases;
 use Mago\Sdk\Linter\LintContext;
@@ -119,7 +119,7 @@ final class CaseLabelLineRule implements Rule
     private static function commentStart(SourceFile $file, int $end): ?int
     {
         $trivia = $file->getTrivia();
-        $index = Docblocks::lastTriviaIndexStartingBefore($trivia, $end - 1);
+        $index = CommentAttachment::lastTriviaIndexStartingBefore($trivia, $end - 1);
         $comment = $index === null ? null : $trivia[$index];
 
         return $comment !== null && $comment->span->end === $end ? $comment->span->start : null;

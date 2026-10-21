@@ -46,10 +46,10 @@ final class DeclarationComment
         $declaration = $context->node->kind === NodeKind::Property
             ? $context->file->getChildren($context->node)[0] ?? $context->node
             : $context->node;
-        $anchor = Docblocks::commentAnchor($context->file, $declaration);
+        $anchor = CommentAttachment::commentAnchor($context->file, $declaration);
         self::$context = $context;
 
-        return self::$last = new self($declaration, $anchor, Docblocks::closest($context->file, $anchor));
+        return self::$last = new self($declaration, $anchor, CommentAttachment::closest($context->file, $anchor));
     }
 
     /**

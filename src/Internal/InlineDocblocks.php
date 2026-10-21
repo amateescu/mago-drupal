@@ -48,7 +48,10 @@ final class InlineDocblocks
         $bodies = null;
         $found = [];
         foreach ($file->getTrivia() as $index => $comment) {
-            if (!self::isCandidate($file, $comment->kind, $comment->span) || Docblocks::followsOpenTag($file, $index)) {
+            if (
+                !self::isCandidate($file, $comment->kind, $comment->span)
+                || CommentAttachment::followsOpenTag($file, $index)
+            ) {
                 continue;
             }
 

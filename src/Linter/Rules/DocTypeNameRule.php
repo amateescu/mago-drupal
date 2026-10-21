@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
-use amateescu\MagoDrupal\Internal\Docblocks;
+use amateescu\MagoDrupal\Internal\DocType;
 use amateescu\MagoDrupal\Internal\FunctionTags;
 use amateescu\MagoDrupal\Internal\PropertyTags;
 use amateescu\MagoDrupal\Internal\TypeNames;
@@ -80,7 +80,7 @@ final class DocTypeNameRule implements Rule
                 return;
             }
 
-            [$type] = Docblocks::splitType($content);
+            [$type] = DocType::split($content);
             if ($type !== null) {
                 TypeNames::checkVar($context, $tag, $type);
             }

@@ -124,7 +124,7 @@ final class InlineCommentRuns
     {
         return (
             $trivia->kind === TriviaKind::SingleLineComment
-            && !Docblocks::isDirective($file, $trivia)
+            && !CommentAttachment::isDirective($file, $trivia)
             && !InlineCommentSpacing::followsClosingBrace($file->contents, $trivia->span->start)
         );
     }
