@@ -510,6 +510,32 @@ final class ImportPlan
     }
 
     /**
+     * The class that a use statement imports and the name it gives the
+     * class, when the statement imports exactly one class. The class comes
+     * without a leading backslash. A function or constant import, a grouped
+     * import and a list of several names give null.
+     *
+     * @return array{string, string}|null
+     */
+    public static function singleImport(SourceFile $file, Node $use): ?array
+    {
+        $items = $file->getFirstDescendant($use, NodeKind::UseItems);
+        $sequence = $items === null ? null : $file->getChildren($items)[0] ?? null;
+        $list = $sequence?->kind === NodeKind::UseItemSequence ? $file->getChildren($sequence) : [];
+        $identifier = count($list) === 1 ? $file->getFirstDescendant($list[0], NodeKind::Identifier) : null;
+        if ($identifier === null) {
+            return null;
+        }
+
+        $class = ltrim($file->getText($identifier), characters: '\\');
+        $alias = $file->getFirstDescendant($list[0], NodeKind::UseItemAlias);
+        $local = $alias === null ? null : $file->getFirstDescendant($alias, NodeKind::LocalIdentifier);
+        $segments = explode('\\', $class);
+
+        return [$class, $local === null ? end($segments) : $file->getText($local)];
+    }
+
+    /**
      * Removes a use statement, with its line when the line doesn't hold
      * anything else.
      */
