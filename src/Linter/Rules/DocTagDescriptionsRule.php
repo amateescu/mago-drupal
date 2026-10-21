@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Linter\Rules;
 
+use amateescu\MagoDrupal\Internal\CodeMask;
 use amateescu\MagoDrupal\Internal\DocblockTag;
 use amateescu\MagoDrupal\Internal\FunctionTags;
 use amateescu\MagoDrupal\Internal\ParamTag;
@@ -19,8 +20,8 @@ use function count;
 use function in_array;
 use function preg_match;
 use function preg_match_all;
-use function preg_replace;
 use function str_ends_with;
+use function strpbrk;
 use function strtolower;
 use function trim;
 
@@ -42,12 +43,6 @@ use const PREG_SET_ORDER;
  */
 final class DocTagDescriptionsRule implements Rule
 {
-    /**
-     * A quoted string, a block comment or a line comment. `#[` opens an
-     * attribute, not a comment.
-     */
-    private const QUOTED_OR_COMMENT = '/\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*"|\/\*.*?\*\/|(?:\/\/|#(?!\[))[^\n]*/s';
-
     public function getDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -231,10 +226,14 @@ final class DocTagDescriptionsRule implements Rule
             // The rule reads the variables off the list's text, not its nodes.
             // The nodes take several reads per parameter. A type, an attribute
             // or a default value doesn't hold a variable. The only other places
-            // for a `$` are a quoted string or a comment. The rule blanks those
-            // first.
-            $text =
-                preg_replace(self::QUOTED_OR_COMMENT, replacement: '', subject: $context->file->getText($child)) ?? '';
+            // for a `$` are a string, a heredoc or a comment, and CodeMask
+            // blanks those. A list without a quote, a comment or a heredoc
+            // doesn't need it.
+            $text = $context->file->getText($child);
+            if (strpbrk($text, characters: '\'"/#<') !== false) {
+                $text = CodeMask::fragmentCode($text);
+            }
+
             $matches = [];
             preg_match_all('/(&\s*)?(\.\.\.\s*)?(\$[A-Za-z_][A-Za-z0-9_]*)/', $text, $matches, flags: PREG_SET_ORDER);
             $parameters = [];
