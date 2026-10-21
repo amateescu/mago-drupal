@@ -508,6 +508,9 @@ final class DiskCacheTest extends TestCase
     {
         $code =
             'require '
+            . var_export(__DIR__ . '/../../src/Internal/CacheDirectory.php', return: true)
+            . ';'
+            . 'require '
             . var_export(__DIR__ . '/../../src/Internal/DiskCache.php', return: true)
             . ';'
             . '$cache = \\amateescu\\MagoDrupal\\Internal\\DiskCache::fromEnvironment();'
