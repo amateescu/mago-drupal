@@ -127,14 +127,16 @@ final class Indexes
     ) {}
 
     /**
-     * Drops every index and the provider registrations of the last scan. The
-     * service provider scan calls it on its first batch and publishes the new
-     * registrations on its last.
+     * Drops the provider registrations of the last scan and the indexes built
+     * from them. The service provider scan calls it on its first batch and
+     * publishes the new registrations on its last. The other indexes stay:
+     * follow() drops them when a new analysis starts.
      */
     public function reset(): void
     {
         $this->provided = [];
-        $this->forget();
+        $this->services = null;
+        $this->wiring = null;
     }
 
     /**

@@ -232,7 +232,9 @@ final class DiskCache
     }
 
     /**
-     * The stamp of each file (see stamp()), by path.
+     * The stamp of each file, by path: its modification time and size as
+     * `<mtime>|<size>`, or null while it may still be changing (see
+     * fingerprint()). A missing file counts as time and size 0.
      *
      * @param list<string> $paths
      * @return array<string, string|null>
@@ -242,27 +244,17 @@ final class DiskCache
         // PHP keeps the last stat result, and before 8.3 a write does not
         // drop it.
         clearstatcache();
-        $stamps = [];
-        foreach ($paths as $path) {
-            $stamps[$path] ??= self::stamp($path);
-        }
-
-        return $stamps;
-    }
-
-    /**
-     * The modification time and size of one file, as `<mtime>|<size>`, or
-     * null while it may still be changing (see fingerprint()). A missing
-     * file counts as time and size 0. The caller clears the stat cache.
-     */
-    public static function stamp(string $path): ?string
-    {
         $recent = time() - self::RECENT;
 
-        return CacheDirectory::quietly(static function () use ($path, $recent): ?string {
-            $mtime = (int) filemtime($path);
+        // One error handler for the whole list: a root lists over 10k files.
+        return CacheDirectory::quietly(static function () use ($paths, $recent): array {
+            $stamps = [];
+            foreach ($paths as $path) {
+                $mtime = (int) filemtime($path);
+                $stamps[$path] = $mtime >= $recent ? null : (string) $mtime . '|' . (string) (int) filesize($path);
+            }
 
-            return $mtime >= $recent ? null : (string) $mtime . '|' . (string) (int) filesize($path);
+            return $stamps;
         });
     }
 
