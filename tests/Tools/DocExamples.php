@@ -23,11 +23,15 @@
 
 declare(strict_types=1);
 
-namespace amateescu\MagoDrupal\Tests;
+namespace amateescu\MagoDrupal\Tests\DocExamples;
 
+use amateescu\MagoDrupal\Internal\Type\Shape;
+
+use function array_diff;
 use function array_key_exists;
 use function array_map;
 use function array_slice;
+use function array_values;
 use function count;
 use function dirname;
 use function explode;
@@ -37,7 +41,6 @@ use function fwrite;
 use function getmypid;
 use function glob;
 use function implode;
-use function is_array;
 use function is_dir;
 use function json_decode;
 use function mkdir;
@@ -78,15 +81,31 @@ const FIX_CLAIM = 'The fix turns the reported code into the fine code.';
  */
 function run(array $command): array
 {
+    $pipes = [];
     $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
     if ($process === false) {
         return [-1, '', ''];
     }
 
-    $output = (string) stream_get_contents($pipes[1]);
-    $errors = (string) stream_get_contents($pipes[2]);
+    $streams = [];
+    foreach ([1, 2] as $pipe) {
+        $stream = $pipes[$pipe] ?? null;
+        $streams[] = $stream === null ? '' : (string) stream_get_contents($stream);
+    }
 
-    return [proc_close($process), $output, $errors];
+    return [proc_close($process), $streams[0], $streams[1]];
+}
+
+/**
+ * Returns the entries of a directory, without `.` and `..`.
+ *
+ * @return list<string>
+ */
+function entries(string $directory): array
+{
+    $entries = scandir($directory);
+
+    return array_values(array_diff($entries === false ? [] : $entries, ['.', '..']));
 }
 
 /**
@@ -100,10 +119,8 @@ function remove(string $path): void
         return;
     }
 
-    foreach (scandir($path) ?: [] as $file) {
-        if ($file !== '.' && $file !== '..') {
-            remove($path . '/' . $file);
-        }
+    foreach (entries($path) as $file) {
+        remove($path . '/' . $file);
     }
 
     rmdir($path);
@@ -114,10 +131,7 @@ function remove(string $path): void
  */
 function dedent(string $block): string
 {
-    return implode("\n", array_map(
-        static fn(string $line): string => substr($line, offset: 4),
-        explode("\n", $block),
-    ));
+    return implode("\n", array_map(static fn(string $line): string => substr($line, offset: 4), explode("\n", $block)));
 }
 
 /**
@@ -132,28 +146,33 @@ function file_text(string $code, string $path): string
         default => "<?php\n\n/**\n * @file\n * Example.\n */\n\n",
     };
 
-    return $header . trim($code, "\n") . "\n";
+    return $header . trim($code, characters: "\n") . "\n";
 }
 
 /**
  * Lints the halves of one example and returns how many checks failed.
  *
  * @param list<string> $lint The `mago lint` command for the rule.
+ *
+ * @mago-expect lint:excessive-parameter-list
+ * @mago-expect lint:no-boolean-flag-parameter
  */
 function check(string $name, string $rule, array $lint, string $workspace, string $path, string $fine, bool $fix): int
 {
     [$status, $output, $errors] = run([...$lint, '--reporting-format', 'json']);
-    $report = json_decode($output, associative: true);
-    if (!is_array($report) || !is_array($report['issues'] ?? null)) {
+    $issues = Shape::array(Shape::array(json_decode($output, associative: true))['issues'] ?? null);
+    if ($issues === null) {
         fwrite(STDERR, "{$name}: mago failed with status {$status}.\n{$output}{$errors}\n");
 
         return 1;
     }
 
     $found = ['reported' => 0, 'fine' => 0];
-    foreach ($report['issues'] as $issue) {
-        $kind = explode('/', (string) ($issue['annotations'][0]['span']['file_id']['name'] ?? ''), 2)[0];
-        if (($issue['code'] ?? '') === 'drupal/' . $rule && array_key_exists($kind, $found)) {
+    /** @var mixed $issue */
+    foreach ($issues as $issue) {
+        $file = Shape::stringAt($issue, 'annotations', '0', 'span', 'file_id', 'name') ?? '';
+        $kind = explode('/', $file, limit: 2)[0];
+        if (Shape::stringAt($issue, 'code') === 'drupal/' . $rule && array_key_exists($kind, $found)) {
             $found[$kind]++;
         }
     }
@@ -185,15 +204,18 @@ function check(string $name, string $rule, array $lint, string $workspace, strin
 
 $mago = $argv[1] ?? null;
 if ($mago === null) {
-    fwrite(STDERR, "Usage: php tests/Tools/DocExamples.php <mago binary>\n");
+    fwrite(STDERR, data: "Usage: php tests/Tools/DocExamples.php <mago binary>\n");
     exit(2);
 }
 
 // Mago runs with a temporary workspace, so a relative path such as
 // vendor/bin/mago has to be resolved first.
 if (!str_starts_with($mago, '/')) {
-    $mago = realpath($mago) ?: $mago;
+    $resolved = realpath($mago);
+    $mago = $resolved === false ? $mago : $resolved;
 }
+
+require dirname(__DIR__, levels: 2) . '/vendor/autoload.php';
 
 $root = dirname(__DIR__, levels: 2);
 $worker = $root . '/resources/worker.php';
@@ -203,9 +225,10 @@ $worker = $root . '/resources/worker.php';
 putenv('MAGO_DRUPAL_CACHE=0');
 $failures = 0;
 $count = 0;
-foreach (glob($root . '/docs/rules/*.md') ?: [] as $page) {
-    foreach (array_slice(explode("\n## drupal/", (string) file_get_contents($page)), 1) as $entry) {
-        $rule = explode("\n", $entry, 2)[0];
+$pages = glob($root . '/docs/rules/*.md');
+foreach ($pages === false ? [] : $pages as $page) {
+    foreach (array_slice(explode("\n## drupal/", (string) file_get_contents($page)), offset: 1) as $entry) {
+        $rule = explode("\n", $entry, limit: 2)[0];
         $blocks = [];
         preg_match_all('/^\?\?\?\+? example .*\n((?:\n|    .*\n)+)/m', $entry, $blocks, PREG_SET_ORDER);
         foreach ($blocks as $index => [, $block]) {
@@ -221,7 +244,7 @@ foreach (glob($root . '/docs/rules/*.md') ?: [] as $page) {
 
             [, $language, $title, $body] = $code;
             $comment = $language === 'yaml' ? '#' : '//';
-            $halves = explode("\n{$comment} Fine.\n", "\n" . $body, 2);
+            $halves = explode("\n{$comment} Fine.\n", "\n" . $body, limit: 2);
             if (count($halves) !== 2 || $language === 'yaml' && $title === '') {
                 fwrite(STDERR, "{$name}: no `{$comment} Fine.` line, or a YAML block with no title.\n");
                 $failures++;
@@ -229,11 +252,15 @@ foreach (glob($root . '/docs/rules/*.md') ?: [] as $page) {
             }
 
             [$reported, $fine] = $halves;
-            $reported = (string) preg_replace('/^\n' . preg_quote($comment, '/') . ' Reported.*\n/', '', $reported);
+            $reported = (string) preg_replace(
+                '/^\n' . preg_quote($comment, delimiter: '/') . ' Reported.*\n/',
+                replacement: '',
+                subject: $reported,
+            );
             $path = $title !== '' ? $title : 'example.module';
             $fix = str_contains($text, FIX_CLAIM);
 
-            $workspace = sys_get_temp_dir() . '/mago-drupal-examples-' . getmypid() . '-' . $count;
+            $workspace = sys_get_temp_dir() . '/mago-drupal-examples-' . (string) getmypid() . '-' . (string) $count;
             $files = ['reported' => $reported, 'fine' => $fine] + ($fix ? ['fixed' => $reported] : []);
             foreach ($files as $kind => $half) {
                 mkdir(dirname("{$workspace}/{$kind}/{$path}"), recursive: true);
@@ -244,7 +271,16 @@ foreach (glob($root . '/docs/rules/*.md') ?: [] as $page) {
                 "version = \"1\"\nphp-version = \"8.3\"\n\n[source]\npaths = [\"reported\", \"fine\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\", \"yml\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"-d\", \"xdebug.mode=off\", \"-d\", \"pcov.enabled=0\", \"%s\"]\n",
                 $worker,
             ));
-            $lint = [$mago, '--workspace', $workspace, '--config', $workspace . '/mago.toml', 'lint', '--only', 'drupal/' . $rule];
+            $lint = [
+                $mago,
+                '--workspace',
+                $workspace,
+                '--config',
+                $workspace . '/mago.toml',
+                'lint',
+                '--only',
+                'drupal/' . $rule,
+            ];
             $failures += check($name, $rule, $lint, $workspace, $path, $fine, $fix);
             remove($workspace);
         }
