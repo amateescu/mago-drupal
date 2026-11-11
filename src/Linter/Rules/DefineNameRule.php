@@ -23,6 +23,8 @@ use function substr;
  *
  * Ports Generic.NamingConventions.UpperCaseConstantName.ConstantNotUpperCase.
  * Mago's own `constant-name` rule covers `const`.
+ *
+ * @internal
  */
 final class DefineNameRule extends CallRule
 {

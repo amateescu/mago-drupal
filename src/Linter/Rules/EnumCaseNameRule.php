@@ -20,6 +20,8 @@ use function str_contains;
  *
  * Ports Drupal.NamingConventions.ValidEnumCase. The sniff applies the class
  * naming rules to case names.
+ *
+ * @internal
  */
 final class EnumCaseNameRule implements Rule
 {

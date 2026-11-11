@@ -38,6 +38,8 @@ use const PREG_SET_ORDER;
  * coverage that doesn't have an entry for a real parameter, or a `@param` tag
  * that repeats an earlier one or is out of order.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

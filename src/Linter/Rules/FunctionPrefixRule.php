@@ -24,6 +24,8 @@ use function substr;
  *
  * Ports the InvalidPrefix check of Drupal.NamingConventions.ValidFunctionName.
  * Functions share one global namespace. The module name keeps them apart.
+ *
+ * @internal
  */
 final class FunctionPrefixRule implements Rule
 {

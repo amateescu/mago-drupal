@@ -64,6 +64,8 @@ use function substr;
  * to their own block. The import goes only when every mention of its name
  * in the file's docblocks is rewritten.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

@@ -36,6 +36,8 @@ use function substr_count;
  * neither does a `default` case. `mago format` keeps one blank line or none
  * after the statement, in a brace body and in a `switch (): ... endswitch;`
  * body, so the fix stays.
+ *
+ * @internal
  */
 final class CaseBreakBlankLineRule implements Rule
 {

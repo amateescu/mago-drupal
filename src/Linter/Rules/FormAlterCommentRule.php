@@ -33,6 +33,8 @@ use function substr;
  *
  * Ports DrupalPractice.FunctionDefinitions.FormAlterDoc. The usual cause is a
  * `hook_form_FORM_ID_alter()` implementation with the wrong docblock.
+ *
+ * @internal
  */
 final class FormAlterCommentRule implements Rule
 {

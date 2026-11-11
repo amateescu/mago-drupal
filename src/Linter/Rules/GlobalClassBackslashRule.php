@@ -37,6 +37,8 @@ use function trim;
  *
  * The places where a class name can stand need many branches.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class GlobalClassBackslashRule implements Rule

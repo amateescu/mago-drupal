@@ -24,6 +24,8 @@ use function strtolower;
  * Coder wants only lower case, so a private helper such as
  * `_mymodule_helper()` is fine. Mago's `function-name` wants snake case and
  * reports it. drupal/method-name checks methods.
+ *
+ * @internal
  */
 final class FunctionNameRule implements Rule
 {

@@ -23,6 +23,8 @@ use function substr;
  * Ports Drupal.NamingConventions.ValidVariableName.LowerStart. Each
  * occurrence is reported, as Coder does. Mago's `variable-name` checks only
  * assignments and parameters.
+ *
+ * @internal
  */
 final class VariableNameRule implements Rule
 {

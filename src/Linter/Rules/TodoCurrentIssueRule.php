@@ -30,6 +30,8 @@ use function strpos;
  * `issue/mymodule-3456789`. Outside a merge request pipeline neither is set and
  * the rule doesn't report anything, so unlike phpstan-drupal's rule it is on by
  * default.
+ *
+ * @internal
  */
 final class TodoCurrentIssueRule implements Rule
 {

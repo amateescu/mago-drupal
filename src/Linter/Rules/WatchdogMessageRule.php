@@ -21,6 +21,8 @@ use function count;
  *
  * Ports Drupal.Semantics.FunctionWatchdog. It reports only Drupal 7 era code,
  * because the logger channel service replaces watchdog().
+ *
+ * @internal
  */
 final class WatchdogMessageRule extends CallRule
 {

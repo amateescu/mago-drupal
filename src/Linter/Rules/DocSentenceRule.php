@@ -22,6 +22,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * docblock outside a function body, and of
  * Drupal.Commenting.FunctionComment, on the tags of a function or method.
  * `SummarySentences` and `TagSentences` hold the checks.
+ *
+ * @internal
  */
 final class DocSentenceRule implements Rule
 {

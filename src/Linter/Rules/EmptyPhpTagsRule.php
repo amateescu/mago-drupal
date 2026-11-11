@@ -21,6 +21,8 @@ use function strlen;
  *
  * Ports Generic.CodeAnalysis.EmptyPHPStatement.EmptyPHPOpenCloseTagsDetected.
  * The stray `;` code of that sniff stays with Mago's `no-noop`.
+ *
+ * @internal
  */
 final class EmptyPhpTagsRule implements Rule
 {

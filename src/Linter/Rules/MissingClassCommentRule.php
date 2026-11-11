@@ -21,6 +21,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * a docblock tagged `@file` does not count as the class docblock.
  * `drupal/file-comment` already covers the file comment, and
  * `drupal/class-comment` a comment in the wrong style.
+ *
+ * @internal
  */
 final class MissingClassCommentRule implements Rule
 {

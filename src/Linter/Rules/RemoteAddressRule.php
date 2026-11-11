@@ -29,6 +29,8 @@ use function str_contains;
  * every write shape apart from a read, so it needs the branches. The
  * complexity is deliberate.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class RemoteAddressRule implements Rule

@@ -39,6 +39,8 @@ use function substr;
  * in a `<pre>` element or a plain-text mail body, so that fix is potentially
  * unsafe. A `.yml` file is skipped: Mago parses it as HTML, and phpcs doesn't
  * report tabs there.
+ *
+ * @internal
  */
 final class TabCharacterRule implements Rule
 {

@@ -22,6 +22,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Drupal.Commenting.FunctionComment and the type name part of
  * `IncorrectVarType` of Drupal.Commenting.VariableComment. `TypeNames`
  * holds the names.
+ *
+ * @internal
  */
 final class DocTypeNameRule implements Rule
 {

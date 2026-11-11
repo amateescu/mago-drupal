@@ -52,6 +52,8 @@ use function trim;
  * limit. That exempts URLs and long class paths. A one-line `/* @see *\/`
  * comment is exempt like a `// @see` line.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class CommentLineLengthRule implements Rule

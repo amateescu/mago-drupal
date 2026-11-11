@@ -35,6 +35,8 @@ use function strtolower;
  * site and does not import it. The import and its usages move together, so
  * the fix removes the import and writes every reference to the class in full.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

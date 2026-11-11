@@ -27,6 +27,8 @@ use function strlen;
  * Ports DrupalPractice.General.OptionsT. The check is a guess, as in Coder.
  * It reads a string that is more than three characters long and not a number
  * as a label, because a key or a value of a list is not translated.
+ *
+ * @internal
  */
 final class UntranslatedOptionsRule implements Rule
 {

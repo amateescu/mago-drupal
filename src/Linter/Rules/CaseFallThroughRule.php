@@ -29,6 +29,8 @@ use function count;
  * `goto` ends it, or when its last statement ends it through `if` and
  * `else` branches, `try` blocks or a nested `switch`. A `default` case is
  * never reported, and neither is the last case.
+ *
+ * @internal
  */
 final class CaseFallThroughRule implements Rule
 {

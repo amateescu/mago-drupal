@@ -37,6 +37,8 @@ use function trim;
  * string from it. `drupal/translatable-string` reports a string built with
  * `.`.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class TranslatableLiteralRule implements Rule

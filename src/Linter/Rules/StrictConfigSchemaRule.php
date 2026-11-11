@@ -30,6 +30,8 @@ use function strtolower;
  * The class is a test class when `Test` or `Tests` is a word of its name.
  * Coder looks for the letters anywhere in the name, which also takes
  * `Testimonial` and `Testable`.
+ *
+ * @internal
  */
 final class StrictConfigSchemaRule implements Rule
 {

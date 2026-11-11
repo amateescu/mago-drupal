@@ -43,6 +43,8 @@ use function trim;
  * a period after the variable, a variable after the `@return` type, and
  * spaces in a type. `FunctionCommentSpacing` holds the whitespace checks.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

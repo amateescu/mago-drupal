@@ -29,6 +29,8 @@ use function strtolower;
  * Drupal.Commenting.ClassComment. `drupal/missing-class-comment` reports a
  * declaration with no docblock, or with a docblock tagged `@file`, which
  * belongs to the file. This rule checks neither of those.
+ *
+ * @internal
  */
 final class ClassCommentRule implements Rule
 {

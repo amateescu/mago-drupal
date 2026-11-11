@@ -41,6 +41,8 @@ use function substr;
  * A docblock inside a body is reported unless a tag starts it or a declaration
  * follows it, as Coder does. Mago's own `no-empty-comment` rule already reports
  * an empty docblock.
+ *
+ * @internal
  */
 final class InlineCommentRule implements Rule
 {

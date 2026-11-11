@@ -21,6 +21,8 @@ use function str_ends_with;
  * Ports VariableAnalysis.CodeAnalysis.VariableAnalysis.VariableRedeclaration
  * with the settings of Coder's DrupalPractice standard. The sniff compares
  * the declarations of a name in source order, so it doesn't need flow analysis.
+ *
+ * @internal
  */
 final class VariableRedeclarationRule implements Rule
 {

@@ -28,6 +28,8 @@ use function array_key_exists;
  * property docblocks only. The standard asks the same of every `@see` tag,
  * so the rule also checks the references in the other docblocks outside a
  * function body.
+ *
+ * @internal
  */
 final class DocSeeTagRule implements Rule
 {

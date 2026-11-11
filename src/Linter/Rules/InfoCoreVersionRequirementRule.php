@@ -18,6 +18,8 @@ use Mago\Sdk\Syntax\NodeKind;
  *
  * Ports DrupalPractice.InfoFiles.CoreVersionRequirement. A test module, with
  * `package: Testing`, may leave the key out.
+ *
+ * @internal
  */
 final class InfoCoreVersionRequirementRule implements Rule
 {

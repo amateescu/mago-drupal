@@ -36,6 +36,8 @@ use const PREG_OFFSET_CAPTURE;
  * and spaces after it, as phpcbf does. It skips a to-do with no text after
  * it, and a word that only starts with "todo", such as "todos".
  *
+ * @internal
+ *
  * @see https://www.drupal.org/node/1354
  */
 final class TodoCommentRule implements Rule

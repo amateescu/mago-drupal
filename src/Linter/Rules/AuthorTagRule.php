@@ -20,6 +20,8 @@ use function stripos;
  *
  * Ports DrupalPractice.Commenting.AuthorTag. Many people edit a file over
  * time, so the tag goes out of date. Git already records who wrote what.
+ *
+ * @internal
  */
 final class AuthorTagRule implements Rule
 {

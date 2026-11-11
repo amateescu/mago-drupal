@@ -22,6 +22,8 @@ use function substr;
  *
  * Ports Drupal.Semantics.PregSecurity.
  *
+ * @internal
+ *
  * @see https://www.drupal.org/node/750148
  */
 final class PregSecurityRule extends CallRule

@@ -26,6 +26,8 @@ use function substr;
  * standard enables. An underscore once marked a method as private; the
  * visibility keyword does that now. Two underscores start a magic method
  * and are fine.
+ *
+ * @internal
  */
 final class MethodNameUnderscoreRule implements Rule
 {

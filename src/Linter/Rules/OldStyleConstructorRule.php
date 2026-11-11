@@ -21,6 +21,8 @@ use function strtolower;
  * Ports Generic.NamingConventions.ConstructorName.OldStyle. PHP 4 ran such a
  * method as the constructor. PHP 8 doesn't, and PHP never did in a
  * namespaced class, so the name only misleads.
+ *
+ * @internal
  */
 final class OldStyleConstructorRule implements Rule
 {

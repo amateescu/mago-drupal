@@ -48,6 +48,8 @@ use function substr_count;
  * The fix adds one blank line above the preamble, and `mago format` keeps it.
  * It is left out when the function starts on the line of the code before it.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

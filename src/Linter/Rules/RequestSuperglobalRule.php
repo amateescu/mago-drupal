@@ -23,6 +23,8 @@ use function array_key_exists;
  * Ports DrupalPractice.Variables.GetRequestData. Code that reads the
  * superglobal cannot run on a request other than the current one, and a test
  * cannot replace it. `$_REQUEST` is left to Mago's `no-request-variable`.
+ *
+ * @internal
  */
 final class RequestSuperglobalRule implements Rule
 {

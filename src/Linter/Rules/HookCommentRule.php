@@ -50,6 +50,8 @@ use function strlen;
  *
  * Functions and hook methods together need many branches.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

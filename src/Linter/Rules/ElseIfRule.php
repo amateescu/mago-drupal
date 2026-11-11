@@ -22,6 +22,8 @@ use function strlen;
  * Ports Drupal.ControlStructures.ElseIf. `mago format` does not change the
  * pair, so it isn't covered by anything else. An `else` with braces around a
  * nested `if` is a different construct. The rule skips it.
+ *
+ * @internal
  */
 final class ElseIfRule implements Rule
 {

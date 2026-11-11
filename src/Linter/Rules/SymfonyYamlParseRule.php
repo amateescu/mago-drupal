@@ -23,6 +23,8 @@ use function strtolower;
  * Ports phpstan-drupal's SymfonyYamlParseRule. Drupal's own
  * `\Drupal\Component\Serialization\Yaml::decode()` selects the fast parser
  * when it is available and applies Drupal's parser flags.
+ *
+ * @internal
  */
 final class SymfonyYamlParseRule implements Rule
 {

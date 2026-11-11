@@ -26,6 +26,8 @@ use function strlen;
  * Ports DrupalPractice.InfoFiles.NamespacedDependency. Like Coder, the rule
  * reads the lines of a `dependencies:` block list, and skips a theme, which
  * Drupal lets name a dependency without its project.
+ *
+ * @internal
  */
 final class InfoNamespacedDependencyRule implements Rule
 {

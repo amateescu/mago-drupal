@@ -22,6 +22,8 @@ use function trim;
  * Ports Drupal.Classes.PropertyDeclaration.VarUsed and the ScopeMissing
  * check of PSR2.Classes.PropertyDeclaration. PHP makes such a property
  * public. Drupal wants that written down.
+ *
+ * @internal
  */
 final class PropertyVisibilityRule implements Rule
 {

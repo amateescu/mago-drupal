@@ -27,6 +27,8 @@ use function substr;
  * Ports DrupalPractice.Commenting.ExpectedException. PHPUnit no longer has
  * these tags. Use `expectException()` and the related methods instead.
  *
+ * @internal
+ *
  * @see https://thephp.cc/news/2016/02/questioning-phpunit-best-practices
  */
 final class ExpectedExceptionTagRule implements Rule

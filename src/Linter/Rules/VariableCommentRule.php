@@ -39,6 +39,8 @@ use function trim;
  * reports a property with no docblock, `drupal/doc-type-name` the `@var`
  * type name, and `drupal/doc-see-tag` an empty `@see` tag.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

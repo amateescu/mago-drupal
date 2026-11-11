@@ -38,6 +38,8 @@ use function trim;
  * The rule targets the class, not the call. A linter snapshot holds only the
  * subtree under the target node. A rule cannot ask a call what encloses it.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

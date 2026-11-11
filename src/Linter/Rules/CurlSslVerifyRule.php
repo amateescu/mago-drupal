@@ -30,6 +30,8 @@ use function strtolower;
  * Coder reads only the first token of the value and matches the written
  * case. This rule reads the whole value and ignores case, so `false`,
  * `(FALSE)` and `0x0` count, and `FALSE ?: TRUE` does not.
+ *
+ * @internal
  */
 final class CurlSslVerifyRule extends CallRule
 {

@@ -20,6 +20,8 @@ use function str_contains;
  * Ports Drupal.InfoFiles.AutoAddedKeys. The packaging script writes
  * `project`, `datestamp` and `version` into the info files of a release, so
  * the files in the repository must not have them.
+ *
+ * @internal
  */
 final class InfoAutoAddedKeysRule implements Rule
 {

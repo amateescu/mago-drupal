@@ -32,6 +32,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * two-dot pattern of SlevomatCodingStandard.Commenting.ForbiddenComments.
  * Both of those run on every docblock, inside function bodies too. The
  * summary, the tags and their groups have rules of their own.
+ *
+ * @internal
  */
 final class DocCommentRule implements Rule
 {

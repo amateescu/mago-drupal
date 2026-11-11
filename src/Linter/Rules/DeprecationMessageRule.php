@@ -40,6 +40,8 @@ use function stripos;
  * docblock. The ported sniff reads it the same way. The scope classification
  * needs its branches, so the complexity is intended.
  *
+ * @internal
+ *
  * @see https://www.drupal.org/about/core/policies/core-change-policies/how-to-deprecate#how-trigger-error
  *
  * @mago-expect lint:cyclomatic-complexity

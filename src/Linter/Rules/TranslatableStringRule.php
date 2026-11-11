@@ -38,6 +38,8 @@ use function trim;
  *
  * Each of Coder's checks and its exceptions needs a branch of its own.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class TranslatableStringRule implements Rule

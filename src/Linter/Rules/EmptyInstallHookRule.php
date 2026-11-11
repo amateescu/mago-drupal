@@ -17,6 +17,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Reports empty hook_install() and hook_uninstall() implementations.
  *
  * Ports Drupal.Semantics.EmptyInstall.
+ *
+ * @internal
  */
 final class EmptyInstallHookRule implements Rule
 {

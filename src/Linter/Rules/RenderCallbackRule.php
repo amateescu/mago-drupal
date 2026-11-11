@@ -31,6 +31,8 @@ use function trim;
  * string, or a class method. Drupal rejects a bare function name string at
  * run time.
  *
+ * @internal
+ *
  * @see https://www.drupal.org/node/2966725
  *
  * @mago-expect lint:cyclomatic-complexity

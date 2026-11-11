@@ -40,6 +40,8 @@ use function strspn;
  * `drupal/missing-file-comment` reports a file that does not start with a
  * comment.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

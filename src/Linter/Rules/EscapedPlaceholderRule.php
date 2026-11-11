@@ -40,6 +40,8 @@ use function trim;
  * their value, so an escaped value is escaped twice and shows its entities,
  * such as `&amp;amp;`.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class EscapedPlaceholderRule implements Rule

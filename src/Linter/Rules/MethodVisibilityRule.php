@@ -25,6 +25,8 @@ use function trim;
  *
  * Ports Drupal.Scope.MethodScope and Drupal.Methods.MethodDeclaration. PHP
  * makes such a method public. Drupal wants that written down.
+ *
+ * @internal
  */
 final class MethodVisibilityRule implements Rule
 {

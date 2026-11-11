@@ -18,6 +18,8 @@ use function is_array;
  * Reports a `dependencies` key of an `.info.yml` file that is not a list.
  *
  * Ports Drupal.InfoFiles.DependenciesArray.
+ *
+ * @internal
  */
 final class InfoDependenciesArrayRule implements Rule
 {

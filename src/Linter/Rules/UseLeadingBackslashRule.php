@@ -25,6 +25,8 @@ use function strlen;
  * from the root, so the backslash doesn't add anything. Like the sniff, the
  * rule checks only the first name of a statement: the name after `use`,
  * `use function` or `use const`, or the prefix of a group.
+ *
+ * @internal
  */
 final class UseLeadingBackslashRule implements Rule
 {

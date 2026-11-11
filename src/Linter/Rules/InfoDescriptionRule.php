@@ -17,6 +17,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * one.
  *
  * Ports DrupalPractice.InfoFiles.Description.
+ *
+ * @internal
  */
 final class InfoDescriptionRule implements Rule
 {

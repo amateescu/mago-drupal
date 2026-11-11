@@ -22,6 +22,8 @@ use function str_starts_with;
  *
  * Ports Drupal.Semantics.LStringTranslatable. The rule reports only in
  * Drupal 7 era code, because the Link class replaces l() in Drupal 8.
+ *
+ * @internal
  */
 final class LinkTextTranslatableRule extends CallRule
 {

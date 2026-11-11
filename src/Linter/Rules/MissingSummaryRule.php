@@ -24,6 +24,8 @@ use function preg_match;
  * inside the docblock is not part of a description. Coder reads it the same
  * way below the summary, but above it Coder doesn't find a summary. The summary
  * of a file docblock is the text after its `@file` tag.
+ *
+ * @internal
  */
 final class MissingSummaryRule implements Rule
 {

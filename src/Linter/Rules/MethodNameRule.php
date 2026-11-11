@@ -27,6 +27,8 @@ use function substr;
  * Drupal.NamingConventions.ValidFunctionName. The two codes run the same
  * check, with and without a visibility keyword. Mago's `method-name` accepts
  * a run of capitals, as in `getURL()`, which Coder reports.
+ *
+ * @internal
  */
 final class MethodNameRule implements Rule
 {

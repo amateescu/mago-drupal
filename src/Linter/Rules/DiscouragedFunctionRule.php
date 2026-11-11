@@ -20,6 +20,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Drupal.Functions.DiscouragedFunctions. Do not commit the devel module's
  * dump helpers. Some platforms do not have `fnmatch()`. Coder also lists
  * `eval`, which Mago's own `no-eval` rule reports.
+ *
+ * @internal
  */
 final class DiscouragedFunctionRule extends CallRule
 {

@@ -20,6 +20,8 @@ use function substr;
  * Reports a file that is not valid UTF-8.
  *
  * Ports Drupal.Files.FileEncoding.
+ *
+ * @internal
  */
 final class FileEncodingRule implements Rule
 {

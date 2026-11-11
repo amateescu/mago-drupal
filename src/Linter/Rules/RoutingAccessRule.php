@@ -25,6 +25,8 @@ use function strspn;
  * Ports DrupalPractice.Yaml.RoutingAccess. Like Coder, the rule reads the
  * lines, so it matches `_access: 'TRUE'` and the permission as written with
  * single quotes.
+ *
+ * @internal
  */
 final class RoutingAccessRule implements Rule
 {

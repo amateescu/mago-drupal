@@ -36,6 +36,8 @@ use function trim;
  * The fix adds the import and writes the short name, see `ImportPlan` for
  * when it applies.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

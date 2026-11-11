@@ -23,6 +23,8 @@ use function str_ends_with;
  * Ports VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable with
  * the settings of Coder's DrupalPractice standard. A name that the scope
  * reads anywhere counts as used, before or after the write.
+ *
+ * @internal
  */
 final class UnusedVariableRule implements Rule
 {

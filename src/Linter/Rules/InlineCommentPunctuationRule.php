@@ -32,6 +32,8 @@ use function strlen;
  * need punctuation.
  *
  * The fix appends a full stop to the last line, as phpcbf does.
+ *
+ * @internal
  */
 final class InlineCommentPunctuationRule implements Rule
 {

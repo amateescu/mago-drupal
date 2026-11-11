@@ -26,6 +26,8 @@ use function substr;
  * formatter prints it as written. The fix writes `TRUE` without the
  * backslash. PHP never looks up these three names in a namespace, so the
  * backslash doesn't change anything.
+ *
+ * @internal
  */
 final class LiteralConstantCaseRule implements Rule
 {

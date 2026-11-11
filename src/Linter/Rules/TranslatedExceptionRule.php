@@ -25,6 +25,8 @@ use function count;
  *
  * Ports DrupalPractice.General.ExceptionT. Exception text goes to logs and
  * developers, not to site visitors.
+ *
+ * @internal
  */
 final class TranslatedExceptionRule implements Rule
 {

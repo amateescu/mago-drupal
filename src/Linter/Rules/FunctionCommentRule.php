@@ -27,6 +27,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * no native hint. It thus already reports a `void` return that returns a
  * value, a function with no `return` at all, an `@param` that names an
  * unknown parameter, and a bare tag with no type.
+ *
+ * @internal
  */
 final class FunctionCommentRule implements Rule
 {

@@ -45,6 +45,8 @@ use function trim;
  * don't do anything. A first-class callable, `unserialize(...)`, passes the
  * call on with no options, so it is reported too.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

@@ -19,6 +19,8 @@ use function strlen;
  * Reports a byte order mark at the start of a file.
  *
  * Ports Generic.Files.ByteOrderMark.
+ *
+ * @internal
  */
 final class ByteOrderMarkRule implements Rule
 {

@@ -27,6 +27,8 @@ use function trim;
  * Ports the WrongOpenercase and WrongOpenerdefault checks of
  * PSR2.ControlStructures.SwitchDeclaration. PHP treats `case 1;` and `case
  * 1:` the same, so the fix is safe.
+ *
+ * @internal
  */
 final class CaseSemicolonRule implements Rule
 {

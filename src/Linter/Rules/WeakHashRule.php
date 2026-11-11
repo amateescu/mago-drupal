@@ -25,6 +25,8 @@ use function strtolower;
  * Ports the disallowed-call configuration in Drupal core's phpstan.neon.dist.
  * That includes the variant that passes a weak algorithm name to hash().
  *
+ * @internal
+ *
  * @see https://www.drupal.org/node/3581605
  */
 final class WeakHashRule extends CallRule

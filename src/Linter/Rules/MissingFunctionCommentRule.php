@@ -26,6 +26,8 @@ use function strtolower;
  * `@file` above a function belongs to the file, so the function counts as
  * undocumented. `drupal/function-comment` reports a comment in the wrong
  * style.
+ *
+ * @internal
  */
 final class MissingFunctionCommentRule implements Rule
 {

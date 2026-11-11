@@ -25,6 +25,8 @@ use const PREG_OFFSET_CAPTURE;
  * Reports gendered pronouns in comments.
  *
  * Ports Drupal.Commenting.GenderNeutralComment.
+ *
+ * @internal
  */
 final class GenderNeutralCommentRule implements Rule
 {

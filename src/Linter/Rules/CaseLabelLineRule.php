@@ -34,6 +34,8 @@ use function substr;
  *
  * The fix puts the label on the next line, at the indent of the line where
  * the comment starts. Only whitespace changes, so the fix is safe.
+ *
+ * @internal
  */
 final class CaseLabelLineRule implements Rule
 {

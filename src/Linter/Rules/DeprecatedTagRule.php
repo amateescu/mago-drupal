@@ -38,6 +38,8 @@ use function trim;
  * message embeds its change-record link with "… See %link%". A `@deprecated`
  * tag writes the link as a `@see` tag after it instead.
  *
+ * @internal
+ *
  * @see https://www.drupal.org/node/2807731
  *
  * @mago-expect lint:cyclomatic-complexity

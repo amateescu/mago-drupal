@@ -18,6 +18,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * reads the names of the declaration, so a property hook is never taken for
  * a second name. A split would have to copy the attributes and sort out the
  * docblock and the comments between the names, so there isn't a fix.
+ *
+ * @internal
  */
 final class PropertyPerStatementRule implements Rule
 {

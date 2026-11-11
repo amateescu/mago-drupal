@@ -19,6 +19,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Ports `Missing` of Drupal.Commenting.FileComment, with the sniff's skip
  * of a file that holds a class. `drupal/file-comment` checks that the
  * comment is a docblock with an `@file` tag.
+ *
+ * @internal
  */
 final class MissingFileCommentRule implements Rule
 {

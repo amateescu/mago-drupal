@@ -29,6 +29,8 @@ use function trim;
  * fixture. TestClassSuffix holds these facts, and the analyzer check
  * `drupal/test-class-name` reports the other TestCase descendants. Coder
  * doesn't have such a sniff. Drupal's coding standards ask for the suffix.
+ *
+ * @internal
  */
 final class TestClassSuffixRule implements Rule
 {

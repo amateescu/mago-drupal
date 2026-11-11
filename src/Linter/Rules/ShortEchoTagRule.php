@@ -21,6 +21,8 @@ use function strlen;
  *
  * Ports Generic.PHP.DisallowShortOpenTag.EchoFound. Mago's
  * `no-short-opening-tag` covers the `<?` tag.
+ *
+ * @internal
  */
 final class ShortEchoTagRule implements Rule
 {

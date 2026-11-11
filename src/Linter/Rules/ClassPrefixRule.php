@@ -28,6 +28,8 @@ use function ucfirst;
  * Ports DrupalPractice.General.ClassName. A class in the global namespace
  * shares it with the classes of every other module. A file with a
  * namespace is exempt from the first `namespace` statement on.
+ *
+ * @internal
  */
 final class ClassPrefixRule implements Rule
 {

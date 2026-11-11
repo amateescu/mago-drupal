@@ -25,6 +25,8 @@ use function trim;
  * between `list` and the opening parenthesis would be lost, so that fix is
  * potentially unsafe. An empty `list()` doesn't have a fix, since PHP rejects
  * both spellings.
+ *
+ * @internal
  */
 final class ShortListRule implements Rule
 {

@@ -18,6 +18,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Ports the MissingCase check of Squiz.ControlStructures.SwitchDeclaration.
  * A `default` label alone does not count. A person has to pick the labels, so
  * there isn't a fix.
+ *
+ * @internal
  */
 final class EmptySwitchRule implements Rule
 {

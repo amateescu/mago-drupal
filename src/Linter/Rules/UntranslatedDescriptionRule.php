@@ -26,6 +26,8 @@ use function trim;
  *
  * Ports DrupalPractice.General.DescriptionT. As in Coder, a string counts
  * when it has more than three characters once its tags are gone.
+ *
+ * @internal
  */
 final class UntranslatedDescriptionRule implements Rule
 {

@@ -36,6 +36,8 @@ use function substr;
  * `switch` or `try` that ends with `return;` does not, and neither does an
  * arrow function, since it doesn't have statements.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class RedundantReturnRule implements Rule

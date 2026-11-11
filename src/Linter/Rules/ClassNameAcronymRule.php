@@ -20,6 +20,8 @@ use function preg_match;
  *
  * Ports Drupal.NamingConventions.ValidClassName.NoUpperAcronyms. The test is
  * the one `drupal/enum-case-name` uses for case names.
+ *
+ * @internal
  */
 final class ClassNameAcronymRule implements Rule
 {

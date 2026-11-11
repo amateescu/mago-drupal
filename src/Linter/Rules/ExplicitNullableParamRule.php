@@ -32,6 +32,8 @@ use function trim;
  * The fix writes the type that PHP already gives the parameter, so it is
  * safe.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class ExplicitNullableParamRule implements Rule

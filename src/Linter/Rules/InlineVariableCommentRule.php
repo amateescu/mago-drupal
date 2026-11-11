@@ -46,6 +46,8 @@ use function trim;
  * becomes a `/** *\/` docblock. Both fixes are potentially unsafe, because
  * the analyzers start to trust the type.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

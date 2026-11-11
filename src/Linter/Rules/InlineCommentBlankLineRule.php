@@ -19,6 +19,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * bracket is the formatter's. It removes the line before most brackets and
  * adds one before the closing brace of a class-like with members, so the
  * rule skips them all.
+ *
+ * @internal
  */
 final class InlineCommentBlankLineRule implements Rule
 {

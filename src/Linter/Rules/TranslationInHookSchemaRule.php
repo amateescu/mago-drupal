@@ -13,6 +13,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Reports a t() call inside hook_schema().
  *
  * Ports Drupal.Semantics.TInHookSchema.
+ *
+ * @internal
  */
 final class TranslationInHookSchemaRule extends HookTranslationRule
 {

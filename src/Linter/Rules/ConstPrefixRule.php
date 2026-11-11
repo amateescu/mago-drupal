@@ -23,6 +23,8 @@ use function in_array;
  *
  * Ports Drupal.Semantics.ConstantName.ConstConstantStart. The test is the
  * one `drupal/constant-prefix` uses for define().
+ *
+ * @internal
  */
 final class ConstPrefixRule implements Rule
 {

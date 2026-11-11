@@ -22,6 +22,8 @@ use function substr;
  * Reports whitespace before the first open tag of a file.
  *
  * Ports Squiz.WhiteSpace.SuperfluousWhitespace.StartFile.
+ *
+ * @internal
  */
 final class FileStartWhitespaceRule implements Rule
 {

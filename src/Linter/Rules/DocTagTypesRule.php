@@ -26,6 +26,8 @@ use function trim;
  *
  * Ports `MissingParamName`, `MissingParamType`, `MissingReturnType` and
  * `DuplicateReturn` of Drupal.Commenting.FunctionComment.
+ *
+ * @internal
  */
 final class DocTagTypesRule implements Rule
 {

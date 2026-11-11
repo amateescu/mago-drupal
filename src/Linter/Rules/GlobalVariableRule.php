@@ -19,6 +19,8 @@ use function str_starts_with;
  *
  * Ports Drupal.NamingConventions.ValidGlobal. Globals share one namespace. A
  * leading underscore marks the globals that a module owns.
+ *
+ * @internal
  */
 final class GlobalVariableRule implements Rule
 {

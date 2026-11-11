@@ -31,6 +31,8 @@ use function strtolower;
  * A long description can end with a colon before a list, a quoted token, or
  * a digit, and a report on those gives dozens of false positives on Drupal
  * core. The fix adds a full stop, as phpcbf does.
+ *
+ * @internal
  */
 final class LongDescriptionPunctuationRule implements Rule
 {

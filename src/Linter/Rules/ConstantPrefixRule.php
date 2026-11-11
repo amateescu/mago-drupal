@@ -21,6 +21,8 @@ use function str_starts_with;
  *
  * Ports Drupal.Semantics.ConstantName.ConstantStart. Constants that a module
  * defines share one global namespace. The prefix keeps them apart.
+ *
+ * @internal
  */
 final class ConstantPrefixRule extends CallRule
 {

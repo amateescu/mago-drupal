@@ -28,6 +28,8 @@ use function strlen;
  *
  * Ports DrupalPractice.Constants.GlobalConstant and GlobalDefine. A constant
  * in a class or interface cannot clash with another module's constant.
+ *
+ * @internal
  */
 final class GlobalConstantRule implements Rule
 {

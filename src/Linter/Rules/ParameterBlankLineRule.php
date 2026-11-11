@@ -35,6 +35,8 @@ use function trim;
  * string, inside an attribute, or inside a comment. An arrow function is
  * not checked. A fix removes the blank line.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  */
 final class ParameterBlankLineRule implements Rule

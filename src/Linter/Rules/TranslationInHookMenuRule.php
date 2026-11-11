@@ -14,6 +14,8 @@ use Mago\Sdk\Syntax\NodeKind;
  *
  * Ports Drupal.Semantics.TInHookMenu. It reports only Drupal 7 era code,
  * because routing YAML replaces hook_menu().
+ *
+ * @internal
  */
 final class TranslationInHookMenuRule extends HookTranslationRule
 {

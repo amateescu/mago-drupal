@@ -50,6 +50,8 @@ use function trim;
  *
  * The two shapes and the checks before a fix need many branches.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

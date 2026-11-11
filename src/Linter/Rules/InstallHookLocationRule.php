@@ -18,6 +18,8 @@ use Mago\Sdk\Syntax\NodeKind;
  *
  * Ports Drupal.Semantics.InstallHooks. Drupal loads `.install` only during
  * install and update runs. Drupal never calls a hook placed in `.module`.
+ *
+ * @internal
  */
 final class InstallHookLocationRule implements Rule
 {

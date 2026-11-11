@@ -27,6 +27,8 @@ use function substr;
  * Ports Drupal.Attributes.ValidHookName.HookPrefix. The attribute holds the
  * full hook name, so the prefix names a hook that's never invoked. Removing
  * it changes which hook runs, so the rule doesn't have a fix.
+ *
+ * @internal
  */
 final class HookAttributeNameRule implements Rule
 {

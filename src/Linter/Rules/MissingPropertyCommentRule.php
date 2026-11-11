@@ -18,6 +18,8 @@ use Mago\Sdk\Syntax\NodeKind;
  * Ports `Missing` of Drupal.Commenting.VariableComment. Coder wants a
  * docblock on a typed property too. The type only makes its `@var` tag
  * optional. `drupal/variable-comment` reports a comment in the wrong style.
+ *
+ * @internal
  */
 final class MissingPropertyCommentRule implements Rule
 {

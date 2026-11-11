@@ -66,6 +66,8 @@ use function trim;
  * half of Drupal.Classes.ClassDeclaration.CloseBraceSameLine. A directive
  * there applies to nothing. This check doesn't have a fix, as in Coder.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

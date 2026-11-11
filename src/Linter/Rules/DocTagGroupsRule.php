@@ -24,6 +24,8 @@ use function in_array;
  * Ports the tag group codes of Drupal.Commenting.DocComment.
  * `DocTagGroups` holds the checks on the blank lines and the `@param`
  * group.
+ *
+ * @internal
  */
 final class DocTagGroupsRule implements Rule
 {

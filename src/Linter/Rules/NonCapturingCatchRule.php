@@ -39,6 +39,8 @@ use function substr;
  * another way, through `compact()`, `get_defined_vars()` or a variable
  * variable, is skipped.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */

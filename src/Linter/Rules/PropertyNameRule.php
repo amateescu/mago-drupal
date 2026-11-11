@@ -27,6 +27,8 @@ use function substr;
  * Ports Drupal.NamingConventions.ValidVariableName.LowerCamelName and
  * PSR2.Classes.PropertyDeclaration.Underscore.
  *
+ * @internal
+ *
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
  */
