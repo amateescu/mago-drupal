@@ -16,6 +16,10 @@ Each setting in the files has a comment that says why it's there.
 - Mago's `drupal` formatter preset, and its `drupal` linter integration, which accepts `TRUE`,
   `FALSE` and `NULL`.
 - The `Interface` and `Trait` suffixes, and the `file-name` rule, as Coder 9 checks them.
+- `minimum-fail-level = "warning"` for the linter, so that a warning fails the run as it does in
+  phpcs, see [What fails a run](#what-fails-a-run).
+- Coder's level for the Mago rules that stand in for a sniff, such as `class-name` and
+  `array-style`. Mago reports them as help or as a note, which doesn't fail a run.
 - `check-name-casing` for the analyzer, which ports `Squiz.PHP.LowercasePHPFunctions`. The analyzer
   stays out of `*.api.php` files and test fixtures, as phpstan-drupal does.
 - Excludes for the paths where a Mago rule reports what Drupal does on purpose, such as the fake
@@ -31,6 +35,29 @@ Mago has many more rules than Drupal's standard. `drupal.mago.toml` turns off th
 contradict the standard or repeat a rule of this extension, such as `tagged-todo` and
 `function-name`, and the advice that the standard doesn't ask for, such as `no-else-clause` and
 `strict-types`. Turning them off doesn't lose any check done by phpcs.
+
+## What fails a run
+
+phpcs exits with an error when it reports a warning or an error. `mago lint` on its own fails only
+on an error, and many of its rules report a warning, help or a note. `drupal.mago.toml` sets
+`minimum-fail-level = "warning"`, and gives the Mago rules that stand in for a Coder sniff the level
+that Coder reports at. So a report that fails phpcs fails `mago lint` too.
+
+The Mago rules that are on and don't port any sniff, such as `strict-behavior` and `str-contains`,
+fail the run as well when they report a warning. Turn a rule off, or set its level, in the
+project's `mago.toml`:
+
+```toml
+[linter]
+# Fail on errors only.
+minimum-fail-level = "error"
+
+[linter.rules]
+strict-behavior = { level = "help" }
+```
+
+`mago analyze` has its own `minimum-fail-level` under `[analyzer]`, which `drupal.mago.toml`
+doesn't set.
 
 ## Changing a setting
 

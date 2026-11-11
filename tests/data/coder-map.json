@@ -106,7 +106,7 @@
         "where": ["ext:drupal/doc-comment"],
         "codes": [
             {"code": "ContentAfterOpen", "status": "fix"},
-            {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"], "note": "Mago's rule, at note level."},
+            {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"]},
             {"code": "InheritDocWithoutBraces", "status": "fix"},
             {"code": "LongFullStop", "status": "fix", "where": ["ext:drupal/long-description-punctuation"]},
             {"code": "LongNotCapital", "status": "fix", "where": ["ext:drupal/doc-sentence"]},
@@ -236,7 +236,7 @@
         "where": ["ext:drupal/inline-comment"],
         "codes": [
             {"code": "DocBlock", "status": "report"},
-            {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"], "note": "Mago's rule, at note level. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line."},
+            {"code": "Empty", "status": "fix", "where": ["lint:no-empty-comment"], "note": "Mago's rule. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line."},
             {"code": "InvalidEndChar", "status": "fix", "where": ["ext:drupal/inline-comment-punctuation"]},
             {"code": "NoSpaceBefore", "status": "fix"},
             {"code": "NotCapital", "status": "fix"},
@@ -801,7 +801,7 @@
         "sniff": "Generic.NamingConventions.InterfaceNameSuffix",
         "standard": "Drupal",
         "where": ["lint:interface-name"],
-        "note": "With `interface-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
+        "note": "With `interface-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
         "codes": [
             {"code": "Missing", "status": "report"}
         ]
@@ -810,7 +810,7 @@
         "sniff": "Generic.NamingConventions.TraitNameSuffix",
         "standard": "Drupal",
         "where": ["lint:trait-name"],
-        "note": "With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
+        "note": "With `trait-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.",
         "codes": [
             {"code": "Missing", "status": "report"}
         ]

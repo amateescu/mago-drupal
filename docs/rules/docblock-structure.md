@@ -197,7 +197,7 @@ The rest, each with a potentially unsafe fix, because it drops characters of the
 - in a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`, everything but the checks on its first and last lines, the star
   check and the two-dot check;
-- an empty docblock. Mago's `no-empty-comment` reports it at note level, and its safe fix deletes
+- an empty docblock. Mago's `no-empty-comment` reports it, and its safe fix deletes
   the docblock.
 
 `mago format` sets the star column and adds a missing star, see [Comment whitespace and the

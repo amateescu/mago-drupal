@@ -37,6 +37,10 @@ Codes excluded by Coder's rulesets aren't listed, and neither are codes never re
 | Unreachable code, deprecated PHP functions, wrong `@param` and `@return` types | `mago analyze` |
 | Everything specific to Drupal | This extension |
 
+`drupal.mago.toml` makes `mago lint` fail on a warning, as phpcs does, and gives Mago's own rules in
+this table the level that Coder reports at, see
+[What fails a run](../setup/configuration.md#what-fails-a-run).
+
 The checks of `.info.yml` and `.routing.yml` files need `yml` in Mago's extensions, as
 [Install](../setup/install.md) shows. The `Drupal.InfoFiles` sniffs that aren't ported check only
 the `.info` files of Drupal 7.

@@ -88,7 +88,6 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `MissingShort` | [`drupal/missing-summary`](../rules/docblock-structure.md#drupalmissing-summary), partly |
 | `ParamGroup`, `ParamNotFirst`, `SpacingAfterTagGroup`, `SpacingBeforeTags`, `TagGroupSpacing`, `TagsNotGrouped` | [`drupal/doc-tag-groups`](../rules/docblock-structure.md#drupaldoc-tag-groups) |
 
-- `Empty`: Mago's rule, at note level.
 - `MissingShort`: A `phpcs:` line above the summary is skipped, and the line below it counts as the summary. Coder reports it. In Drupal core, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`.
 
 ### `Drupal.Commenting.DocCommentAlignment`
@@ -148,7 +147,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `SpacingAfterAtFunctionEnd` | `mago format` |
 | `WrongStyle` | `mago format`, [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment) |
 
-- `Empty`: Mago's rule, at note level. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line.
+- `Empty`: Mago's rule. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line.
 
 ### `Drupal.Commenting.VariableComment`
 
