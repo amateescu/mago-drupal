@@ -50,8 +50,10 @@ forms drop every listed code, and an identifier not listed by the plugin doesn't
 
 The list covers PHPStan's identifiers for argument, return and property types, argument counts,
 undefined symbols, static calls to instance methods, deprecations, always-true and always-false
-conditions, `isset()`, `empty()` and type checks with a known result, unreachable code, missing
-types and offset access, and the deprecation identifiers of phpstan-deprecation-rules.
+conditions, comparisons, `isset()`, `empty()`, `??` and type checks with a known result, operand
+types, docblock types, property defaults, unreachable code, missing types, offset access, and the
+values that a `foreach`, a call, a `match`, a `clone` or a destructuring can't take. It also covers
+the deprecation identifiers of phpstan-deprecation-rules.
 [PHPStan identifiers](../phpstan/identifiers.md) lists each identifier with its Mago codes.
 
 **Not dropped:**

@@ -128,6 +128,30 @@ final class IgnoreComments {
   }
 
   /**
+   * PHPStan has an identifier of its own for each of these constructs.
+   */
+  public function constructs(int $number, mixed $value, string $text, bool $flag): void {
+    // @phpstan-ignore callable.nonCallable
+    $number();
+    // @phpstan-ignore identical.alwaysFalse
+    echo $number === 'text' ? 'same' : 'other';
+    // @phpstan-ignore notIdentical.alwaysTrue
+    echo $number !== 'text' ? 'other' : 'same';
+    // @phpstan-ignore booleanAnd.leftAlwaysTrue, function.alreadyNarrowedType
+    echo is_int($number) && $flag ? 'both' : 'one';
+    // @phpstan-ignore nullCoalesce.variable
+    echo $text ?? 'none';
+    // @phpstan-ignore match.unhandled
+    echo match ($number) { 1 => 'one' };
+    // @mago-expect analysis:mixed-argument
+    // @phpstan-ignore binaryOp.invalid
+    echo $value + 1;
+    // @mago-expect analysis:invalid-callable
+    // @phpstan-ignore match.unhandled
+    $number();
+  }
+
+  /**
    * A comment on the first unreachable statement covers the rest of the block.
    *
    * PHPStan reports the block once, Mago once per statement.
