@@ -197,7 +197,7 @@ The rest, each with a potentially unsafe fix, because it drops characters of the
 - in a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`, everything but the checks on its first and last lines, the star
   check and the two-dot check;
-- an empty docblock. Mago's `no-empty-comment` reports it at note level, and its safe fix deletes
+- an empty docblock. Mago's `no-empty-comment` reports it, and its safe fix deletes
   the docblock.
 
 `mago format` sets the star column and adds a missing star, see [Comment whitespace and the
@@ -416,7 +416,7 @@ the end of the long description.
 The standard lets a `@param` or `@return` description be left out when the type says it all, such as
 a single class type that can't be null, and asks to leave out `@return` when the function doesn't
 return anything. Coder, core and this rule still want the description. Coder 9 and this rule accept
-`@return void` without one. Core's phpcs runs Coder 8, which reports it.
+`@return void` without one. Coder 8, which is run by Drupal 11.4 and earlier, reports it.
 
 ??? example "Example"
 
@@ -623,21 +623,26 @@ A `@return` variable name is read from the tag's own line.
 - **Level:** error
 - **Fix:** safe. It moves a type written after the variable in front of it.
 - **Standard:** [@param](https://project.pages.drupalcode.org/coding_standards/php/documentation/#param-function-parameters),
-  [@return](https://project.pages.drupalcode.org/coding_standards/php/documentation/#return-function-return-values)
-- **Ports:** `Drupal.Commenting.FunctionComment`: `DuplicateReturn`, `MissingParamName`, `MissingParamType`, `MissingReturnType`
+  [@return](https://project.pages.drupalcode.org/coding_standards/php/documentation/#return-function-return-values),
+  [@throws](https://project.pages.drupalcode.org/coding_standards/php/documentation/#throws-thrown-exceptions)
+- **Ports:** `Drupal.Commenting.FunctionComment`: `DuplicateReturn`, `InvalidThrows`, `MissingParamName`, `MissingParamType`, `MissingReturnType`
 
 > The `@param` tag is followed by an optional data type indicator, then the variable name of the
 > parameter, and then a newline.
 >
 > Data types are required to be included as of Drupal 8.x.
+>
+> The name of an exception class should appear on the same line as the `@throws` tag.
 
 **Reports**, in the docblock of a function or method:
 
-- a `@param` with no variable name, and one with no type. A `&` or `...` in front of the variable
-  belongs to the variable, so `@param &$a` doesn't have a type. On a tag with no type, a single word
-  after the variable is the type. The fix moves that word in front of the variable when it is made
-  of type characters, as in `@param $a int`;
+- a `@param` with no variable name, and one with no type, or with nothing after the tag. A `&` or
+  `...` in front of the variable belongs to the variable, so `@param &$a` doesn't have a type. On a
+  tag with no type, a single word after the variable is the type. The fix moves that word in front
+  of the variable when it is made of type characters, as in `@param $a int`;
 - a `@return` with no type on its line;
+- a `@throws` with no exception class on its line. A class on the line below is read as a
+  description, as in Coder;
 - more than one `@return`.
 
 ??? note "Compared with Coder"
@@ -647,8 +652,7 @@ A `@return` variable name is read from the tag's own line.
       the word as written, so `@param $a integer` becomes `@param integer $a`, and a second
       `--fix` run writes `int`, the name asked for by
       [`drupal/doc-type-name`](#drupaldoc-type-name).
-    - A bare `@return` that is the last tag is left to Mago's `valid-docblock`. A `@return 0` has a
-      type here. Coder reports it, because PHP's `empty("0")` is true.
+    - A `@return 0` has a type here. Coder reports it, because PHP's `empty("0")` is true.
     - A `@param` indented inside an `@code` example isn't a tag here, or for the other rules that
       read the tags. Coder reads it as one.
 

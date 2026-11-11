@@ -28,6 +28,9 @@ preset = "drupal"
 excludes = ["**/*.yml"]
 
 [linter]
+# phpcs fails a run on a warning as well as on an error. Mago fails only on an error unless this is
+# set.
+minimum-fail-level = "warning"
 # The formatter's drupal preset writes TRUE, FALSE and NULL. This stops lowercase-keyword from
 # reporting those three keywords. The rule still reports every other upper-case keyword.
 integrations = ["drupal"]
@@ -46,9 +49,9 @@ excludes = [
 
 [linter.rules]
 # Report an interface name without the "Interface" suffix, and a trait name without the "Trait"
-# suffix, as Coder 9 does.
-interface-name = { psr = true }
-trait-name = { psr = true }
+# suffix, as Coder 9 does, and at Coder's level.
+interface-name = { psr = true, level = "error" }
+trait-name = { psr = true, level = "error" }
 # Report a file whose name differs from the class that it declares. Coder skips the test classes
 # under a module's tests directory and the helper classes in their files.
 file-name = { enabled = true, exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
@@ -58,6 +61,22 @@ no-literal-password = { exclude = ["**/tests/**"] }
 # Drupal's documentation standard puts topic documentation in an api.php file, which then doesn't
 # hold any code. A test fixture can stand in for a file whose content doesn't matter.
 no-redundant-file = { exclude = ["**/*.api.php", "**/tests/**/fixtures/**"] }
+
+# These rules stand in for a sniff of Coder 9. Mago reports them as help or as a note, which
+# doesn't fail a run. Each one gets the level used by Coder.
+array-style = { level = "error" }
+block-statement = { level = "error" }
+class-name = { level = "error" }
+constant-name = { level = "error" }
+enum-name = { level = "error" }
+lowercase-keyword = { level = "error" }
+no-alias-function = { level = "error" }
+no-closing-tag = { level = "error" }
+no-empty-comment = { level = "error" }
+no-noop = { level = "warning" }
+no-redundant-block = { level = "error" }
+no-redundant-method-override = { level = "warning" }
+no-redundant-string-concat = { level = "error" }
 
 # These rules contradict Drupal's standard, or repeat a rule of this extension.
 # drupal/function-name checks function names the way Coder does. function-name wants snake case,

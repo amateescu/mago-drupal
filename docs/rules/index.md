@@ -180,7 +180,7 @@ They don't check the types in a docblock against the real signature, which is do
 | [`drupal/doc-tag-descriptions`](docblock-structure.md#drupaldoc-tag-descriptions) | error | Reports a @param or @return with no description, a @param that repeats one or is out of order, and a method parameter with no @param when others have one. |
 | [`drupal/doc-tag-groups`](docblock-structure.md#drupaldoc-tag-groups) | error | Reports a docblock whose tags of one kind aren't in one group with @param first, or whose tag groups don't have the right blank lines around them. |
 | [`drupal/doc-tag-layout`](docblock-structure.md#drupaldoc-tag-layout) | error | Reports a @param, @return or @throws tag whose description is on the wrong line or has the wrong indent, or whose spacing is wrong. |
-| [`drupal/doc-tag-types`](docblock-structure.md#drupaldoc-tag-types) | error | Reports a @param with no type or variable name, a @return with no type, and a second @return. |
+| [`drupal/doc-tag-types`](docblock-structure.md#drupaldoc-tag-types) | error | Reports a @param with no type or variable name, a @return or @throws with no type, and a second @return. |
 | [`drupal/doc-type-name`](docblock-structure.md#drupaldoc-type-name) | error | Reports a @param, @return or @var type spelled another way than the standard asks, such as integer for int. |
 | [`drupal/file-comment`](docblock-structure.md#drupalfile-comment) | error | Reports a comment that starts a PHP file and has the wrong style, no @file tag or no blank line below it, and a comment at the start of a namespaced class file. |
 | [`drupal/function-comment`](docblock-structure.md#drupalfunction-comment) | error | Reports a comment of the wrong style above a function or method, and a blank line below its docblock. |

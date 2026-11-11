@@ -45,7 +45,8 @@ reports some docblock codes, such as a missing `@var` tag. The old forms count t
 docblock as code before the comment, so `* @codingStandardsIgnoreLine` covers only its own line.
 
 PHP_CodeSniffer 4, which Coder 9 runs on, no longer reads the `@codingStandards` forms. The
-extension reads them, since core runs Coder 8 on PHP_CodeSniffer 3, and some of its files use them.
+extension reads them, since Drupal 11.4 and earlier run Coder 8 on PHP_CodeSniffer 3, and some of
+core's files use them.
 
 ## Which issues a comment drops
 

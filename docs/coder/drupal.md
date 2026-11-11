@@ -61,7 +61,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `Drupal.Commenting.DocCommentLongArraySyntax` | [`drupal/doc-comment-array-syntax`](../rules/comment-text.md#drupaldoc-comment-array-syntax) |
 | [`Drupal.Commenting.DocCommentStar`](#drupalcommentingdoccommentstar) | `mago format` |
 | [`Drupal.Commenting.FileComment`](#drupalcommentingfilecomment) | [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment), [`drupal/missing-file-comment`](../rules/docblock-structure.md#drupalmissing-file-comment), `mago format`, nothing, partly |
-| [`Drupal.Commenting.FunctionComment`](#drupalcommentingfunctioncomment) | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag), `mago analyze` (`invalid-param-tag`), [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), `mago analyze` (`missing-return-statement`), `mago analyze` (`invalid-return-statement`), Mago `valid-docblock`, [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence), [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout), [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment), partly |
+| [`Drupal.Commenting.FunctionComment`](#drupalcommentingfunctioncomment) | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag), `mago analyze` (`invalid-param-tag`), [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), `mago analyze` (`missing-return-statement`), `mago analyze` (`invalid-return-statement`), [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence), [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout), [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment), partly |
 | `Drupal.Commenting.GenderNeutralComment` | [`drupal/gender-neutral-comment`](../rules/comment-text.md#drupalgender-neutral-comment) |
 | `Drupal.Commenting.HookComment` | [`drupal/hook-comment`](../rules/docblock-structure.md#drupalhook-comment) |
 | [`Drupal.Commenting.InlineComment`](#drupalcommentinginlinecomment) | [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment), Mago `no-empty-comment`, [`drupal/inline-comment-punctuation`](../rules/comment-text.md#drupalinline-comment-punctuation), [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
@@ -88,7 +88,6 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `MissingShort` | [`drupal/missing-summary`](../rules/docblock-structure.md#drupalmissing-summary), partly |
 | `ParamGroup`, `ParamNotFirst`, `SpacingAfterTagGroup`, `SpacingBeforeTags`, `TagGroupSpacing`, `TagsNotGrouped` | [`drupal/doc-tag-groups`](../rules/docblock-structure.md#drupaldoc-tag-groups) |
 
-- `Empty`: Mago's rule, at note level.
 - `MissingShort`: A `phpcs:` line above the summary is skipped, and the line below it counts as the summary. Coder reports it. In Drupal core, only the `KernelTests`, `Unit` and `FunctionalJavascript` directories are checked, as in core's `phpcs.xml.dist`.
 
 ### `Drupal.Commenting.DocCommentAlignment`
@@ -118,16 +117,14 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| `DuplicateReturn`, `MissingParamName`, `MissingParamType` | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types) |
+| `DuplicateReturn`, `InvalidThrows`, `MissingParamName`, `MissingParamType`, `MissingReturnType` | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types) |
 | `EmptySees`, `SeeAdditionalText`, `SeePunctuation` | [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag) |
 | `ExtraParamComment`, `ParamNameNoCaseMatch` | `mago analyze` (`invalid-param-tag`) |
 | `IncorrectParamVarName`, `InvalidReturn` | [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name) |
 | `InvalidNoReturn` | `mago analyze` (`missing-return-statement`) |
 | `InvalidReturnNotVoid`, `InvalidReturnVoid` | `mago analyze` (`invalid-return-statement`) |
-| `InvalidThrows` | Mago `valid-docblock` |
 | `Missing` | [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment) |
 | `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions) |
-| `MissingReturnType` | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), Mago `valid-docblock` |
 | `ParamCommentFullStop`, `ParamCommentNotCapital`, `ThrowsNoFullStop`, `ThrowsNotCapital` | [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence) |
 | `ParamCommentIndentation`, `ParamCommentNewLine`, `ParamNameDot`, `ParamTypeSpaces`, `ReturnCommentIndentation`, `ReturnTypeSpaces`, `ReturnVarName`, `SpacingAfterParamType`, `ThrowsComment`, `ThrowsCommentIndentation` | [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout) |
 | `ParamNameNoMatch` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), `mago analyze` (`invalid-param-tag`), partly |
@@ -135,7 +132,6 @@ The formatter puts the star back on a docblock line that doesn't have one.
 
 - `InvalidNoReturn`: Reported on the function, not on the `@return` tag.
 - `InvalidReturnVoid`: Reported on the `return` statement, not on the `@return void` tag.
-- `InvalidThrows`: A generic docblock parse error.
 
 ### `Drupal.Commenting.InlineComment`
 
@@ -148,7 +144,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `SpacingAfterAtFunctionEnd` | `mago format` |
 | `WrongStyle` | `mago format`, [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment) |
 
-- `Empty`: Mago's rule, at note level. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line.
+- `Empty`: Mago's rule. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line.
 
 ### `Drupal.Commenting.VariableComment`
 

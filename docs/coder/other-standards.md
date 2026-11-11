@@ -68,11 +68,11 @@ Mago's rule reports a body without braces, with no fix. The formatter doesn't ad
 
 ### `Generic.NamingConventions.InterfaceNameSuffix`
 
-With `interface-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.
+With `interface-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Foointerface`; Mago wants `Interface`. Mago also reports an interface name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.
 
 ### `Generic.NamingConventions.TraitNameSuffix`
 
-With `trait-name = { psr = true }`. Mago reports it at help level. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.
+With `trait-name = { psr = true }`. Coder ignores case in the suffix, so it accepts `Footrait`; Mago wants `Trait`. Mago also reports a trait name that isn't in class case, which Coder reports under `Drupal.NamingConventions.ValidClassName`.
 
 ### `Generic.NamingConventions.UpperCaseConstantName`
 

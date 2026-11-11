@@ -140,8 +140,9 @@ behind a reverse proxy, and a read of the key ignores the proxy settings.
 
 Core's PHPStan configuration disallows the weak hash functions from Drupal 12.0.0, on core's `main`
 and `12.0.x` branches. Core's `11.x` branch doesn't, so the rule also reports Drupal 11 code that
-core's own checks accept. A module or a core checkout that targets Drupal 11 only can turn it off
-with `"drupal/weak-hash" = { enabled = false }`. See the
+core's own checks accept. A module that targets Drupal 11 only can turn it off with
+`"drupal/weak-hash" = { enabled = false }`. `drupal-core.mago.toml` follows Drupal 11.x and turns
+it off, so a checkout of core's `main` branch turns it back on. See the
 [change record](https://www.drupal.org/node/3581605).
 
 **Reports:**
