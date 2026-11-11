@@ -16,7 +16,7 @@ the ones matched by the plugin. The identifiers of phpstan-drupal are on the
 
 | PHPStan identifier<span class="unbroken-first-column"></span> | Mago issues |
 | --- | --- |
-| `argument.type` | `false-argument`, `invalid-argument`, `less-specific-argument`, `mixed-argument`, `null-argument`, `possibly-false-argument`, `possibly-invalid-argument`, `possibly-null-argument` |
+| `argument.type` | `false-argument`, `invalid-argument`, `less-specific-argument`, `less-specific-nested-argument-type`, `mixed-argument`, `null-argument`, `possibly-false-argument`, `possibly-invalid-argument`, `possibly-null-argument`, `template-constraint-violation` |
 | `arguments.count` | `too-few-arguments`, `too-many-arguments` |
 | `array.invalidKey` | `invalid-array-element-key`, `mixed-array-index` |
 | `assign.propertyType` | `invalid-property-assignment-value`, `mixed-property-type-coercion`, `property-type-coercion` |
@@ -54,28 +54,33 @@ the ones matched by the plugin. The identifiers of phpstan-drupal are on the
 | `empty.property` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
 | `empty.variable` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
 | `foreach.nonIterable` | `invalid-iterator`, `possibly-null-iterator` |
-| `function.alreadyNarrowedType` | `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
+| `function.alreadyNarrowedType` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
 | `function.deprecated` | `deprecated-function` |
 | `function.impossibleType` | `impossible-condition`, `impossible-type-comparison` |
 | `function.notFound` | `non-existent-function` |
+| `generics.notSubtype` | `docblock-type-mismatch` |
 | `identical.alwaysFalse` | `impossible-condition`, `impossible-type-comparison`, `redundant-comparison`, `redundant-condition`, `redundant-logical-operation` |
 | `identical.alwaysTrue` | `impossible-condition`, `impossible-type-comparison`, `redundant-comparison`, `redundant-condition`, `redundant-logical-operation` |
 | `if.alwaysFalse` | `impossible-condition` |
 | `if.alwaysTrue` | `redundant-condition` |
 | `instanceof.alwaysFalse` | `impossible-condition`, `impossible-type-comparison`, `redundant-condition`, `redundant-logical-operation` |
-| `instanceof.alwaysTrue` | `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
+| `instanceof.alwaysTrue` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
 | `interface.extendsDeprecatedInterface` | `deprecated-class`, `deprecated-trait` |
 | `isset.offset` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
 | `isset.property` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
 | `isset.variable` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
 | `match.unhandled` | `match-not-exhaustive` |
+| `method.alreadyNarrowedType` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
 | `method.deprecated` | `deprecated-method` |
 | `method.deprecatedClass` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
 | `method.deprecatedEnum` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
 | `method.deprecatedInterface` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
+| `method.impossibleType` | `impossible-condition`, `impossible-type-comparison` |
 | `method.nonObject` | `ambiguous-object-method-access`, `invalid-method-access`, `method-access-on-null`, `mixed-method-access`, `possible-method-access-on-null` |
-| `method.notFound` | `non-documented-method`, `non-existent-method`, `possibly-non-existent-method` |
+| `method.notFound` | `ambiguous-object-method-access`, `non-documented-method`, `non-existent-method`, `possibly-non-existent-method` |
 | `method.staticCall` | `invalid-static-method-access` |
+| `missingType.generics` | `missing-template-parameter` |
+| `missingType.iterableValue` | `imprecise-type` |
 | `missingType.parameter` | `missing-parameter-type` |
 | `missingType.property` | `missing-property-type` |
 | `missingType.return` | `missing-return-type` |
@@ -90,8 +95,8 @@ the ones matched by the plugin. The identifiers of phpstan-drupal are on the
 | `nullsafe.neverNull` | `redundant-nullsafe-operator` |
 | `offsetAccess.invalidOffset` | `invalid-array-index`, `mismatched-array-index`, `mixed-array-index` |
 | `offsetAccess.nonArray` | `invalid-destructuring-source` |
-| `offsetAccess.nonOffsetAccessible` | `false-array-access`, `invalid-array-access`, `mixed-array-access`, `null-array-access`, `possibly-false-array-access`, `possibly-invalid-array-access`, `possibly-null-array-access` |
-| `offsetAccess.notFound` | `possibly-undefined-array-index`, `possibly-undefined-int-array-index`, `possibly-undefined-string-array-index`, `undefined-int-array-index`, `undefined-string-array-index` |
+| `offsetAccess.nonOffsetAccessible` | `false-array-access`, `invalid-array-access`, `mixed-array-access`, `mixed-array-assignment`, `null-array-access`, `possibly-false-array-access`, `possibly-invalid-array-access`, `possibly-null-array-access` |
+| `offsetAccess.notFound` | `possibly-null-array-access`, `possibly-undefined-array-index`, `possibly-undefined-int-array-index`, `possibly-undefined-string-array-index`, `undefined-int-array-index`, `undefined-string-array-index` |
 | `parameter.phpDocType` | `docblock-type-mismatch` |
 | `parameterByRef.type` | `reference-constraint-violation` |
 | `postDec.type` | `invalid-operand`, `mixed-operand`, `possibly-false-operand`, `possibly-invalid-operand`, `possibly-null-operand` |
@@ -102,15 +107,18 @@ the ones matched by the plugin. The identifiers of phpstan-drupal are on the
 | `property.deprecated` | `deprecated-property` |
 | `property.deprecatedClass` | `deprecated-class`, `deprecated-trait` |
 | `property.nonObject` | `ambiguous-object-property-access`, `invalid-property-access`, `mixed-property-access`, `null-property-access`, `possibly-null-property-access` |
-| `property.notFound` | `non-documented-property`, `non-existent-property`, `possibly-non-existent-property` |
+| `property.notFound` | `ambiguous-object-property-access`, `non-documented-property`, `non-existent-property`, `possibly-non-existent-property` |
 | `property.phpDocType` | `docblock-type-mismatch` |
+| `return.empty` | `invalid-return-statement` |
 | `return.missing` | `missing-return-statement` |
 | `return.phpDocType` | `docblock-type-mismatch` |
 | `return.type` | `falsable-return-statement`, `invalid-return-statement`, `less-specific-nested-return-statement`, `less-specific-return-statement`, `mixed-return-statement`, `nullable-return-statement` |
+| `staticMethod.alreadyNarrowedType` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
 | `staticMethod.deprecated` | `deprecated-method` |
 | `staticMethod.deprecatedClass` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
 | `staticMethod.deprecatedEnum` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
 | `staticMethod.deprecatedInterface` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
+| `staticMethod.impossibleType` | `impossible-condition`, `impossible-type-comparison` |
 | `staticMethod.notFound` | `non-existent-method` |
 | `staticProperty.deprecated` | `deprecated-property` |
 | `staticProperty.notFound` | `non-existent-property` |

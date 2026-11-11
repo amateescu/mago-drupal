@@ -43,6 +43,7 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
      * A type check that can't fail, such as `is_string()` on a string.
      */
     private const TYPE_ALREADY_NARROWED = [
+        'impossible-condition',
         'redundant-condition',
         'redundant-logical-operation',
         'redundant-type-comparison',
@@ -86,6 +87,11 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
 
     private const NULL_COALESCE = ['redundant-null-coalesce'];
 
+    /**
+     * A type check that can't pass, such as `is_int()` on a string.
+     */
+    private const TYPE_NEVER_NARROWED = ['impossible-condition', 'impossible-type-comparison'];
+
     private const DEPRECATED_CLASS = ['deprecated-class', 'deprecated-trait'];
 
     /**
@@ -112,11 +118,13 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'false-argument',
             'invalid-argument',
             'less-specific-argument',
+            'less-specific-nested-argument-type',
             'mixed-argument',
             'null-argument',
             'possibly-false-argument',
             'possibly-invalid-argument',
             'possibly-null-argument',
+            'template-constraint-violation',
         ],
         'arguments.count' => ['too-few-arguments', 'too-many-arguments'],
         'array.invalidKey' => ['invalid-array-element-key', 'mixed-array-index'],
@@ -161,8 +169,9 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'foreach.nonIterable' => ['invalid-iterator', 'possibly-null-iterator'],
         'function.alreadyNarrowedType' => self::TYPE_ALREADY_NARROWED,
         'function.deprecated' => ['deprecated-function'],
-        'function.impossibleType' => ['impossible-condition', 'impossible-type-comparison'],
+        'function.impossibleType' => self::TYPE_NEVER_NARROWED,
         'function.notFound' => ['non-existent-function'],
+        'generics.notSubtype' => self::DOCBLOCK_TYPE,
         'identical.alwaysFalse' => self::COMPARISON_ALWAYS_KNOWN,
         'identical.alwaysTrue' => self::COMPARISON_ALWAYS_KNOWN,
         'if.alwaysFalse' => self::CONDITION_ALWAYS_FALSE,
@@ -179,10 +188,12 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'isset.property' => self::CHECK_ALWAYS_KNOWN,
         'isset.variable' => self::CHECK_ALWAYS_KNOWN,
         'match.unhandled' => ['match-not-exhaustive'],
+        'method.alreadyNarrowedType' => self::TYPE_ALREADY_NARROWED,
         'method.deprecated' => ['deprecated-method'],
         'method.deprecatedClass' => self::DEPRECATED_CLASS_METHOD,
         'method.deprecatedEnum' => self::DEPRECATED_CLASS_METHOD,
         'method.deprecatedInterface' => self::DEPRECATED_CLASS_METHOD,
+        'method.impossibleType' => self::TYPE_NEVER_NARROWED,
         'method.nonObject' => [
             'ambiguous-object-method-access',
             'invalid-method-access',
@@ -190,8 +201,15 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'mixed-method-access',
             'possible-method-access-on-null',
         ],
-        'method.notFound' => ['non-documented-method', 'non-existent-method', 'possibly-non-existent-method'],
+        'method.notFound' => [
+            'ambiguous-object-method-access',
+            'non-documented-method',
+            'non-existent-method',
+            'possibly-non-existent-method',
+        ],
         'method.staticCall' => ['invalid-static-method-access'],
+        'missingType.generics' => ['missing-template-parameter'],
+        'missingType.iterableValue' => ['imprecise-type'],
         'missingType.parameter' => ['missing-parameter-type'],
         'missingType.property' => ['missing-property-type'],
         'missingType.return' => ['missing-return-type'],
@@ -210,12 +228,14 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'false-array-access',
             'invalid-array-access',
             'mixed-array-access',
+            'mixed-array-assignment',
             'null-array-access',
             'possibly-false-array-access',
             'possibly-invalid-array-access',
             'possibly-null-array-access',
         ],
         'offsetAccess.notFound' => [
+            'possibly-null-array-access',
             'possibly-undefined-array-index',
             'possibly-undefined-int-array-index',
             'possibly-undefined-string-array-index',
@@ -238,8 +258,14 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'null-property-access',
             'possibly-null-property-access',
         ],
-        'property.notFound' => ['non-documented-property', 'non-existent-property', 'possibly-non-existent-property'],
+        'property.notFound' => [
+            'ambiguous-object-property-access',
+            'non-documented-property',
+            'non-existent-property',
+            'possibly-non-existent-property',
+        ],
         'property.phpDocType' => self::DOCBLOCK_TYPE,
+        'return.empty' => ['invalid-return-statement'],
         'return.missing' => ['missing-return-statement'],
         'return.phpDocType' => self::DOCBLOCK_TYPE,
         'return.type' => [
@@ -250,10 +276,12 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
             'mixed-return-statement',
             'nullable-return-statement',
         ],
+        'staticMethod.alreadyNarrowedType' => self::TYPE_ALREADY_NARROWED,
         'staticMethod.deprecated' => ['deprecated-method'],
         'staticMethod.deprecatedClass' => self::DEPRECATED_CLASS_METHOD,
         'staticMethod.deprecatedEnum' => self::DEPRECATED_CLASS_METHOD,
         'staticMethod.deprecatedInterface' => self::DEPRECATED_CLASS_METHOD,
+        'staticMethod.impossibleType' => self::TYPE_NEVER_NARROWED,
         'staticMethod.notFound' => ['non-existent-method'],
         'staticProperty.deprecated' => ['deprecated-property'],
         'staticProperty.notFound' => ['non-existent-property'],

@@ -40,26 +40,28 @@ for 7, 8, and 9 and 10. The last row has most of the issues.
 | 3 | `property-type-coercion`, `less-specific-return-statement`, `invalid-property-default-value` |
 | 4 | `redundant-logical-operation`, `redundant-comparison`, `redundant-type-comparison`, `impossible-type-comparison`, `impossible-condition`, `redundant-condition` |
 | 5 | `invalid-argument`, `null-argument` |
-| 6 | `missing-parameter-type`, `missing-property-type`, `missing-return-type`, `imprecise-type` |
-| 7 | `possibly-invalid-argument`, `possibly-false-argument`, `possibly-invalid-array-access`, `possibly-false-array-access`, `invalid-array-access`, `invalid-method-access`, `invalid-return-statement`, `falsable-return-statement`, `invalid-property-assignment-value` |
-| 8 | `possible-method-access-on-null`, `possibly-null-argument`, `possibly-null-property-access`, `possibly-null-iterator`, `nullable-return-statement` |
-| 9 and 10 | `mixed-argument`, `mixed-array-access`, `mixed-array-assignment`, `mixed-array-index`, `mixed-method-access`, `mixed-operand`, `mixed-property-access`, `mixed-property-type-coercion`, `mixed-return-statement`, `less-specific-nested-argument-type`, `less-specific-nested-return-statement`, `invalid-iterator`, `invalid-destructuring-source`, `possibly-null-array-index`, `string-member-selector`, `template-constraint-violation` |
+| 6 | `imprecise-type` |
+| 7 | `possibly-invalid-argument`, `possibly-false-argument`, `possibly-invalid-array-access`, `possibly-false-array-access`, `invalid-array-access`, `invalid-method-access`, `invalid-return-statement`, `falsable-return-statement`, `invalid-property-assignment-value`, `ambiguous-object-method-access` |
+| 8 | `possible-method-access-on-null`, `possibly-null-argument`, `possibly-null-property-access`, `possibly-null-iterator`, `possibly-null-array-access`, `nullable-return-statement` |
+| 9 and 10 | `mixed-argument`, `mixed-array-access`, `mixed-array-assignment`, `mixed-array-index`, `mixed-method-access`, `mixed-operand`, `mixed-property-access`, `mixed-property-type-coercion`, `mixed-return-statement`, `less-specific-nested-argument-type`, `less-specific-nested-return-statement`, `invalid-iterator`, `invalid-destructuring-source`, `template-constraint-violation` |
 
-- Mago reports the level 6 codes only with `check-missing-type-hints = true` under `[analyzer]`,
-  which is off by default.
+- Mago reports `imprecise-type` only with `check-missing-type-hints = true` under `[analyzer]`,
+  which is off by default. The setting also turns on `missing-parameter-type`,
+  `missing-return-type`, `missing-property-type` and `missing-constant-type`. These ask for a
+  native type where PHPStan accepts the type of a docblock, so they don't belong to a level.
 - Levels 0 and 1 don't have a row. The codes for deprecated code aren't listed, since
   phpstan-deprecation-rules reports them at every level.
-- Level 9 is for a value documented as `mixed`, and level 10 for a value without a type. Mago has
-  the same codes for both.
+- Level 9 is for a value documented as `mixed`, and level 10 for a value without a type, such as
+  the items of a plain `array`. Mago has the same codes for both.
 - PHPStan reports the findings of some codes at more than one level, and the table lists each
   code once: `invalid-method-access` (levels 2 and 7), `invalid-return-statement` and
-  `invalid-property-assignment-value` (levels 3, 7 and 8), `less-specific-return-statement`
-  (levels 3 and 7) and `invalid-array-access` (levels 7 and 10).
+  `invalid-property-assignment-value` (levels 3, 7 and 8) and `less-specific-return-statement`
+  (levels 3 and 7).
 
 These codes don't belong to a level. PHPStan reports few of their findings, or none:
-`mixed-assignment`, `possibly-null-operand`, `less-specific-argument`, `implicit-to-string-cast`,
-`possibly-null-array-access`, `undefined-variable`, `incompatible-parameter-name`,
-`ambiguous-object-method-access`, `ambiguous-object-property-access` and
+`mixed-assignment`, `possibly-null-operand`, `possibly-null-array-index`,
+`less-specific-argument`, `implicit-to-string-cast`, `string-member-selector`,
+`undefined-variable`, `incompatible-parameter-name`, `ambiguous-object-property-access` and
 `redundant-docblock-type`.
 
 ## Extension packages
