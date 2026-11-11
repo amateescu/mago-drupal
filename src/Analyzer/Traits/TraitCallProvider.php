@@ -69,7 +69,9 @@ final class TraitCallProvider implements
         $invocation = $context->invocation;
         $receiver = $invocation->receiverType;
 
-        return $receiver === null ? null : $this->answer($context->codebase, $invocation)?->returnType($receiver);
+        return $receiver === null
+            ? null
+            : $this->answer($context->codebase, $invocation)?->returnType($receiver, $invocation, $context->codebase);
     }
 
     public function getCallableSignature(CallableSignatureProviderContext $context): ?EffectiveCallableSignature

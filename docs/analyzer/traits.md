@@ -30,16 +30,20 @@ trait RedirectTrait {
   classes agree;
 - `self::name()` and `static::name()` in an instance method, which reach an instance method through
   `$this`. In a static method, the call is
-  [`drupal/trait-non-static-call`](#drupaltrait-non-static-call).
+  [`drupal/trait-non-static-call`](#drupaltrait-non-static-call);
+- a call to a generic method that gets a class name for each of its templates, as `Foo::class` or
+  as a string that names a class. `$this->createMock(Foo::class)` in a test trait is a
+  `MockObject&Foo`, and `$this->getMockBuilder(Foo::class)` a `MockBuilder<Foo>`.
 
 **Not typed:**
 
 - a call to a method that one of the classes lacks, which keeps the report;
 - a call in an unused trait, or in one that doesn't declare a method of its own, since
   the classes are found through one of its methods;
-- a call to a generic method, which returns `mixed`, and to one whose documented return type names
-  something that can't be resolved by Mago, such as a stray `*` after the class name in a docblock.
-  A call on the class returns `mixed` there too.
+- any other call to a generic method, such as `createMock($class)`, which returns `mixed`;
+- a call to a method whose documented return type names something that can't be resolved by Mago,
+  such as a stray `*` after the class name in a docblock. A call on the class returns `mixed`
+  there too.
 
 The search runs once per trait, and looks only at the classes that use the trait without inheriting
 it from another class that uses it. A subclass has every method and property of its parent, and PHP
