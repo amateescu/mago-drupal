@@ -43,7 +43,8 @@ vendor/bin/mago analyze
 - [Coming from Coder](docs/coder/index.md): every sniff of Coder's `Drupal` and `DrupalPractice`
   standards, and what takes its place.
 - [Coming from PHPStan](docs/phpstan/index.md): every rule and extension of phpstan-drupal, the
-  PHPStan identifiers reported by Mago too, and how a `phpstan.neon` moves to Mago.
+  PHPStan identifiers reported by Mago too, how a `phpstan.neon` moves to Mago, and the issue
+  codes that go with each PHPStan level.
 - [Development](docs/development.md): the checks, the test corpus and building the docs.
 
 ## License

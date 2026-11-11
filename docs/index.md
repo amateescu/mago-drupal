@@ -19,7 +19,8 @@ phpstan-drupal in a Drupal project.
   [Coming from Coder](coder/index.md). The extension can also read the `phpcs:ignore` comments
   themselves, see [phpcs ignores](coder/phpcs-ignores.md).
 - **A map from PHPStan** lists every rule and extension of phpstan-drupal and what takes its place,
-  and how a `phpstan.neon` moves to Mago. See [Coming from PHPStan](phpstan/index.md).
+  how a `phpstan.neon` moves to Mago, and which issue codes go with each PHPStan level. See
+  [Coming from PHPStan](phpstan/index.md).
 
 The rules aim for parity with [Coder 9](https://www.drupal.org/project/coder/releases/9.0.0).
 
