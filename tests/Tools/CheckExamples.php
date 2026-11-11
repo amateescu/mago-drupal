@@ -28,9 +28,13 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests\CheckExamples;
 
+use amateescu\MagoDrupal\Internal\Type\Shape;
+
+use function array_diff;
 use function array_key_exists;
 use function array_map;
 use function array_slice;
+use function array_values;
 use function basename;
 use function count;
 use function dirname;
@@ -100,15 +104,31 @@ function run(array $command): array
 {
     $environment = getenv();
     $environment['MAGO_DRUPAL_CACHE'] = '0';
+    $pipes = [];
     $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, env_vars: $environment);
     if ($process === false) {
         return [-1, '', ''];
     }
 
-    $output = (string) stream_get_contents($pipes[1]);
-    $errors = (string) stream_get_contents($pipes[2]);
+    $streams = [];
+    foreach ([1, 2] as $pipe) {
+        $stream = $pipes[$pipe] ?? null;
+        $streams[] = $stream === null ? '' : (string) stream_get_contents($stream);
+    }
 
-    return [proc_close($process), $output, $errors];
+    return [proc_close($process), $streams[0], $streams[1]];
+}
+
+/**
+ * Returns the entries of a directory, without `.` and `..`.
+ *
+ * @return list<string>
+ */
+function entries(string $directory): array
+{
+    $entries = scandir($directory);
+
+    return array_values(array_diff($entries === false ? [] : $entries, ['.', '..']));
 }
 
 /**
@@ -126,10 +146,8 @@ function tree(string $from, ?string $to): void
         mkdir($to, recursive: true);
     }
 
-    foreach (scandir($from) ?: [] as $file) {
-        if ($file !== '.' && $file !== '..') {
-            tree($from . '/' . $file, $to === null ? null : $to . '/' . $file);
-        }
+    foreach (entries($from) as $file) {
+        tree($from . '/' . $file, $to === null ? null : $to . '/' . $file);
     }
 
     if ($to === null) {
@@ -142,10 +160,7 @@ function tree(string $from, ?string $to): void
  */
 function dedent(string $block): string
 {
-    return implode("\n", array_map(
-        static fn(string $line): string => substr($line, offset: 4),
-        explode("\n", $block),
-    ));
+    return implode("\n", array_map(static fn(string $line): string => substr($line, offset: 4), explode("\n", $block)));
 }
 
 /**
@@ -170,13 +185,17 @@ function halves(string $text): array|string
         }
 
         $comment = $language === 'yaml' ? '#' : '//';
-        $parts = explode("\n{$comment} Fine.\n", "\n" . $body, 2);
-        $reported = (string) preg_replace('/^\n' . preg_quote($comment, '/') . ' Reported.*\n/', '', $parts[0]);
+        $parts = explode("\n{$comment} Fine.\n", "\n" . $body, limit: 2);
+        $reported = (string) preg_replace(
+            '/^\n' . preg_quote($comment, delimiter: '/') . ' Reported.*\n/',
+            replacement: '',
+            subject: $parts[0],
+        );
         $split = $split || count($parts) === 2;
         $path = $title !== '' ? $title : MODULE . '/example.module';
         $header = $language === 'php' ? "<?php\n\n" : '';
-        $files['reported'][$path] = $header . trim($reported, "\n") . "\n";
-        $files['fine'][$path] = $header . trim($parts[1] ?? $reported, "\n") . "\n";
+        $files['reported'][$path] = $header . trim($reported, characters: "\n") . "\n";
+        $files['fine'][$path] = $header . trim($parts[1] ?? $reported, characters: "\n") . "\n";
     }
 
     return $split ? $files : 'no `// Fine.` or `# Fine.` line in any block';
@@ -214,17 +233,18 @@ function analyze(string $mago, string $root, string $workspace, string $code, ar
         '--reporting-format',
         'json',
     ]);
-    tree($workspace, null);
-    $report = json_decode($output, associative: true);
-    if (!is_array($report) || !is_array($report['issues'] ?? null)) {
+    tree($workspace, to: null);
+    $issues = Shape::array(Shape::array(json_decode($output, associative: true))['issues'] ?? null);
+    if ($issues === null) {
         return "mago failed with status {$status}.\n{$output}{$errors}";
     }
 
     $levels = [];
-    foreach ($report['issues'] as $issue) {
-        $file = (string) ($issue['annotations'][0]['span']['file_id']['name'] ?? '');
-        if (($issue['code'] ?? '') === $code && array_key_exists($file, $files)) {
-            $levels[] = strtolower((string) ($issue['level'] ?? ''));
+    /** @var mixed $issue */
+    foreach ($issues as $issue) {
+        $file = Shape::stringAt($issue, 'annotations', '0', 'span', 'file_id', 'name') ?? '';
+        if (Shape::stringAt($issue, 'code') === $code && array_key_exists($file, $files)) {
+            $levels[] = strtolower(Shape::stringAt($issue, 'level') ?? '');
         }
     }
 
@@ -233,6 +253,8 @@ function analyze(string $mago, string $root, string $workspace, string $code, ar
 
 /**
  * Checks one example and returns how many checks failed.
+ *
+ * @mago-expect lint:excessive-parameter-list
  */
 function check(string $mago, string $root, string $name, string $code, string $level, string $text): int
 {
@@ -244,25 +266,36 @@ function check(string $mago, string $root, string $name, string $code, string $l
     }
 
     $failures = 0;
-    $workspace = sys_get_temp_dir() . '/mago-drupal-checks-' . getmypid();
+    $workspace = sys_get_temp_dir() . '/mago-drupal-checks-' . (string) getmypid();
     foreach ($halves as $kind => $files) {
         $levels = analyze($mago, $root, "{$workspace}-{$kind}", $code, $files);
         if (!is_array($levels)) {
             fwrite(STDERR, "{$name}: {$levels}\n");
             $failures++;
-        } elseif ($kind === 'fine' && $levels !== []) {
-            fwrite(STDERR, "{$name}: the fine code gets " . count($levels) . " issue(s).\n");
-            $failures++;
-        } elseif ($kind === 'reported' && $levels === []) {
+            continue;
+        }
+
+        if ($kind === 'fine') {
+            if ($levels !== []) {
+                fwrite(STDERR, "{$name}: the fine code gets " . (string) count($levels) . " issue(s).\n");
+                $failures++;
+            }
+
+            continue;
+        }
+
+        if ($levels === []) {
             fwrite(STDERR, "{$name}: the reported code doesn't get an issue.\n");
             $failures++;
         }
 
-        foreach ($kind === 'reported' && is_array($levels) ? $levels : [] as $found) {
-            if (!str_contains($level, $found)) {
-                fwrite(STDERR, "{$name}: the check reports a {$found}, and the entry's level is {$level}.\n");
-                $failures++;
+        foreach ($levels as $found) {
+            if (str_contains($level, $found)) {
+                continue;
             }
+
+            fwrite(STDERR, "{$name}: the check reports a {$found}, and the entry's level is {$level}.\n");
+            $failures++;
         }
     }
 
@@ -271,28 +304,33 @@ function check(string $mago, string $root, string $name, string $code, string $l
 
 $mago = $argv[1] ?? null;
 if ($mago === null) {
-    fwrite(STDERR, "Usage: php tests/Tools/CheckExamples.php <mago binary> [page.md...]\n");
+    fwrite(STDERR, data: "Usage: php tests/Tools/CheckExamples.php <mago binary> [page.md...]\n");
     exit(2);
 }
 
 // Mago runs with a temporary workspace, so a relative path such as
 // vendor/bin/mago has to be resolved first.
 if (!str_starts_with($mago, '/')) {
-    $mago = realpath($mago) ?: $mago;
+    $resolved = realpath($mago);
+    $mago = $resolved === false ? $mago : $resolved;
 }
+
+require dirname(__DIR__, levels: 2) . '/vendor/autoload.php';
 
 $root = dirname(__DIR__, levels: 2);
 $only = array_slice($argv, offset: 2);
 $failures = 0;
 $count = 0;
-foreach (glob($root . '/docs/analyzer/*.md') ?: [] as $page) {
+$pages = glob($root . '/docs/analyzer/*.md');
+foreach ($pages === false ? [] : $pages as $page) {
     if ($only !== [] && !in_array(basename($page), $only, strict: true)) {
         continue;
     }
 
     $entries = (array) preg_split('/^## (?=(?:drupal|phpunit)\/)/m', (string) file_get_contents($page));
-    foreach (array_slice($entries, 1) as $entry) {
-        $code = explode("\n", (string) $entry, 2)[0];
+    foreach (array_slice($entries, offset: 1) as $entry) {
+        $match = [];
+        $code = explode("\n", (string) $entry, limit: 2)[0];
         $level = preg_match('/^- \*\*Level:\*\* (.+)$/m', (string) $entry, $match) === 1 ? $match[1] : '';
         $blocks = [];
         preg_match_all('/^\?\?\?\+? example .*\n((?:\n|    .*\n)+)/m', (string) $entry, $blocks, PREG_SET_ORDER);

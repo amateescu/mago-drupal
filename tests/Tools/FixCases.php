@@ -28,8 +28,10 @@
 
 declare(strict_types=1);
 
-namespace amateescu\MagoDrupal\Tests;
+namespace amateescu\MagoDrupal\Tests\FixCases;
 
+use function array_diff;
+use function array_values;
 use function basename;
 use function copy;
 use function count;
@@ -59,8 +61,8 @@ use function str_starts_with;
 use function stream_get_contents;
 use function strlen;
 use function substr;
-use function trim;
 use function sys_get_temp_dir;
+use function trim;
 use function unlink;
 
 use const STDERR;
@@ -68,7 +70,7 @@ use const STDOUT;
 
 $mago = $argv[1] ?? null;
 if ($mago === null) {
-    fwrite(STDERR, "Usage: php tests/Tools/FixCases.php <mago binary> [--update]\n");
+    fwrite(STDERR, data: "Usage: php tests/Tools/FixCases.php <mago binary> [--update]\n");
     exit(2);
 }
 
@@ -77,7 +79,47 @@ $update = ($argv[2] ?? '') === '--update';
 // The command runs in the temporary workspace, so a relative path such as
 // vendor/bin/mago has to be resolved first.
 if (!str_starts_with($mago, '/')) {
-    $mago = realpath($mago) ?: $mago;
+    $resolved = realpath($mago);
+    $mago = $resolved === false ? $mago : $resolved;
+}
+
+require dirname(__DIR__, levels: 2) . '/vendor/autoload.php';
+
+/**
+ * Returns the entries of a directory, without `.` and `..`.
+ *
+ * @return list<string>
+ */
+function entries(string $directory): array
+{
+    $entries = scandir($directory);
+
+    return array_values(array_diff($entries === false ? [] : $entries, ['.', '..']));
+}
+
+/**
+ * Runs a command in a directory and returns its exit status and its output.
+ *
+ * @param list<string> $command
+ * @param non-empty-string $directory
+ *
+ * @return array{int, string}
+ */
+function run(array $command, string $directory): array
+{
+    $pipes = [];
+    $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $directory);
+    if ($process === false) {
+        return [-1, ''];
+    }
+
+    $output = '';
+    foreach ([1, 2] as $pipe) {
+        $stream = $pipes[$pipe] ?? null;
+        $output .= $stream === null ? '' : (string) stream_get_contents($stream);
+    }
+
+    return [proc_close($process), $output];
 }
 
 /**
@@ -98,14 +140,15 @@ putenv('MAGO_DRUPAL_CACHE=0');
  * @var array<string, list<string>> $groups
  */
 $groups = [];
-foreach (scandir($root . '/tests/fixes') ?: [] as $rule) {
+foreach (entries($root . '/tests/fixes') as $rule) {
     $directory = $root . '/tests/fixes/' . $rule;
     if ($rule[0] === '.' || !is_dir($directory)) {
         continue;
     }
 
-    foreach (scandir($directory) ?: [] as $file) {
+    foreach (entries($directory) as $file) {
         $parts = [];
+        $match = [];
         if (preg_match(CASE_NAME, $file, $parts) !== 1 || str_ends_with($parts[1], '.fixed')) {
             continue;
         }
@@ -126,7 +169,15 @@ $failures = 0;
 $count = 0;
 foreach ($groups as $key => $cases) {
     [$rule, $flag, $version] = explode("\0", $key);
-    $workspace = sys_get_temp_dir() . '/mago-drupal-fixes-' . getmypid() . '-' . $rule . ($flag === '' ? '' : '-' . substr($flag, 2)) . '-' . $version;
+    $workspace =
+        sys_get_temp_dir()
+        . '/mago-drupal-fixes-'
+        . (string) getmypid()
+        . '-'
+        . $rule
+        . ($flag === '' ? '' : '-' . substr($flag, offset: 2))
+        . '-'
+        . $version;
     mkdir($workspace, recursive: true);
     file_put_contents($workspace . '/mago.toml', sprintf(
         "version = \"1\"\nphp-version = \"%s\"\n\n[source]\npaths = [\".\"]\nextensions = [\"php\", \"module\", \"install\", \"inc\", \"theme\"]\n\n[extension-hosts.drupal]\ncommand = [\"php\", \"-d\", \"xdebug.mode=off\", \"-d\", \"pcov.enabled=0\", \"%s\"]\n",
@@ -137,14 +188,22 @@ foreach ($groups as $key => $cases) {
         copy($case, $workspace . '/' . basename($case));
     }
 
-    $command = [$mago, '--workspace', $workspace, '--config', $workspace . '/mago.toml', 'lint', '--only', 'drupal/' . $rule, '--fix'];
+    $command = [
+        $mago,
+        '--workspace',
+        $workspace,
+        '--config',
+        $workspace . '/mago.toml',
+        'lint',
+        '--only',
+        'drupal/' . $rule,
+        '--fix',
+    ];
     if ($flag !== '') {
         $command[] = $flag;
     }
 
-    $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $workspace);
-    $output = $process === false ? '' : stream_get_contents($pipes[1]) . stream_get_contents($pipes[2]);
-    $status = $process === false ? -1 : proc_close($process);
+    [$status, $output] = run($command, $workspace);
 
     // A run that fails leaves every file as it was, which would pass each
     // case whose fixed text equals its input. Mago exits with 1 when issues
@@ -158,7 +217,7 @@ foreach ($groups as $key => $cases) {
 
     foreach ($cases as $case) {
         $count++;
-        $expectedFile = preg_replace(CASE_NAME, '$1.fixed.$2', $case);
+        $expectedFile = (string) preg_replace(CASE_NAME, replacement: '$1.fixed.$2', subject: $case);
         $actual = (string) file_get_contents($workspace . '/' . basename($case));
         if ($update) {
             file_put_contents($expectedFile, $actual);
@@ -177,13 +236,16 @@ foreach ($groups as $key => $cases) {
 
         $failures++;
         $name = substr($case, strlen($root) + 1);
-        fwrite(STDERR, "{$name}: the fixed text differs from " . basename($expectedFile) . ".\n--- got\n{$actual}--- mago\n{$output}\n");
+        fwrite(
+            STDERR,
+            "{$name}: the fixed text differs from "
+            . basename($expectedFile)
+            . ".\n--- got\n{$actual}--- mago\n{$output}\n",
+        );
     }
 
-    foreach (scandir($workspace) ?: [] as $file) {
-        if ($file !== '.' && $file !== '..') {
-            unlink($workspace . '/' . $file);
-        }
+    foreach (entries($workspace) as $file) {
+        unlink($workspace . '/' . $file);
     }
 
     rmdir($workspace);
