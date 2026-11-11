@@ -95,3 +95,13 @@
 .md-typeset table:not([class]):has(.coder-table) {
   table-layout: fixed;
 }
+
+/*
+ * An empty `unbroken-first-column` span in the header marks a table whose
+ * first column stays on one line.
+ */
+.md-typeset table:not([class]):has(.unbroken-first-column) td:first-child,
+.md-typeset table:not([class]):has(.unbroken-first-column) td:first-child code {
+  white-space: nowrap;
+  word-break: normal;
+}

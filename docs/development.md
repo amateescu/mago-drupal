@@ -119,6 +119,11 @@ that the rules and checks port into `src/Internal/Ignore/CoderPorts.php` and
 `PortClassesTest` fails when those classes are out of date, and `just docs-gen` runs
 `just ports-gen` first.
 
+The table of [PHPStan levels](phpstan/index.md#starting-from-a-phpstan-level) is written by hand.
+`AnalyzerCodesTest` asks `mago analyze --list-codes` for the analyzer's issue codes, and fails when
+the table, or the list of PHPStan identifiers read by the `phpstan-ignores` plugin, names a code
+that isn't one of them.
+
 When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
 rule with `ext:drupal/<code>` in the map, and run `just docs-gen`.
 

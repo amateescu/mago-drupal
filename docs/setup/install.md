@@ -64,5 +64,6 @@ symfony/yaml version, so an update of any of them doesn't read older entries.
 `MAGO_DRUPAL_CACHE=/dir` moves the cache, and `MAGO_DRUPAL_CACHE=0` turns it off.
 
 A watch or editor session keeps some lists until its workers restart: the `@internal` and
-`@deprecated` classes, and the classes that use `DependencySerializationTrait` or declare a
-`#[TrustedCallback]` method. Restart the session after changing one of those.
+`@deprecated` classes, the classes that use `DependencySerializationTrait` or declare a
+`#[TrustedCallback]` method, and the properties that each trait reads without declaring them.
+Restart the session after changing one of those.
