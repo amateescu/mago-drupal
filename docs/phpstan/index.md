@@ -37,11 +37,11 @@ for 7, 8, and 9 and 10. The last row has most of the issues.
 | PHPStan level | Mago codes |
 | --- | --- |
 | 2 | `non-existent-method`, `non-existent-property`, `non-documented-property`, `invalid-property-access`, `too-few-arguments`, `too-many-arguments`, `docblock-type-mismatch` |
-| 3 | `property-type-coercion`, `less-specific-return-statement`, `invalid-property-default-value` |
+| 3 | `property-type-coercion`, `less-specific-return-statement`, `invalid-return-statement`, `invalid-property-assignment-value`, `invalid-property-default-value` |
 | 4 | `redundant-logical-operation`, `redundant-comparison`, `redundant-type-comparison`, `impossible-type-comparison`, `impossible-condition`, `redundant-condition` |
 | 5 | `invalid-argument`, `null-argument` |
 | 6 | `imprecise-type` |
-| 7 | `possibly-invalid-argument`, `possibly-false-argument`, `possibly-invalid-array-access`, `possibly-false-array-access`, `invalid-array-access`, `invalid-method-access`, `invalid-return-statement`, `falsable-return-statement`, `invalid-property-assignment-value`, `ambiguous-object-method-access` |
+| 7 | `possibly-invalid-argument`, `possibly-false-argument`, `possibly-invalid-array-access`, `possibly-false-array-access`, `invalid-array-access`, `invalid-method-access`, `falsable-return-statement`, `ambiguous-object-method-access` |
 | 8 | `possible-method-access-on-null`, `possibly-null-argument`, `possibly-null-property-access`, `possibly-null-iterator`, `possibly-null-array-access`, `nullable-return-statement` |
 | 9 and 10 | `mixed-argument`, `mixed-array-access`, `mixed-array-assignment`, `mixed-array-index`, `mixed-method-access`, `mixed-operand`, `mixed-property-access`, `mixed-property-type-coercion`, `mixed-return-statement`, `less-specific-nested-argument-type`, `less-specific-nested-return-statement`, `invalid-iterator`, `invalid-destructuring-source`, `template-constraint-violation` |
 
