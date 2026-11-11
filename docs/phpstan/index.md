@@ -10,14 +10,14 @@ setup with this extension.
 
 ## Moving the configuration
 
-| `phpstan.neon` | Mago |
+| `phpstan.neon`<span class="unbroken-first-column"></span> | Mago |
 | --- | --- |
 | `level` | Levels don't exist in Mago. It reports every issue found, at the issue's own level: error, warning, help or note. `minimum-fail-level` under `[analyzer]`, or `--minimum-fail-level`, sets the lowest level that fails the run. [Starting from a PHPStan level](#starting-from-a-phpstan-level) lists the issue codes by the PHPStan level that reports the same findings. |
 | Missing types, from level 6 | `check-missing-type-hints = true` under `[analyzer]` reports a missing parameter, return or property type. |
 | `paths` | `paths` under `[source]`. |
 | `excludePaths` | `excludes` under `[analyzer]`, or under `[source]` to keep a path from every Mago tool. phpstan-drupal leaves out `*.api.php` files and test fixtures by default, and so does the [configuration](../setup/configuration.md). |
 | `fileExtensions` | `extensions` under `[source]`. phpstan-drupal adds Drupal's extensions itself, and Mago needs them listed, as in [Install](../setup/install.md). |
-| `bootstrapFiles`, `scanFiles`, `scanDirectories` | `includes` under `[source]`: code read by Mago for its declarations and not reported. Mago doesn't run any code, so a bootstrap file counts only for what it declares. |
+| `bootstrapFiles`,<br>`scanFiles`,<br>`scanDirectories` | `includes` under `[source]`: code read by Mago for its declarations and not reported. Mago doesn't run any code, so a bootstrap file counts only for what it declares. |
 | `phpVersion` | `php-version`. |
 | `ignoreErrors` | `ignore` under `[analyzer]`, by issue code, by path, or by a `pattern` that the text of the issue must match, as [Turning rules off](../setup/configuration.md#turning-rules-off) shows. |
 | A baseline | A PHPStan baseline can't be reused. `vendor/bin/mago analyze --generate-baseline --baseline=analyzer-baseline.toml` writes a new one, and `baseline = "analyzer-baseline.toml"` under `[analyzer]` reads it. |
