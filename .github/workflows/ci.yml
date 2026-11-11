@@ -9,12 +9,18 @@ permissions:
 
 jobs:
   test:
-    name: PHP ${{ matrix.php }}
+    name: PHP ${{ matrix.php }}${{ matrix.mago == 'lowest' && ', lowest Mago' || '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: ['8.1', '8.4', '8.5']
+        mago: [highest]
+        # composer.json allows every Mago 1.x from its lowest version on. The
+        # other jobs install the newest one, and this job checks the lowest.
+        include:
+          - php: '8.1'
+            mago: lowest
 
     steps:
       - name: Checkout
@@ -32,6 +38,10 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
+
+      - name: Install the lowest Mago
+        if: matrix.mago == 'lowest'
+        run: composer update carthage-software/mago --prefer-lowest --no-interaction --prefer-dist
 
       - name: Check
         run: just check-all
