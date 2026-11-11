@@ -40,7 +40,7 @@ for 7, 8, and 9 and 10. The last row has most of the issues.
 | 3 | `property-type-coercion`, `less-specific-return-statement`, `invalid-property-default-value` |
 | 4 | `redundant-logical-operation`, `redundant-comparison`, `redundant-type-comparison`, `impossible-type-comparison`, `invalid-operand`, `impossible-condition`, `redundant-condition` |
 | 5 | `invalid-argument`, `null-argument` |
-| 6 | `missing-parameter-type`, `missing-property-type`, `missing-return-type` |
+| 6 | `missing-parameter-type`, `missing-property-type`, `missing-return-type`, `imprecise-type` |
 | 7 | `possibly-invalid-argument`, `possibly-false-argument`, `possibly-invalid-array-access`, `possibly-false-array-access`, `invalid-array-access`, `invalid-method-access`, `invalid-return-statement`, `falsable-return-statement`, `invalid-property-assignment-value`, `unknown-class-instantiation` |
 | 8 | `possible-method-access-on-null`, `possibly-null-argument`, `possibly-null-property-access`, `possibly-null-iterator`, `nullable-return-statement`, `reference-constraint-violation`, `invalid-member-selector` |
 | 9 and 10 | `mixed-argument`, `mixed-array-access`, `mixed-array-assignment`, `mixed-array-index`, `mixed-method-access`, `mixed-operand`, `mixed-property-access`, `mixed-property-type-coercion`, `mixed-return-statement`, `less-specific-nested-argument-type`, `less-specific-nested-return-statement`, `invalid-iterator`, `invalid-destructuring-source`, `invalid-type-cast`, `possibly-null-array-index`, `array-to-string-conversion`, `string-member-selector`, `template-constraint-violation` |
