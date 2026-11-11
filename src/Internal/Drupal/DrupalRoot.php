@@ -17,6 +17,7 @@ use amateescu\MagoDrupal\Internal\Service\ServiceDefinitions;
 use amateescu\MagoDrupal\Internal\Service\ServiceYaml;
 use amateescu\MagoDrupal\Internal\Traits\TraitComposers;
 use amateescu\MagoDrupal\Internal\Traits\TraitComposerScan;
+use amateescu\MagoDrupal\Internal\Traits\TraitPropertyNames;
 use amateescu\MagoDrupal\Internal\Type\Shape;
 use Throwable;
 
@@ -386,6 +387,30 @@ final class DrupalRoot
                 return $scan->composers;
             },
             [TraitComposers::class],
+        );
+    }
+
+    /**
+     * The names of the properties that the traits under this root read on
+     * `$this` without declaring them, read through the cache. Covers the
+     * extension source and the `tests/src/Traits` directory of every module,
+     * where a module keeps the traits that its tests share.
+     */
+    public function traitPropertyNames(): TraitPropertyNames
+    {
+        $directories = [];
+        foreach ($this->modules() as $directory) {
+            $directories[] = $directory . '/tests/src/Traits';
+        }
+
+        $files = [...$this->sourceFiles(), ...ExtensionFiles::phpFileTree($directories)[0]];
+
+        return $this->parses->scanned(
+            'trait-properties',
+            $files,
+            TraitPropertyNames::file(...),
+            TraitPropertyNames::merge(...),
+            [TraitPropertyNames::class],
         );
     }
 

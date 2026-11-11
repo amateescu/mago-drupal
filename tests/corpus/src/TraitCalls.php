@@ -40,10 +40,33 @@ trait LabelledTrait {
   }
 
   /**
-   * Every class has the property, so reading it is not reported.
+   * Every class declares the property as a string, so the read is one.
    */
   public function prefix(): string {
-    return (string) $this->prefix;
+    return $this->prefix;
+  }
+
+  /**
+   * The classes declare different types, so the read stays mixed.
+   */
+  public function weight(): int|string {
+    // @mago-expect analysis:mixed-return-statement(1)
+    return $this->weight;
+  }
+
+  /**
+   * One class documents the property as mixed, so the read stays mixed.
+   */
+  public function loose(): string {
+    // @mago-expect analysis:mixed-return-statement(1)
+    return $this->loose;
+  }
+
+  /**
+   * A write is not checked, since the classes may take different values.
+   */
+  public function reset(): void {
+    $this->weight = NULL;
   }
 
   /**
@@ -67,6 +90,16 @@ final class FirstLabelled {
    * The prefix.
    */
   public string $prefix = 'first:';
+
+  /**
+   * The weight, as a number.
+   */
+  public int $weight = 0;
+
+  /**
+   * Typed here only.
+   */
+  public string $loose = '';
 
   /**
    * Exists on this class only.
@@ -111,6 +144,18 @@ abstract class LabelledBase {
    * The prefix.
    */
   protected string $prefix = 'second:';
+
+  /**
+   * The weight, as text.
+   */
+  protected string $weight = '0';
+
+  /**
+   * Left without a type.
+   *
+   * @var mixed
+   */
+  protected $loose = '';
 
   /**
    * Returns the label.

@@ -82,6 +82,7 @@ use amateescu\MagoDrupal\Analyzer\Test\TestClassHook;
 use amateescu\MagoDrupal\Analyzer\Traits\SelfReturnProvider;
 use amateescu\MagoDrupal\Analyzer\Traits\TraitCallProvider;
 use amateescu\MagoDrupal\Analyzer\Traits\TraitPropertyFilter;
+use amateescu\MagoDrupal\Analyzer\Traits\TraitPropertyProvider;
 use amateescu\MagoDrupal\Analyzer\Traits\TraitStaticCallHook;
 use amateescu\MagoDrupal\Analyzer\Translation\UntranslatedMessageHook;
 use amateescu\MagoDrupal\Internal\Cache\DiskCache;
@@ -159,6 +160,11 @@ final class DrupalPlugin implements Plugin
         $registry->registerMethodReturnTypeProvider(new TraitPluginDefinitionProvider());
         $registry->registerMethodReturnTypeProvider(new TraitCallProvider($traitRoots));
         $registry->registerNodeAnalysisHook(new TraitStaticCallHook($traitRoots));
+        $traitProperties = $this->indexes->traitPropertyNames()->names;
+        if ($traitProperties !== []) {
+            $registry->registerPropertyTypeProvider(new TraitPropertyProvider($traitRoots, $traitProperties));
+        }
+
         $registry->registerMethodReturnTypeProvider(new SelfReturnProvider());
         $this->registerCoreTypes($registry);
 

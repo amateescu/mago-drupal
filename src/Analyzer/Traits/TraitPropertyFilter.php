@@ -12,6 +12,7 @@ use Mago\Sdk\Analyzer\IssueFilterDecision;
 use Mago\Sdk\Analyzer\IssueFilterHook;
 use Mago\Sdk\Analyzer\Metadata\MemberIdentifier;
 use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
+use Mago\Sdk\Reporting\ReportedIssue;
 
 use function array_map;
 use function in_array;
@@ -42,6 +43,10 @@ final class TraitPropertyFilter implements IssueFilterHook
      */
     private const MESSAGE = '/^(?:Static p|P)roperty `\$(?<property>\w+)` does not exist on trait `(?<trait>[^`]+)`\.$/';
 
+    private const MAGIC_PROPERTY = '/^Access to documented magic property `\$(?<property>\w+)`/';
+
+    private const MAGIC_CLASS = '/^Class `(?<class>[^`]+)` is missing the `__(?:get|set)` method$/';
+
     /**
      * Whether every class using the trait has the property, by lowercased
      * trait name, property name and access kind.
@@ -58,13 +63,17 @@ final class TraitPropertyFilter implements IssueFilterHook
 
     public function getCodes(): array
     {
-        return ['non-existent-property'];
+        return ['non-existent-property', 'missing-magic-method'];
     }
 
     public function filterIssue(IssueFilterContext $context): IssueFilterDecision
     {
         $matches = [];
         if (preg_match(self::MESSAGE, $context->issue->message, $matches) !== 1) {
+            $matches = self::magic($context->issue);
+        }
+
+        if ($matches === null) {
             return IssueFilterDecision::Keep;
         }
 
@@ -79,6 +88,31 @@ final class TraitPropertyFilter implements IssueFilterHook
         );
 
         return $covered ? IssueFilterDecision::Remove : IssueFilterDecision::Keep;
+    }
+
+    /**
+     * The property and the class of the report that Mago makes for a magic
+     * property on a class without `__get()` or `__set()`, which is what a
+     * property typed by TraitPropertyProvider is to it. Mago names the
+     * property in the message and the class in the annotation on the object.
+     *
+     * @return array{property: string, trait: string}|null
+     */
+    private static function magic(ReportedIssue $issue): ?array
+    {
+        $property = [];
+        if (preg_match(self::MAGIC_PROPERTY, $issue->message, $property) !== 1) {
+            return null;
+        }
+
+        foreach ($issue->annotations as $annotation) {
+            $class = [];
+            if (preg_match(self::MAGIC_CLASS, (string) $annotation->message, $class) === 1) {
+                return ['property' => $property['property'], 'trait' => $class['class']];
+            }
+        }
+
+        return null;
     }
 
     /**
