@@ -140,8 +140,12 @@ class CommentInExpression {
   /**
    * A comment between yield and from.
    *
-   * @return \Generator
+   * @return \Generator<mixed, mixed>
    *   The values.
+   *
+   * @todo Write a bare \Generator again once Mago 1.60 is released.
+   *
+   * @see https://github.com/carthage-software/mago/pull/2632
    */
   public function yieldComments(\Generator $generator): \Generator {
     // @mago-expect lint:drupal/comment-in-expression
@@ -178,8 +182,12 @@ class CommentInExpression {
   /**
    * A yield from with no comment between the words, or a plain yield, is fine.
    *
-   * @return \Generator
+   * @return \Generator<mixed, mixed>
    *   The values.
+   *
+   * @todo Write a bare \Generator again once Mago 1.60 is released.
+   *
+   * @see https://github.com/carthage-software/mago/pull/2632
    */
   public function yieldFine(\Generator $generator): \Generator {
     yield from $generator;
