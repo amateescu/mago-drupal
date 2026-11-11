@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ignores;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 
 /**
@@ -128,6 +129,16 @@ final class PhpcsComments {
     $this->messenger->addMessage('Saved.');
     // @mago-expect analysis:drupal/untranslated-message
     $this->messenger->addStatus('Done.');
+  }
+
+  /**
+   * A form error has a sniff of its own.
+   */
+  public function formErrors(FormStateInterface $form_state): void {
+    // phpcs:ignore DrupalPractice.FunctionCalls.FormErrorT
+    $form_state->setErrorByName('name', 'The name is taken.');
+    // @mago-expect analysis:drupal/untranslated-message
+    $form_state->setErrorByName('mail', 'The address is taken.');
   }
 
   /**
