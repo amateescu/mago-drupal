@@ -218,11 +218,15 @@ Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` examp
 
 | Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| `Drupal.InfoFiles.AutoAddedKeys` | [`drupal/info-auto-added-keys`](../rules/info-and-routing-files.md#drupalinfo-auto-added-keys) |
+| [`Drupal.InfoFiles.AutoAddedKeys`](#drupalinfofilesautoaddedkeys) | [`drupal/info-auto-added-keys`](../rules/info-and-routing-files.md#drupalinfo-auto-added-keys) |
 | [`Drupal.InfoFiles.ClassFiles`](#drupalinfofilesclassfiles) | phpcs |
 | `Drupal.InfoFiles.DependenciesArray` | [`drupal/info-dependencies-array`](../rules/info-and-routing-files.md#drupalinfo-dependencies-array) |
 | [`Drupal.InfoFiles.DuplicateEntry`](#drupalinfofilesduplicateentry) | phpcs |
 | [`Drupal.InfoFiles.Required`](#drupalinfofilesrequired) | phpcs |
+
+### `Drupal.InfoFiles.AutoAddedKeys`
+
+The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer.
 
 ### `Drupal.InfoFiles.ClassFiles`
 

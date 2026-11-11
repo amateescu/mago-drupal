@@ -409,6 +409,7 @@
         "sniff": "Drupal.InfoFiles.AutoAddedKeys",
         "standard": "Drupal",
         "where": ["ext:drupal/info-auto-added-keys"],
+        "note": "The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer.",
         "codes": [
             {"code": "Project", "status": "report"},
             {"code": "Timestamp", "status": "report"},
