@@ -206,4 +206,7 @@ excludes = [
     "core/modules/system/tests/modules/plugin_test/src/Plugin/plugin_test/fruit/ExtendingNonInstalledClass.php",
     "core/modules/system/tests/modules/router_test_directory/src/Controller/TestInvalidController.php",
     "core/modules/system/tests/modules/router_test_directory/src/Controller/TestMissingDependency.php",
+    # These files have a closure in an attribute, which PHP accepts from 8.5.
+    "core/modules/system/tests/modules/router_test_directory/src/TestTitleClosureAttributesPhp85.php",
+    "core/tests/Drupal/Tests/Core/Controller/TitleClosureCallback.php",
 ]
