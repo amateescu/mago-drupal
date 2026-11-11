@@ -24,8 +24,8 @@ have them.
 **Not reported:**
 
 - `version` in an info file under a `core/` directory;
-- a key below the `# Information added by Drupal.org packaging script` comment. The script wrote
-  it, in a release that Composer installed.
+- a key below the `# Information added by Drupal.org packaging script` comment. It was written by
+  the script, in a release installed by Composer.
 
 ??? note "Compared with Coder"
 

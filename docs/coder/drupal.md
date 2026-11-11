@@ -226,7 +226,7 @@ Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` examp
 
 ### `Drupal.InfoFiles.AutoAddedKeys`
 
-The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module that Composer installed.
+The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer.
 
 ### `Drupal.InfoFiles.ClassFiles`
 
