@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Injection;
 
+use amateescu\MagoDrupal\Analyzer\Support\ClassMentions;
 use amateescu\MagoDrupal\Analyzer\Support\HookMethods;
-use amateescu\MagoDrupal\Analyzer\Support\MetadataCheck;
+use amateescu\MagoDrupal\Analyzer\Support\MentionedCheck;
 use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
 use amateescu\MagoDrupal\Internal\Entity\StorageTypes;
@@ -16,6 +17,7 @@ use Mago\Sdk\Analyzer\Metadata\MetadataFlags;
 use Mago\Sdk\Analyzer\Metadata\ParameterMetadata;
 
 use function array_filter;
+use function array_keys;
 use function count;
 use function in_array;
 use function ltrim;
@@ -43,7 +45,7 @@ use function strtolower;
  *
  * @mago-expect lint:cyclomatic-complexity
  */
-final class EntityStorageInjectionCheck implements MetadataCheck
+final class EntityStorageInjectionCheck implements MentionedCheck
 {
     public const INJECTION_CODE = 'entity-storage-injection';
 
@@ -68,6 +70,21 @@ final class EntityStorageInjectionCheck implements MetadataCheck
     public function textGate(): ?string
     {
         return null;
+    }
+
+    /**
+     * A storage type that only a `@var` docblock names is not a resolved
+     * name, so the class text is searched for one too.
+     */
+    public function mentionedIn(ClassMentions $class): bool
+    {
+        /** @var list<non-empty-string> $names */
+        $names = array_keys($class->names);
+
+        return (
+            StorageTypes::namedLike($names) && StorageTypes::declaredLike($class->file->contents, $class->span)
+            || StorageTypes::documentedLike($class->text())
+        );
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void
