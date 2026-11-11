@@ -97,6 +97,37 @@ final class IgnoreComments {
   }
 
   /**
+   * PHPStan names a check with a known result after the check.
+   */
+  public function knownChecks(string $text, \stdClass $object): int {
+    $count = 0;
+    // @phpstan-ignore isset.variable
+    if (isset($text)) {
+      $count++;
+    }
+    // @phpstan-ignore function.alreadyNarrowedType
+    if (is_string($text)) {
+      $count++;
+    }
+    // @phpstan-ignore function.impossibleType
+    if (is_int($text)) {
+      $count++;
+    }
+    // @phpstan-ignore instanceof.alwaysTrue
+    if ($object instanceof \stdClass) {
+      $count++;
+    }
+    // @mago-expect analysis:redundant-condition
+    // @mago-expect analysis:redundant-type-comparison
+    // @phpstan-ignore function.impossibleType
+    if (is_string($text)) {
+      $count++;
+    }
+
+    return $count;
+  }
+
+  /**
    * A comment on the first unreachable statement covers the rest of the block.
    *
    * PHPStan reports the block once, Mago once per statement.

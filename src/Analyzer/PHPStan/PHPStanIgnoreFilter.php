@@ -33,6 +33,21 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
 
     private const CONDITION_ALWAYS_TRUE = ['redundant-condition'];
 
+    /**
+     * PHPStan reports an `isset()` or `empty()` whose result is known, and
+     * Mago the condition that it makes always true or always false.
+     */
+    private const CHECK_ALWAYS_KNOWN = ['impossible-condition', 'redundant-condition', 'redundant-logical-operation'];
+
+    /**
+     * A type check that can't fail, such as `is_string()` on a string.
+     */
+    private const TYPE_ALREADY_NARROWED = [
+        'redundant-condition',
+        'redundant-logical-operation',
+        'redundant-type-comparison',
+    ];
+
     private const DEPRECATED_CLASS = ['deprecated-class', 'deprecated-trait'];
 
     /**
@@ -90,11 +105,18 @@ final class PHPStanIgnoreFilter implements IssueFilterHook
         'deadCode.unreachable' => [self::UNEVALUATED],
         'elseif.alwaysFalse' => self::CONDITION_ALWAYS_FALSE,
         'elseif.alwaysTrue' => self::CONDITION_ALWAYS_TRUE,
+        'empty.property' => self::CHECK_ALWAYS_KNOWN,
+        'empty.variable' => self::CHECK_ALWAYS_KNOWN,
+        'function.alreadyNarrowedType' => self::TYPE_ALREADY_NARROWED,
         'function.deprecated' => ['deprecated-function'],
+        'function.impossibleType' => ['impossible-condition', 'impossible-type-comparison'],
         'function.notFound' => ['non-existent-function'],
         'if.alwaysFalse' => self::CONDITION_ALWAYS_FALSE,
         'if.alwaysTrue' => self::CONDITION_ALWAYS_TRUE,
+        'instanceof.alwaysTrue' => self::TYPE_ALREADY_NARROWED,
         'interface.extendsDeprecatedInterface' => self::DEPRECATED_CLASS,
+        'isset.property' => self::CHECK_ALWAYS_KNOWN,
+        'isset.variable' => self::CHECK_ALWAYS_KNOWN,
         'method.deprecated' => ['deprecated-method'],
         'method.deprecatedClass' => self::DEPRECATED_CLASS_METHOD,
         'method.deprecatedEnum' => self::DEPRECATED_CLASS_METHOD,

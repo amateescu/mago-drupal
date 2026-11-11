@@ -38,11 +38,18 @@ the ones matched by the plugin. The identifiers of phpstan-drupal are on the
 | `deadCode.unreachable` | `unevaluated-code` |
 | `elseif.alwaysFalse` | `impossible-condition` |
 | `elseif.alwaysTrue` | `redundant-condition` |
+| `empty.property` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
+| `empty.variable` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
+| `function.alreadyNarrowedType` | `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
 | `function.deprecated` | `deprecated-function` |
+| `function.impossibleType` | `impossible-condition`, `impossible-type-comparison` |
 | `function.notFound` | `non-existent-function` |
 | `if.alwaysFalse` | `impossible-condition` |
 | `if.alwaysTrue` | `redundant-condition` |
+| `instanceof.alwaysTrue` | `redundant-condition`, `redundant-logical-operation`, `redundant-type-comparison` |
 | `interface.extendsDeprecatedInterface` | `deprecated-class`, `deprecated-trait` |
+| `isset.property` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
+| `isset.variable` | `impossible-condition`, `redundant-condition`, `redundant-logical-operation` |
 | `method.deprecated` | `deprecated-method` |
 | `method.deprecatedClass` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
 | `method.deprecatedEnum` | `deprecated-class`, `deprecated-trait`, `deprecated-method` |
