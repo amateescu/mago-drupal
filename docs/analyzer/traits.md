@@ -1,7 +1,8 @@
 # Traits
 
 Mago analyzes a trait on its own, without the classes that use it. The analyzer types the calls
-from a trait to the methods of those classes, and the fluent methods kept in traits by core. The
+from a trait to the methods of those classes, the properties of those classes that the trait
+reads, and the fluent methods kept in traits by core. The
 check reports a `self::` or `static::` call from a static method of a trait to an instance method.
 
 ## Calls from traits
@@ -49,18 +50,43 @@ costs a few method lookups.
 
 ### Properties
 
-A property on the `$this` of a trait, such as `$this->container`, is only partly handled: when
-every class that uses the trait has the property, declared or through a `@property` tag, the report
-of a missing property is dropped:
+A property read on the `$this` of a trait, such as `$this->container`, is typed when every class
+that uses the trait declares it with the same type:
 
-- a static read, `self::$name` or `static::$name`, needs a declared static property in every class,
-  since PHP throws for an instance or a magic one;
+```php
+trait SchemaDumpTrait {
+  protected function dump(): string {
+    // Typed from the $container of the test classes that use the trait.
+    return $this->container->get('example.schema')->dump();
+  }
+}
+```
+
+**Typed:**
+
+- `$this->name`, as the type that the classes give the property, natively or in a `@var` tag.
+
+**Not typed:**
+
+- a property that the classes declare with different types, or that one of them leaves without a
+  type or documents as `mixed`. The union of the types would report a call once for every class
+  whose type doesn't have the method;
+- a property that one of the classes only has through a `@property` tag;
+- a static read, `self::$name` or `static::$name`;
+- a write, which isn't checked, since the classes may accept different values;
+- a property of a trait outside `core/lib`, `core/tests`, and the `src` and `tests/src/Traits`
+  directories of the extensions under the Drupal root. The traits are read from disk when the
+  workers start, so a trait added later is typed after the next start.
+
+Whether the property is typed or not, the report of a missing property is dropped when every class
+that uses the trait has the property, declared or through a `@property` tag:
+
+- a static read needs a declared static property in every class, since PHP throws for an instance
+  or a magic one;
 - `$this->name` needs a property that isn't static.
 
-The value stays `mixed`. The SDK types a property only as a magic one, and on a trait without
-`__get()` Mago would report that in turn. Mago doesn't record a reference for the read either, so a
-private property, or a protected one in a final class, that only the trait reads is still reported
-as `unused-property`.
+Mago doesn't record a reference for the read, so a private property, or a protected one in a final
+class, that only the trait reads is still reported as `unused-property`.
 
 ## Fluent setters
 

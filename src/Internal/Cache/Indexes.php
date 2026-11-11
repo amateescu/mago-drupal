@@ -22,6 +22,7 @@ use amateescu\MagoDrupal\Internal\Service\ServiceParameters;
 use amateescu\MagoDrupal\Internal\Service\ServiceWiring;
 use amateescu\MagoDrupal\Internal\Service\ServiceYaml;
 use amateescu\MagoDrupal\Internal\Traits\TraitComposers;
+use amateescu\MagoDrupal\Internal\Traits\TraitPropertyNames;
 use Closure;
 use Mago\Sdk\Analyzer\Codebase;
 use Revolt\EventLoop;
@@ -430,6 +431,16 @@ final class Indexes
     public function traitComposers(string $trait): TraitComposers
     {
         return $this->root()->traitComposers($trait);
+    }
+
+    /**
+     * The names of the properties that traits under the root read without
+     * declaring them, for the provider that targets them. Read once at
+     * registration.
+     */
+    public function traitPropertyNames(): TraitPropertyNames
+    {
+        return $this->root()->traitPropertyNames();
     }
 
     /**

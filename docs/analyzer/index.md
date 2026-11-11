@@ -178,7 +178,8 @@ next Drupal major, and the checks for the deprecations not reported by Mago.
 ## Traits
 
 Mago analyzes a trait on its own, without the classes that use it. The analyzer types the calls
-from a trait to the methods of those classes, and the fluent methods kept in traits by core. The
+from a trait to the methods of those classes, the properties of those classes that the trait
+reads, and the fluent methods kept in traits by core. The
 check reports a `self::` or `static::` call from a static method of a trait to an instance method.
 
 | Check | Level | What it reports |
