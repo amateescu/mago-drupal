@@ -34,7 +34,7 @@ start from what the project's level covers, add the codes of the higher levels t
 the same for the issues that are in the code today, and still reports new ones.
 
 The table lists each code at the PHPStan level that starts to report most of the same lines. It
-was measured on Drupal core 11.4 with PHPStan 2.2, at every level from 0 to 10.
+was measured on Drupal 11.4 with PHPStan 2.2, at every level from 0 to 10.
 
 | PHPStan level | Mago codes |
 | --- | --- |
@@ -54,8 +54,8 @@ was measured on Drupal core 11.4 with PHPStan 2.2, at every level from 0 to 10.
   `invalid-property-assignment-value` lines at level 3. The rest come at levels 7 and 8, where it
   starts to check each member of a union type.
 
-Mago also reports issues that PHPStan mostly doesn't report at any level. The largest groups on
-core are `mixed-assignment`, `possibly-null-operand`, `less-specific-argument`,
+Mago also reports issues that PHPStan mostly doesn't report at any level. The largest groups in
+Drupal are `mixed-assignment`, `possibly-null-operand`, `less-specific-argument`,
 `implicit-to-string-cast`, `possibly-null-array-access`, `undefined-variable`,
 `incompatible-parameter-name`, `ambiguous-object-method-access`,
 `ambiguous-object-property-access`, `impossible-condition`, `redundant-condition` and
