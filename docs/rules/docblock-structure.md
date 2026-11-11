@@ -416,7 +416,7 @@ the end of the long description.
 The standard lets a `@param` or `@return` description be left out when the type says it all, such as
 a single class type that can't be null, and asks to leave out `@return` when the function doesn't
 return anything. Coder, core and this rule still want the description. Coder 9 and this rule accept
-`@return void` without one. Core's phpcs runs Coder 8, which reports it.
+`@return void` without one. Coder 8, which is run by Drupal 11.4 and earlier, reports it.
 
 ??? example "Example"
 

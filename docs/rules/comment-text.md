@@ -223,8 +223,8 @@ rewritten.
     - Mago's `no-redundant-use` also counts a mention by the full name, as in
       `@var \Drupal\Core\Url` for `use Drupal\Core\Url;`, as a use of the import. Neither rule
       reports that import, and Coder does.
-    - Coder 8's `Drupal.Commenting.DataTypeNamespace`, which is still run by core 11.4's
-      `phpcs.xml.dist`, reports a short name even when the code uses its import too. No such sniff
+    - Coder 8's `Drupal.Commenting.DataTypeNamespace`, which is run by the `phpcs.xml.dist` of
+      Drupal 11.4 and earlier, reports a short name even when the code uses its import too. No such sniff
       exists in Coder 9.
 
 ---

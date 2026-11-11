@@ -35,7 +35,6 @@ command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amate
 # The files that phpcs doesn't check. The analyzer still reads them, since core uses their classes.
 excludes = [
     # Excluded by core's phpcs.xml.dist.
-    "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
     # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago's own rules don't
@@ -43,6 +42,7 @@ excludes = [
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
+    "core/includes/guzzle_file_cookie_jar_shim.php",
     "core/lib/Drupal/Component/Annotation/Doctrine/",
     "core/lib/Drupal/Core/Config/Action/Exists.php",
     "core/lib/Drupal/Core/Database/DatabaseException.php",
@@ -54,7 +54,9 @@ excludes = [
     "core/modules/content_moderation/tests/fixtures/",
     "core/modules/migrate_drupal/tests/fixtures/",
     "core/modules/workspaces/tests/fixtures/",
+    "core/tests/Drupal/TestTools/Extension/DeprecationBridge/Configuration.php",
     "core/tests/Drupal/Tests/DocumentElement.php",
+    "core/tests/Drupal/Tests/ProxyClass/",
     "core/tests/PHPStan/fixtures/",
     "core/tests/fixtures/empty_file.php.module",
     "core/tests/fixtures/files/",
@@ -63,7 +65,6 @@ excludes = [
 [linter]
 excludes = [
     # Excluded by core's phpcs.xml.dist.
-    "core/lib/Drupal/Component/Diff/",
     "core/tests/Drupal/Tests/Component/Annotation/Doctrine/",
     "core/modules/system/tests/fixtures/HtaccessTest/",
     # Marked with // phpcs:ignoreFile or // @codingStandardsIgnoreFile, which Mago's own rules don't
@@ -71,6 +72,7 @@ excludes = [
     "core/assets/scaffold/files/default.settings.php",
     "core/assets/scaffold/files/example.settings.local.php",
     "core/assets/scaffold/files/example.sites.php",
+    "core/includes/guzzle_file_cookie_jar_shim.php",
     "core/lib/Drupal/Component/Annotation/Doctrine/",
     "core/lib/Drupal/Core/Config/Action/Exists.php",
     "core/lib/Drupal/Core/Database/DatabaseException.php",
@@ -82,13 +84,19 @@ excludes = [
     "core/modules/content_moderation/tests/fixtures/",
     "core/modules/migrate_drupal/tests/fixtures/",
     "core/modules/workspaces/tests/fixtures/",
+    "core/tests/Drupal/TestTools/Extension/DeprecationBridge/Configuration.php",
     "core/tests/Drupal/Tests/DocumentElement.php",
+    "core/tests/Drupal/Tests/ProxyClass/",
     "core/tests/PHPStan/fixtures/",
     "core/tests/fixtures/empty_file.php.module",
     "core/tests/fixtures/files/",
     # Broken on purpose, and left out of core's phpstan.neon.dist. Mago reports its abstract method
     # in a class that isn't abstract as a semantics error, which no setting turns off for one file.
     "core/modules/system/tests/modules/router_test_directory/src/Controller/TestInvalidController.php",
+    # These files have a closure in an attribute, which PHP accepts from 8.5. Mago reports it as a
+    # semantics error for a lower php-version.
+    "core/modules/system/tests/modules/router_test_directory/src/TestTitleClosureAttributesPhp85.php",
+    "core/tests/Drupal/Tests/Core/Controller/TitleClosureCallback.php",
 ]
 
 [linter.rules]
@@ -120,13 +128,26 @@ excludes = [
 "drupal/unsilenced-deprecation" = { enabled = false }
 "drupal/untranslated-description" = { enabled = false }
 "drupal/untranslated-options" = { enabled = false }
-# This rule checks what no Coder sniff checks.
+# These rules check what no Coder sniff checks. Core's phpstan.neon.dist disallows the weak hash
+# functions from Drupal 12, so turn drupal/weak-hash on in a checkout of that branch.
+# drupal/symfony-yaml-parse ports a rule of phpstan-drupal that core doesn't run.
 "drupal/global-class-backslash" = { enabled = false }
-# These rules match Coder 9 sniffs that core's Coder 8 setup doesn't run. no-request-variable is the
-# $_REQUEST half of the sniff that drupal/request-superglobal ports.
+"drupal/symfony-yaml-parse" = { enabled = false }
+"drupal/weak-hash" = { enabled = false }
+# Coder checks the string of t() only. The rule also reports a formatPlural() call with a variable,
+# which core needs where the strings come from a table. It stays visible and doesn't fail the run.
+"drupal/translatable-literal" = { level = "help" }
+# These rules stand in for sniffs of Coder that core's phpcs.xml.dist doesn't run.
+# no-request-variable is the $_REQUEST half of the sniff that drupal/request-superglobal ports.
 no-redundant-method-override = { enabled = false }
 no-request-variable = { enabled = false }
-single-class-per-file = { enabled = false }
+# Core's phpcs.xml.dist leaves tests directories out of Squiz.Classes.ClassFileName. phpcs matches
+# the pattern in any case, so it also leaves out the Tests directories under src/.
+file-name = { exclude = ["**/tests/**", "**/Tests/**"] }
+single-class-per-file = { exclude = ["**/tests/**", "**/Tests/**"] }
+# Coder accepts a loop whose body is a semicolon, and these tests wait for their child processes
+# with one.
+block-statement = { exclude = ["core/tests/Drupal/KernelTests/Core/File/DirectoryTest.php", "core/tests/Drupal/KernelTests/Core/KeyValueStore/DatabaseStorageTest.php"] }
 # Core checks the case of a trait name, but not the "Trait" suffix.
 trait-name = { psr = false }
 # Core is the framework that sets PHP's runtime settings for the site.
@@ -153,6 +174,7 @@ sensitive-parameter = { enabled = false }
 str-contains = { enabled = false }
 str-starts-with = { enabled = false }
 strict-behavior = { enabled = false }
+tagged-fixme = { enabled = false }
 use-compound-assignment = { enabled = false }
 # Core's phpcs.xml.dist leaves tests directories out of Drupal.Files.LineLength. phpcs matches the
 # pattern in any case, so it also leaves out the Tests directories under src/.

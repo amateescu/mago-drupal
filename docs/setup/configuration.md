@@ -101,13 +101,17 @@ See [PHPStan ignores](../analyzer/phpstan-ignores.md) for the plugin.
 
 ## Checking Drupal core
 
-Core's own `phpcs.xml.dist` asks for less than Drupal's standard, and core runs Coder 8, which
-doesn't have some of the sniffs of Coder 9. `drupal-core.mago.toml` turns off the rules whose
-checks core turns off or doesn't run, Mago's own rules included. That covers Mago's general advice,
-such as `strict-behavior` and `inline-variable-return`, which doesn't port any sniff that core
-runs. Where `phpcs.xml.dist` leaves paths out of a sniff, such as the tests directories out of the
-line length check, the file leaves them out of the rules that port it. It also ignores five
-analyzer checks that are about modules that use core's API. The comments in the file say why.
+Core's own `phpcs.xml.dist` asks for less than Drupal's standard. `drupal-core.mago.toml` follows
+the file of Drupal 11.x, which runs Coder 9, and turns off the rules whose checks core turns off or
+doesn't run, Mago's own rules included. That covers Mago's general advice, such as
+`strict-behavior` and `inline-variable-return`, which doesn't port any sniff that core runs. Where
+`phpcs.xml.dist` leaves paths out of a sniff, such as the tests directories out of the line length
+check, the file leaves them out of the rules that port it. It also ignores five analyzer checks
+that are about modules that use core's API. The comments in the file say why.
+
+A rule that stays on can check more than the sniff that it ports, such as `drupal/hook-comment` on
+a `#[Hook]` method and `drupal/doc-see-tag` in a class docblock. Those reports fail the run on
+core, where phpcs passes.
 
 A rule that the file turns off can be turned back on in the checkout's `mago.toml`:
 

@@ -110,6 +110,11 @@ final class RuleSwitchesTest extends TestCase
             [],
             self::messages(new MissingFunctionCommentRule(), $contents, self::core() . '/modules/node'),
         );
+        self::assertSame(
+            [],
+            self::messages(new MissingFunctionCommentRule(), $contents, dirname(self::core()) . '/composer/Plugin'),
+        );
+        self::assertFalse(MissingFunctionCommentRule::checkedOnCore('composer/Plugin/ProjectMessage/Message.php'));
         self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/modules/node/node.module'));
         self::assertFalse(MissingFunctionCommentRule::checkedOnCore('core/modules/node/tests/src/Traits/T.php'));
         self::assertFalse(MissingFunctionCommentRule::checkedOnCore('modules/custom/src/Plugin/Block/B.php'));
