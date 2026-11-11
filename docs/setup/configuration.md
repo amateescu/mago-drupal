@@ -137,3 +137,14 @@ ignore = [
     { code = "drupal/entity-storage-injection", in = "src/Legacy/" },
 ]
 ```
+
+An entry with a `pattern` drops the issues whose text matches a regular expression. The text is the
+message, the notes, the help and the annotations of the issue. `code` and `in` narrow the entry
+further:
+
+```toml
+[analyzer]
+ignore = [
+    { code = "unsafe-instantiation", pattern = "new static\\(\\)" },
+]
+```
