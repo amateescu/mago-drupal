@@ -76,15 +76,15 @@ final class PHPStanPages
     }
 
     /**
-     * Renders a line for each identifier, with the Mago issues of each.
+     * Renders a table row for each identifier, with the Mago issues of each.
      */
     public function identifiers(): string
     {
         /** @var array<string, list<string>> $codes */
         $codes = (new ReflectionClassConstant(PHPStanIgnoreFilter::class, 'CODES'))->getValue();
-        $lines = [];
+        $lines = ['| PHPStan identifier | Mago issues |', '| --- | --- |'];
         foreach ($codes as $identifier => $issues) {
-            $lines[] = "- `{$identifier}`: `" . implode('`, `', $issues) . '`';
+            $lines[] = "| `{$identifier}` | `" . implode('`, `', $issues) . '` |';
         }
 
         return implode("\n", $lines) . "\n";
