@@ -23,11 +23,15 @@ have them.
 
 **Not reported:**
 
-- `version` in an info file under a `core/` directory.
+- `version` in an info file under a `core/` directory;
+- a key below the `# Information added by Drupal.org packaging script` comment. The script wrote
+  it, in a release that Composer installed.
 
 ??? note "Compared with Coder"
 
     - Coder reports the keys on the first line of the file.
+    - Coder also reports the keys written by the packaging script, so it reports every installed
+      module of a site.
 
 ---
 

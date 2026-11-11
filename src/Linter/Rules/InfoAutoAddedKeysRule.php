@@ -13,19 +13,29 @@ use Mago\Sdk\Reporting\Level;
 use Mago\Sdk\Syntax\NodeKind;
 
 use function str_contains;
+use function strpos;
 
 /**
  * Reports the keys of an `.info.yml` file that drupal.org packaging adds.
  *
  * Ports Drupal.InfoFiles.AutoAddedKeys. The packaging script writes
  * `project`, `datestamp` and `version` into the info files of a release, so
- * the files in the repository must not have them.
+ * the files in the repository must not have them. The script puts a comment
+ * above the keys that it writes, and a key below that comment is not
+ * reported. A site that lints its installed modules has those keys in every
+ * info file.
  *
  * @internal
  */
 final class InfoAutoAddedKeysRule implements Rule
 {
     private const KEYS = ['project', 'datestamp', 'version'];
+
+    /**
+     * The start of the comment line that the packaging script writes above
+     * its keys. A date follows it.
+     */
+    private const PACKAGING_COMMENT = "\n# Information added by Drupal.org packaging script";
 
     public function getDefinition(): RuleDefinition
     {
@@ -50,9 +60,9 @@ final class InfoAutoAddedKeysRule implements Rule
             return;
         }
 
+        $packaged = strpos($context->file->contents, needle: self::PACKAGING_COMMENT);
+
         foreach (self::KEYS as $key) {
-            // Core keeps `version` in its info files. Packaging does not add
-            // it there.
             if (
                 ($info[$key] ?? null) === null
                 || $key === 'version' && str_contains('/' . $context->file->path, '/core/')
@@ -60,9 +70,14 @@ final class InfoAutoAddedKeysRule implements Rule
                 continue;
             }
 
+            $line = YamlFile::keyLine($context->file, $key);
+            if ($packaged !== false && $line !== null && $line->start > $packaged) {
+                continue;
+            }
+
             $context->report(Issue::new(
                 "Remove \"{$key}\" from the info file. drupal.org packaging adds it.",
-                YamlFile::keyLine($context->file, $key) ?? YamlFile::firstLine($context->file),
+                $line ?? YamlFile::firstLine($context->file),
             ));
         }
     }

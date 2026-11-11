@@ -52,18 +52,25 @@ final class YamlFileRulesTest extends TestCase
      */
     public static function cases(): iterable
     {
-        $packaged =
-            self::INFO
-            . "\n# Information added by Drupal.org packaging script.\nversion: '1.0.0'\nproject: 'mymodule'\ndatestamp: 1700000000\n";
+        $authored = self::INFO . "\nversion: '1.0.0'\nproject: 'mymodule'\ndatestamp: 1700000000\n";
         yield 'auto-added keys' => [
             new InfoAutoAddedKeysRule(),
             'mymodule/mymodule.info.yml',
-            $packaged,
+            $authored,
             [
-                '9: Remove "project" from the info file. drupal.org packaging adds it.',
-                '10: Remove "datestamp" from the info file. drupal.org packaging adds it.',
-                '8: Remove "version" from the info file. drupal.org packaging adds it.',
+                '8: Remove "project" from the info file. drupal.org packaging adds it.',
+                '9: Remove "datestamp" from the info file. drupal.org packaging adds it.',
+                '7: Remove "version" from the info file. drupal.org packaging adds it.',
             ],
+        ];
+        $packaged =
+            "\n# Information added by Drupal.org packaging script on 2024-09-11\n"
+            . "version: '1.0.0'\nproject: 'mymodule'\ndatestamp: 1700000000\n";
+        yield 'keys written by the packaging script' => [
+            new InfoAutoAddedKeysRule(),
+            'mymodule/mymodule.info.yml',
+            self::INFO . "\n" . $packaged,
+            [],
         ];
         yield 'version in core' => [
             new InfoAutoAddedKeysRule(),
