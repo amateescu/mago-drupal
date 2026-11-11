@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Tests;
 
+use amateescu\MagoDrupal\Analyzer\Support\ClassMentions;
 use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\DrupalExtension;
 use Closure;
@@ -54,6 +55,8 @@ final class RegistrationTest extends TestCase
      * registering them.
      */
     private const HELPERS = [
+        // Built per class by the class hook, from the names in the node.
+        ClassMentions::class,
         // Built per request, around the context of the hook reporting.
         Reporter::class,
     ];

@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Plugin;
 
-use amateescu\MagoDrupal\Analyzer\Support\MetadataCheck;
+use amateescu\MagoDrupal\Analyzer\Support\ClassMentions;
+use amateescu\MagoDrupal\Analyzer\Support\MentionedCheck;
 use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
+use amateescu\MagoDrupal\Internal\Declaration\ClassNames;
 use amateescu\MagoDrupal\Internal\Plugin\AnnotatedDeclarations;
 use Closure;
 
 use function array_key_exists;
+use function array_keys;
 use function strtolower;
 
 /**
@@ -22,7 +25,7 @@ use function strtolower;
  *
  * @internal
  */
-final class PluginAnnotationContextCheck implements MetadataCheck
+final class PluginAnnotationContextCheck implements MentionedCheck
 {
     public const CODE = 'plugin-annotation-context';
 
@@ -36,6 +39,11 @@ final class PluginAnnotationContextCheck implements MetadataCheck
     public function textGate(): ?string
     {
         return null;
+    }
+
+    public function mentionedIn(ClassMentions $class): bool
+    {
+        return ClassNames::anyIs($class->candidates, array_keys(($this->annotated)()->contextKeyed));
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void

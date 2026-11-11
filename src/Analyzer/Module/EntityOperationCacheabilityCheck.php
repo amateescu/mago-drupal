@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Module;
 
+use amateescu\MagoDrupal\Analyzer\Support\ClassMentions;
 use amateescu\MagoDrupal\Analyzer\Support\HookMethods;
-use amateescu\MagoDrupal\Analyzer\Support\MetadataCheck;
+use amateescu\MagoDrupal\Analyzer\Support\MentionedCheck;
 use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
 use amateescu\MagoDrupal\Internal\Drupal\HookFunctions;
@@ -26,7 +27,7 @@ use Mago\Sdk\Span;
  *
  * @internal
  */
-final class EntityOperationCacheabilityCheck implements MetadataCheck
+final class EntityOperationCacheabilityCheck implements MentionedCheck
 {
     public const CODE = 'hook-entity-operation-cacheability';
 
@@ -55,6 +56,11 @@ final class EntityOperationCacheabilityCheck implements MetadataCheck
     public function textGate(): ?string
     {
         return null;
+    }
+
+    public function mentionedIn(ClassMentions $class): bool
+    {
+        return $class->names(HookMethods::ATTRIBUTE);
     }
 
     public function check(ClassFacts $class, Reporter $reporter): void

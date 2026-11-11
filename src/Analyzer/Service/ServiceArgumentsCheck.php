@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace amateescu\MagoDrupal\Analyzer\Service;
 
-use amateescu\MagoDrupal\Analyzer\Support\MetadataCheck;
+use amateescu\MagoDrupal\Analyzer\Support\ClassMentions;
+use amateescu\MagoDrupal\Analyzer\Support\MentionedCheck;
 use amateescu\MagoDrupal\Analyzer\Support\Reporter;
 use amateescu\MagoDrupal\Internal\Declaration\ClassFacts;
 use amateescu\MagoDrupal\Internal\Drupal\TestFiles;
@@ -37,7 +38,7 @@ use function substr;
  *
  * @mago-expect lint:cyclomatic-complexity
  */
-final class ServiceArgumentsCheck implements MetadataCheck
+final class ServiceArgumentsCheck implements MentionedCheck
 {
     public const CODE = 'service-argument-count';
 
@@ -61,16 +62,14 @@ final class ServiceArgumentsCheck implements MetadataCheck
     }
 
     /**
-     * Whether any of the names is the class of a service with a known
-     * argument count. The class hook asks this for every class, so it is a
-     * lookup per name.
-     *
-     * @param list<non-empty-string> $names
+     * Whether one of the class's names is the class of a service with a
+     * known argument count. The class hook asks this for every class, so it
+     * is a lookup per name.
      */
-    public function namedBy(Codebase $codebase, array $names): bool
+    public function mentionedIn(ClassMentions $class): bool
     {
-        $wiring = ($this->wiring)($codebase);
-        foreach ($names as $name) {
+        $wiring = ($this->wiring)($class->codebase);
+        foreach ($class->candidates as $name) {
             if ($wiring->hasArguments($name)) {
                 return true;
             }

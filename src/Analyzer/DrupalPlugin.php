@@ -41,6 +41,7 @@ use amateescu\MagoDrupal\Analyzer\Entity\ListBuilderOperationsProvider;
 use amateescu\MagoDrupal\Analyzer\Entity\MachineNameKeysProvider;
 use amateescu\MagoDrupal\Analyzer\Entity\ReferencedEntitiesProvider;
 use amateescu\MagoDrupal\Analyzer\Entity\UnknownEntityTypeHook;
+use amateescu\MagoDrupal\Analyzer\Injection\ComposedSerializationCheck;
 use amateescu\MagoDrupal\Analyzer\Injection\DependencySerializationCheck;
 use amateescu\MagoDrupal\Analyzer\Injection\EntityStorageInjectionCheck;
 use amateescu\MagoDrupal\Analyzer\Injection\GlobalDrupalCallHook;
@@ -215,21 +216,16 @@ final class DrupalPlugin implements Plugin
         $storage = new EntityStorageInjectionCheck($traitRoots);
         $composers = $this->indexes->traitComposers(DependencySerializationCheck::TRAIT);
         $serialization = new DependencySerializationCheck($composers);
-        $registry->registerNodeAnalysisHook(
-            new ClassMetadataHook(
-                $this->indexes->annotated(...),
-                [
-                    new DeprecatedHookCheck($hooks, $this->deprecations),
-                    new FormAlterSignatureCheck(),
-                    new EntityOperationCacheabilityCheck($hooks),
-                ],
-                $storage,
-                $serialization,
-                new ConfigEntityExportCheck($this->indexes->entityTypes(...)),
-                new PluginAnnotationContextCheck($this->indexes->annotated(...)),
-                new ServiceArgumentsCheck($this->indexes->wiring(...), $this->indexes->alteredServiceIds(...)),
-            ),
-        );
+        $registry->registerNodeAnalysisHook(new ClassMetadataHook([
+            new DeprecatedHookCheck($hooks, $this->deprecations),
+            new FormAlterSignatureCheck(),
+            new EntityOperationCacheabilityCheck($hooks),
+            $storage,
+            new ComposedSerializationCheck($serialization),
+            new ConfigEntityExportCheck($this->indexes->entityTypes(...), $this->indexes->annotated(...)),
+            new PluginAnnotationContextCheck($this->indexes->annotated(...)),
+            new ServiceArgumentsCheck($this->indexes->wiring(...), $this->indexes->alteredServiceIds(...)),
+        ]));
         $registry->registerNodeAnalysisHook(
             new ElementCallbackHook($this->indexes->modules(...), $this->indexes->services(...), $trusted),
         );
