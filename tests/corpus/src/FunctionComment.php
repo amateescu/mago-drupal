@@ -371,6 +371,63 @@ function function_comment_throws_no_full_stop(): void {
   throw new \Exception('x');
 }
 
+// @mago-expect lint:drupal/doc-tag-types
+// @mago-expect analysis:invalid-docblock
+// @mago-expect analysis:malformed-docblock-comment
+/**
+ * Throws with nothing on the tag's line, before another tag.
+ *
+ * @throws
+ *
+ * @see function_comment_throws_no_full_stop()
+ */
+function function_comment_throws_bare(): void {
+}
+
+// A description below a tag with no class isn't checked as a sentence.
+// @mago-expect lint:drupal/doc-tag-types
+/**
+ * Throws with the description below and no class.
+ *
+ * @throws
+ *   when it fails
+ */
+function function_comment_throws_description_only(): void {
+}
+
+// @mago-expect lint:drupal/doc-tag-types
+/**
+ * Throws with the class on the line below.
+ *
+ * @throws
+ *   \Exception
+ */
+function function_comment_throws_class_below(): void {
+}
+
+// @mago-expect lint:drupal/doc-tag-types
+// @mago-expect analysis:invalid-docblock
+// @mago-expect analysis:malformed-docblock-comment
+/**
+ * Param with nothing after the tag.
+ *
+ * @param
+ */
+function function_comment_param_bare($a): void {
+}
+
+// @mago-expect lint:drupal/doc-tag-types
+// @mago-expect analysis:invalid-docblock
+// @mago-expect analysis:malformed-docblock-comment
+/**
+ * Return with nothing after the tag, as the last tag.
+ *
+ * @return
+ */
+function function_comment_return_bare_last(): string {
+  return 'x';
+}
+
 /**
  * A type-only @throws needs no separate description.
  *

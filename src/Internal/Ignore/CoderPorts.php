@@ -123,6 +123,7 @@ final class CoderPorts
         ],
         'drupal/doc-tag-types' => [
             'Drupal.Commenting.FunctionComment.DuplicateReturn',
+            'Drupal.Commenting.FunctionComment.InvalidThrows',
             'Drupal.Commenting.FunctionComment.MissingParamName',
             'Drupal.Commenting.FunctionComment.MissingParamType',
             'Drupal.Commenting.FunctionComment.MissingReturnType',

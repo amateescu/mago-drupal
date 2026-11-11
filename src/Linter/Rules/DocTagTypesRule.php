@@ -21,11 +21,11 @@ use function strlen;
 use function trim;
 
 /**
- * Checks that the `@param` and `@return` tags of a function or method have
- * a type, and a `@param` a variable name.
+ * Checks that the `@param`, `@return` and `@throws` tags of a function or
+ * method have a type, and a `@param` a variable name.
  *
- * Ports `MissingParamName`, `MissingParamType`, `MissingReturnType` and
- * `DuplicateReturn` of Drupal.Commenting.FunctionComment.
+ * Ports `MissingParamName`, `MissingParamType`, `MissingReturnType`,
+ * `DuplicateReturn` and `InvalidThrows` of Drupal.Commenting.FunctionComment.
  *
  * @internal
  */
@@ -42,7 +42,7 @@ final class DocTagTypesRule implements Rule
         return new RuleDefinition(
             code: 'drupal/doc-tag-types',
             name: 'Doc tag types',
-            description: 'Reports a @param with no type or variable name, a @return with no type, and a second @return.',
+            description: 'Reports a @param with no type or variable name, a @return or @throws with no type, and a second @return.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             targets: [NodeKind::Function, NodeKind::Method],
@@ -58,9 +58,13 @@ final class DocTagTypesRule implements Rule
 
         foreach ($tags->params() as [$tag, $param]) {
             if ($param === null) {
-                if (trim($tag->content()) !== '') {
-                    $context->report(Issue::new('The @param tag doesn\'t have a $variable name.', $tag->contentSpan()));
-                }
+                // Coder reports a tag with nothing after it as a missing
+                // type, and text with no variable as a missing name.
+                $context->report(
+                    trim($tag->content()) === ''
+                        ? Issue::new('The @param tag doesn\'t have a type.', $tag->nameSpan)
+                        : Issue::new('The @param tag doesn\'t have a $variable name.', $tag->contentSpan()),
+                );
 
                 continue;
             }
@@ -70,22 +74,28 @@ final class DocTagTypesRule implements Rule
             }
         }
 
+        // Coder reads the exception class from the tag's own line only, so a
+        // class on the line below is a description.
+        foreach ($tags->named('throws') as $tag) {
+            if (trim($tag->lines[0]->text) !== '') {
+                continue;
+            }
+
+            $context->report(Issue::new(
+                'The @throws tag doesn\'t have an exception class on its line.',
+                $tag->nameSpan,
+            ));
+        }
+
         $returns = $tags->named('return');
         if (count($returns) > 1) {
             $context->report(Issue::new('Use only one @return tag.', $returns[1]->nameSpan));
         }
 
         // Coder reads the type from the tag's own line only, so text below
-        // the tag is a description and not a type. A `@return` that is the
-        // last tag with nothing under it is left out, since Mago's
-        // `valid-docblock` already reports it.
+        // the tag is a description and not a type.
         $return = $tags->returnTag();
-        if ($return === null || !$return->isBare()) {
-            return;
-        }
-
-        $last = $tags->tags[count($tags->tags) - 1] === $return->tag;
-        if (!$last || $return->tag->textBelow() !== '') {
+        if ($return !== null && $return->isBare()) {
             $context->report(Issue::new('The @return tag doesn\'t have a type.', $return->tag->nameSpan));
         }
     }
