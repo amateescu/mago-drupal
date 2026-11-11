@@ -30,6 +30,12 @@ use function trim;
 final class PHPStanPages
 {
     /**
+     * An empty marker in a table's header. The stylesheet keeps each cell of
+     * the first column of such a table on one line.
+     */
+    private const UNBROKEN_FIRST_COLUMN = '<span class="unbroken-first-column"></span>';
+
+    /**
      * @param array<string, string> $pages The page of each rule and check,
      *   relative to `docs/`.
      */
@@ -82,7 +88,7 @@ final class PHPStanPages
     {
         /** @var array<string, list<string>> $codes */
         $codes = (new ReflectionClassConstant(PHPStanIgnoreFilter::class, 'CODES'))->getValue();
-        $lines = ['| PHPStan identifier | Mago issues |', '| --- | --- |'];
+        $lines = ['| PHPStan identifier' . self::UNBROKEN_FIRST_COLUMN . ' | Mago issues |', '| --- | --- |'];
         foreach ($codes as $identifier => $issues) {
             $lines[] = "| `{$identifier}` | `" . implode('`, `', $issues) . '` |';
         }

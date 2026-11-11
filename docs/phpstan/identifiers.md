@@ -14,7 +14,7 @@ the ones matched by the plugin. The identifiers of phpstan-drupal are on the
 
 <!-- docs-gen:phpstan-identifiers -->
 
-| PHPStan identifier | Mago issues |
+| PHPStan identifier<span class="unbroken-first-column"></span> | Mago issues |
 | --- | --- |
 | `argument.type` | `false-argument`, `invalid-argument`, `less-specific-argument`, `mixed-argument`, `null-argument`, `possibly-false-argument`, `possibly-invalid-argument`, `possibly-null-argument` |
 | `arguments.count` | `too-few-arguments`, `too-many-arguments` |
