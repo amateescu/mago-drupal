@@ -97,9 +97,8 @@
 }
 
 /*
- * The first column of the PHPStan identifiers table holds one identifier per
- * cell, which stays on one line. An empty `unbroken-first-column` span in the
- * header marks the table. The theme lets a long `code` word break anywhere.
+ * An empty `unbroken-first-column` span in the header marks a table whose
+ * first column stays on one line.
  */
 .md-typeset table:not([class]):has(.unbroken-first-column) td:first-child,
 .md-typeset table:not([class]):has(.unbroken-first-column) td:first-child code {
