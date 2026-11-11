@@ -63,7 +63,7 @@ no-literal-password = { exclude = ["**/tests/**"] }
 no-redundant-file = { exclude = ["**/*.api.php", "**/tests/**/fixtures/**"] }
 
 # These rules stand in for a sniff of Coder 9. Mago reports them as help or as a note, which
-# doesn't fail a run. Each one gets the level that Coder reports at.
+# doesn't fail a run. Each one gets the level used by Coder.
 array-style = { level = "error" }
 block-statement = { level = "error" }
 class-name = { level = "error" }

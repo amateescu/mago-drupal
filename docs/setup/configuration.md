@@ -41,7 +41,7 @@ contradict the standard or repeat a rule of this extension, such as `tagged-todo
 phpcs exits with an error when it reports a warning or an error. `mago lint` on its own fails only
 on an error, and many of its rules report a warning, help or a note. `drupal.mago.toml` sets
 `minimum-fail-level = "warning"`, and gives the Mago rules that stand in for a Coder sniff the level
-that Coder reports at. So a report that fails phpcs fails `mago lint` too.
+used by Coder. So a report that fails phpcs fails `mago lint` too.
 
 The Mago rules that are on and don't port any sniff, such as `strict-behavior` and `str-contains`,
 fail the run as well when they report a warning. Turn a rule off, or set its level, in the
@@ -56,8 +56,8 @@ minimum-fail-level = "error"
 strict-behavior = { level = "help" }
 ```
 
-`mago analyze` has its own `minimum-fail-level` under `[analyzer]`, which `drupal.mago.toml`
-doesn't set.
+`mago analyze` has its own `minimum-fail-level` under `[analyzer]`, which isn't set by
+`drupal.mago.toml`.
 
 ## Changing a setting
 
