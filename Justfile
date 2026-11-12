@@ -5,7 +5,7 @@ set dotenv-load := false
 mago := env_var_or_default("MAGO", "vendor/bin/mago")
 
 # The Zensical version that builds the docs site.
-zensical := "0.0.69"
+zensical := "0.1.1"
 
 validate:
     composer validate --strict --no-check-publish
