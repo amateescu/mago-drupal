@@ -1,5 +1,6 @@
 <?php
 
+// @mago-expect lint:drupal/file-comment
 /**
  * @file
  * @defgroup corpus_file_group Corpus file group

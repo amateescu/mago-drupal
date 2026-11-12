@@ -106,6 +106,7 @@ Rules for the names of classes, constants, functions, methods, properties and va
 | [`drupal/method-name-underscore`](naming-and-imports.md#drupalmethod-name-underscore) | warning | Reports a method name that starts with an underscore, other than a PHP magic method. |
 | [`drupal/old-style-constructor`](naming-and-imports.md#drupalold-style-constructor) | error | Reports a method named after its class in a class without __construct(). |
 | [`drupal/property-name`](naming-and-imports.md#drupalproperty-name) | error | Reports a class property that doesn't use lowerCamelCase. |
+| [`drupal/psr4-namespace`](naming-and-imports.md#drupalpsr4-namespace) | error | Reports a namespace that doesn't match the path of its file under src/ or tests/src/. |
 | [`drupal/redundant-use`](naming-and-imports.md#drupalredundant-use) | error | Reports a use statement that imports a class from the global namespace. |
 | [`drupal/test-class-suffix`](naming-and-imports.md#drupaltest-class-suffix) | error | Reports a test class whose name doesn't end in Test, which PHPUnit never runs. |
 | [`drupal/use-leading-backslash`](naming-and-imports.md#drupaluse-leading-backslash) | error | Reports a use statement whose first name starts with a backslash. |
@@ -127,6 +128,7 @@ and for how methods, properties and parameters are declared.
 | [`drupal/empty-switch`](statements.md#drupalempty-switch) | error | Reports a switch statement that doesn't have a case label. |
 | [`drupal/explicit-nullable-param`](statements.md#drupalexplicit-nullable-param) | error | Reports a typed parameter with a null default whose type doesn't allow null. |
 | [`drupal/function-blank-line`](statements.md#drupalfunction-blank-line) | error | Reports a function declaration with no blank line between it and the code or comment before it. |
+| [`drupal/inequality-operator`](statements.md#drupalinequality-operator) | error | Reports the <> operator, which is written != in Drupal. |
 | [`drupal/method-visibility`](statements.md#drupalmethod-visibility) | error | Reports a method declared without an explicit visibility keyword. |
 | [`drupal/non-capturing-catch`](statements.md#drupalnon-capturing-catch) | error | Reports a catch variable that's never read, which the clause can leave out from PHP 8.0. |
 | [`drupal/null-coalesce`](statements.md#drupalnull-coalesce) | error | Reports an isset() or strict null check in a ternary that "??" replaces. |
@@ -174,6 +176,7 @@ They don't check the types in a docblock against the real signature, which is do
 | Rule | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Reports a comment of the wrong style above a class, interface, trait or enum, a blank line below its docblock, and a summary that repeats the name. |
+| [`drupal/constant-comment`](docblock-structure.md#drupalconstant-comment) | error | Reports a blank line between a docblock and the constant or enum case below it. |
 | [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Reports a @deprecated docblock tag whose wording breaks the documented grammar, and a missing or malformed @see tag after it. |
 | [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Reports a docblock with a wrong opener, closer, blank lines or spaces, or with @inheritdoc without braces. |
 | [`drupal/doc-see-tag`](docblock-structure.md#drupaldoc-see-tag) | error | Reports a @see tag with no reference, or with text or punctuation after the reference. |

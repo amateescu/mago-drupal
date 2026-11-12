@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Holds two file docblocks.
+ */
+
+declare(strict_types=1);
+
+// @mago-expect lint:drupal/file-comment
+/**
+ * @file
+ * The API module reads only the first file docblock.
+ */
+
+/**
+ * Returns one.
+ */
+function file_docblock_twice_one(): int {
+  return 1;
+}

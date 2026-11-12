@@ -11,6 +11,7 @@ drupal/closing-tag-statement
 drupal/comment-in-expression
 drupal/comment-line-length
 drupal/const-prefix
+drupal/constant-comment
 drupal/constant-prefix
 drupal/curl-ssl-verify
 drupal/define-name
@@ -51,6 +52,7 @@ drupal/global-function
 drupal/global-variable
 drupal/hook-attribute-name
 drupal/hook-comment
+drupal/inequality-operator
 drupal/info-auto-added-keys
 drupal/info-core-version-requirement
 drupal/info-dependencies-array
@@ -82,6 +84,7 @@ drupal/preg-security
 drupal/property-name
 drupal/property-per-statement
 drupal/property-visibility
+drupal/psr4-namespace
 drupal/redundant-return
 drupal/redundant-use
 drupal/remote-address

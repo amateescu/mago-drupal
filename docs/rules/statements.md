@@ -407,6 +407,35 @@ the function to a line of its own, and the next fix adds the blank line.
 
 ---
 
+## drupal/inequality-operator
+
+- **Level:** error
+- **Fix:** safe
+- **Standard:** [Operators](https://project.pages.drupalcode.org/coding_standards/php/coding/#operators)
+- **Ports:** none. Coder doesn't check it.
+
+> Checks for weak-typed inequality MUST use the `!=` operator. The `<>` operator MUST NOT be used in
+> PHP code.
+
+**Reports:**
+
+- the `<>` operator. The two spellings are the same operator to PHP, so the fix only changes the
+  text.
+
+???+ example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    $changed = $old <> $new;
+
+    // Fine.
+    $changed = $old != $new;
+    ```
+
+---
+
 ## drupal/method-visibility
 
 - **Level:** error

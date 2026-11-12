@@ -23,6 +23,7 @@ use amateescu\MagoDrupal\Linter\Rules\ClassPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\ClosingTagStatementRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentInExpressionRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
+use amateescu\MagoDrupal\Linter\Rules\ConstantCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\CurlSslVerifyRule;
@@ -64,6 +65,7 @@ use amateescu\MagoDrupal\Linter\Rules\GlobalFunctionRule;
 use amateescu\MagoDrupal\Linter\Rules\GlobalVariableRule;
 use amateescu\MagoDrupal\Linter\Rules\HookAttributeNameRule;
 use amateescu\MagoDrupal\Linter\Rules\HookCommentRule;
+use amateescu\MagoDrupal\Linter\Rules\InequalityOperatorRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoAutoAddedKeysRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoCoreVersionRequirementRule;
 use amateescu\MagoDrupal\Linter\Rules\InfoDependenciesArrayRule;
@@ -95,6 +97,7 @@ use amateescu\MagoDrupal\Linter\Rules\PregSecurityRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyNameRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyPerStatementRule;
 use amateescu\MagoDrupal\Linter\Rules\PropertyVisibilityRule;
+use amateescu\MagoDrupal\Linter\Rules\Psr4NamespaceRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantReturnRule;
 use amateescu\MagoDrupal\Linter\Rules\RedundantUseRule;
 use amateescu\MagoDrupal\Linter\Rules\RemoteAddressRule;
@@ -279,6 +282,7 @@ final class DrupalExtension
             new CommentInExpressionRule(),
             new CommentLineLengthRule(),
             new ConstPrefixRule(),
+            new ConstantCommentRule(),
             new ConstantPrefixRule(),
             new CurlSslVerifyRule(),
             new DefineNameRule(),
@@ -319,6 +323,7 @@ final class DrupalExtension
             new GlobalVariableRule(),
             new HookAttributeNameRule(),
             new HookCommentRule(),
+            new InequalityOperatorRule(),
             new InfoAutoAddedKeysRule(),
             new InfoCoreVersionRequirementRule(),
             new InfoDependenciesArrayRule(),
@@ -350,6 +355,7 @@ final class DrupalExtension
             new PropertyNameRule(),
             new PropertyPerStatementRule(),
             new PropertyVisibilityRule(),
+            new Psr4NamespaceRule(),
             new RedundantReturnRule(),
             new RedundantUseRule(),
             new RemoteAddressRule(),

@@ -182,6 +182,8 @@ use-compound-assignment = { enabled = false }
 lowercase-keyword = { exclude = ["core/tests/Drupal/Tests/Component/Utility/ReflectionTest.php"] }
 # Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
 # VariableAnalysis sniff.
+# These fixtures declare the namespace of a package of their own.
+"drupal/psr4-namespace" = { exclude = ["core/tests/Drupal/Tests/Component/Annotation/Fixtures/"] }
 "drupal/unused-variable" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
 "drupal/variable-redeclaration" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
 
