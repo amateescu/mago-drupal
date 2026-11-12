@@ -28,7 +28,7 @@ the `DrupalPractice` ruleset, on the [DrupalPractice standard](drupal-practice.m
 | [`Generic.PHP.LowerCaseKeyword`](#genericphplowercasekeyword) | `mago format`, Mago `lowercase-keyword` |
 | `Generic.PHP.UpperCaseConstant` | `mago format`, [`drupal/literal-constant-case`](../rules/naming-and-imports.md#drupalliteral-constant-case) |
 | `Generic.Strings.UnnecessaryStringConcat` | Mago `no-redundant-string-concat` |
-| `Generic.WhiteSpace.DisallowTabIndent` | `mago format`, [`drupal/tab-character`](../rules/files-and-tags.md#drupaltab-character) |
+| [`Generic.WhiteSpace.DisallowTabIndent`](#genericwhitespacedisallowtabindent) | `mago format`, [`drupal/tab-character`](../rules/files-and-tags.md#drupaltab-character) |
 | [`Generic.WhiteSpace.LanguageConstructSpacing`](#genericwhitespacelanguageconstructspacing) | `mago format`, [`drupal/comment-in-expression`](../rules/statements.md#drupalcomment-in-expression), partly |
 
 ### `Generic.Arrays.DisallowLongArraySyntax`
@@ -44,7 +44,7 @@ Mago's rule, on by default, with a safe fix.
 
 ### `Generic.CodeAnalysis.UselessOverridingMethod`
 
-Mago's `no-redundant-method-override` compares a spread argument with a variadic parameter the wrong way round. It misses an override that passes its parameters through, and reports one that spreads an array parameter, such as `parent::foo(...$items)`.
+Mago's `no-redundant-method-override` reports only an override without parameters, and only when the parent call writes the method name in the same case. It compares a spread argument with a variadic parameter the wrong way round, so it misses an override that passes its parameters through, and reports one that spreads an array parameter, such as `parent::foo(...$items)`.
 
 ### `Generic.ControlStructures.InlineControlStructure`
 
@@ -55,7 +55,7 @@ Mago's rule reports a body without braces, with no fix. The formatter doesn't ad
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `CommentFound` | [`drupal/comment-in-expression`](../rules/statements.md#drupalcomment-in-expression) |
-| `NoSpace`, `TooLittleSpace`, `TooMuchSpace` | `mago format` |
+| `NoSpace`, `TooMuchSpace` | `mago format` |
 
 ### `Generic.NamingConventions.ConstructorName`
 
@@ -64,7 +64,7 @@ Mago's rule reports a body without braces, with no fix. The formatter doesn't ad
 | `OldStyle` | [`drupal/old-style-constructor`](../rules/naming-and-imports.md#drupalold-style-constructor) |
 | `OldStyleCall` | `mago analyze` (`non-existent-method`), partly |
 
-- `OldStyleCall`: A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent doesn't have a method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared. A parent class outside the scanned paths isn't reported.
+- `OldStyleCall`: A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent doesn't have a method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared, unless the parent class also has `__construct()`. A parent class outside the scanned paths isn't reported.
 
 ### `Generic.NamingConventions.InterfaceNameSuffix`
 
@@ -79,13 +79,13 @@ With `trait-name = { psr = true }`. Coder ignores case in the suffix, so it acce
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `ClassConstantNotUpperCase` | Mago `constant-name` |
-| `ConstantNotUpperCase` | Mago `constant-name`, [`drupal/define-name`](../rules/naming-and-imports.md#drupaldefine-name) |
+| `ConstantNotUpperCase` | [`drupal/define-name`](../rules/naming-and-imports.md#drupaldefine-name) |
 
 - `ClassConstantNotUpperCase`: Mago's `constant-name` also reports an upper-case name with a leading, trailing or doubled underscore, such as `A__B`, which Coder accepts.
 
 ### `Generic.PHP.DeprecatedFunctions`
 
-phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` doesn't have a deprecation, so the analyzer doesn't report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.
+phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stubs for `strptime()`, `zip_open()`, `zip_close()` and six `zip_entry_*()` functions don't have a deprecation, so the analyzer doesn't report them. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.
 
 ### `Generic.PHP.DisallowShortOpenTag`
 
@@ -100,6 +100,13 @@ phpcs takes the deprecated functions from the running PHP, and the analyzer from
 ### `Generic.PHP.LowerCaseKeyword`
 
 The formatter lowercases keywords. `lowercase-keyword` fixes `AND`, `OR`, `XOR` and `INSTANCEOF`, which the formatter keeps.
+
+### `Generic.WhiteSpace.DisallowTabIndent`
+
+| Codes | Handled by<span class="coder-table"></span> |
+| --- | --- |
+| `NonIndentTabsUsed`, `TabsUsed` | `mago format`, [`drupal/tab-character`](../rules/files-and-tags.md#drupaltab-character) |
+| `TabsUsedHeredocCloser` | `mago format` |
 
 ### `Generic.WhiteSpace.LanguageConstructSpacing`
 
@@ -154,8 +161,8 @@ Mago also reports a typed parameter with a null default before a required one, s
 
 - `BreakNotNewLine`: A keyword inside an expression, as in `$x or exit();`, stays where it is. phpcs reads it as the end of the case and keeps reporting it.
 - `WrongOpener`: `case 1: {`. Mago reports the braces as a redundant block.
-- `WrongOpenercase`: `case 1;`. Coder also reports `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked.
-- `WrongOpenerdefault`: `default;`. Coder also reports `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked.
+- `WrongOpenercase`: `case 1;`. Coder also reports `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error.
+- `WrongOpenerdefault`: `default;`. Coder also reports `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error.
 
 ### `PSR2.Methods.MethodDeclaration`
 
@@ -182,7 +189,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 | [`Squiz.Classes.ClassFileName`](#squizclassesclassfilename) | Mago `file-name`, Mago `single-class-per-file`, partly |
 | `Squiz.ControlStructures.ForEachLoopDeclaration` | `mago format` |
 | [`Squiz.ControlStructures.ForLoopDeclaration`](#squizcontrolstructuresforloopdeclaration) | `mago format`, partly |
-| [`Squiz.ControlStructures.SwitchDeclaration`](#squizcontrolstructuresswitchdeclaration) | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line), [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch), Mago `no-redundant-block`, [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line), nothing |
+| [`Squiz.ControlStructures.SwitchDeclaration`](#squizcontrolstructuresswitchdeclaration) | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line), [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch), Mago `no-redundant-block`, [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line), nothing, partly |
 | `Squiz.Functions.FunctionDeclarationArgumentSpacing` | `mago format` |
 | [`Squiz.PHP.LowercasePHPFunctions`](#squizphplowercasephpfunctions) | `mago analyze` (`incorrect-function-casing`) |
 | [`Squiz.PHP.NonExecutableCode`](#squizphpnonexecutablecode) | [`drupal/redundant-return`](../rules/statements.md#drupalredundant-return), `mago analyze` (`unevaluated-code`), `mago analyze` (`useless-control-flow`) |
@@ -213,7 +220,7 @@ With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` und
 
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| `NoSpaceAfterFirst`, `NoSpaceAfterSecond`, `SpacingBeforeFirst` | `mago format` |
+| `NoSpaceAfterFirst`, `NoSpaceAfterSecond`, `SpacingBeforeFirst`, `SpacingBeforeSecond` | `mago format` |
 | `SpacingAfterFirst`, `SpacingAfterSecond` | `mago format`, partly |
 
 - `SpacingAfterFirst`: The formatter puts each part of a long `for` header on its own line, and Coder reports the line break.
@@ -226,14 +233,14 @@ With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` und
 | `CaseNotLower`, `ContentAfterCase`, `ContentAfterDefault`, `ContentBeforeBreak`, `DefaultNotLower`, `SpacingAfterDefault` | `mago format` |
 | `ContentBeforeCase`, `ContentBeforeDefault` | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line) |
 | `MissingCase` | [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch) |
-| `SpaceBeforeColonCase`, `SpaceBeforeColonDefault` | `mago format`, Mago `no-redundant-block` |
+| `SpaceBeforeColonCase`, `SpaceBeforeColonDefault` | `mago format`, Mago `no-redundant-block`, partly |
 | `SpacingAfterBreak` | [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line) |
 | `WrongOpenerCase`, `WrongOpenerDefault` | nothing |
 
-- `SpaceBeforeColonCase`: Coder also reports `case 1: {`. Mago reports the braces as a redundant block.
-- `SpaceBeforeColonDefault`: Coder also reports `default: {`. Mago reports the braces as a redundant block.
-- `WrongOpenerCase`: `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked.
-- `WrongOpenerDefault`: `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked.
+- `SpaceBeforeColonCase`: The formatter removes the space before the colon. Coder also reports `case 1: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block.
+- `SpaceBeforeColonDefault`: The formatter removes the space before the colon. Coder also reports `default: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block.
+- `WrongOpenerCase`: `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error.
+- `WrongOpenerDefault`: `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error.
 
 ### `Squiz.PHP.LowercasePHPFunctions`
 
@@ -254,9 +261,10 @@ With `check-name-casing = true`. Reported without a fix. The analyzer skips a fi
 | --- | --- |
 | `After` | `mago format` |
 | `AfterLast`, `BeforeFirst` | `mago format`, partly |
-| `Before` | `mago format`, [`drupal/function-blank-line`](../rules/statements.md#drupalfunction-blank-line), partly |
+| `Before` | `mago format`, [`drupal/function-blank-line`](../rules/statements.md#drupalfunction-blank-line) |
 
 - `AfterLast`: The formatter removes the blank line between a function and the end of a block, such as `if (!function_exists())` or a loop, which Coder reports.
+- `Before`: A function on the same line as a statement is reported without a fix. `mago format` splits the line, and the next `mago lint --fix` adds the blank line.
 - `BeforeFirst`: The formatter removes the blank line between the start of a block, such as `if (!function_exists())` or a loop, and a function, which Coder reports.
 
 ### `Squiz.WhiteSpace.OperatorSpacing`
@@ -284,11 +292,13 @@ The formatter puts an empty statement after a `}`, as in `};`, on a line of its 
 
 | Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| [`Zend.Files.ClosingTag`](#zendfilesclosingtag) | `mago format`, Mago `no-closing-tag` |
+| [`Zend.Files.ClosingTag`](#zendfilesclosingtag) | `mago format`, Mago `no-closing-tag`, partly |
 
 ### `Zend.Files.ClosingTag`
 
-The formatter removes a closing tag at the end of the file. When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.
+The formatter removes a closing tag at the end of the file. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.
+
+When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line.
 
 ## Slevomat Coding Standard
 
@@ -298,16 +308,22 @@ The formatter removes a closing tag at the end of the file. When the last statem
 | `SlevomatCodingStandard.Commenting.ForbiddenComments` | [`drupal/doc-comment`](../rules/docblock-structure.md#drupaldoc-comment) |
 | `SlevomatCodingStandard.ControlStructures.NewWithParentheses` | `mago format` |
 | `SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator` | [`drupal/null-coalesce`](../rules/statements.md#drupalnull-coalesce) |
-| `SlevomatCodingStandard.Namespaces.UnusedUses` | Mago `no-redundant-use`, [`drupal/doc-type-namespace`](../rules/comment-text.md#drupaldoc-type-namespace), partly |
+| [`SlevomatCodingStandard.Namespaces.UnusedUses`](#slevomatcodingstandardnamespacesunuseduses) | Mago `no-redundant-use`, [`drupal/doc-type-namespace`](../rules/comment-text.md#drupaldoc-type-namespace), partly |
 | `SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash` | [`drupal/use-leading-backslash`](../rules/naming-and-imports.md#drupaluse-leading-backslash) |
-| [`SlevomatCodingStandard.Namespaces.UseFromSameNamespace`](#slevomatcodingstandardnamespacesusefromsamenamespace) | Mago `no-redundant-use` |
+| [`SlevomatCodingStandard.Namespaces.UseFromSameNamespace`](#slevomatcodingstandardnamespacesusefromsamenamespace) | Mago `no-redundant-use`, partly |
 | `SlevomatCodingStandard.PHP.ShortList` | [`drupal/short-list`](../rules/statements.md#drupalshort-list) |
 | [`SlevomatCodingStandard.TypeHints.DeclareStrictTypes`](#slevomatcodingstandardtypehintsdeclarestricttypes) | `mago format`, [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment) |
 | `SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue` | [`drupal/explicit-nullable-param`](../rules/statements.md#drupalexplicit-nullable-param) (below PHP 8.4), Mago `explicit-nullable-param` (PHP 8.4 and later) |
 
+### `SlevomatCodingStandard.Namespaces.UnusedUses`
+
+`drupal/doc-type-namespace` reports an import that only a docblock type uses by its short name. An import named only in the text of a comment, or only by its full name in a docblock, isn't reported.
+
 ### `SlevomatCodingStandard.Namespaces.UseFromSameNamespace`
 
-Mago also reports each name in a group import and each name after the first in a comma list. Coder skips those.
+Mago also reports each name in a group import and each name after the first in a comma list. Coder skips those. Mago also reports an import whose namespace is written in another case, which Coder skips.
+
+The fix of Mago's `no-redundant-use` doesn't remove the last name of a group import. A group with two names from the file's own namespace, such as `use Drupal\mymod\{First, Second};`, keeps `Second`, and both tools keep reporting it.
 
 ### `SlevomatCodingStandard.TypeHints.DeclareStrictTypes`
 

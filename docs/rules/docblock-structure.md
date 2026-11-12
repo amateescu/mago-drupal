@@ -560,7 +560,8 @@ and the blank lines only in a docblock that starts with a summary, or with `@fil
   variable name after the type, which is removed by the fix when a description follows below. A type
   with a space;
 - `@throws`: a description on the tag's line, which is moved by the fix to the line below, three
-  spaces from the star. A description not indented three spaces, which is indented by the fix.
+  spaces from the star. A description indented less than three spaces, which is indented by the
+  fix. A deeper indent isn't reported, as in Coder.
 
 A `@return` variable name is read from the tag's own line.
 
@@ -655,6 +656,9 @@ A `@return` variable name is read from the tag's own line.
     - A `@return 0` has a type here. Coder reports it, because PHP's `empty("0")` is true.
     - A `@param` indented inside an `@code` example isn't a tag here, or for the other rules that
       read the tags. Coder reads it as one.
+
+A tag with nothing after it is also reported by Mago's `valid-docblock` rule, as a note, and by
+`mago analyze`, as `invalid-docblock`.
 
 ---
 
@@ -857,6 +861,7 @@ The rule reads functions declared at the top level of a file, and only a docbloc
 
 **Not reported:**
 
+- a hook function whose summary doesn't start with `Implements`, such as `Shows the help page.`;
 - a function in a block, in `namespace X { }` or in another function;
 - a docblock that has a comment, an attribute or a `?>` between it and the `function` keyword.
 

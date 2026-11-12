@@ -6,7 +6,7 @@
         "note": "The drupal preset writes the trailing comma, the indentation and the line breaks of a long array.",
         "codes": [
             {"code": "ArrayClosingIndentation", "status": "partial", "note": "An array that opens on a continuation line gets the indent of the statement's first line. Coder counts from the line the array opens on, and reports its items and closing bracket."},
-            {"code": "ArrayIndentation", "status": "partial", "note": "When the value after `=>` breaks over lines, such as a long condition, the formatter writes the next lines at the key's indent. Coder wants them one level deeper. The formatter also writes the broken `&&` or `||` condition of a ternary in an array element at the element's indent, and breaks an array at a block comment between its elements, and Coder reports both."},
+            {"code": "ArrayIndentation", "status": "partial", "note": "When the value after `=>` is a `??` chain that breaks over lines, the formatter writes the next lines at the key's indent. Coder wants them one level deeper. The formatter also writes the broken `&&` or `||` condition of a ternary in an array element at the element's indent, and breaks an array at a block comment between its elements, and Coder reports both."},
             {"code": "CommaLastItem", "status": "format"},
             {"code": "LongLineDeclaration", "status": "format"}
         ]
@@ -26,7 +26,7 @@
         "codes": [
             {"code": "BraceOnNewLine", "status": "format"},
             {"code": "CloseBraceAfterBody", "status": "format"},
-            {"code": "CloseBraceSameLine", "status": "partial", "where": ["ext:drupal/post-statement-comment", "format"], "note": "`drupal/post-statement-comment` reports a comment after the closing brace of a class, such as `} // end class`. The formatter moves code after the brace to a line of its own and removes trailing spaces. A `?>` after the brace isn't reported."},
+            {"code": "CloseBraceSameLine", "status": "partial", "where": ["ext:drupal/post-statement-comment", "format"], "note": "`drupal/post-statement-comment` reports a comment after the closing brace of a class, such as `} // end class`. The formatter moves code after the brace to a line of its own and removes trailing spaces. A `?>` after the brace isn't reported when HTML follows it. At the end of a file, `no-closing-tag` reports the tag and the formatter removes it."},
             {"code": "ContentAfterBrace", "status": "fix", "where": ["format", "ext:drupal/post-statement-comment"]},
             {"code": "ExtendsIndentation", "status": "format"},
             {"code": "ExtendsInterfaceSameLine", "status": "format"},
@@ -39,9 +39,6 @@
             {"code": "MissingBrace", "status": "report", "where": ["lint:parse"], "note": "A class without braces doesn't parse. Mago reports a `parse` error, and the formatter skips the file."},
             {"code": "NewlineBeforeKeyword", "status": "format"},
             {"code": "NoSpaceBeforeName", "status": "format"},
-            {"code": "OpenBraceNewLine", "status": "format"},
-            {"code": "OpenBraceNotAlone", "status": "format"},
-            {"code": "OpenBraceWrongLine", "status": "format"},
             {"code": "SpaceAfterKeyword", "status": "format"},
             {"code": "SpaceAfterName", "status": "format"},
             {"code": "SpaceBeforeBrace", "status": "format"},
@@ -165,7 +162,7 @@
             {"code": "NamespaceNoFileDoc", "status": "fix"},
             {"code": "SpacingAfterComment", "status": "fix", "where": ["ext:drupal/file-comment", "format"]},
             {"code": "TemplateSpacingAfterComment", "status": "gap", "where": ["none"], "note": "A blank line between the file docblock and the `?>` that follows it, in a file of any extension. Not ported."},
-            {"code": "WrongStyle", "status": "partial"}
+            {"code": "WrongStyle", "status": "partial", "note": "A `// @codingStandardsIgnoreFile` comment at the start of a file isn't reported under this code. `drupal/missing-file-comment` reports the file instead. The fix converts a comment only when a blank line follows it."}
         ]
     },
     {
@@ -175,12 +172,12 @@
         "codes": [
             {"code": "DuplicateReturn", "status": "report", "where": ["ext:drupal/doc-tag-types"]},
             {"code": "EmptySees", "status": "report", "where": ["ext:drupal/doc-see-tag"]},
-            {"code": "ExtraParamComment", "status": "report", "where": ["analyze:invalid-param-tag"]},
+            {"code": "ExtraParamComment", "status": "report", "where": ["analyze:invalid-param-tag"], "note": "`mago analyze` reports a `@param` whose name isn't a parameter, and `drupal/doc-tag-descriptions` one that repeats a name."},
             {"code": "IncorrectParamVarName", "status": "fix", "where": ["ext:drupal/doc-type-name"]},
             {"code": "InvalidNoReturn", "status": "report", "where": ["analyze:missing-return-statement"], "note": "Reported on the function, not on the `@return` tag."},
             {"code": "InvalidReturn", "status": "fix", "where": ["ext:drupal/doc-type-name"]},
             {"code": "InvalidReturnNotVoid", "status": "report", "where": ["analyze:invalid-return-statement"]},
-            {"code": "InvalidReturnVoid", "status": "report", "where": ["analyze:invalid-return-statement"], "note": "Reported on the `return` statement, not on the `@return void` tag."},
+            {"code": "InvalidReturnVoid", "status": "report", "where": ["analyze:invalid-return-statement", "analyze:invalid-generator-return-type"], "note": "Reported on the `return` statement, not on the `@return void` tag. A `yield` in such a function is reported as `invalid-generator-return-type`."},
             {"code": "InvalidThrows", "status": "report", "where": ["ext:drupal/doc-tag-types"]},
             {"code": "Missing", "status": "report-only", "where": ["ext:drupal/missing-function-comment"]},
             {"code": "MissingParamComment", "status": "report", "where": ["ext:drupal/doc-tag-descriptions"]},
@@ -195,7 +192,7 @@
             {"code": "ParamMissingDefinition", "status": "report", "where": ["ext:drupal/doc-tag-descriptions"]},
             {"code": "ParamNameDot", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
-            {"code": "ParamNameNoMatch", "status": "partial", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"]},
+            {"code": "ParamNameNoMatch", "status": "partial", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"], "note": "`drupal/doc-tag-descriptions` reports a repeated `@param` and one that is out of order. `mago analyze` reports a name that isn't a parameter, and a `...` on a parameter that isn't variadic. A `&` on a parameter that isn't taken by reference, as in `@param int &$a`, isn't reported."},
             {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnCommentIndentation", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
@@ -205,7 +202,7 @@
             {"code": "SpacingAfter", "status": "fix"},
             {"code": "SpacingAfterParamType", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ThrowsComment", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
-            {"code": "ThrowsCommentIndentation", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
+            {"code": "ThrowsCommentIndentation", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ThrowsNoFullStop", "status": "report", "where": ["ext:drupal/doc-sentence"]},
             {"code": "ThrowsNotCapital", "status": "report", "where": ["ext:drupal/doc-sentence"]},
             {"code": "WrongStyle", "status": "fix"}
@@ -240,7 +237,7 @@
             {"code": "InvalidEndChar", "status": "fix", "where": ["ext:drupal/inline-comment-punctuation"]},
             {"code": "NoSpaceBefore", "status": "fix"},
             {"code": "NotCapital", "status": "fix"},
-            {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"]},
+            {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"], "note": "The rule leaves the blank line between a comment and a closing bracket to the formatter. Before the closing brace of a class, interface, trait or enum with members the formatter always writes one, and Coder reports it."},
             {"code": "SpacingAfterAtFunctionEnd", "status": "format", "where": ["format"]},
             {"code": "SpacingBefore", "status": "fix"},
             {"code": "TabBefore", "status": "fix"},
@@ -280,7 +277,7 @@
             {"code": "DuplicateVar", "status": "report"},
             {"code": "EmptySees", "status": "report", "where": ["ext:drupal/doc-see-tag"]},
             {"code": "EmptyVar", "status": "report"},
-            {"code": "IncorrectVarType", "status": "partial", "where": ["ext:drupal/doc-type-name"]},
+            {"code": "IncorrectVarType", "status": "partial", "where": ["ext:drupal/doc-type-name"], "note": "Coder runs the whole `@var` line, description included, through its type check, so it also reports a description with a `.`, `;`, `!` or `=` in it. The rule checks only the type."},
             {"code": "InlineVariableName", "status": "fix"},
             {"code": "Missing", "status": "report", "where": ["ext:drupal/missing-property-comment"]},
             {"code": "MissingVar", "status": "report"},
@@ -315,6 +312,7 @@
         "sniff": "Drupal.Files.FileEncoding",
         "standard": "Drupal",
         "where": ["ext:drupal/file-encoding"],
+        "note": "Coder also checks `.txt` and `.md` files, which aren't read by Mago, and the YAML files of a `config` directory, which `drupal.mago.toml` leaves out of the linter.",
         "codes": [
             {"code": "InvalidEncoding", "status": "report"}
         ]
@@ -387,7 +385,6 @@
         "codes": [
             {"code": "BraceOnNewLine", "status": "format"},
             {"code": "CloseBracketLine", "status": "format"},
-            {"code": "CloseBracketNewLine", "status": "format"},
             {"code": "ContentAfterBrace", "status": "format"},
             {"code": "EmptyLine", "status": "fix", "where": ["ext:drupal/parameter-blank-line"]},
             {"code": "FirstParamSpacing", "status": "format"},
@@ -409,7 +406,7 @@
         "sniff": "Drupal.InfoFiles.AutoAddedKeys",
         "standard": "Drupal",
         "where": ["ext:drupal/info-auto-added-keys"],
-        "note": "The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer.",
+        "note": "The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer. The rule reads `.info.yml` files only, and the same keys in a Drupal 7 `.info` file need phpcs. Both tools skip the `version` key of a file under a `core` directory. Coder looks for `/core/` in the absolute path, and the rule in the path from the workspace.",
         "codes": [
             {"code": "Project", "status": "report"},
             {"code": "Timestamp", "status": "report"},
@@ -534,7 +531,7 @@
         "sniff": "Drupal.Semantics.FunctionAlias",
         "standard": "Drupal",
         "where": ["lint:no-alias-function"],
-        "note": "Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.",
+        "note": "Mago's rule, on by default, with a fix that needs `--potentially-unsafe`. Its list of aliases doesn't have `gzputs()`, `_()` and `pg_clientencoding()`, which Coder reports.",
         "codes": [
             {"code": "FunctionAlias", "status": "fix"}
         ]
@@ -613,7 +610,7 @@
         "standard": "Drupal",
         "where": ["ext:drupal/t-in-hook-menu"],
         "codes": [
-            {"code": "TFound", "status": "report"}
+            {"code": "TFound", "status": "report", "note": "Coder also reports `$this->t()`, which the rule skips. The rule also reports `\\t()`, which Coder skips."}
         ]
     },
     {
@@ -621,7 +618,7 @@
         "standard": "Drupal",
         "where": ["ext:drupal/t-in-hook-schema"],
         "codes": [
-            {"code": "TFound", "status": "report"}
+            {"code": "TFound", "status": "report", "note": "Coder also reports `$this->t()`, which the rule skips. The rule also reports `\\t()`, which Coder skips."}
         ]
     },
     {
@@ -637,7 +634,7 @@
         "standard": "Drupal",
         "where": ["format"],
         "codes": [
-            {"code": "ClosingWhitespace", "status": "partial", "note": "The formatter writes `<?php }` for a closing brace after inline HTML, and Coder reports the space. Coder also reports the `match` with one arm that the formatter writes on one line, and the space it writes before `)` in a parameter or argument list that holds only a comment, as in `f( /* $x */ )`."}
+            {"code": "ClosingWhitespace", "status": "partial", "note": "The formatter writes `<?php }` for a closing brace after inline HTML, and Coder reports the space. Coder also reports the `match` with one arm that the formatter writes on one line, and the space that the formatter keeps before `)` in a parameter list that holds only a comment, as in `function f( /* $x */ )`."}
         ]
     },
     {
@@ -707,7 +704,7 @@
         "note": "The formatter writes the indentation.",
         "codes": [
             {"code": "Incorrect", "status": "format"},
-            {"code": "IncorrectExact", "status": "partial", "note": "The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it. The formatter also indents the body of an anonymous class with attributes one more level, and a `break` after a `return` in the same case, which the analyzer reports as `useless-control-flow`."}
+            {"code": "IncorrectExact", "status": "partial", "note": "The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it. The formatter also indents a `break` after a `return` in the same case, which the analyzer reports as `useless-control-flow`. It writes an anonymous class with attributes with a line break after `new` and the body one more level in. Coder reports the body's indent, and the line break as `LanguageConstructSpacing.IncorrectSingle`."}
         ]
     },
     {
@@ -733,7 +730,7 @@
         "standard": "Drupal",
         "where": ["lint:no-redundant-method-override"],
         "codes": [
-            {"code": "Found", "status": "partial", "note": "Mago's `no-redundant-method-override` compares a spread argument with a variadic parameter the wrong way round. It misses an override that passes its parameters through, and reports one that spreads an array parameter, such as `parent::foo(...$items)`."}
+            {"code": "Found", "status": "partial", "note": "Mago's `no-redundant-method-override` reports only an override without parameters, and only when the parent call writes the method name in the same case. It compares a spread argument with a variadic parameter the wrong way round, so it misses an override that passes its parameters through, and reports one that spreads an array parameter, such as `parent::foo(...$items)`."}
         ]
     },
     {
@@ -776,7 +773,6 @@
         "codes": [
             {"code": "CommentFound", "status": "report", "where": ["ext:drupal/comment-in-expression"]},
             {"code": "NoSpace", "status": "format"},
-            {"code": "TooLittleSpace", "status": "format"},
             {"code": "TooMuchSpace", "status": "format"}
         ]
     },
@@ -795,7 +791,7 @@
         "where": ["ext:drupal/old-style-constructor"],
         "codes": [
             {"code": "OldStyle", "status": "report"},
-            {"code": "OldStyleCall", "status": "partial", "where": ["analyze:non-existent-method"], "note": "A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent doesn't have a method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared. A parent class outside the scanned paths isn't reported."}
+            {"code": "OldStyleCall", "status": "partial", "where": ["analyze:non-existent-method"], "note": "A call such as `parent::Base()` in a constructor. `mago analyze` reports the call that fails on PHP 8, when the parent doesn't have a method of that name. A call to a parent method of that name that exists works, and `drupal/old-style-constructor` reports that method where it's declared, unless the parent class also has `__construct()`. A parent class outside the scanned paths isn't reported."}
         ]
     },
     {
@@ -822,14 +818,14 @@
         "where": ["lint:constant-name"],
         "codes": [
             {"code": "ClassConstantNotUpperCase", "status": "report", "note": "Mago's `constant-name` also reports an upper-case name with a leading, trailing or doubled underscore, such as `A__B`, which Coder accepts."},
-            {"code": "ConstantNotUpperCase", "status": "report", "where": ["lint:constant-name", "ext:drupal/define-name"]}
+            {"code": "ConstantNotUpperCase", "status": "report", "where": ["ext:drupal/define-name"]}
         ]
     },
     {
         "sniff": "Generic.PHP.DeprecatedFunctions",
         "standard": "Drupal",
         "where": ["analyze:deprecated-function"],
-        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stub for `strptime()` doesn't have a deprecation, so the analyzer doesn't report it. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
+        "note": "phpcs takes the deprecated functions from the running PHP, and the analyzer from Mago's stubs. Mago's stubs for `strptime()`, `zip_open()`, `zip_close()` and six `zip_entry_*()` functions don't have a deprecation, so the analyzer doesn't report them. The analyzer also reports a function marked `@deprecated` in the codebase, and a call through a variable that holds a function name.",
         "codes": [
             {"code": "Deprecated", "status": "report"}
         ]
@@ -875,7 +871,8 @@
         "where": ["format", "ext:drupal/tab-character"],
         "codes": [
             {"code": "NonIndentTabsUsed", "status": "fix"},
-            {"code": "TabsUsed", "status": "fix"}
+            {"code": "TabsUsed", "status": "fix"},
+            {"code": "TabsUsedHeredocCloser", "status": "format", "where": ["format"]}
         ]
     },
     {
@@ -903,7 +900,6 @@
         "where": ["format"],
         "codes": [
             {"code": "FirstArgumentPosition", "status": "format"},
-            {"code": "MultipleArguments", "status": "format"},
             {"code": "SpaceAfterCloseBracket", "status": "format"},
             {"code": "SpaceBeforeOpenBracket", "status": "format"}
         ]
@@ -955,8 +951,8 @@
             {"code": "SpacingAfterCase", "status": "format"},
             {"code": "TerminatingComment", "status": "report", "where": ["ext:drupal/case-fall-through"]},
             {"code": "WrongOpener", "status": "report", "where": ["lint:no-redundant-block"], "note": "`case 1: {`. Mago reports the braces as a redundant block."},
-            {"code": "WrongOpenercase", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`case 1;`. Coder also reports `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."},
-            {"code": "WrongOpenerdefault", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`default;`. Coder also reports `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."}
+            {"code": "WrongOpenercase", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`case 1;`. Coder also reports `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error."},
+            {"code": "WrongOpenerdefault", "status": "partial", "where": ["ext:drupal/case-semicolon"], "note": "`default;`. Coder also reports `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error."}
         ]
     },
     {
@@ -1027,7 +1023,7 @@
         "standard": "Drupal",
         "where": ["lint:no-redundant-use", "ext:drupal/doc-type-namespace"],
         "codes": [
-            {"code": "UnusedUse", "status": "partial"}
+            {"code": "UnusedUse", "status": "partial", "note": "`drupal/doc-type-namespace` reports an import that only a docblock type uses by its short name. An import named only in the text of a comment, or only by its full name in a docblock, isn't reported."}
         ]
     },
     {
@@ -1042,9 +1038,9 @@
         "sniff": "SlevomatCodingStandard.Namespaces.UseFromSameNamespace",
         "standard": "Drupal",
         "where": ["lint:no-redundant-use"],
-        "note": "Mago also reports each name in a group import and each name after the first in a comma list. Coder skips those.",
+        "note": "Mago also reports each name in a group import and each name after the first in a comma list. Coder skips those. Mago also reports an import whose namespace is written in another case, which Coder skips.",
         "codes": [
-            {"code": "UseFromSameNamespace", "status": "fix"}
+            {"code": "UseFromSameNamespace", "status": "partial", "note": "The fix of Mago's `no-redundant-use` doesn't remove the last name of a group import. A group with two names from the file's own namespace, such as `use Drupal\\mymod\\{First, Second};`, keeps `Second`, and both tools keep reporting it."}
         ]
     },
     {
@@ -1135,7 +1131,8 @@
             {"code": "NoSpaceAfterSecond", "status": "format"},
             {"code": "SpacingAfterFirst", "status": "partial", "note": "The formatter puts each part of a long `for` header on its own line, and Coder reports the line break."},
             {"code": "SpacingAfterSecond", "status": "partial", "note": "The formatter puts each part of a long `for` header on its own line, and Coder reports the line break."},
-            {"code": "SpacingBeforeFirst", "status": "format"}
+            {"code": "SpacingBeforeFirst", "status": "format"},
+            {"code": "SpacingBeforeSecond", "status": "format"}
         ]
     },
     {
@@ -1151,12 +1148,12 @@
             {"code": "ContentBeforeDefault", "status": "fix", "where": ["format", "ext:drupal/case-label-line"]},
             {"code": "DefaultNotLower", "status": "format"},
             {"code": "MissingCase", "status": "report", "where": ["ext:drupal/empty-switch"]},
-            {"code": "SpaceBeforeColonCase", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `case 1: {`. Mago reports the braces as a redundant block."},
-            {"code": "SpaceBeforeColonDefault", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "Coder also reports `default: {`. Mago reports the braces as a redundant block."},
+            {"code": "SpaceBeforeColonCase", "status": "partial", "where": ["format", "lint:no-redundant-block"], "note": "The formatter removes the space before the colon. Coder also reports `case 1: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block."},
+            {"code": "SpaceBeforeColonDefault", "status": "partial", "where": ["format", "lint:no-redundant-block"], "note": "The formatter removes the space before the colon. Coder also reports `default: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block."},
             {"code": "SpacingAfterBreak", "status": "fix", "where": ["ext:drupal/case-break-blank-line"]},
             {"code": "SpacingAfterDefault", "status": "format"},
-            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."},
-            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The rest of the file is still checked."}
+            {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error."},
+            {"code": "WrongOpenerDefault", "status": "gap", "where": ["none"], "note": "`default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error."}
         ]
     },
     {
@@ -1217,7 +1214,7 @@
         "codes": [
             {"code": "After", "status": "format"},
             {"code": "AfterLast", "status": "partial", "note": "The formatter removes the blank line between a function and the end of a block, such as `if (!function_exists())` or a loop, which Coder reports."},
-            {"code": "Before", "status": "partial", "where": ["format", "ext:drupal/function-blank-line"]},
+            {"code": "Before", "status": "fix", "where": ["format", "ext:drupal/function-blank-line"], "note": "A function on the same line as a statement is reported without a fix. `mago format` splits the line, and the next `mago lint --fix` adds the blank line."},
             {"code": "BeforeFirst", "status": "partial", "note": "The formatter removes the blank line between the start of a block, such as `if (!function_exists())` or a loop, and a function, which Coder reports."}
         ]
     },
@@ -1268,9 +1265,9 @@
         "sniff": "Zend.Files.ClosingTag",
         "standard": "Drupal",
         "where": ["format", "lint:no-closing-tag"],
-        "note": "The formatter removes a closing tag at the end of the file. When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
+        "note": "The formatter removes a closing tag at the end of the file. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
         "codes": [
-            {"code": "NotAllowed", "status": "format"}
+            {"code": "NotAllowed", "status": "partial", "note": "When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line."}
         ]
     },
     {
@@ -1286,7 +1283,7 @@
         "standard": "DrupalPractice",
         "where": ["ext:drupal/inline-comment-blank-line"],
         "codes": [
-            {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"]}
+            {"code": "SpacingAfter", "status": "partial", "where": ["ext:drupal/inline-comment-blank-line", "format"], "note": "The rule skips a `//` comment with no text, a `// @code` example, a comment right before a docblock and a comment after code on the same line, which are all reported by Coder. It leaves the blank line before a closing bracket to the formatter."}
         ]
     },
     {
@@ -1375,7 +1372,7 @@
         "standard": "DrupalPractice",
         "where": ["ext:drupal/insecure-unserialize"],
         "codes": [
-            {"code": "InsecureUnserialize", "status": "partial"}
+            {"code": "InsecureUnserialize", "status": "partial", "note": "The rule skips a payload built with `serialize()` in the same function and a call that spreads its arguments, which are both reported by Coder, and reads a named `options` argument by its name. It also reports `\\unserialize()` and `(TRUE)`, which Coder misses."}
         ]
     },
     {
@@ -1570,7 +1567,7 @@
         "sniff": "DrupalPractice.Objects.GlobalDrupal",
         "standard": "DrupalPractice",
         "where": ["check:drupal/global-drupal-call"],
-        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.",
+        "note": "Coder reports a `\\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class. In a module that also has a `drush.services.yml` with a shorter name than the module's own file, it reads that one, and misses the module's services. The analyzer check reads the services file named after each module and profile, and core's, so it doesn't read `drush.services.yml`. It also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.",
         "codes": [
             {"code": "GlobalDrupal", "status": "partial"}
         ]

@@ -24,7 +24,8 @@ command = ["php", "-d", "xdebug.mode=off", "-d", "pcov.enabled=0", "vendor/amate
 # Drupal's style for braces and indentation. Lines wrap at 120 columns. Drupal's standard asks for
 # about 80, which phpcs doesn't check for code.
 preset = "drupal"
-# Mago reads a YAML file as text outside PHP, and the formatter would trim the end of its lines.
+# Mago reads a YAML file as text outside PHP, and the formatter would rewrite the end of the file
+# and the line endings.
 excludes = ["**/*.yml"]
 
 [linter]
