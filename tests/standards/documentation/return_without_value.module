@@ -1,0 +1,33 @@
+// Reported.
+/**
+ * Does nothing.
+ *
+ * @return int
+ *   Nothing.
+ */
+function return_without_value_reported() {
+}
+
+/**
+ * Does nothing, with a native type.
+ *
+ * @return int
+ *   Nothing.
+ */
+function return_without_value_typed(): void {
+}
+
+// Fine.
+/**
+ * Does nothing.
+ */
+function return_without_value_fine() {
+}
+
+/**
+ * Does nothing, with a tag that is accepted.
+ *
+ * @return void
+ */
+function return_without_value_void() {
+}

@@ -1,0 +1,4 @@
+// Fine.
+if (!defined('GLOBAL_CONSTANT_CONDITIONAL_LIMIT')) {
+  define('GLOBAL_CONSTANT_CONDITIONAL_LIMIT', 10);
+}

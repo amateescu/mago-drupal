@@ -1,0 +1,16 @@
+// Reported.
+define('GLOBAL_CONSTANT_LIMIT', 10);
+const GLOBAL_CONSTANT_OFFSET = 0;
+
+// Fine.
+/**
+ * Holds the limits.
+ */
+final class GlobalConstantLimits {
+
+  /**
+   * The limit.
+   */
+  public const LIMIT = 10;
+
+}

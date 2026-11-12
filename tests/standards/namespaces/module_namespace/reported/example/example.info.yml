@@ -1,0 +1,4 @@
+name: Example
+type: module
+description: Holds a case.
+core_version_requirement: ^10 || ^11

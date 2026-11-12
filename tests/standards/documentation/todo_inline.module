@@ -1,0 +1,7 @@
+// Reported.
+// TODO: fix this.
+$one = 1;
+
+// Fine.
+// @todo Fix this.
+$one = 1;

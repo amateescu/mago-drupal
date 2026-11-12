@@ -1,0 +1,7 @@
+// Reported.
+# A hash comment.
+$one = 1;
+
+// Fine.
+// A slash comment.
+$one = 1;

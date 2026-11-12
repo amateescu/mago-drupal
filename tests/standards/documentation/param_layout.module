@@ -1,0 +1,21 @@
+// Reported.
+/**
+ * Returns the label.
+ *
+ * @param string $label The label.
+ *
+ */
+function param_layout_label($label): string {
+  return '';
+}
+
+// Fine.
+/**
+ * Returns the label.
+ *
+ * @param string $label
+ *   The label.
+ */
+function param_layout_label($label): string {
+  return '';
+}

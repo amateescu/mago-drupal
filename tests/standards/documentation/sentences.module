@@ -1,0 +1,21 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * the long description starts in lower case and doesn't end with a full stop
+ */
+function sentences_one(): int {
+  // this comment starts in lower case
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * The long description is a sentence.
+ */
+function sentences_one(): int {
+  // This comment is a sentence.
+  return 1;
+}

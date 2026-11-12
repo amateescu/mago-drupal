@@ -1,0 +1,21 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * @throws \RuntimeException
+ *   when one is missing
+ */
+function throws_sentence_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @throws \RuntimeException
+ *   Thrown when one is missing.
+ */
+function throws_sentence_one(): int {
+  return 1;
+}

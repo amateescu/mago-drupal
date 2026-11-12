@@ -1,0 +1,15 @@
+<?php
+
+function example_one(): int {
+  return 1;
+}
+
+class ExampleCount {
+
+  public int $count = 0;
+
+  public function count(): int {
+    return $this->count;
+  }
+
+}

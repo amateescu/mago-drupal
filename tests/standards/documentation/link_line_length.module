@@ -1,0 +1,19 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * This text shares its line with @link https://www.drupal.org/docs/develop/standards a long link @endlink.
+ */
+function link_line_length_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @link https://www.drupal.org/docs/develop/standards/php/api-documentation-and-comment-standards The standards @endlink
+ */
+function link_line_length_one(): int {
+  return 1;
+}

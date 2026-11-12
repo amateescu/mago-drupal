@@ -1,0 +1,6 @@
+<?php
+
+/**
+ * @file
+ * Holds a case with a summary that is far too long because it goes past the eightieth column
+ */

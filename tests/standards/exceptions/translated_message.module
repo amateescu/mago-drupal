@@ -1,0 +1,5 @@
+// Reported.
+throw new \RuntimeException(t('The widget is gone.'));
+
+// Fine.
+throw new \RuntimeException('The widget is gone.');

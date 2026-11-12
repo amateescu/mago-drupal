@@ -1,0 +1,47 @@
+// Reported.
+/**
+ * Returns the count.
+ *
+ * @param boolean $reset
+ *   Whether to reset.
+ * @param Array $items
+ *   The items.
+ *
+ * @return integer
+ *   The count.
+ */
+function type_names_count($reset, $items) {
+  return 0;
+}
+
+// Fine.
+/**
+ * Returns the count.
+ *
+ * @param bool $reset
+ *   Whether to reset.
+ * @param array $items
+ *   The items.
+ * @param integer[] $weights
+ *   The weights, with a type that isn't reported inside an array type.
+ *
+ * @return int
+ *   The count.
+ */
+function type_names_count($reset, $items, $weights) {
+  return 0;
+}
+
+/**
+ * Holds a limit.
+ */
+class TypeNamesLimit {
+
+  /**
+   * The limit.
+   *
+   * @var integer
+   */
+  const LIMIT = 10;
+
+}

@@ -1,0 +1,19 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * See the @link https://www.drupal.org/docs documentation @endlink
+ */
+function link_punctuation_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * See the @link https://www.drupal.org/docs documentation @endlink.
+ */
+function link_punctuation_one(): int {
+  return 1;
+}

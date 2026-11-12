@@ -1,0 +1,35 @@
+// Reported.
+// Returns one.
+function comment_style_one(): int {
+  return 1;
+}
+
+/*
+ * Holds a count.
+ */
+class CommentStyleCount {
+
+  // The count.
+  public int $count = 0;
+
+}
+
+// Fine.
+/**
+ * Returns one.
+ */
+function comment_style_one(): int {
+  return 1;
+}
+
+/**
+ * Holds a count.
+ */
+class CommentStyleCount {
+
+  /**
+   * The count.
+   */
+  public int $count = 0;
+
+}

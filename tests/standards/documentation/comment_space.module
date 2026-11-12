@@ -1,0 +1,31 @@
+// Reported.
+/**
+ *Returns one.
+ */
+function comment_space_one(): int {
+  //No space after the slashes.
+  return 1;
+}
+
+/**
+ * Holds a count.
+ */
+final class CommentSpaceCount {
+
+  /**
+   * The limit.
+   *
+   *No space after the star, in the docblock of a constant.
+   */
+  public const LIMIT = 10;
+
+}
+
+// Fine.
+/**
+ * Returns one.
+ */
+function comment_space_one(): int {
+  // A space after the slashes.
+  return 1;
+}

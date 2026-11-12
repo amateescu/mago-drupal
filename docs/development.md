@@ -124,8 +124,27 @@ The table of [PHPStan levels](phpstan/index.md#starting-from-a-phpstan-level) is
 the table, or the list of PHPStan identifiers read by the `phpstan-ignores` plugin, names a code
 that isn't one of them.
 
+A third map, `tests/data/standards-map.json`, quotes the sentences of Drupal's written coding
+standards, page by page, and says what handles each one. It's edited by hand too, and the docs
+aren't generated from it. The map names a commit of the standards repository, and
+`just test-standards` compares every quote, and the sentence quoted under **Standard** in a rule's
+entry, with the pages at that commit. The clone is kept in `.cache/coding-standards`.
+`StandardsMapTest` fails when a rule whose entry links a section of the standards isn't a handler of
+a sentence in that section.
+
+A sentence that names a handler also names its cases, which are files under `tests/standards/`. A
+case holds code that breaks the sentence, which the handler must report, and code that follows it,
+which the handler must not report. For `mago format`, it holds the code before and after. A case
+also pins what a note says isn't reported, in its fine code. `just test-standards` runs the cases
+with the preset, so they show what a project gets. `tests/Tools/StandardsCases.php` describes the
+format, and its `--update` option writes the formatter's result into a case.
+
+To follow a change of the standards, set the commit in the map to the new one and run
+`just test-standards`. It lists the sentences that no longer match.
+
 When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
-rule with `ext:drupal/<code>` in the map, and run `just docs-gen`.
+rule with `ext:drupal/<code>` in the map, name the rule in the standards map under the sentence it
+checks, with a case, and run `just docs-gen`.
 
 ## Rule entries
 

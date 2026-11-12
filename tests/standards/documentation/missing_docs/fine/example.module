@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Holds a case.
+ */
+
+const EXAMPLE_LIMIT = 10;
+
+/**
+ * Returns one.
+ */
+function example_one(): int {
+  return 1;
+}
+
+/**
+ * Holds a count.
+ */
+class ExampleCount {
+
+  const LIMIT = 10;
+
+  /**
+   * The count.
+   */
+  public int $count = 0;
+
+  /**
+   * Returns the count.
+   */
+  public function count(): int {
+    return $this->count;
+  }
+
+}

@@ -1,0 +1,13 @@
+// Reported.
+$weights = [
+  'first' => 1,   // The first one.
+  'second' => 2,  // The second one.
+];
+
+// Fine.
+$weights = [
+  // The first one.
+  'first' => 1,
+  // The second one.
+  'second' => 2,
+];

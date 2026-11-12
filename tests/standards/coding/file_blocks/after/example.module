@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * Holds a case.
+ */
+
+use Drupal\Core\Url;
+
+$url = Url::fromRoute('<front>');

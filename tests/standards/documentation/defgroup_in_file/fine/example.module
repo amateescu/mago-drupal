@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Holds a case.
+ */
+
+/**
+ * @defgroup example Example
+ * @{
+ * Holds the functions of the example.
+ */
+
+/**
+ * @} End of "defgroup example".
+ */

@@ -1,0 +1,17 @@
+// Reported.
+/**
+ * Returns one, with a long description that goes past the eightieth column of the line.
+ */
+function comment_line_length_one(): int {
+  // A comment inside the function that also goes past the eightieth column of the line.
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one, with a description that stays within eighty columns.
+ */
+function comment_line_length_one(): int {
+  // A comment inside the function that stays within eighty columns.
+  return 1;
+}

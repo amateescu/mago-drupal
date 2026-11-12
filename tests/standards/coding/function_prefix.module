@@ -1,0 +1,5 @@
+// Reported.
+function other_do_thing(): void {}
+
+// Fine.
+function function_prefix_do_thing(): void {}

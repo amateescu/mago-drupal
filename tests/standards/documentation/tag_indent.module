@@ -1,0 +1,30 @@
+// Reported.
+/**
+ * Returns the label.
+ *
+ * @param string $label
+ * The label.
+ *
+ * @return string
+ *     The label.
+ */
+function tag_indent_label(string $label): string {
+  return $label;
+}
+
+// Fine.
+/**
+ * Returns the label.
+ *
+ * @param string $label
+ *   The label.
+ *
+ * @return string
+ *   The label.
+ *
+ * @throws \RuntimeException
+ *     Thrown when the label is empty.
+ */
+function tag_indent_label(string $label): string {
+  return $label;
+}

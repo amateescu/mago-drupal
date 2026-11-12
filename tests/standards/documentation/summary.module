@@ -1,0 +1,29 @@
+// Reported.
+/**
+ * returns one
+ */
+function summary_one(): int {
+  return 1;
+}
+
+/**
+ * Returns two, with a summary that is far too long because it goes past the eightieth column.
+ */
+function summary_two(): int {
+  return 2;
+}
+
+// Fine.
+/**
+ * Returns one.
+ */
+function summary_one(): int {
+  return 1;
+}
+
+/**
+ * Is this one?
+ */
+function summary_two(): int {
+  return 2;
+}

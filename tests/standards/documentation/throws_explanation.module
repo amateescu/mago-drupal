@@ -1,0 +1,30 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * @throws \RuntimeException Thrown when one is missing.
+ */
+function throws_explanation_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @throws \RuntimeException
+ *   Thrown when one is missing.
+ */
+function throws_explanation_one(): int {
+  return 1;
+}
+
+/**
+ * Returns two, with a deeper indent.
+ *
+ * @throws \RuntimeException
+ *     Thrown when two is missing.
+ */
+function throws_explanation_two(): int {
+  return 1;
+}

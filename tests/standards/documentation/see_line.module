@@ -1,0 +1,20 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * @see see_line_two(), see_line_three().
+ */
+function see_line_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @see see_line_two()
+ * @see see_line_three()
+ */
+function see_line_one(): int {
+  return 1;
+}

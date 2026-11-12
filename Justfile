@@ -60,6 +60,15 @@ test-corpus:
     php tests/Tools/CorpusPins.php {{mago}}
     php tests/Tools/CorpusPins.php {{mago}} tests/ignores
 
+# Compares the quotes of tests/data/standards-map.json and of the rule docs
+# with Drupal's coding standards, at the commit that the map names. The clone
+# is kept in .cache/coding-standards. See tests/Tools/StandardsQuotes.php.
+# Then runs the cases of the map's sentences in tests/standards, see
+# tests/Tools/StandardsCases.php for the format.
+test-standards:
+    php tests/Tools/StandardsQuotes.php
+    php tests/Tools/StandardsCases.php {{mago}}
+
 # Runs every rule's fix over the before and after pairs in tests/fixes. See
 # tests/Tools/FixCases.php for the layout.
 test-fixes:
@@ -113,4 +122,4 @@ docs-env:
 
 check: validate format-check test lint analyze
 
-check-all: check test-presets test-corpus test-fixes test-examples
+check-all: check test-presets test-corpus test-fixes test-examples test-standards

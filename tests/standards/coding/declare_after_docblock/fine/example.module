@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Holds a case.
+ */
+
+declare(strict_types=1);

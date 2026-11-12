@@ -1,0 +1,9 @@
+// Reported.
+/** @var $url \Drupal\Core\Url */
+$url = example_url();
+
+// Fine.
+/** @var \Drupal\Core\Url $url */
+$url = example_url();
+/** @var \Drupal\Core\Url */
+$other = example_url();

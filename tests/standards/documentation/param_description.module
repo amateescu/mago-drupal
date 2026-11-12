@@ -1,0 +1,20 @@
+// Reported.
+/**
+ * Returns the label.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function param_description_label($entity): string {
+  return '';
+}
+
+// Fine.
+/**
+ * Returns the label.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ */
+function param_description_label($entity): string {
+  return '';
+}

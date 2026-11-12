@@ -1,0 +1,15 @@
+// Reported.
+function comment_placement_one(): int {
+  $one = 1; // After the statement.
+  $two = 2;
+  // Above a blank line.
+
+  return $one + $two;
+}
+
+// Fine.
+function comment_placement_one(): int {
+  // Before the statement.
+  $one = 1;
+  return $one;
+}
