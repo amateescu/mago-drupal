@@ -11,6 +11,7 @@ drupal/closing-tag-statement
 drupal/comment-in-expression
 drupal/comment-line-length
 drupal/const-prefix
+drupal/constant-comment
 drupal/constant-prefix
 drupal/curl-ssl-verify
 drupal/define-name

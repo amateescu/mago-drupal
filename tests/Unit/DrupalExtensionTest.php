@@ -70,6 +70,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/comment-in-expression' => [Level::Error, true],
             'drupal/comment-line-length' => [Level::Warning, true],
             'drupal/const-prefix' => [Level::Warning, true],
+            'drupal/constant-comment' => [Level::Error, true],
             'drupal/constant-prefix' => [Level::Warning, true],
             'drupal/curl-ssl-verify' => [Level::Warning, true],
             'drupal/define-name' => [Level::Error, true],

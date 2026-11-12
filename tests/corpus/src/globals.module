@@ -52,8 +52,9 @@ define('unprefixed_constant', 1);
  */
 define('GLOBALS_DEPRECATED', 1);
 
-// A blank line between the docblock and the constant is fine.
-
+// A deprecated constant counts with a blank line below its docblock, which
+// drupal/constant-comment reports.
+// @mago-expect lint:drupal/constant-comment
 /**
  * Old limit.
  *

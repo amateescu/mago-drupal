@@ -86,6 +86,52 @@ A docblock above or below the attributes counts. A docblock tagged `@file` is th
 
 ---
 
+## drupal/constant-comment
+
+- **Level:** error
+- **Fix:** safe. It removes the blank line.
+- **Standard:** [General considerations](https://project.pages.drupalcode.org/coding_standards/php/documentation/#general-considerations-for-api-module-parsing)
+- **Ports:** none. Coder doesn't check it.
+
+> To document a function, class, etc., the docblock must appear directly before the item being
+> documented, with no blank line in between.
+
+**Reports:**
+
+- a blank line between a docblock and the class constant, global `const` or enum case below it. A
+  docblock above the attributes of a constant counts.
+
+[`drupal/function-comment`](#drupalfunction-comment), [`drupal/class-comment`](#drupalclass-comment)
+and [`drupal/variable-comment`](#drupalvariable-comment) report the same for a function, a class
+and a property.
+
+**Not reported:**
+
+- a docblock with an `@file`, `@defgroup`, `@addtogroup` or `@mainpage` tag, or with `@{` or `@}`,
+  which stands on its own;
+- a `define()` call, which is a function call and not a declaration.
+
+???+ example "Example"
+
+    The fix turns the reported code into the fine code.
+
+    ```php
+    // Reported.
+    /**
+     * The number of items on a page.
+     */
+
+    const EXAMPLE_PAGE_SIZE = 50;
+
+    // Fine.
+    /**
+     * The number of items on a page.
+     */
+    const EXAMPLE_PAGE_SIZE = 50;
+    ```
+
+---
+
 ## drupal/deprecated-tag
 
 - **Level:** warning
