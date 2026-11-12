@@ -141,6 +141,27 @@ function function_comment_param_repeated(string $a, string $b): string {
 
 // @mago-expect lint:drupal/doc-tag-descriptions
 /**
+ * Param tag with a reference mark that the parameter doesn't have.
+ *
+ * @param string &$a
+ *   The first.
+ */
+function function_comment_param_reference_mark(string $a): string {
+  return $a;
+}
+
+/**
+ * Param tag with the reference mark of its parameter.
+ *
+ * @param string &$a
+ *   The first.
+ */
+function function_comment_param_reference(string &$a): void {
+  $a = '';
+}
+
+// @mago-expect lint:drupal/doc-tag-descriptions
+/**
  * Param tags in a different order than the parameters.
  *
  * @param string $b

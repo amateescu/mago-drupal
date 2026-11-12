@@ -205,7 +205,7 @@ they're [off in Drupal core](../setup/configuration.md#checking-drupal-core).
 | [`drupal/escaped-placeholder`](drupal-practice.md#drupalescaped-placeholder) | warning | Reports a check_plain() or Html::escape() call as the value of an @, % or : placeholder, which escapes the value already. |
 | [`drupal/form-alter-comment`](drupal-practice.md#drupalform-alter-comment) | warning | Reports a function documented as hook_form_alter() that isn't named after the module. |
 | [`drupal/global-constant`](drupal-practice.md#drupalglobal-constant) | warning | Reports a top-level const statement or define() call, as DrupalPractice does. |
-| [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE or $_FILES, where the request stack gives the same data. |
+| [`drupal/request-superglobal`](drupal-practice.md#drupalrequest-superglobal) | error | Reports a use of $_GET, $_POST, $_COOKIE, $_FILES or $_REQUEST, where the request stack gives the same data. |
 | [`drupal/strict-config-schema`](drupal-practice.md#drupalstrict-config-schema) | error | Reports a test class that turns off strict config schema checking. |
 | [`drupal/untranslated-description`](drupal-practice.md#drupaluntranslated-description) | warning | Reports a plain string as the #description of a form element or render array. |
 | [`drupal/untranslated-options`](drupal-practice.md#drupaluntranslated-options) | warning | Reports a plain string in the #options of a checkboxes, radios, select or tableselect element. |

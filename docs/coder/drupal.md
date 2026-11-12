@@ -61,7 +61,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `Drupal.Commenting.DocCommentLongArraySyntax` | [`drupal/doc-comment-array-syntax`](../rules/comment-text.md#drupaldoc-comment-array-syntax) |
 | [`Drupal.Commenting.DocCommentStar`](#drupalcommentingdoccommentstar) | `mago format` |
 | [`Drupal.Commenting.FileComment`](#drupalcommentingfilecomment) | [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment), [`drupal/missing-file-comment`](../rules/docblock-structure.md#drupalmissing-file-comment), `mago format`, nothing, partly |
-| [`Drupal.Commenting.FunctionComment`](#drupalcommentingfunctioncomment) | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag), `mago analyze` (`invalid-param-tag`), [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), `mago analyze` (`missing-return-statement`), `mago analyze` (`invalid-return-statement`), `mago analyze` (`invalid-generator-return-type`), [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence), [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout), [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment), partly |
+| [`Drupal.Commenting.FunctionComment`](#drupalcommentingfunctioncomment) | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag), `mago analyze` (`invalid-param-tag`), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), `mago analyze` (`missing-return-statement`), `mago analyze` (`invalid-return-statement`), `mago analyze` (`invalid-generator-return-type`), [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment), [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence), [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout), [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment) |
 | `Drupal.Commenting.GenderNeutralComment` | [`drupal/gender-neutral-comment`](../rules/comment-text.md#drupalgender-neutral-comment) |
 | `Drupal.Commenting.HookComment` | [`drupal/hook-comment`](../rules/docblock-structure.md#drupalhook-comment) |
 | [`Drupal.Commenting.InlineComment`](#drupalcommentinginlinecomment) | [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment), Mago `no-empty-comment`, [`drupal/inline-comment-punctuation`](../rules/comment-text.md#drupalinline-comment-punctuation), [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
@@ -120,7 +120,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | --- | --- |
 | `DuplicateReturn`, `InvalidThrows`, `MissingParamName`, `MissingParamType`, `MissingReturnType` | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types) |
 | `EmptySees`, `SeeAdditionalText`, `SeePunctuation` | [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag) |
-| `ExtraParamComment`, `ParamNameNoCaseMatch` | `mago analyze` (`invalid-param-tag`) |
+| `ExtraParamComment` | `mago analyze` (`invalid-param-tag`), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions) |
 | `IncorrectParamVarName`, `InvalidReturn` | [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name) |
 | `InvalidNoReturn` | `mago analyze` (`missing-return-statement`) |
 | `InvalidReturnNotVoid` | `mago analyze` (`invalid-return-statement`) |
@@ -129,13 +129,14 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions) |
 | `ParamCommentFullStop`, `ParamCommentNotCapital`, `ThrowsNoFullStop`, `ThrowsNotCapital` | [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence) |
 | `ParamCommentIndentation`, `ParamCommentNewLine`, `ParamNameDot`, `ParamTypeSpaces`, `ReturnCommentIndentation`, `ReturnTypeSpaces`, `ReturnVarName`, `SpacingAfterParamType`, `ThrowsComment`, `ThrowsCommentIndentation` | [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout) |
-| `ParamNameNoMatch` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), `mago analyze` (`invalid-param-tag`), partly |
+| `ParamNameNoCaseMatch` | `mago analyze` (`invalid-param-tag`) |
+| `ParamNameNoMatch` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), `mago analyze` (`invalid-param-tag`) |
 | `SpacingAfter`, `WrongStyle` | [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment) |
 
 - `ExtraParamComment`: `mago analyze` reports a `@param` whose name isn't a parameter, and `drupal/doc-tag-descriptions` one that repeats a name.
 - `InvalidNoReturn`: Reported on the function, not on the `@return` tag.
 - `InvalidReturnVoid`: Reported on the `return` statement, not on the `@return void` tag. A `yield` in such a function is reported as `invalid-generator-return-type`.
-- `ParamNameNoMatch`: `drupal/doc-tag-descriptions` reports a repeated `@param` and one that is out of order. `mago analyze` reports a name that isn't a parameter, and a `...` on a parameter that isn't variadic. A `&` on a parameter that isn't taken by reference, as in `@param int &$a`, isn't reported.
+- `ParamNameNoMatch`: `drupal/doc-tag-descriptions` reports a repeated `@param`, one that is out of order, and a `&` on a parameter that isn't taken by reference. `mago analyze` reports a name that isn't a parameter, and a `...` on a parameter that isn't variadic.
 
 ### `Drupal.Commenting.InlineComment`
 

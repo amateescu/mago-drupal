@@ -138,9 +138,7 @@ excludes = [
 # which core needs where the strings come from a table. It stays visible and doesn't fail the run.
 "drupal/translatable-literal" = { level = "help" }
 # These rules stand in for sniffs of Coder that core's phpcs.xml.dist doesn't run.
-# no-request-variable is the $_REQUEST half of the sniff that drupal/request-superglobal ports.
 no-redundant-method-override = { enabled = false }
-no-request-variable = { enabled = false }
 # Core's phpcs.xml.dist leaves tests directories out of Squiz.Classes.ClassFileName. phpcs matches
 # the pattern in any case, so it also leaves out the Tests directories under src/.
 file-name = { exclude = ["**/tests/**", "**/Tests/**"] }

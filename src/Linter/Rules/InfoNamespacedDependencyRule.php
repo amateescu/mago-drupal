@@ -16,6 +16,7 @@ use Mago\Sdk\Syntax\NodeKind;
 use function count;
 use function ltrim;
 use function preg_match;
+use function preg_replace;
 use function rtrim;
 use function strlen;
 
@@ -81,7 +82,8 @@ final class InfoNamespacedDependencyRule implements Rule
      */
     private function report(LintContext $context, string $line, int $offset): void
     {
-        $item = rtrim($line);
+        // A comment after the name isn't part of it.
+        $item = rtrim(preg_replace('/\s#.*$/', replacement: '', subject: $line) ?? $line);
         $name = ltrim($item, characters: " \t-");
         $start = $offset + strlen($item) - strlen($name);
 

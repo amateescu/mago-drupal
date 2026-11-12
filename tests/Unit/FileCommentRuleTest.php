@@ -170,6 +170,16 @@ final class FileCommentRuleTest extends TestCase
         self::assertSame([], self::lint('node.info.yml', "name: Node\ntype: module\n"));
     }
 
+    public function testSkipsTheBlankLineInATemplate(): void
+    {
+        $contents = "<?php\n\n/**\n * @file\n * Shows a node.\n */\n\$a = 1;\n";
+
+        $span = self::spanOf($contents, "/**\n * @file\n * Shows a node.\n */");
+
+        self::assertCount(1, self::lint('node.inc', $contents, TriviaKind::DocBlockComment, $span));
+        self::assertSame([], self::lint('node.tpl.php', $contents, TriviaKind::DocBlockComment, $span));
+    }
+
     public function testChecksAPhpFileOfFunctions(): void
     {
         $issues = self::lint('node.api.php', "<?php\n\nfunction hook_foo(): void {}\n");

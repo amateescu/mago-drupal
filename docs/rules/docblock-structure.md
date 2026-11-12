@@ -385,7 +385,7 @@ the end of the long description.
 - **Level:** error
 - **Fix:** none
 - **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions)
-- **Ports:** `Drupal.Commenting.FunctionComment`: `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch` (partly)
+- **Ports:** `Drupal.Commenting.FunctionComment`: `ExtraParamComment`, `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch`
 
 > Each parameter of a function must be documented with a `@param` tag (see exceptions below).
 
@@ -399,6 +399,8 @@ the end of the long description.
 - a `@param` with a type that repeats an earlier tag, or that comes after the tag of a later
   parameter. As in Coder, the tags must follow the order of the parameters, and a parameter can be
   left out;
+- a `@param` with a `&` in front of the name of a parameter that isn't taken by reference, as in
+  `@param int &$a`;
 - a method with `@param` tags for some parameters and none for a real parameter. So in a method, a
   repeated tag that takes the place of another parameter's tag gets two reports. In a function it
   gets one, as in Coder.
@@ -454,8 +456,8 @@ return anything. Coder, core and this rule still want the description. Coder 9 a
     - Coder reports a repeated tag that sits past the number of parameters, such as the third
       `@param int $a` of a function with one parameter, as `ExtraParamComment`. This rule reports it
       as a repeated tag.
-    - Coder reports `@param int &$a` for a parameter that isn't a reference, and `...$a` for one
-      that isn't variadic, as a name that doesn't match. This rule leaves those alone.
+    - Coder reports `@param int ...$a` for a parameter that isn't variadic as a name that doesn't
+      match. This rule leaves it to `mago analyze`, which reports it as `invalid-param-tag`.
 
 ---
 
@@ -1096,6 +1098,7 @@ still want it.
   missing its braces;
 - a docblock whose first tag, or the tag after a leading `@file`, is `@defgroup`, `@addtogroup`,
   `@}` or `@coversDefaultClass`;
+- a docblock whose first tag is `@mainpage`, which marks the main page of the API documentation;
 - in Drupal core, no summary outside the `KernelTests`, `Unit` and `FunctionalJavascript`
   directories, where that check is run by core's `phpcs.xml.dist`.
 
@@ -1103,6 +1106,8 @@ still want it.
 
     - A `phpcs:` line above the summary is skipped, and the line below it is the summary. Coder
       reports `MissingShort` there.
+    - Coder reports a docblock that starts with `@mainpage`, which is the form given by the
+      standard's [tag reference](https://project.pages.drupalcode.org/coding_standards/php/documentation/#mainpage-main-documentation-for-a-branch).
 
 ---
 

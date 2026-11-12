@@ -26,6 +26,7 @@ use Mago\Sdk\Syntax\TriviaKind;
 
 use function preg_match;
 use function str_contains;
+use function str_ends_with;
 use function strspn;
 
 /**
@@ -148,10 +149,14 @@ final class FileCommentRule implements Rule
      * Reports a file docblock with no blank line below it, and returns
      * whether it did. `mago format` already turns several blank lines into
      * one, so only a missing one is left to report. Coder skips a docblock
-     * right above a `?>`.
+     * right above a `?>`, and its ruleset skips a `.tpl.php` template.
      */
     private function checkBlankLineAfter(LintContext $context, Span $docblock): bool
     {
+        if (str_ends_with($context->file->path, '.tpl.php')) {
+            return false;
+        }
+
         $edit = DocblockGap::blankLine($context->file, $docblock);
         if ($edit === null || preg_match('/\G\s*\?>/', $context->file->contents, offset: $docblock->end) === 1) {
             return false;

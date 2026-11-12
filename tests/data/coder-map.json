@@ -172,7 +172,7 @@
         "codes": [
             {"code": "DuplicateReturn", "status": "report", "where": ["ext:drupal/doc-tag-types"]},
             {"code": "EmptySees", "status": "report", "where": ["ext:drupal/doc-see-tag"]},
-            {"code": "ExtraParamComment", "status": "report", "where": ["analyze:invalid-param-tag"], "note": "`mago analyze` reports a `@param` whose name isn't a parameter, and `drupal/doc-tag-descriptions` one that repeats a name."},
+            {"code": "ExtraParamComment", "status": "report", "where": ["analyze:invalid-param-tag", "ext:drupal/doc-tag-descriptions"], "note": "`mago analyze` reports a `@param` whose name isn't a parameter, and `drupal/doc-tag-descriptions` one that repeats a name."},
             {"code": "IncorrectParamVarName", "status": "fix", "where": ["ext:drupal/doc-type-name"]},
             {"code": "InvalidNoReturn", "status": "report", "where": ["analyze:missing-return-statement"], "note": "Reported on the function, not on the `@return` tag."},
             {"code": "InvalidReturn", "status": "fix", "where": ["ext:drupal/doc-type-name"]},
@@ -192,7 +192,7 @@
             {"code": "ParamMissingDefinition", "status": "report", "where": ["ext:drupal/doc-tag-descriptions"]},
             {"code": "ParamNameDot", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ParamNameNoCaseMatch", "status": "report", "where": ["analyze:invalid-param-tag"]},
-            {"code": "ParamNameNoMatch", "status": "partial", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"], "note": "`drupal/doc-tag-descriptions` reports a repeated `@param` and one that is out of order. `mago analyze` reports a name that isn't a parameter, and a `...` on a parameter that isn't variadic. A `&` on a parameter that isn't taken by reference, as in `@param int &$a`, isn't reported."},
+            {"code": "ParamNameNoMatch", "status": "report", "where": ["ext:drupal/doc-tag-descriptions", "analyze:invalid-param-tag"], "note": "`drupal/doc-tag-descriptions` reports a repeated `@param`, one that is out of order, and a `&` on a parameter that isn't taken by reference. `mago analyze` reports a name that isn't a parameter, and a `...` on a parameter that isn't variadic."},
             {"code": "ParamTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnCommentIndentation", "status": "fix", "where": ["ext:drupal/doc-tag-layout"]},
             {"code": "ReturnTypeSpaces", "status": "report", "where": ["ext:drupal/doc-tag-layout"]},
@@ -1600,7 +1600,7 @@
     {
         "sniff": "DrupalPractice.Variables.GetRequestData",
         "standard": "DrupalPractice",
-        "where": ["ext:drupal/request-superglobal", "lint:no-request-variable"],
+        "where": ["ext:drupal/request-superglobal"],
         "codes": [
             {"code": "SuperglobalAccessed", "status": "report"},
             {"code": "SuperglobalAccessedWithVar", "status": "report"}
