@@ -7,6 +7,7 @@ drupal/case-semicolon
 drupal/class-comment
 drupal/class-name-acronym
 drupal/class-prefix
+drupal/closing-tag-statement
 drupal/comment-in-expression
 drupal/comment-line-length
 drupal/const-prefix

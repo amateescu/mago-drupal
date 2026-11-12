@@ -40,6 +40,7 @@ final class CoderPorts
         ],
         'drupal/class-name-acronym' => ['Drupal.NamingConventions.ValidClassName.NoUpperAcronyms'],
         'drupal/class-prefix' => ['DrupalPractice.General.ClassName.ClassPrefix'],
+        'drupal/closing-tag-statement' => ['Zend.Files.ClosingTag.NotAllowed'],
         'drupal/comment-in-expression' => [
             'Generic.Formatting.SpaceAfterCast.CommentFound',
             'Generic.WhiteSpace.LanguageConstructSpacing.IncorrectYieldFromWithComment',

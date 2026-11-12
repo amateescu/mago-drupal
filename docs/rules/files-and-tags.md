@@ -29,6 +29,40 @@ so a procedural file with a mark and a correct docblock gets only this rule's re
 
 ---
 
+## drupal/closing-tag-statement
+
+- **Level:** error
+- **Fix:** safe. It writes the `;` and removes the tag. A statement with a comment between it and
+  the tag doesn't get one.
+- **Standard:** [PHP code tags](https://project.pages.drupalcode.org/coding_standards/php/coding/#php-code-tags)
+- **Ports:** `Zend.Files.ClosingTag.NotAllowed`
+
+> Note that as of Drupal 4.7, the `?>` at the end of code files is purposely omitted.
+
+**Reports:**
+
+- a `?>` at the end of a file that ends the last statement in place of a `;`, as in `$a = 1 ?>` or
+  `endif ?>`.
+
+**Not reported:**
+
+- a `?>` after a complete statement, which is reported by Mago's `no-closing-tag` and removed by
+  `mago format`;
+- a `.tpl.php` template, which is skipped by Coder's ruleset.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    $settings['example'] = TRUE
+    ?>
+
+    // Fine.
+    $settings['example'] = TRUE;
+    ```
+
+---
+
 ## drupal/empty-php-tags
 
 - **Level:** warning

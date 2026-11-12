@@ -64,6 +64,7 @@ Rules for the bytes of a file and for its open and close tags.
 | Rule | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/byte-order-mark`](files-and-tags.md#drupalbyte-order-mark) | error | Reports a UTF-8 or UTF-16 byte order mark at the start of a file. |
+| [`drupal/closing-tag-statement`](files-and-tags.md#drupalclosing-tag-statement) | error | Reports a closing tag at the end of a file that ends a statement with no semicolon. |
 | [`drupal/empty-php-tags`](files-and-tags.md#drupalempty-php-tags) | warning | Reports an open tag that a close tag follows with only whitespace between. |
 | [`drupal/file-encoding`](files-and-tags.md#drupalfile-encoding) | warning | Reports a file whose bytes aren't valid UTF-8. |
 | [`drupal/file-start-whitespace`](files-and-tags.md#drupalfile-start-whitespace) | error | Reports a file with whitespace before its first PHP open tag. |
