@@ -22,9 +22,13 @@ function blank_line_below(array $items): array
     //
 
     // Sits on a docblock.
-
     /** @var int $total */
     $total = $count;
+    // @code
+
+    // $total = 0;
+    // @endcode
+    $total--;
     // @codingStandardsIgnoreStart
     $total++;
     // @codingStandardsIgnoreEnd
@@ -38,7 +42,11 @@ function blank_line_below(array $items): array
     // Before a closing brace, which the formatter takes.
 
 }
+// Sits on the docblock of a declaration.
 
+/**
+ * Holds a comment before its closing brace.
+ */
 class BlankLineBelow
 {
     public int $count = 0;

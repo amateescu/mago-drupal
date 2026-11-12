@@ -169,10 +169,10 @@ final class InlineCommentSpacing
 
     /**
      * Reports a blank line below a run of comment lines, unless the run shares
-     * its first line with code, doesn't hold any text, or comes right before a
-     * docblock. A blank line before a closing bracket is the formatter's. It
-     * removes the line before most brackets and adds one before the closing
-     * brace of a class-like with members.
+     * its first line with code, doesn't hold any text, or comes right before
+     * the docblock of a declaration. A blank line before a closing bracket is
+     * the formatter's. It removes the line before most brackets and adds one
+     * before the closing brace of a class-like with members.
      *
      * @param array{Trivia, bool, bool} $run
      */
@@ -187,7 +187,7 @@ final class InlineCommentSpacing
             || !$hasText
             || $next >= strlen($contents)
             || in_array($contents[$next], ['}', ']', ')'], strict: true)
-            || substr($contents, $next, length: 3) === '/**' && substr($contents, $next, length: 4) !== '/**/'
+            || self::startsDeclarationDocblock($contents, $next)
         ) {
             return;
         }
@@ -203,6 +203,29 @@ final class InlineCommentSpacing
             'Remove the blank line below the comment.',
             $last->span,
         )->withEdit(TextEdit::delete(new Span($end + $first + 1, $end + $lastBreak + 1))));
+    }
+
+    /**
+     * Whether a docblock starts at the offset and isn't followed by a
+     * statement that starts with a variable. drupal/function-blank-line asks
+     * for the blank line above the docblock of a function, so a comment above
+     * a declaration's docblock keeps it. A docblock above a variable is a type
+     * for the statement.
+     */
+    private static function startsDeclarationDocblock(string $contents, int $offset): bool
+    {
+        if (substr($contents, $offset, length: 3) !== '/**' || substr($contents, $offset, length: 4) === '/**/') {
+            return false;
+        }
+
+        $close = strpos($contents, needle: '*/', offset: $offset + 3);
+        if ($close === false) {
+            return true;
+        }
+
+        $after = $close + 2 + strspn($contents, characters: " \t\r\n", offset: $close + 2);
+
+        return ($contents[$after] ?? '') !== '$';
     }
 
     /**
