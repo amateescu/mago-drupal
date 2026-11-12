@@ -67,9 +67,9 @@ test-standards:
 
 # Compares the quotes of tests/data/standards-map.json and of the rule docs
 # with Drupal's coding standards, at the commit that the map names. See
-# tests/Tools/StandardsQuotes.php. Not part of check-all, since it clones the
-# standards repository into .cache/coding-standards. CI runs it in a job of
-# its own.
+# tests/Tools/StandardsQuotes.php. The first run clones the standards
+# repository into .cache/coding-standards. Later runs use that clone, and
+# fetch only when the map names a commit that it doesn't have.
 check-standards-quotes:
     php tests/Tools/StandardsQuotes.php
 
@@ -126,4 +126,8 @@ docs-env:
 
 check: validate format-check test lint analyze
 
-check-all: check test-presets test-corpus test-fixes test-examples test-standards
+# What the jobs of CI's matrix run: everything but the quote check, which
+# CI runs once, in a job of its own, since it clones the standards.
+check-ci: check test-presets test-corpus test-fixes test-examples test-standards
+
+check-all: check-ci check-standards-quotes

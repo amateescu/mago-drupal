@@ -11,7 +11,8 @@ just check-all
 ```
 
 `just check` runs `validate`, `format-check`, `test`, `lint` and `analyze`. `just check-all` also
-runs `test-presets`, `test-corpus`, `test-fixes` and `test-examples`.
+runs `test-presets`, `test-corpus`, `test-fixes`, `test-examples`, `test-standards` and
+`check-standards-quotes`.
 
 - `test-presets` loads `drupal.mago.toml` and `drupal-core.mago.toml`, the config files that
   projects extend, and fails when Mago doesn't know one of their settings or rule names.
@@ -21,6 +22,9 @@ runs `test-presets`, `test-corpus`, `test-fixes` and `test-examples`.
 - `test-fixes` runs every rule's fix over the before and after pairs in `tests/fixes/`.
 - `test-examples` checks the examples in the rule and analyzer docs, see [Rule entries](#rule-entries)
   and [Analyzer entries](#analyzer-entries).
+- `test-standards` runs the cases in `tests/standards/`, and `check-standards-quotes` compares the
+  quotes of the standards map with Drupal's coding standards, see
+  [Docs](#docs). The first run clones the standards repository.
 
 Set `MAGO=/path/to/mago` to run the checks against a different build.
 
@@ -128,8 +132,10 @@ A third map, `tests/data/standards-map.json`, quotes the sentences of Drupal's w
 standards, page by page, and says what handles each one. It's edited by hand too, and the docs
 aren't generated from it. The map names a commit of the standards repository, and
 `just check-standards-quotes` compares every quote, and the sentence quoted under **Standard** in a
-rule's entry, with the pages at that commit. It clones the repository into
-`.cache/coding-standards`, so it isn't part of `just check-all`, and CI runs it in a job of its own.
+rule's entry, with the pages at that commit. It's part of `just check-all`. The first run clones the
+repository into `.cache/coding-standards`, and later runs use that clone without the network. CI
+runs it once, in a job of its own, and `just check-ci` in the other jobs, which is `check-all`
+without it.
 `StandardsMapTest` fails when the sentence quoted in a rule's entry isn't a sentence of the map that
 names the rule as a handler.
 
