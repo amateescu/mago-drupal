@@ -406,7 +406,8 @@ Coder doesn't allow gendered pronouns in comments.
 **Not reported:**
 
 - a `phpcs:` directive line;
-- a `//` comment with no text, a comment right before a docblock, and a `// @code` example;
+- a `//` comment with no text, which is reported by Mago's `no-empty-comment`;
+- a comment right before the docblock of a declaration, and a `// @code` example;
 - a blank line before a closing bracket, which is handled by `mago format`. The formatter takes such
   a line out, except before the closing brace of a class, interface, trait or enum with members,
   where it always writes one, after a comment too.
@@ -439,9 +440,15 @@ pass applies it.
     - Coder reports a blank line before a closing bracket, and that includes its
       `SpacingAfterAtFunctionEnd`. A fix that removes the line would undo the formatter on every
       run.
-    - `Drupal.Commenting.InlineComment` skips a `//` comment with no text, a comment right before a
-      docblock and a `// @code` example, as the rule does. DrupalPractice's `CommentEmptyLine`
-      reports all three.
+    - The rule reports a blank line below a comment right before the docblock of a statement that
+      starts with a variable, such as `/** @var int $total */`. The comment refers to that
+      statement. DrupalPractice's `CommentEmptyLine` reports it too, and
+      `Drupal.Commenting.InlineComment` skips it.
+    - `CommentEmptyLine` also reports a comment with a blank line before the docblock of a
+      declaration. `FunctionSpacing` asks for that blank line above a function's docblock, so a
+      layout can't satisfy both sniffs, and the rule leaves the line alone.
+    - `CommentEmptyLine` reports a blank line below a line of a `// @code` example. The standard's
+      sentence is about a comment and the code below it, so the rule skips an example.
     - Coder reports the blank line below a `#` comment once its own fix has turned the comment into
       `//`. The rule reports it at once.
 

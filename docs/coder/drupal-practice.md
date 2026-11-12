@@ -35,7 +35,7 @@ checks that port the other sniffs are [off in Drupal core](../setup/configuratio
 
 ## `DrupalPractice.Commenting.CommentEmptyLine`
 
-The rule skips a `//` comment with no text, a `// @code` example, a comment right before a docblock and a comment after code on the same line, which are all reported by Coder. It leaves the blank line before a closing bracket to the formatter.
+The rule leaves the blank line between a comment and a closing bracket to the formatter. Before the closing brace of a class, interface, trait or enum with members the formatter always writes one, and Coder reports it. A `//` comment with no text is reported by Mago's `no-empty-comment`, and a comment after code on the same line by `drupal/post-statement-comment`. The rule skips a comment right before the docblock of a declaration, where `FunctionSpacing` asks for the blank line, and a `// @code` example.
 
 ## `DrupalPractice.FunctionCalls.InsecureUnserialize`
 
