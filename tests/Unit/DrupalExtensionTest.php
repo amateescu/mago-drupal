@@ -66,6 +66,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/class-comment' => [Level::Error, true],
             'drupal/class-name-acronym' => [Level::Error, true],
             'drupal/class-prefix' => [Level::Warning, true],
+            'drupal/closing-tag-statement' => [Level::Error, true],
             'drupal/comment-in-expression' => [Level::Error, true],
             'drupal/comment-line-length' => [Level::Warning, true],
             'drupal/const-prefix' => [Level::Warning, true],

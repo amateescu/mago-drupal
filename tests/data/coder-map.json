@@ -1148,8 +1148,8 @@
             {"code": "ContentBeforeDefault", "status": "fix", "where": ["format", "ext:drupal/case-label-line"]},
             {"code": "DefaultNotLower", "status": "format"},
             {"code": "MissingCase", "status": "report", "where": ["ext:drupal/empty-switch"]},
-            {"code": "SpaceBeforeColonCase", "status": "partial", "where": ["format", "lint:no-redundant-block"], "note": "The formatter removes the space before the colon. Coder also reports `case 1: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block."},
-            {"code": "SpaceBeforeColonDefault", "status": "partial", "where": ["format", "lint:no-redundant-block"], "note": "The formatter removes the space before the colon. Coder also reports `default: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block."},
+            {"code": "SpaceBeforeColonCase", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "The formatter removes the space before the colon. Coder also reports `case 1: {` under this code, and phpcbf doesn't fix it. Mago's `no-redundant-block` reports the braces, and doesn't have a fix either."},
+            {"code": "SpaceBeforeColonDefault", "status": "format", "where": ["format", "lint:no-redundant-block"], "note": "The formatter removes the space before the colon. Coder also reports `default: {` under this code, and phpcbf doesn't fix it. Mago's `no-redundant-block` reports the braces, and doesn't have a fix either."},
             {"code": "SpacingAfterBreak", "status": "fix", "where": ["ext:drupal/case-break-blank-line"]},
             {"code": "SpacingAfterDefault", "status": "format"},
             {"code": "WrongOpenerCase", "status": "gap", "where": ["none"], "note": "`case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error."},
@@ -1264,10 +1264,10 @@
     {
         "sniff": "Zend.Files.ClosingTag",
         "standard": "Drupal",
-        "where": ["format", "lint:no-closing-tag"],
-        "note": "The formatter removes a closing tag at the end of the file. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.",
+        "where": ["format", "lint:no-closing-tag", "ext:drupal/closing-tag-statement"],
+        "note": "The formatter removes a closing tag at the end of the file. When the tag ends the last statement, as in `$a = 1 ?>`, `drupal/closing-tag-statement` reports it and its fix writes the `;`. Coder's ruleset skips `*.tpl.php` files, and so does that rule. Mago's rule and the formatter check them too.",
         "codes": [
-            {"code": "NotAllowed", "status": "partial", "note": "When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line."}
+            {"code": "NotAllowed", "status": "fix"}
         ]
     },
     {

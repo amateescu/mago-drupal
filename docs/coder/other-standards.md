@@ -189,7 +189,7 @@ Mago also reports a typed parameter with a null default before a required one, s
 | [`Squiz.Classes.ClassFileName`](#squizclassesclassfilename) | Mago `file-name`, Mago `single-class-per-file`, partly |
 | `Squiz.ControlStructures.ForEachLoopDeclaration` | `mago format` |
 | [`Squiz.ControlStructures.ForLoopDeclaration`](#squizcontrolstructuresforloopdeclaration) | `mago format`, partly |
-| [`Squiz.ControlStructures.SwitchDeclaration`](#squizcontrolstructuresswitchdeclaration) | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line), [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch), Mago `no-redundant-block`, [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line), nothing, partly |
+| [`Squiz.ControlStructures.SwitchDeclaration`](#squizcontrolstructuresswitchdeclaration) | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line), [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch), Mago `no-redundant-block`, [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line), nothing |
 | `Squiz.Functions.FunctionDeclarationArgumentSpacing` | `mago format` |
 | [`Squiz.PHP.LowercasePHPFunctions`](#squizphplowercasephpfunctions) | `mago analyze` (`incorrect-function-casing`) |
 | [`Squiz.PHP.NonExecutableCode`](#squizphpnonexecutablecode) | [`drupal/redundant-return`](../rules/statements.md#drupalredundant-return), `mago analyze` (`unevaluated-code`), `mago analyze` (`useless-control-flow`) |
@@ -233,12 +233,12 @@ With `file-name` on and both rules excluding `*Test.php` and `*TestBase.php` und
 | `CaseNotLower`, `ContentAfterCase`, `ContentAfterDefault`, `ContentBeforeBreak`, `DefaultNotLower`, `SpacingAfterDefault` | `mago format` |
 | `ContentBeforeCase`, `ContentBeforeDefault` | `mago format`, [`drupal/case-label-line`](../rules/statements.md#drupalcase-label-line) |
 | `MissingCase` | [`drupal/empty-switch`](../rules/statements.md#drupalempty-switch) |
-| `SpaceBeforeColonCase`, `SpaceBeforeColonDefault` | `mago format`, Mago `no-redundant-block`, partly |
+| `SpaceBeforeColonCase`, `SpaceBeforeColonDefault` | `mago format`, Mago `no-redundant-block` |
 | `SpacingAfterBreak` | [`drupal/case-break-blank-line`](../rules/statements.md#drupalcase-break-blank-line) |
 | `WrongOpenerCase`, `WrongOpenerDefault` | nothing |
 
-- `SpaceBeforeColonCase`: The formatter removes the space before the colon. Coder also reports `case 1: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block.
-- `SpaceBeforeColonDefault`: The formatter removes the space before the colon. Coder also reports `default: {` under this code. Mago's `no-redundant-block` reports the braces but doesn't have a fix, and the formatter moves the `{` to a line of its own, so Coder keeps reporting it and also reports the indent of the block.
+- `SpaceBeforeColonCase`: The formatter removes the space before the colon. Coder also reports `case 1: {` under this code, and phpcbf doesn't fix it. Mago's `no-redundant-block` reports the braces, and doesn't have a fix either.
+- `SpaceBeforeColonDefault`: The formatter removes the space before the colon. Coder also reports `default: {` under this code, and phpcbf doesn't fix it. Mago's `no-redundant-block` reports the braces, and doesn't have a fix either.
 - `WrongOpenerCase`: `case 1 ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error.
 - `WrongOpenerDefault`: `default ?>`, which PHP accepts. Mago reports a parse error there and leaves that switch out. The other rules still report on the rest of the file, but `mago lint --fix` and `mago format` don't change a file with a parse error.
 
@@ -292,13 +292,11 @@ The formatter puts an empty statement after a `}`, as in `};`, on a line of its 
 
 | Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| [`Zend.Files.ClosingTag`](#zendfilesclosingtag) | `mago format`, Mago `no-closing-tag`, partly |
+| [`Zend.Files.ClosingTag`](#zendfilesclosingtag) | `mago format`, Mago `no-closing-tag`, [`drupal/closing-tag-statement`](../rules/files-and-tags.md#drupalclosing-tag-statement) |
 
 ### `Zend.Files.ClosingTag`
 
-The formatter removes a closing tag at the end of the file. Coder's ruleset skips `*.tpl.php` files. Mago checks them too.
-
-When the last statement doesn't have a `;`, the tag stays and isn't reported. The formatter moves it onto that statement's line.
+The formatter removes a closing tag at the end of the file. When the tag ends the last statement, as in `$a = 1 ?>`, `drupal/closing-tag-statement` reports it and its fix writes the `;`. Coder's ruleset skips `*.tpl.php` files, and so does that rule. Mago's rule and the formatter check them too.
 
 ## Slevomat Coding Standard
 

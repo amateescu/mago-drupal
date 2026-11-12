@@ -20,6 +20,7 @@ use amateescu\MagoDrupal\Linter\Rules\CaseSemicolonRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassNameAcronymRule;
 use amateescu\MagoDrupal\Linter\Rules\ClassPrefixRule;
+use amateescu\MagoDrupal\Linter\Rules\ClosingTagStatementRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentInExpressionRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
@@ -274,6 +275,7 @@ final class DrupalExtension
             new ClassCommentRule(),
             new ClassNameAcronymRule(),
             new ClassPrefixRule(),
+            new ClosingTagStatementRule(),
             new CommentInExpressionRule(),
             new CommentLineLengthRule(),
             new ConstPrefixRule(),
