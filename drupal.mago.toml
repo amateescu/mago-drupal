@@ -36,12 +36,14 @@ minimum-fail-level = "warning"
 # reporting those three keywords. The rule still reports every other upper-case keyword.
 integrations = ["drupal"]
 # A config export can hold any text. Mago reads a <? in it, as in <?xml, as a PHP open tag and
-# reports parse errors. The info and routing files are never in these directories.
+# reports parse errors. The info and routing files are never in these directories. A recipe keeps
+# its config right in its config directory.
 excludes = [
     "**/config/install/**/*.yml",
     "**/config/optional/**/*.yml",
     "**/config/schema/**/*.yml",
     "**/config/sync/**/*.yml",
+    "**/recipes/*/config/**/*.yml",
     # phpcs skips a file whose name starts with a dot. Every site has this router script, which
     # composer copies from core. A glob for every dot-file would also match each file of a project
     # inside a dot-directory, since Mago matches globs against the absolute path too.
@@ -55,8 +57,22 @@ interface-name = { psr = true, level = "error" }
 trait-name = { psr = true, level = "error" }
 # Report a file whose name differs from the class that it declares. Coder skips the test classes
 # under a module's tests directory and the helper classes in their files.
-file-name = { enabled = true, exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
-single-class-per-file = { exclude = ["**/tests/*/**/*Test.php", "**/tests/*/**/*TestBase.php"] }
+# phpcs matches the directory in any letter case.
+file-name = { enabled = true, exclude = [
+    "**/tests/*/**/*Test.php",
+    "**/tests/*/**/*TestBase.php",
+    "**/Tests/*/**/*Test.php",
+    "**/Tests/*/**/*TestBase.php",
+] }
+single-class-per-file = { exclude = [
+    "**/tests/*/**/*Test.php",
+    "**/tests/*/**/*TestBase.php",
+    "**/Tests/*/**/*Test.php",
+    "**/Tests/*/**/*TestBase.php",
+] }
+# drupal/request-superglobal reports $_REQUEST along with the other request superglobals, and
+# skips a Drupal 7 module as Coder does.
+no-request-variable = { enabled = false }
 # Tests are full of fake credentials.
 no-literal-password = { exclude = ["**/tests/**"] }
 # Drupal's documentation standard puts topic documentation in an api.php file, which then doesn't

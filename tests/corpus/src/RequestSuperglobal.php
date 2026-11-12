@@ -62,6 +62,11 @@ function tests_and_clears(): void {
   }
 
   // @mago-expect lint:drupal/request-superglobal
+  if (isset($_REQUEST['a'])) {
+    return;
+  }
+
+  // @mago-expect lint:drupal/request-superglobal
   foreach ($_COOKIE as $name => $value) {
     unset($name, $value);
   }
@@ -95,8 +100,6 @@ function reads_a_static_property(): mixed {
 // @mago-expect lint:drupal/missing-function-comment
 function leaves_other_names(RequestSuperglobalHolder $object): array {
   return [
-    // $_REQUEST belongs to the no-request-variable rule of Mago.
-    $_REQUEST['a'],
     $_SERVER['REQUEST_METHOD'],
     $_SESSION['a'] ?? NULL,
     $_ENV['a'],

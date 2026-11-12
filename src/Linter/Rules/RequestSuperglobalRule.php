@@ -18,11 +18,11 @@ use Mago\Sdk\Syntax\SourceFile;
 use function array_key_exists;
 
 /**
- * Reports a use of `$_GET`, `$_POST`, `$_COOKIE` or `$_FILES`.
+ * Reports a use of `$_GET`, `$_POST`, `$_COOKIE`, `$_FILES` or `$_REQUEST`.
  *
  * Ports DrupalPractice.Variables.GetRequestData. Code that reads the
  * superglobal cannot run on a request other than the current one, and a test
- * cannot replace it. `$_REQUEST` is left to Mago's `no-request-variable`.
+ * cannot replace it. Coder names the `request` property for `$_REQUEST` too.
  *
  * @internal
  */
@@ -37,6 +37,7 @@ final class RequestSuperglobalRule implements Rule
         '$_POST' => 'request',
         '$_FILES' => 'files',
         '$_COOKIE' => 'cookies',
+        '$_REQUEST' => 'request',
     ];
 
     private ?FileGate $gate = null;
@@ -46,7 +47,7 @@ final class RequestSuperglobalRule implements Rule
         return new RuleDefinition(
             code: 'drupal/request-superglobal',
             name: 'Request superglobal',
-            description: 'Reports a use of $_GET, $_POST, $_COOKIE or $_FILES, where the request stack gives the same data.',
+            description: 'Reports a use of $_GET, $_POST, $_COOKIE, $_FILES or $_REQUEST, where the request stack gives the same data.',
             defaultLevel: Level::Error,
             defaultEnabled: true,
             // Program has the parent chain of each variable in the snapshot.
@@ -58,9 +59,9 @@ final class RequestSuperglobalRule implements Rule
     {
         $file = $context->file;
 
-        // Most files don't have any of the four names. A text search is much
+        // Most files don't have any of the five names. A text search is much
         // cheaper than a read of every variable.
-        $this->gate ??= new FileGate(needles: ['$_GET', '$_POST', '$_FILES', '$_COOKIE']);
+        $this->gate ??= new FileGate(needles: ['$_GET', '$_POST', '$_FILES', '$_COOKIE', '$_REQUEST']);
         if (!$this->gate->passes($file)) {
             return;
         }

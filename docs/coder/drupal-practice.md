@@ -29,7 +29,7 @@ checks that port the other sniffs are [off in Drupal core](../setup/configuratio
 | `DrupalPractice.Objects.GlobalFunction` | [`drupal/global-function`](../rules/right-api.md#drupalglobal-function) |
 | `DrupalPractice.Objects.StrictSchemaDisabled` | [`drupal/strict-config-schema`](../rules/drupal-practice.md#drupalstrict-config-schema) |
 | [`DrupalPractice.Objects.UnusedPrivateMethod`](#drupalpracticeobjectsunusedprivatemethod) | `mago analyze` (`unused-method`) |
-| `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal), Mago `no-request-variable` |
+| `DrupalPractice.Variables.GetRequestData` | [`drupal/request-superglobal`](../rules/drupal-practice.md#drupalrequest-superglobal) |
 | `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |
 | [`VariableAnalysis.CodeAnalysis.VariableAnalysis`](#variableanalysiscodeanalysisvariableanalysis) | `mago analyze` (`self-outside-class-scope`), `mago analyze` (`static-outside-class-scope`), nothing, [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable), [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
 

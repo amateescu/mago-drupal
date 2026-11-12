@@ -255,14 +255,13 @@ and `$_REQUEST` superglobals.
 
 **Reports:**
 
-- a use of `$_GET`, `$_POST`, `$_COOKIE` or `$_FILES`, including a write, a parameter or `global`
+- a use of `$_GET`, `$_POST`, `$_COOKIE`, `$_FILES` or `$_REQUEST`, including a write, a parameter or `global`
   name, and a use inside a string.
 
 The message names the matching property of the request, and gives the source text of the key.
 
 **Not reported:**
 
-- `$_REQUEST`, which is left to Mago's `no-request-variable`;
 - a Drupal 7 module.
 
 ??? example "Example"

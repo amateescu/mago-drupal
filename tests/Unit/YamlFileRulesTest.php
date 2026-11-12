@@ -123,6 +123,12 @@ final class YamlFileRulesTest extends TestCase
                 '7: Prefix the dependency with the name of its project, as in drupal:views.',
             ],
         ];
+        yield 'dependency with a comment after it' => [
+            new InfoNamespacedDependencyRule(),
+            'mymodule/mymodule.info.yml',
+            "type: module\ndependencies:\n  - node # For the content.\n",
+            ['3: Prefix the dependency with the name of its project, as in drupal:node.'],
+        ];
         yield 'dependencies of a theme' => [
             new InfoNamespacedDependencyRule(),
             'mytheme/mytheme.info.yml',

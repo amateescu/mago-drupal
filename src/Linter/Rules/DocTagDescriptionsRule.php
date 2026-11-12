@@ -23,6 +23,7 @@ use function preg_match_all;
 use function str_ends_with;
 use function strpbrk;
 use function strtolower;
+use function substr;
 use function trim;
 
 use const PREG_SET_ORDER;
@@ -120,7 +121,8 @@ final class DocTagDescriptionsRule implements Rule
      * scan goes back to the tag's own position. As in Coder, a tag without a
      * type or a variable takes a position and is skipped, and a variable that
      * ends in a period doesn't take one. A name that isn't a parameter is the
-     * analyzer's `invalid-param-tag`.
+     * analyzer's `invalid-param-tag`, which accepts a `&` in front of any
+     * parameter, so that one is reported here.
      *
      * @param list<DocblockTag> $paramTags
      * @param list<list<string>> $parameters
@@ -160,13 +162,16 @@ final class DocTagDescriptionsRule implements Rule
                 continue;
             }
 
-            if (self::isParameter($variable, $parameters)) {
-                $context->report(Issue::new(
-                    $repeats
-                        ? "The @param tag for {$variable} repeats an earlier tag."
-                        : "The @param tag for {$variable} is out of order.",
-                    $tag->contentSpan(),
-                ));
+            $message = match (true) {
+                self::isParameter($variable, $parameters) => $repeats
+                    ? "The @param tag for {$variable} repeats an earlier tag."
+                    : "The @param tag for {$variable} is out of order.",
+                $variable[0] === '&' && self::isParameter(substr($variable, offset: 1), $parameters)
+                    => "The @param tag has {$variable}, and the parameter isn't taken by reference.",
+                default => null,
+            };
+            if ($message !== null) {
+                $context->report(Issue::new($message, $tag->contentSpan()));
             }
 
             $check = $check >= $index ? $index : $check + 1;

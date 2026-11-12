@@ -8,3 +8,8 @@
  */
 
 declare(strict_types=1);
+
+/**
+ * @mainpage
+ * Welcome to the developer's documentation of the module.
+ */

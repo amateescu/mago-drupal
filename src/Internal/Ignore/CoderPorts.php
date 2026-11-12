@@ -96,6 +96,7 @@ final class CoderPorts
             'Drupal.Commenting.FunctionComment.ThrowsNotCapital',
         ],
         'drupal/doc-tag-descriptions' => [
+            'Drupal.Commenting.FunctionComment.ExtraParamComment',
             'Drupal.Commenting.FunctionComment.MissingParamComment',
             'Drupal.Commenting.FunctionComment.MissingReturnComment',
             'Drupal.Commenting.FunctionComment.ParamMissingDefinition',

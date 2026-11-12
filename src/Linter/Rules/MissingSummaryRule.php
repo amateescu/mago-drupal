@@ -70,6 +70,12 @@ final class MissingSummaryRule implements Rule
                 continue;
             }
 
+            // The standard's own `@mainpage` example starts with the tag, and
+            // the text after it is the page title.
+            if ($tags[0]->name === 'mainpage') {
+                continue;
+            }
+
             // Coder reads the first tag, or the one after a leading `@file`.
             // The text after `@file` is a file docblock's summary, so a
             // docblock that holds `@file` and nothing else doesn't have one, as
