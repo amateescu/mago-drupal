@@ -622,11 +622,11 @@ the text, in a docblock and in a `//` comment.
 
 - a to-do comment that doesn't follow the
   [`@todo Fix problem X here.`](https://www.drupal.org/node/1354) format, such as `TODO:`, `@TODO`,
-  `to-do` or `@todo - fix`.
+  `to-do` or `@todo - fix`;
+- a to-do with no text, such as a bare `@todo` or `// TODO`.
 
 **Not reported:**
 
-- a to-do with no text;
 - a word that only starts with "todo", such as "todos".
 
 Mago's own `tagged-todo` rule asks for a `TODO(@user)` or `TODO(#123)` reference. That format

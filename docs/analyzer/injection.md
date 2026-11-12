@@ -24,7 +24,9 @@ for a form, a controller or a plugin.
 - the same call in an entity handler (`EntityHandlerInterface`) or a container deriver
   (`ContainerDeriverInterface`), whose static factory gets the container;
 - the same call in a class that a services file registers as a service, by its `class:` key or by
-  an id that names the class, in any `*.services.yml` file under the Drupal root;
+  an id that names the class. The check reads the [services files](services.md#the-service-index)
+  named after core, a module or a profile, so a class registered only in `drush.services.yml`
+  isn't reported;
 - the same call in an instance method of a hook class, which is a class with a `#[Hook]` attribute
   on the class or on a method that it declares. Drupal registers a hook class as an autowired
   service;

@@ -52,7 +52,7 @@ parse errors.
 `DrupalPractice.Objects.GlobalDrupal` reports a `\Drupal::service()` call where injection is
 possible. The analyzer check
 [`drupal/global-drupal-call`](../analyzer/injection.md#drupalglobal-drupal-call) ports it, and reads
-the services of every services file where Coder reads only the nearest one.
+the services file of every module, where Coder reads only the nearest, shortest-named one.
 `DrupalPractice.Objects.GlobalClass` reports a static `Node::load()` call in the same classes, and
 [`drupal/static-entity-load`](../analyzer/injection.md#drupalstatic-entity-load) ports it for every
 entity class.
@@ -61,6 +61,12 @@ To keep the line length check of text files, run phpcs with that sniff on those 
 
 ```shell
 vendor/bin/phpcs --standard=Drupal --sniffs=Drupal.Files.TxtFileLineLength --extensions=txt,md web/modules/custom
+```
+
+A Drupal 7 project also needs phpcs for its `.info` files, which aren't read by the rules:
+
+```shell
+vendor/bin/phpcs --standard=Drupal --sniffs=Drupal.InfoFiles.ClassFiles,Drupal.InfoFiles.DuplicateEntry,Drupal.InfoFiles.Required,Drupal.InfoFiles.AutoAddedKeys --extensions=info sites/all/modules/custom
 ```
 
 ## Differences that apply to every rule
@@ -104,7 +110,7 @@ in its phpcs config can turn off the matching rules under
 
 **File types.** Mago reads only the file extensions in its `[source]` block. phpcs reads the
 extensions in its `--extensions` option, `php` and `inc` when none is given. With the usual Coder
-options, it also checks `.test` files, a Drupal 7 format, and `.txt` and `.md` files. When phpcs
+options, it also checks `.test` and `.info` files, two Drupal 7 formats, and `.txt` and `.md` files. When phpcs
 scans a directory, it skips a file whose name starts with a dot, such as `.phpstan-baseline.php`.
 Mago reads it. `drupal.mago.toml` leaves `.ht.router.php`, which every site has, out of the linter,
 but a Mago glob can't match every dot-file without also matching each file of a project that sits
@@ -121,7 +127,8 @@ except for a missing docblock: phpcbf inserts an empty one, and the rules only r
   star, so `drupal/doc-comment` ports the space after the star.
 - It turns several blank lines into one, so `drupal/file-comment` reports only a file docblock with
   no blank line below it, and leaves `SpacingAfterComment` for more than one to the formatter.
-- It sets the blank line between a comment and a closing bracket. It takes the line out, except
+- It sets the blank line between a comment and a closing bracket. It takes the line out, or moves
+  it above the comment when a statement comes before the comment, except
   before the closing brace of a class, interface, trait or enum with members, where it always
   writes one, after a comment too. Coder reports that line as `SpacingAfter`, and a fix that
   removes it would undo the formatter on every run. `drupal/inline-comment-blank-line` leaves all

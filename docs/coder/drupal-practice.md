@@ -9,12 +9,12 @@ checks that port the other sniffs are [off in Drupal core](../setup/configuratio
 | Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | `DrupalPractice.Commenting.AuthorTag` | [`drupal/author-tag`](../rules/comment-text.md#drupalauthor-tag) |
-| `DrupalPractice.Commenting.CommentEmptyLine` | [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
+| [`DrupalPractice.Commenting.CommentEmptyLine`](#drupalpracticecommentingcommentemptyline) | [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
 | `DrupalPractice.Commenting.ExpectedException` | [`drupal/expected-exception-tag`](../rules/comment-text.md#drupalexpected-exception-tag) |
 | `DrupalPractice.Constants.GlobalConstant` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |
 | `DrupalPractice.Constants.GlobalDefine` | [`drupal/global-constant`](../rules/drupal-practice.md#drupalglobal-constant) |
 | `DrupalPractice.FunctionCalls.CurlSslVerifier` | [`drupal/curl-ssl-verify`](../rules/drupal-practice.md#drupalcurl-ssl-verify) |
-| `DrupalPractice.FunctionCalls.InsecureUnserialize` | [`drupal/insecure-unserialize`](../rules/bugs-and-security.md#drupalinsecure-unserialize), partly |
+| [`DrupalPractice.FunctionCalls.InsecureUnserialize`](#drupalpracticefunctioncallsinsecureunserialize) | [`drupal/insecure-unserialize`](../rules/bugs-and-security.md#drupalinsecure-unserialize), partly |
 | `DrupalPractice.FunctionCalls.TCheckPlain` | [`drupal/escaped-placeholder`](../rules/drupal-practice.md#drupalescaped-placeholder) |
 | `DrupalPractice.FunctionDefinitions.FormAlterDoc` | [`drupal/form-alter-comment`](../rules/drupal-practice.md#drupalform-alter-comment) |
 | `DrupalPractice.General.ClassName` | [`drupal/class-prefix`](../rules/drupal-practice.md#drupalclass-prefix) |
@@ -33,13 +33,21 @@ checks that port the other sniffs are [off in Drupal core](../setup/configuratio
 | `DrupalPractice.Yaml.RoutingAccess` | [`drupal/routing-access`](../rules/info-and-routing-files.md#drupalrouting-access) |
 | [`VariableAnalysis.CodeAnalysis.VariableAnalysis`](#variableanalysiscodeanalysisvariableanalysis) | `mago analyze` (`self-outside-class-scope`), `mago analyze` (`static-outside-class-scope`), nothing, [`drupal/unused-variable`](../rules/statements.md#drupalunused-variable), [`drupal/variable-redeclaration`](../rules/statements.md#drupalvariable-redeclaration) |
 
+## `DrupalPractice.Commenting.CommentEmptyLine`
+
+The rule skips a `//` comment with no text, a `// @code` example, a comment right before a docblock and a comment after code on the same line, which are all reported by Coder. It leaves the blank line before a closing bracket to the formatter.
+
+## `DrupalPractice.FunctionCalls.InsecureUnserialize`
+
+The rule skips a payload built with `serialize()` in the same function and a call that spreads its arguments, which are both reported by Coder, and reads a named `options` argument by its name. It also reports `\unserialize()` and `(TRUE)`, which Coder misses.
+
 ## `DrupalPractice.Objects.GlobalClass`
 
 Coder reports a static `load()` or `loadMultiple()` call on one of 46 core entity classes, written with an imported name, in the same classes as its GlobalDrupal sniff. The analyzer check takes every entity class and a name written in full, and checks the classes of `drupal/global-drupal-call`. It skips a first-class callable, a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.
 
 ## `DrupalPractice.Objects.GlobalDrupal`
 
-Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class, and the services of a module with a second services file such as `drush.services.yml`. The analyzer check reads every services file, and also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.
+Coder reports a `\Drupal::` call in a non-static method of a service, of a class that implements `ContainerInjectionInterface`, or of a class that extends one of 12 base classes such as `FormBase`. It reads the services from the nearest, shortest-named services file, so it misses a service whose id names its class. In a module that also has a `drush.services.yml` with a shorter name than the module's own file, it reads that one, and misses the module's services. The analyzer check reads the services file named after each module and profile, and core's, so it doesn't read `drush.services.yml`. It also reports entity handlers, container derivers, hook classes and subclasses of those base classes. It skips a constructor with a nullable parameter, deprecated code, anonymous classes and test code, which Coder reports.
 
 ## `DrupalPractice.Objects.UnusedPrivateMethod`
 

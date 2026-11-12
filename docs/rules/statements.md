@@ -340,7 +340,7 @@ a baseline entry written for one code doesn't cover the other.
 - **Level:** error
 - **Fix:** safe. It adds a blank line above the function's docblock.
 - **Source:** Coder's `Drupal` standard
-- **Ports:** `Squiz.WhiteSpace.FunctionSpacing.Before` (partly)
+- **Ports:** `Squiz.WhiteSpace.FunctionSpacing.Before`
 
 Coder asks for a blank line between a function and the code or comment before it. `mago format`
 writes that line after a `use`, `namespace` or `declare` statement, a class and another function,

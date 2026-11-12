@@ -21,7 +21,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `CommaLastItem`, `LongLineDeclaration` | `mago format` |
 
 - `ArrayClosingIndentation`: An array that opens on a continuation line gets the indent of the statement's first line. Coder counts from the line the array opens on, and reports its items and closing bracket.
-- `ArrayIndentation`: When the value after `=>` breaks over lines, such as a long condition, the formatter writes the next lines at the key's indent. Coder wants them one level deeper. The formatter also writes the broken `&&` or `||` condition of a ternary in an array element at the element's indent, and breaks an array at a block comment between its elements, and Coder reports both.
+- `ArrayIndentation`: When the value after `=>` is a `??` chain that breaks over lines, the formatter writes the next lines at the key's indent. Coder wants them one level deeper. The formatter also writes the broken `&&` or `||` condition of a ternary in an array element at the element's indent, and breaks an array at a block comment between its elements, and Coder reports both.
 
 ## Attributes
 
@@ -42,12 +42,12 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| `BraceOnNewLine`, `CloseBraceAfterBody`, `ExtendsIndentation`, `ExtendsInterfaceSameLine`, `ExtendsLine`, `FirstExtendsInterfaceSameLine`, `FirstInterfaceSameLine`, `ImplementsLine`, `InterfaceSameLine`, `InterfaceWrongIndent`, `NewlineBeforeKeyword`, `NoSpaceBeforeName`, `OpenBraceNewLine`, `OpenBraceNotAlone`, `OpenBraceWrongLine`, `SpaceAfterKeyword`, `SpaceAfterName`, `SpaceBeforeBrace`, `SpaceBeforeComma`, `SpaceBeforeExtends`, `SpaceBeforeImplements`, `SpaceBeforeKeyword`, `SpaceBeforeName` | `mago format` |
+| `BraceOnNewLine`, `CloseBraceAfterBody`, `ExtendsIndentation`, `ExtendsInterfaceSameLine`, `ExtendsLine`, `FirstExtendsInterfaceSameLine`, `FirstInterfaceSameLine`, `ImplementsLine`, `InterfaceSameLine`, `InterfaceWrongIndent`, `NewlineBeforeKeyword`, `NoSpaceBeforeName`, `SpaceAfterKeyword`, `SpaceAfterName`, `SpaceBeforeBrace`, `SpaceBeforeComma`, `SpaceBeforeExtends`, `SpaceBeforeImplements`, `SpaceBeforeKeyword`, `SpaceBeforeName` | `mago format` |
 | `CloseBraceSameLine` | [`drupal/post-statement-comment`](../rules/comment-text.md#drupalpost-statement-comment), `mago format`, partly |
 | `ContentAfterBrace` | `mago format`, [`drupal/post-statement-comment`](../rules/comment-text.md#drupalpost-statement-comment) |
 | `MissingBrace` | Mago `parse` |
 
-- `CloseBraceSameLine`: `drupal/post-statement-comment` reports a comment after the closing brace of a class, such as `} // end class`. The formatter moves code after the brace to a line of its own and removes trailing spaces. A `?>` after the brace isn't reported.
+- `CloseBraceSameLine`: `drupal/post-statement-comment` reports a comment after the closing brace of a class, such as `} // end class`. The formatter moves code after the brace to a line of its own and removes trailing spaces. A `?>` after the brace isn't reported when HTML follows it. At the end of a file, `no-closing-tag` reports the tag and the formatter removes it.
 - `MissingBrace`: A class without braces doesn't parse. Mago reports a `parse` error, and the formatter skips the file.
 
 ## Commenting
@@ -61,7 +61,7 @@ The drupal preset writes the trailing comma, the indentation and the line breaks
 | `Drupal.Commenting.DocCommentLongArraySyntax` | [`drupal/doc-comment-array-syntax`](../rules/comment-text.md#drupaldoc-comment-array-syntax) |
 | [`Drupal.Commenting.DocCommentStar`](#drupalcommentingdoccommentstar) | `mago format` |
 | [`Drupal.Commenting.FileComment`](#drupalcommentingfilecomment) | [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment), [`drupal/missing-file-comment`](../rules/docblock-structure.md#drupalmissing-file-comment), `mago format`, nothing, partly |
-| [`Drupal.Commenting.FunctionComment`](#drupalcommentingfunctioncomment) | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag), `mago analyze` (`invalid-param-tag`), [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), `mago analyze` (`missing-return-statement`), `mago analyze` (`invalid-return-statement`), [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence), [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout), [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment), partly |
+| [`Drupal.Commenting.FunctionComment`](#drupalcommentingfunctioncomment) | [`drupal/doc-tag-types`](../rules/docblock-structure.md#drupaldoc-tag-types), [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag), `mago analyze` (`invalid-param-tag`), [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), `mago analyze` (`missing-return-statement`), `mago analyze` (`invalid-return-statement`), `mago analyze` (`invalid-generator-return-type`), [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment), [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence), [`drupal/doc-tag-layout`](../rules/docblock-structure.md#drupaldoc-tag-layout), [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment), partly |
 | `Drupal.Commenting.GenderNeutralComment` | [`drupal/gender-neutral-comment`](../rules/comment-text.md#drupalgender-neutral-comment) |
 | `Drupal.Commenting.HookComment` | [`drupal/hook-comment`](../rules/docblock-structure.md#drupalhook-comment) |
 | [`Drupal.Commenting.InlineComment`](#drupalcommentinginlinecomment) | [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment), Mago `no-empty-comment`, [`drupal/inline-comment-punctuation`](../rules/comment-text.md#drupalinline-comment-punctuation), [`drupal/inline-comment-blank-line`](../rules/comment-text.md#drupalinline-comment-blank-line), `mago format`, partly |
@@ -112,6 +112,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `WrongStyle` | [`drupal/file-comment`](../rules/docblock-structure.md#drupalfile-comment), partly |
 
 - `TemplateSpacingAfterComment`: A blank line between the file docblock and the `?>` that follows it, in a file of any extension. Not ported.
+- `WrongStyle`: A `// @codingStandardsIgnoreFile` comment at the start of a file isn't reported under this code. `drupal/missing-file-comment` reports the file instead. The fix converts a comment only when a blank line follows it.
 
 ### `Drupal.Commenting.FunctionComment`
 
@@ -122,7 +123,8 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `ExtraParamComment`, `ParamNameNoCaseMatch` | `mago analyze` (`invalid-param-tag`) |
 | `IncorrectParamVarName`, `InvalidReturn` | [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name) |
 | `InvalidNoReturn` | `mago analyze` (`missing-return-statement`) |
-| `InvalidReturnNotVoid`, `InvalidReturnVoid` | `mago analyze` (`invalid-return-statement`) |
+| `InvalidReturnNotVoid` | `mago analyze` (`invalid-return-statement`) |
+| `InvalidReturnVoid` | `mago analyze` (`invalid-return-statement`), `mago analyze` (`invalid-generator-return-type`) |
 | `Missing` | [`drupal/missing-function-comment`](../rules/docblock-structure.md#drupalmissing-function-comment) |
 | `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions) |
 | `ParamCommentFullStop`, `ParamCommentNotCapital`, `ThrowsNoFullStop`, `ThrowsNotCapital` | [`drupal/doc-sentence`](../rules/docblock-structure.md#drupaldoc-sentence) |
@@ -130,8 +132,10 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `ParamNameNoMatch` | [`drupal/doc-tag-descriptions`](../rules/docblock-structure.md#drupaldoc-tag-descriptions), `mago analyze` (`invalid-param-tag`), partly |
 | `SpacingAfter`, `WrongStyle` | [`drupal/function-comment`](../rules/docblock-structure.md#drupalfunction-comment) |
 
+- `ExtraParamComment`: `mago analyze` reports a `@param` whose name isn't a parameter, and `drupal/doc-tag-descriptions` one that repeats a name.
 - `InvalidNoReturn`: Reported on the function, not on the `@return` tag.
-- `InvalidReturnVoid`: Reported on the `return` statement, not on the `@return void` tag.
+- `InvalidReturnVoid`: Reported on the `return` statement, not on the `@return void` tag. A `yield` in such a function is reported as `invalid-generator-return-type`.
+- `ParamNameNoMatch`: `drupal/doc-tag-descriptions` reports a repeated `@param` and one that is out of order. `mago analyze` reports a name that isn't a parameter, and a `...` on a parameter that isn't variadic. A `&` on a parameter that isn't taken by reference, as in `@param int &$a`, isn't reported.
 
 ### `Drupal.Commenting.InlineComment`
 
@@ -145,6 +149,7 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `WrongStyle` | `mago format`, [`drupal/inline-comment`](../rules/comment-text.md#drupalinline-comment) |
 
 - `Empty`: Mago's rule. It also reports an empty `/* */`, which Coder doesn't. Its fix leaves a blank line where phpcbf removes the line.
+- `SpacingAfter`: The rule leaves the blank line between a comment and a closing bracket to the formatter. Before the closing brace of a class, interface, trait or enum with members the formatter always writes one, and Coder reports it.
 
 ### `Drupal.Commenting.VariableComment`
 
@@ -154,6 +159,8 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | `EmptySees` | [`drupal/doc-see-tag`](../rules/docblock-structure.md#drupaldoc-see-tag) |
 | `IncorrectVarType` | [`drupal/doc-type-name`](../rules/docblock-structure.md#drupaldoc-type-name), partly |
 | `Missing` | [`drupal/missing-property-comment`](../rules/docblock-structure.md#drupalmissing-property-comment) |
+
+- `IncorrectVarType`: Coder runs the whole `@var` line, description included, through its type check, so it also reports a description with a `.`, `;`, `!` or `=` in it. The rule checks only the type.
 
 ## ControlStructures
 
@@ -175,13 +182,17 @@ The formatter puts the star back on a docblock line that doesn't have one.
 | Sniff | Handled by<span class="coder-table"></span> |
 | --- | --- |
 | [`Drupal.Files.EndFileNewline`](#drupalfilesendfilenewline) | `mago format` |
-| `Drupal.Files.FileEncoding` | [`drupal/file-encoding`](../rules/files-and-tags.md#drupalfile-encoding) |
+| [`Drupal.Files.FileEncoding`](#drupalfilesfileencoding) | [`drupal/file-encoding`](../rules/files-and-tags.md#drupalfile-encoding) |
 | `Drupal.Files.LineLength` | [`drupal/comment-line-length`](../rules/comment-text.md#drupalcomment-line-length) |
 | [`Drupal.Files.TxtFileLineLength`](#drupalfilestxtfilelinelength) | phpcs |
 
 ### `Drupal.Files.EndFileNewline`
 
 PHP files only. Coder also checks the last line of `.txt`, `.md` and `.yml` files. Mago doesn't read `.txt` and `.md` files, and the formatter skips `.yml` files.
+
+### `Drupal.Files.FileEncoding`
+
+Coder also checks `.txt` and `.md` files, which aren't read by Mago, and the YAML files of a `config` directory, which `drupal.mago.toml` leaves out of the linter.
 
 ### `Drupal.Files.TxtFileLineLength`
 
@@ -207,7 +218,7 @@ Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` examp
 
 | Codes | Handled by<span class="coder-table"></span> |
 | --- | --- |
-| `BraceOnNewLine`, `CloseBracketLine`, `CloseBracketNewLine`, `ContentAfterBrace`, `FirstParamSpacing`, `Indent`, `MissingTrailingComma`, `NewlineBeforeOpenBrace`, `OneParamPerLine`, `SpaceAfterFunction`, `SpaceAfterUse`, `SpaceBeforeBrace`, `SpaceBeforeOpenBrace`, `SpaceBeforeOpenParen`, `SpaceBeforeSemicolon`, `SpaceBeforeUse`, `UseCloseBracketLine` | `mago format` |
+| `BraceOnNewLine`, `CloseBracketLine`, `ContentAfterBrace`, `FirstParamSpacing`, `Indent`, `MissingTrailingComma`, `NewlineBeforeOpenBrace`, `OneParamPerLine`, `SpaceAfterFunction`, `SpaceAfterUse`, `SpaceBeforeBrace`, `SpaceBeforeOpenBrace`, `SpaceBeforeOpenParen`, `SpaceBeforeSemicolon`, `SpaceBeforeUse`, `UseCloseBracketLine` | `mago format` |
 | `EmptyLine` | [`drupal/parameter-blank-line`](../rules/statements.md#drupalparameter-blank-line) |
 
 ## InfoFiles
@@ -222,7 +233,7 @@ Checks `.txt` and `.md` files. Mago reads every file as PHP, and a `<?php` examp
 
 ### `Drupal.InfoFiles.AutoAddedKeys`
 
-The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer.
+The rule doesn't report the keys below the comment of the drupal.org packaging script. Coder reports them, so it reports every module installed by Composer. The rule reads `.info.yml` files only, and the same keys in a Drupal 7 `.info` file need phpcs. Both tools skip the `version` key of a file under a `core` directory. Coder looks for `/core/` in the absolute path, and the rule in the path from the workspace.
 
 ### `Drupal.InfoFiles.ClassFiles`
 
@@ -291,8 +302,8 @@ Core doesn't run the sniff.
 | `Drupal.Semantics.LStringTranslatable` | [`drupal/link-text-translatable`](../rules/drupal-7.md#drupallink-text-translatable) |
 | `Drupal.Semantics.PregSecurity` | [`drupal/preg-security`](../rules/bugs-and-security.md#drupalpreg-security) |
 | `Drupal.Semantics.RemoteAddress` | [`drupal/remote-address`](../rules/bugs-and-security.md#drupalremote-address) |
-| `Drupal.Semantics.TInHookMenu` | [`drupal/t-in-hook-menu`](../rules/drupal-7.md#drupalt-in-hook-menu) |
-| `Drupal.Semantics.TInHookSchema` | [`drupal/t-in-hook-schema`](../rules/procedural-files.md#drupalt-in-hook-schema) |
+| [`Drupal.Semantics.TInHookMenu`](#drupalsemanticstinhookmenu) | [`drupal/t-in-hook-menu`](../rules/drupal-7.md#drupalt-in-hook-menu) |
+| [`Drupal.Semantics.TInHookSchema`](#drupalsemanticstinhookschema) | [`drupal/t-in-hook-schema`](../rules/procedural-files.md#drupalt-in-hook-schema) |
 | `Drupal.Semantics.UnsilencedDeprecation` | [`drupal/unsilenced-deprecation`](../rules/right-api.md#drupalunsilenced-deprecation) |
 
 ### `Drupal.Semantics.ConstantName`
@@ -304,7 +315,7 @@ Core doesn't run the sniff.
 
 ### `Drupal.Semantics.FunctionAlias`
 
-Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.
+Mago's rule, on by default, with a fix that needs `--potentially-unsafe`. Its list of aliases doesn't have `gzputs()`, `_()` and `pg_clientencoding()`, which Coder reports.
 
 ### `Drupal.Semantics.FunctionT`
 
@@ -313,6 +324,14 @@ Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.
 | `BackslashDoubleQuote` | [`drupal/translatable-string`](../rules/right-api.md#drupaltranslatable-string), `mago format` |
 | `BackslashSingleQuote`, `Concat`, `EmptyString`, `EmptyT`, `WhiteSpace` | [`drupal/translatable-string`](../rules/right-api.md#drupaltranslatable-string) |
 | `ConcatString`, `NotLiteralString` | [`drupal/translatable-literal`](../rules/right-api.md#drupaltranslatable-literal) |
+
+### `Drupal.Semantics.TInHookMenu`
+
+Coder also reports `$this->t()`, which the rule skips. The rule also reports `\t()`, which Coder skips.
+
+### `Drupal.Semantics.TInHookSchema`
+
+Coder also reports `$this->t()`, which the rule skips. The rule also reports `\t()`, which Coder skips.
 
 ## WhiteSpace
 
@@ -330,7 +349,7 @@ Mago's rule, on by default, with a fix that needs `--potentially-unsafe`.
 
 ### `Drupal.WhiteSpace.CloseBracketSpacing`
 
-The formatter writes `<?php }` for a closing brace after inline HTML, and Coder reports the space. Coder also reports the `match` with one arm that the formatter writes on one line, and the space it writes before `)` in a parameter or argument list that holds only a comment, as in `f( /* $x */ )`.
+The formatter writes `<?php }` for a closing brace after inline HTML, and Coder reports the space. Coder also reports the `match` with one arm that the formatter writes on one line, and the space that the formatter keeps before `)` in a parameter list that holds only a comment, as in `function f( /* $x */ )`.
 
 ### `Drupal.WhiteSpace.OpenBracketSpacing`
 
@@ -355,6 +374,6 @@ The formatter writes the indentation.
 | `Incorrect` | `mago format` |
 | `IncorrectExact` | `mago format`, partly |
 
-- `IncorrectExact`: The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it. The formatter also indents the body of an anonymous class with attributes one more level, and a `break` after a `return` in the same case, which the analyzer reports as `useless-control-flow`.
+- `IncorrectExact`: The formatter gives a comment between a `break`, `return` or `throw` and the next `case` the indent of the case body. Coder wants the indent of the `case` label there, and reports it. The formatter also indents a `break` after a `return` in the same case, which the analyzer reports as `useless-control-flow`. It writes an anonymous class with attributes with a line break after `new` and the body one more level in. Coder reports the body's indent, and the line break as `LanguageConstructSpacing.IncorrectSingle`.
 
 <!-- /docs-gen -->
