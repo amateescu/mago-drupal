@@ -180,12 +180,12 @@ use-compound-assignment = { enabled = false }
 # The capital P in Parent is on purpose, inside a phpcs:disable range, which Mago's own rules don't
 # read.
 lowercase-keyword = { exclude = ["core/tests/Drupal/Tests/Component/Utility/ReflectionTest.php"] }
-# Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
-# VariableAnalysis sniff.
 # These three exception classes are part of core's API under their names.
 "drupal/exception-suffix" = { exclude = ["core/lib/Drupal/Component/Plugin/Exception/InvalidDecoratedMethod.php", "core/lib/Drupal/Core/Database/DatabaseExceptionWrapper.php", "core/lib/Drupal/Core/Render/Component/Exception/IncompatibleComponentSchema.php"] }
 # These fixtures declare the namespace of a package of their own.
 "drupal/psr4-namespace" = { exclude = ["core/tests/Drupal/Tests/Component/Annotation/Fixtures/"] }
+# Core's phpcs.xml.dist leaves the hook documentation and the transliteration tables out of the
+# VariableAnalysis sniff.
 "drupal/unused-variable" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
 "drupal/variable-redeclaration" = { exclude = ["**/*.api.php", "core/lib/Drupal/Component/Transliteration/data/"] }
 
