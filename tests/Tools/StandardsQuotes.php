@@ -11,7 +11,7 @@
  * the link must name a heading of it.
  *
  * To follow a change of the standards, set the commit in the map to the new
- * one and run `just test-standards`. The script lists the sentences that no
+ * one and run `just check-standards-quotes`. The script lists the sentences that no
  * longer match.
  *
  * Usage: php tests/Tools/StandardsQuotes.php [<checkout>]

@@ -127,10 +127,11 @@ that isn't one of them.
 A third map, `tests/data/standards-map.json`, quotes the sentences of Drupal's written coding
 standards, page by page, and says what handles each one. It's edited by hand too, and the docs
 aren't generated from it. The map names a commit of the standards repository, and
-`just test-standards` compares every quote, and the sentence quoted under **Standard** in a rule's
-entry, with the pages at that commit. The clone is kept in `.cache/coding-standards`.
-`StandardsMapTest` fails when a rule whose entry links a section of the standards isn't a handler of
-a sentence in that section.
+`just check-standards-quotes` compares every quote, and the sentence quoted under **Standard** in a
+rule's entry, with the pages at that commit. It clones the repository into
+`.cache/coding-standards`, so it isn't part of `just check-all`, and CI runs it in a job of its own.
+`StandardsMapTest` fails when the sentence quoted in a rule's entry isn't a sentence of the map that
+names the rule as a handler.
 
 A sentence that names a handler also names its cases, which are files under `tests/standards/`. A
 case holds code that breaks the sentence, which the handler must report, and code that follows it,
@@ -140,7 +141,7 @@ with the preset, so they show what a project gets. `tests/Tools/StandardsCases.p
 format, and its `--update` option writes the formatter's result into a case.
 
 To follow a change of the standards, set the commit in the map to the new one and run
-`just test-standards`. It lists the sentences that no longer match.
+`just check-standards-quotes`. It lists the sentences that no longer match.
 
 When you add a rule, add its entry to the page of its group, mark the Coder codes ported by the
 rule with `ext:drupal/<code>` in the map, name the rule in the standards map under the sentence it
