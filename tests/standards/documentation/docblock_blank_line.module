@@ -1,0 +1,53 @@
+// Reported.
+/**
+ * Returns one.
+ */
+
+function docblock_blank_line_one(): int {
+  return 1;
+}
+
+/**
+ * The limit.
+ */
+
+const DOCBLOCK_BLANK_LINE_LIMIT = 10;
+
+/**
+ * Holds a count.
+ */
+
+class DocblockBlankLineCount {
+
+  /**
+   * The count.
+   */
+
+  public int $count = 0;
+
+}
+
+// Fine.
+/**
+ * Returns one.
+ */
+function docblock_blank_line_one(): int {
+  return 1;
+}
+
+/**
+ * The limit.
+ */
+const DOCBLOCK_BLANK_LINE_LIMIT = 10;
+
+/**
+ * Holds a count.
+ */
+class DocblockBlankLineCount {
+
+  /**
+   * The count.
+   */
+  public int $count = 0;
+
+}

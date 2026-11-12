@@ -1,0 +1,29 @@
+// Reported.
+/**
+ * @return int
+ *   One.
+ */
+function summary_missing_one(): int {
+  return 1;
+}
+
+/**
+ * SummaryMissingCount.
+ */
+class SummaryMissingCount {}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @return int
+ *   One.
+ */
+function summary_missing_one(): int {
+  return 1;
+}
+
+/**
+ * Holds a count.
+ */
+class SummaryMissingCount {}

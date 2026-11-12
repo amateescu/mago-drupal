@@ -1,0 +1,20 @@
+// Reported.
+/**
+ * Returns the entity.
+ *
+ * @return \Drupal\Core\Entity\EntityInterface
+ */
+function return_description_entity() {
+  return NULL;
+}
+
+// Fine.
+/**
+ * Returns the entity.
+ *
+ * @return \Drupal\Core\Entity\EntityInterface
+ *   The entity.
+ */
+function return_description_entity() {
+  return NULL;
+}

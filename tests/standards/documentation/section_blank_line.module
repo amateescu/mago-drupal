@@ -1,0 +1,36 @@
+// Reported.
+/**
+ * Returns the label.
+ * @param string $label
+ *   The label.
+ * @return string
+ *   The label.
+ */
+function section_blank_line_label(string $label): string {
+  return $label;
+}
+
+// Fine.
+/**
+ * Returns the label.
+ *
+ * @param string $label
+ *   The label.
+ *
+ * @return string
+ *   The label.
+ */
+function section_blank_line_label(string $label): string {
+  return $label;
+}
+
+/**
+ * Returns one, with sections whose blank line isn't checked.
+ *
+ * @see section_blank_line_label()
+ * @ingroup example
+ * @todo Remove this.
+ */
+function section_blank_line_other(): int {
+  return 1;
+}

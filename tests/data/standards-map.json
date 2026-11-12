@@ -1,0 +1,855 @@
+{
+    "repository": "https://git.drupalcode.org/project/coding_standards.git",
+    "commit": "4a57bff6fa183323ddbab5aea7ff284fce92904b",
+    "pages": [
+        {
+            "page": "php/coding.md",
+            "sections": [
+                {
+                    "section": "Arrays",
+                    "sentences": [
+                        {"quotes": ["Arrays should be formatted using short array syntax"], "status": "checked", "where": ["lint:array-style", "ext:drupal/doc-comment-array-syntax"], "cases": ["coding/short_array", "coding/doc_comment_array"], "note": "`drupal/doc-comment-array-syntax` reports the long syntax in the code samples of a docblock."},
+                        {"quotes": ["with a space separating each element (after the comma), and spaces around the => key association operator"], "status": "checked", "where": ["format"], "cases": ["coding/array_spacing"]},
+                        {"quotes": ["if the line declaring an array spans longer than 80 characters ... each element should be broken into its own line, and indented one level"], "status": "differs", "where": ["format"], "cases": ["coding/array_long_line"], "note": "The formatter breaks an array at 120 columns, not at 80. Coder's limit is 120 too."},
+                        {"quotes": ["in multi-line arrays there MUST be a comma after the last array element"], "status": "differs", "where": ["format"], "cases": ["coding/array_trailing_comma"], "note": "The formatter adds the comma. It doesn't add one after a last element that is itself an array or a call broken over lines, when the two closing brackets end up on one line."}
+                    ]
+                },
+                {
+                    "section": "Casting",
+                    "sentences": [
+                        {"quotes": ["Put a space between the (type) and the $variable in a cast: `(int) $myNumber`."], "status": "checked", "where": ["format"], "cases": ["coding/cast_space"]}
+                    ]
+                },
+                {
+                    "section": "Chaining",
+                    "sentences": [
+                        {"quotes": ["a method should return $this, and thus be chainable, in any case where there is no other logical return value"], "status": "prose"},
+                        {"quotes": ["the method calls should be indented with 2 spaces"], "status": "checked", "where": ["format"], "cases": ["coding/chain_indent"], "note": "The formatter also moves the first call of a wrapped chain to a line of its own."}
+                    ]
+                },
+                {
+                    "section": "Class Constructor Calls",
+                    "sentences": [
+                        {"quotes": ["When calling class constructors with no arguments, always include parentheses"], "status": "checked", "where": ["format"], "cases": ["coding/constructor_parentheses"]}
+                    ]
+                },
+                {
+                    "section": "Comments",
+                    "sentences": [
+                        {"quotes": ["Comment standards are discussed on the separate Doxygen and comment formatting conventions page"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Control Structures",
+                    "sentences": [
+                        {"quotes": ["Don't use \"else if\" -- always use elseif."], "status": "checked", "where": ["ext:drupal/else-if"], "cases": ["coding/else_if"]},
+                        {"quotes": ["elseif (condition3 && condition4) {"], "status": "checked", "where": ["format"], "cases": ["coding/elseif_new_line"], "scope": "`elseif`, `else`, `catch` and `finally` start a new line after `}`, as in the sample."},
+                        {"quotes": ["one space between the control keyword and opening parenthesis"], "status": "checked", "where": ["format"], "cases": ["coding/control_keyword_space"]},
+                        {"quotes": ["Always use curly braces even in situations where they are technically optional."], "status": "checked", "where": ["lint:block-statement"], "cases": ["coding/curly_braces"], "note": "Reported, without a fix."},
+                        {"quotes": ["The opening curly should be on the same line as the opening statement, preceded by one space."], "status": "checked", "where": ["format"], "cases": ["coding/opening_brace"]},
+                        {"quotes": ["The closing curly should be on a line by itself and indented to the same level as the opening statement."], "status": "checked", "where": ["format"], "cases": ["coding/closing_brace"]},
+                        {"quotes": ["switch (condition) {"], "status": "checked", "where": ["format", "ext:drupal/case-break-blank-line", "ext:drupal/case-label-line", "ext:drupal/case-semicolon"], "cases": ["coding/switch_layout", "coding/switch_indent", "coding/switch_label_comment"], "scope": "The layout of the `switch` sample: the indent of `case` and its body, a label that starts its line and ends in a colon, and the blank line after `break`."},
+                        {"quotes": ["} while ($condition);"], "status": "checked", "where": ["format"], "cases": ["coding/do_while"]}
+                    ]
+                },
+                {
+                    "section": "Alternate control statement syntax for templates",
+                    "sentences": [
+                        {"quotes": ["In templates, the alternate control statement syntax using : instead of brackets is allowed."], "status": "allowed", "note": "Mago's `no-alternative-syntax` is off in the preset."},
+                        {"quotes": ["there should not be a space between the closing parenthesis after the control keyword, and the colon"], "status": "checked", "where": ["format"], "cases": ["coding/alternative_syntax_colon"]},
+                        {"quotes": ["HTML/PHP inside the control structure should be indented"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Declaring Classes",
+                    "sentences": [
+                        {"quotes": ["Best practices include having one class or interface or trait per file."], "status": "checked", "where": ["lint:single-class-per-file"], "cases": ["coding/one_class_per_file"]},
+                        {"quotes": ["That file should be named for the class, such that the file name for `FooInterface` would be `FooInterface.php`."], "status": "checked", "where": ["lint:file-name"], "cases": ["coding/file_named_for_class"]},
+                        {"quotes": ["In modules ... the PSR-4 'tree' starts under `modulename/src`."], "status": "checked", "where": ["ext:drupal/psr4-namespace"], "cases": ["coding/psr4_namespace"]},
+                        {"quotes": ["Defining a class in your module's `.module` file is only possible if the class does not have a superclass ... It's best practice to move such classes into a PSR-4 source directory."], "status": "differs", "where": ["lint:file-name"], "cases": ["coding/class_in_module_file"], "note": "Mago's `file-name` reports any lone class in a `.module` or `.inc` file, with or without a parent class."}
+                    ]
+                },
+                {
+                    "section": "Example URLs",
+                    "sentences": [
+                        {"quotes": ["Use \"example.com\" for all example URLs, per RFC 2606."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Function Calls",
+                    "sentences": [
+                        {"quotes": ["no spaces between the function name, the opening parenthesis, and the first parameter; spaces between commas and each parameter, and no space between the last parameter, the closing parenthesis, and the semicolon"], "status": "checked", "where": ["format"], "cases": ["coding/function_call_spaces"]}
+                    ]
+                },
+                {
+                    "section": "Function Declarations",
+                    "sentences": [
+                        {"quotes": ["Argument lists may be split across multiple lines, where each subsequent line is indented once."], "status": "checked", "where": ["format"], "cases": ["coding/argument_list_indent"]},
+                        {"quotes": ["The first item in the list must be on the next line."], "status": "checked", "where": ["format"], "cases": ["coding/argument_list_first_item"]},
+                        {"quotes": ["There must be only one argument per line."], "status": "checked", "where": ["format"], "cases": ["coding/argument_list_one_per_line"]},
+                        {"quotes": ["The last argument in the list must use a trailing comma."], "status": "checked", "where": ["format"], "cases": ["coding/argument_list_trailing_comma"]},
+                        {"quotes": ["The closing parenthesis and opening brace must be placed together on their own line with one space between them."], "status": "checked", "where": ["format"], "cases": ["coding/argument_list_closing"]},
+                        {"quotes": ["Anonymous functions should have a space between \"function\" and its parameters"], "status": "checked", "where": ["format"], "cases": ["coding/closure_space"]}
+                    ]
+                },
+                {
+                    "section": "Including Code",
+                    "sentences": [
+                        {"quotes": ["Anywhere you are unconditionally including a class file, use `require_once()`.", "Anywhere you are conditionally including a class file"], "status": "none"},
+                        {"quotes": ["`include_once()` and `require_once()` are statements, not functions. You don't need parentheses"], "status": "checked", "where": ["format"], "cases": ["coding/include_parentheses"]},
+                        {"quotes": ["When including code from the same directory or a sub-directory, start the file path with"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Indenting and Whitespace",
+                    "sentences": [
+                        {"quotes": ["Use an indent of 2 spaces, with no tabs."], "status": "checked", "where": ["format", "ext:drupal/tab-character"], "cases": ["coding/tab_character", "coding/indent"]},
+                        {"quotes": ["Lines should have no trailing whitespace at the end."], "status": "checked", "where": ["format"], "cases": ["coding/trailing_whitespace"]},
+                        {"quotes": ["Files should be formatted with `\\n` as the line ending"], "status": "checked", "where": ["format"], "cases": ["coding/line_ending"]},
+                        {"quotes": ["All text files should end in a single newline"], "status": "partial", "where": ["format"], "cases": ["coding/final_newline"], "note": "Only in PHP files. The formatter doesn't write `.yml`, `.txt` or `.md` files."},
+                        {"quotes": ["All blocks at the beginning of a PHP file should be separated by a blank line"], "status": "checked", "where": ["ext:drupal/file-comment", "format"], "cases": ["coding/file_blocks"]},
+                        {"quotes": ["Leave an empty line between start of class/interface definition and property/method definition"], "status": "checked", "where": ["format"], "cases": ["coding/class_blank_line_start"]},
+                        {"quotes": ["Leave an empty line between end of property definition and start method definition"], "status": "checked", "where": ["format"], "cases": ["coding/class_blank_line_property"]},
+                        {"quotes": ["Leave an empty line between end of method and end of class definition"], "status": "checked", "where": ["format"], "cases": ["coding/class_blank_line_end"]},
+                        {"quotes": ["// Leave an empty line here."], "status": "checked", "where": ["format"], "cases": ["coding/class_blank_lines"]}
+                    ]
+                },
+                {
+                    "section": "Instantiation",
+                    "sentences": [
+                        {"quotes": ["Creating classes directly is discouraged. Instead, use a factory function"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Line length and wrapping",
+                    "sentences": [
+                        {"quotes": ["In general, all lines of code should not be longer than 80 characters."], "status": "differs", "where": ["format"], "cases": ["coding/line_length"], "note": "The formatter's width is 120 columns. It keeps a line of 81 to 120 characters, and joins code that was wrapped by its author when the result fits in 120."},
+                        {"quotes": ["Lines containing longer function names, function/class definitions, variable declarations, etc are allowed to exceed 80 characters."], "status": "allowed", "where": ["format"], "cases": ["coding/line_length_declaration"]},
+                        {"quotes": ["Control structure conditions may exceed 80 characters, if they are simple to read and understand"], "status": "allowed", "where": ["format"], "cases": ["coding/line_length_condition"], "note": "Up to 120 columns."},
+                        {"quotes": ["Conditions should not be wrapped into multiple lines."], "status": "differs", "where": ["format"], "cases": ["coding/condition_wrap"], "note": "The formatter wraps a condition that is longer than 120 columns. It keeps a condition whose first operand was put on a line of its own by its author, and joins any other wrapped condition that fits in 120."},
+                        {"quotes": ["Most Compact Condition", "split out and prepare the conditions separately"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Functions and variables",
+                    "sentences": [
+                        {"quotes": ["Functions should be named using lowercase, and words should be separated with an underscore."], "status": "checked", "where": ["ext:drupal/function-name"], "cases": ["coding/function_name"]},
+                        {"quotes": ["Functions should in addition have the grouping/module name as a prefix"], "status": "partial", "where": ["ext:drupal/function-prefix"], "cases": ["coding/function_prefix"], "note": "Only in `.module` files, as in Coder."},
+                        {"quotes": ["Variables should be named using lowercase, and words should be separated either with uppercase characters ... or with an underscore"], "status": "checked", "where": ["ext:drupal/variable-name"], "cases": ["coding/variable_name"], "note": "A name that mixes both styles, such as `$fooBar_baz`, passes, as in Coder."},
+                        {"quotes": ["Be consistent; do not mix camelCase and snake_case variable naming inside a file."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Constants",
+                    "sentences": [
+                        {"quotes": ["Constants should always be all-uppercase, with underscores to separate words."], "status": "checked", "where": ["lint:constant-name", "ext:drupal/define-name"], "cases": ["coding/constant_name"]},
+                        {"quotes": ["(This includes pre-defined PHP constants like `TRUE`, `FALSE`, and `NULL`.)"], "status": "checked", "where": ["ext:drupal/literal-constant-case", "format"], "cases": ["coding/literal_constant_case", "coding/literal_constant_backslash"]},
+                        {"quotes": ["Module-defined constant names should also be prefixed by an uppercase spelling of the module"], "status": "partial", "where": ["ext:drupal/const-prefix", "ext:drupal/constant-prefix"], "cases": ["coding/constant_prefix"], "note": "Only in `.module` and `.install` files, as in Coder."},
+                        {"quotes": ["In Drupal 8 and later, constants should be defined using the `const` PHP language keyword (instead of `define()`)"], "status": "differs", "where": ["ext:drupal/global-constant"], "cases": ["coding/global_constant"], "note": "`drupal/global-constant` reports a top-level `define()` in a `.module` file. It also reports a top-level `const`, the form that the text asks for, and asks for a class constant, as Coder does."},
+                        {"quotes": ["`define()` should be used when defining a constant conditionally or with a non-literal value"], "status": "allowed", "where": ["ext:drupal/global-constant"], "cases": ["coding/global_constant_conditional"]}
+                    ]
+                },
+                {
+                    "section": "Global Variables",
+                    "sentences": [
+                        {"quotes": ["their name should start with a single underscore followed by the module/theme name and another underscore."], "status": "partial", "where": ["ext:drupal/global-variable"], "cases": ["coding/global_variable"], "note": "The rule checks the leading underscore only, as Coder does."}
+                    ]
+                },
+                {
+                    "section": "Classes, Methods and Properties",
+                    "sentences": [
+                        {"quotes": ["Classes and interfaces should use UpperCamel naming."], "status": "checked", "where": ["lint:class-name", "lint:interface-name"], "cases": ["coding/class_name"]},
+                        {"quotes": ["Methods and class properties should use lowerCamel naming. ... properties of configuration entities are exempt"], "status": "checked", "where": ["ext:drupal/method-name", "ext:drupal/property-name"], "cases": ["coding/member_names"]},
+                        {"quotes": ["If an acronym is used in a class or method name, make it CamelCase too (SampleXmlClass, not SampleXMLClass)."], "status": "partial", "where": ["ext:drupal/method-name", "ext:drupal/class-name-acronym"], "cases": ["coding/acronym"], "note": "Method names are checked. A class name is reported only when it starts with three capitals and has no lower-case letter after them, as in Coder, so `SampleXMLClass` passes."},
+                        {"quotes": ["Classes should _not_ use underscores in class names"], "status": "checked", "where": ["lint:class-name"], "cases": ["coding/class_name_underscore"]},
+                        {"quotes": ["Names should not include \"Drupal\".", "Class names should not have \"Class\" in the name."], "status": "none"},
+                        {"quotes": ["Interfaces should always have the suffix \"Interface\". Accordingly, non-interfaces should never have the suffix \"Interface\"."], "status": "partial", "where": ["lint:interface-name"], "cases": ["coding/interface_suffix"], "note": "An interface without the suffix is reported. A class or trait named `…Interface` isn't."},
+                        {"quotes": ["Traits should always have the suffix \"Trait\". Accordingly, non-traits should never have the suffix \"Trait\"."], "status": "partial", "where": ["lint:trait-name"], "cases": ["coding/trait_suffix"], "note": "A trait without the suffix is reported. A class or interface named `…Trait` isn't."},
+                        {"quotes": ["Test classes should always have the suffix \"Test\"."], "status": "checked", "where": ["ext:drupal/test-class-suffix", "check:drupal/test-class-name"], "cases": ["coding/test_class_suffix"]},
+                        {"quotes": ["Accordingly, non-tests should never have the suffix \"Test\"."], "status": "none"},
+                        {"quotes": ["Protected or private properties and methods should not use an underscore prefix."], "status": "checked", "where": ["ext:drupal/method-name-underscore", "ext:drupal/property-name"], "cases": ["coding/underscore_prefix"]}
+                    ]
+                },
+                {
+                    "section": "Enums",
+                    "sentences": [
+                        {"quotes": ["for their cases the enums must use UpperCamelCase"], "status": "checked", "where": ["ext:drupal/enum-case-name"], "cases": ["coding/enum_case_name"]}
+                    ]
+                },
+                {
+                    "section": "File names",
+                    "sentences": [
+                        {"quotes": ["All documentation files should either be in plain text with the file name extension \".txt\", or Markdown with the file name extension \".md\"."], "status": "none", "note": "Mago doesn't read `.txt` or `.md` files."},
+                        {"quotes": ["The base file names should be uppercase (\"README\" not \"readme\") but the extension itself should be lowercase"], "status": "none", "note": "Mago doesn't read `.txt` or `.md` files."}
+                    ]
+                },
+                {
+                    "section": "Operators",
+                    "sentences": [
+                        {"quotes": ["All binary operators ... should have a space before and after the operator"], "status": "checked", "where": ["format"], "cases": ["coding/binary_operator_spaces"]},
+                        {"quotes": ["Unary operators ... should not have a space between the operator and the variable or number"], "status": "checked", "where": ["format"], "cases": ["coding/unary_operator_spaces"]},
+                        {"quotes": ["Checks for weak-typed inequality MUST use the `!=` operator. The `<>` operator MUST NOT be used in PHP code."], "status": "checked", "where": ["ext:drupal/inequality-operator"], "cases": ["coding/inequality"]},
+                        {"quotes": ["The short ternary operator `?:` must be used where the first operand of a ternary expression matches the condition."], "status": "checked", "where": ["ext:drupal/short-ternary"], "cases": ["coding/short_ternary"]},
+                        {"quotes": ["The null coalescing operator `??` should be used instead of a ternary operator with an isset() condition"], "status": "checked", "where": ["ext:drupal/null-coalesce"], "cases": ["coding/null_coalesce"]}
+                    ]
+                },
+                {
+                    "section": "Parameter and return type hinting",
+                    "sentences": [
+                        {"quotes": ["parameter and return type hints should be used wherever possible", "should be included for all new functions and methods"], "status": "none", "note": "The analyzer's `check-missing-type-hints` setting reports them. The preset leaves it off."}
+                    ]
+                },
+                {
+                    "section": "Existing functions and methods",
+                    "sentences": [
+                        {"quotes": ["Adding type hints to existing code is a backwards compatibility break."], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Mixed datatypes",
+                    "sentences": [
+                        {"quotes": ["`mixed` is only needed in rare cases"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Nullable types",
+                    "sentences": [
+                        {"quotes": ["Use nullable types where the data type may be either a specific type or null."], "status": "checked", "where": ["ext:drupal/explicit-nullable-param", "format"], "cases": ["coding/nullable_type", "coding/nullable_param"]}
+                    ]
+                },
+                {
+                    "section": "Objects",
+                    "sentences": [
+                        {"quotes": ["Use an interface type hint for parameter and return types (not a class). Type hint the most specific interface"], "status": "prose"},
+                        {"quotes": ["Do not use `stdClass`."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Void",
+                    "sentences": [
+                        {"quotes": ["If a function or method does not return anything, use a `void` type hint."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "PHP Code Tags",
+                    "sentences": [
+                        {"quotes": ["Always use `<?php ?>` to delimit PHP code, not the shorthand, `<? ?>`."], "status": "checked", "where": ["lint:no-short-opening-tag", "ext:drupal/short-echo-tag"], "cases": ["coding/short_tags.tpl"]},
+                        {"quotes": ["the `?>` at the end of code files is purposely omitted"], "status": "checked", "where": ["format", "lint:no-closing-tag", "ext:drupal/closing-tag-statement"], "cases": ["coding/closing_tag", "coding/closing_tag_reported"]}
+                    ]
+                },
+                {
+                    "section": "Quotes",
+                    "sentences": [
+                        {"quotes": ["Drupal does not have a hard standard ... keep consistency within each module, and respect the personal style of other developers."], "status": "differs", "where": ["format"], "cases": ["coding/quotes_rewritten"], "note": "The formatter writes single quotes for every string that doesn't need double quotes."},
+                        {"quotes": ["single quote strings should be used by default"], "status": "checked", "where": ["ext:drupal/translatable-string", "format"], "cases": ["coding/quotes_default", "coding/quotes_translatable"]}
+                    ]
+                },
+                {
+                    "section": "Semicolons",
+                    "sentences": [
+                        {"quotes": ["Drupal coding standards require them, even at the end of code blocks."], "status": "partial", "where": ["ext:drupal/closing-tag-statement"], "cases": ["coding/semicolon_before_closing_tag"], "note": "Only for a statement that is ended by the closing tag at the end of a file. A statement before a closing tag in the middle of a template isn't reported."}
+                    ]
+                },
+                {
+                    "section": "Strict type declaration",
+                    "sentences": [
+                        {"quotes": ["place the declare statement on a new line after the opening PHP tag surrounded by empty newlines"], "status": "checked", "where": ["format"], "cases": ["coding/declare_placement"]},
+                        {"quotes": ["If the PHP file has a file level DocBlock the declare statement should be positioned after that."], "status": "checked", "where": ["ext:drupal/missing-file-comment"], "cases": ["coding/declare_after_docblock"], "note": "The message names a missing file docblock, not the order."},
+                        {"quotes": ["The declare statement is written without spaces around the equals sign."], "status": "checked", "where": ["format"], "cases": ["coding/declare_spaces"]}
+                    ]
+                },
+                {
+                    "section": "String Concatenations",
+                    "sentences": [
+                        {"quotes": ["Always use a space between the dot and the concatenated parts"], "status": "checked", "where": ["format"], "cases": ["coding/concat_spaces"]},
+                        {"quotes": ["$string = 'foo' . 'bar';"], "status": "differs", "where": ["lint:no-redundant-string-concat"], "cases": ["coding/concat_literals"], "note": "Mago's `no-redundant-string-concat` reports the standard's own sample, since the two literals can be one string. Coder reports it too."},
+                        {"quotes": ["When you concatenate simple variables, you can use double quotes and add the variable inside"], "status": "allowed"},
+                        {"quotes": ["When using the concatenating assignment operator ('.='), use a space on each side"], "status": "checked", "where": ["format"], "cases": ["coding/concat_assignment"]}
+                    ]
+                },
+                {
+                    "section": "Use of interfaces",
+                    "sentences": [
+                        {"quotes": ["The use of a separate interface definition ... is strongly encouraged", "A class that is intended to be extended must always provide an Interface"], "status": "prose"},
+                        {"quotes": ["All interfaces should be fully documented"], "status": "checked", "where": ["ext:drupal/missing-class-comment", "ext:drupal/missing-function-comment"], "cases": ["coding/interface_documented"]}
+                    ]
+                },
+                {
+                    "section": "Methods and Functions",
+                    "sentences": [
+                        {"quotes": ["Visibility must be declared on all methods."], "status": "checked", "where": ["ext:drupal/method-visibility"], "cases": ["coding/method_visibility"]},
+                        {"quotes": ["Method names must not be prefixed with a single underscore"], "status": "checked", "where": ["ext:drupal/method-name-underscore"], "cases": ["coding/method_underscore"]},
+                        {"quotes": ["Method and function names must not be declared with space after the method name.", "There must not be a space after the opening parenthesis, and there must not be a space before the closing parenthesis."], "status": "checked", "where": ["format"], "cases": ["coding/method_declaration_spaces"]},
+                        {"quotes": ["The closing brace must go on the next line following the body."], "status": "differs", "where": ["format"], "cases": ["coding/method_closing_brace"], "note": "The formatter writes the empty body of a constructor or a closure as `{}`."}
+                    ]
+                },
+                {
+                    "section": "Properties",
+                    "sentences": [
+                        {"quotes": ["Visibility must be declared on all properties."], "status": "checked", "where": ["ext:drupal/property-visibility"], "cases": ["coding/property_visibility"]},
+                        {"quotes": ["The use of public properties is strongly discouraged"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "abstract, final, and static",
+                    "sentences": [
+                        {"quotes": ["the `abstract` and `final` declarations must precede the visibility declaration.", "the `static` declaration must come after the visibility declaration."], "status": "checked", "where": ["format"], "cases": ["coding/modifier_order"]}
+                    ]
+                },
+                {
+                    "section": "Drupal 7 class/interface autoloading",
+                    "sentences": [
+                        {"quotes": ["Use an .inc file and use files[] in the .info file"], "status": "prose"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/namespaces.md",
+            "sections": [
+                {
+                    "section": "\"use\"-ing classes",
+                    "sentences": [
+                        {"quotes": ["Classes and interfaces with a backslash `\\` inside their fully-qualified name ... must not use their fully-qualified name inside the code."], "status": "checked", "where": ["ext:drupal/fully-qualified-name"], "cases": ["namespaces/fully_qualified_name"]},
+                        {"quotes": ["Classes and interfaces without a backslash ... must be fully qualified. For example: `new \\Exception();`. Do not `use` global classes."], "status": "checked", "where": ["ext:drupal/redundant-use", "ext:drupal/global-class-backslash"], "cases": ["namespaces/global_class", "namespaces/global_class_no_namespace"]},
+                        {"quotes": ["In a file that does not declare a namespace (and is therefore in the global namespace), classes in any namespace other than global must be specified with a \"use\" statement at the top of the file."], "status": "checked", "where": ["ext:drupal/fully-qualified-name"], "cases": ["namespaces/use_in_global_file"]},
+                        {"quotes": ["When importing a class with \"use\", do not include a leading `\\`."], "status": "checked", "where": ["ext:drupal/use-leading-backslash"], "cases": ["namespaces/use_leading_backslash"]},
+                        {"quotes": ["When specifying a class name in a string, use its full name including namespace, without leading `\\`."], "status": "none"},
+                        {"quotes": ["Escape the namespace separator in double-quoted strings", "Do not escape it in single-quoted strings"], "status": "none"},
+                        {"quotes": ["Specify a single class per use statement."], "status": "checked", "where": ["format"], "cases": ["namespaces/one_class_per_use"]},
+                        {"quotes": ["we do not currently have a standard about what order they should be in"], "status": "allowed", "where": ["format"], "cases": ["namespaces/use_order"], "note": "The formatter sorts the imports."},
+                        {"quotes": ["API documentation (in .api.php files) should use full class names. Note that if a class is used more than once in multiple hook signatures, it must still be \"use\"ed"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Class aliasing",
+                    "sentences": [
+                        {"quotes": ["In general that should only be done to avoid a name collision. If a collision happens, alias both colliding classes"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Modules",
+                    "sentences": [
+                        {"quotes": ["a class in the folder: 'module folder'/src/SubFolder1/SubFolder2 should declare the namespace: Drupal\\module_name\\SubFolder1\\SubFolder2"], "status": "checked", "where": ["ext:drupal/psr4-namespace"], "cases": ["namespaces/module_namespace"]}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/naming-services.md",
+            "sections": [
+                {
+                    "section": "Manipulating the Request object:",
+                    "sentences": [
+                        {"quotes": ["Elements added to the attributes of the Request object ... should have a \"_\" prepended unless they come from the path."], "status": "prose"},
+                        {"quotes": ["should not be overwritten by a contributed module"], "status": "none"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/exceptions.md",
+            "sections": [
+                {
+                    "section": "Basic Exception Naming Conventions",
+                    "sentences": [
+                        {"quotes": ["As Exceptions are classes, they should follow all coding standards for object-oriented code"], "status": "prose"},
+                        {"quotes": ["All Exceptions must end with the suffix \"Exception\"."], "status": "partial", "where": ["ext:drupal/exception-suffix"], "cases": ["exceptions/suffix"], "note": "The rule reads the name of the parent class, not the ancestry, so a class that extends a wrongly named exception isn't reported."},
+                        {"quotes": ["should not be translated", "**DO NOT** translate the message."], "status": "checked", "where": ["ext:drupal/translated-exception"], "cases": ["exceptions/translated_message"]},
+                        {"quotes": ["Formatting messages should be done by concatenating strings or using `sprintf()`.", "Values should be surrounded by single quotes."], "status": "none"},
+                        {"quotes": ["**DO NOT** use `SafeMarkup::format()`."], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Try-catch blocks",
+                    "sentences": [
+                        {"quotes": ["each catch statement beginning a new line"], "status": "checked", "where": ["format"], "cases": ["exceptions/catch_new_line"]}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/psr4.md",
+            "sections": [
+                {
+                    "section": "Summary",
+                    "sentences": [
+                        {"quotes": ["Anything after the module namespace directly maps to the directory and file structure in the `./src/` folder.", "The identical logic applies to PHPUnit tests contained in `./tests/src/`."], "status": "checked", "where": ["ext:drupal/psr4-namespace"], "cases": ["psr4/tests_namespace", "coding/psr4_namespace"]}
+                    ]
+                },
+                {
+                    "section": "Namespace resolution",
+                    "sentences": [
+                        {"quotes": ["`$modulename` is the unique machine name of the module, which consists of lowercase characters and underscores."], "status": "none"},
+                        {"quotes": ["Each PHP class, interface, or trait lives in a separate PHP file."], "status": "checked", "where": ["lint:single-class-per-file"], "cases": ["psr4/separate_file"]}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/e_all.md",
+            "sections": [
+                {
+                    "section": "Use of isset() or !empty()",
+                    "sentences": [
+                        {"quotes": ["you may need to use `if (isset($var))` or `if (!empty($var))` rather than `if ($var)` if there is a possibility that `$var` has not been defined."], "status": "partial", "where": ["analyze:undefined-variable"], "cases": ["e_all/undefined_variable"], "note": "The analyzer reports an undefined variable. A key that may not exist isn't reported when the array doesn't have a known shape."},
+                        {"quotes": ["In some cases, `is_null()` is a better choice"], "status": "prose"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/documentation.md",
+            "sections": [
+                {
+                    "section": "General considerations for API module parsing",
+                    "sentences": [
+                        {"quotes": ["The API module treats files with the following extensions as PHP: .php, .module, .inc, .install, .engine., .theme, .profile, and .test."], "status": "checked", "where": ["preset"], "note": "The `extensions` setting of the preset, without `.test`, which is a Drupal 7 extension."},
+                        {"quotes": ["PHP files with syntax errors could cause problems."], "status": "prose"},
+                        {"quotes": ["In-code comment lines starting with `//` and comment blocks starting with `/*` are not recognized as a docblock."], "status": "checked", "where": ["ext:drupal/function-comment", "ext:drupal/class-comment", "ext:drupal/variable-comment"], "cases": ["documentation/comment_style"]},
+                        {"quotes": ["In-code comment lines starting with `//` and comment blocks starting with `/*` are not recognized as a docblock."], "status": "none", "scope": "Above a class constant or an enum case."},
+                        {"quotes": ["To document a function, class, etc., the docblock must appear directly before the item being documented, with no blank line in between"], "status": "checked", "where": ["ext:drupal/function-comment", "ext:drupal/class-comment", "ext:drupal/variable-comment", "ext:drupal/constant-comment"], "cases": ["documentation/docblock_blank_line"]},
+                        {"quotes": ["The API module does not support blank lines within a single tag's documentation"], "status": "none"},
+                        {"quotes": ["In a few cases, a docblock can be \"free-standing\" (for documenting files and making topics"], "status": "allowed"}
+                    ]
+                },
+                {
+                    "section": "General documentation",
+                    "sentences": [
+                        {"quotes": ["All documentation and comments should form proper sentences, use proper grammar and punctuation"], "status": "partial", "where": ["ext:drupal/doc-sentence", "ext:drupal/inline-comment-punctuation", "ext:drupal/long-description-punctuation"], "cases": ["documentation/sentences"], "note": "The rules check the capital letter at the start and the punctuation at the end. Grammar is left to a person."},
+                        {"quotes": ["Put a space between the comment character (the `*` or the `//`) and the first letter of the sentence."], "status": "checked", "where": ["ext:drupal/inline-comment", "ext:drupal/doc-comment"], "cases": ["documentation/comment_space"]},
+                        {"quotes": ["Document the current version of code, not differences from past code or future plans"], "status": "prose"},
+                        {"quotes": ["Sentences should be separated by single spaces."], "status": "none"},
+                        {"quotes": ["Comments and variable names should be in English, and use US English spelling"], "status": "prose"},
+                        {"quotes": ["use wording and capitalization like \"the Foo Bar module\""], "status": "prose"},
+                        {"quotes": ["All caps are used in comments only when referencing constants, for example TRUE."], "status": "prose"},
+                        {"quotes": ["A docblock must have `*` at the beginning of each line"], "status": "checked", "where": ["format"], "cases": ["documentation/docblock_star"]},
+                        {"quotes": ["Lines containing comments (including a docblock) must wrap as close to 80 characters as possible without going over", "without going over"], "status": "checked", "where": ["ext:drupal/comment-line-length"], "cases": ["documentation/comment_line_length"], "scope": "A line longer than 80 characters."},
+                        {"quotes": ["Lines containing comments (including a docblock) must wrap as close to 80 characters as possible without going over"], "status": "none", "scope": "A line that wraps well before 80 characters."},
+                        {"quotes": ["Lines after tags such as `@param`, `@return`, etc. ... are indented two spaces."], "status": "partial", "where": ["ext:drupal/doc-tag-layout"], "cases": ["documentation/tag_indent"], "note": "`@throws` text that is indented too deep isn't reported, as in Coder, and neither is the text below `@var`, `@deprecated` or `@todo`."},
+                        {"quotes": ["Every function, constant, class, interface, class member (function, property, constant), and file must be documented, even private class members."], "status": "partial", "where": ["ext:drupal/missing-function-comment", "ext:drupal/missing-class-comment", "ext:drupal/missing-property-comment", "ext:drupal/missing-file-comment"], "cases": ["documentation/missing_docs"], "note": "A constant, an enum case or a `define()` call without a docblock isn't reported. Mago's `missing-docs` rule, which is off by default, covers class constants and enum cases."},
+                        {"quotes": ["All summaries ... must be under 80 characters, start with a capital letter, and end with a period (.)."], "status": "checked", "where": ["ext:drupal/doc-sentence", "ext:drupal/comment-line-length"], "cases": ["documentation/summary"], "note": "A summary may also end in `!`, `?` or `)`, as in Coder."},
+                        {"quotes": ["They must provide a brief description of what a function does, what a class does"], "status": "partial", "where": ["ext:drupal/missing-summary", "ext:drupal/class-comment"], "cases": ["documentation/summary_missing"], "note": "A docblock with no summary is reported, and a class summary that only repeats the class name. What a summary says is left to a person."},
+                        {"quotes": ["When implementing a hook, use a short summary of the form \"Implements hook_menu().\".", "Omit the parameter and return value documentation in this case."], "status": "partial", "where": ["ext:drupal/hook-comment"], "cases": ["documentation/hook_summary"], "note": "A hook function whose summary doesn't start with \"Implements\" isn't recognised as a hook implementation, as in Coder."}
+                    ]
+                },
+                {
+                    "section": "Classes and namespaces",
+                    "sentences": [
+                        {"quotes": ["All classes and all of their methods (including private methods but excluding constructors) must be documented."], "status": "checked", "where": ["ext:drupal/missing-class-comment", "ext:drupal/missing-function-comment"], "cases": ["documentation/class_documented"]},
+                        {"quotes": ["use this short form for the documentation:"], "status": "checked", "where": ["ext:drupal/doc-comment"], "cases": ["documentation/inheritdoc_braces"], "scope": "The braces of `{@inheritdoc}`."},
+                        {"quotes": ["Use a third person verb to start the summary of a class, interface, or method."], "status": "none"},
+                        {"quotes": ["Document exceptions with @throws."], "status": "none", "note": "The analyzer's `check-throws` setting reports an exception that is neither caught nor documented. The preset leaves it off."},
+                        {"quotes": ["If you use a namespace on a class anywhere in documentation, always make sure it is a fully-qualified namespace (beginning with a backslash)."], "status": "none"},
+                        {"quotes": ["Immediately after an @tag ... class and interface names must always include the fully-qualified namespace.", "Always prefix types with the fully-qualified namespace ... If the class/interface is in the global namespace, prefix by a backslash."], "status": "partial", "where": ["ext:drupal/doc-type-namespace"], "cases": ["documentation/type_namespace"], "note": "A short name whose import is also used by the code isn't reported, and neither is a short name from the same namespace or a global class without the leading backslash."}
+                    ]
+                },
+                {
+                    "section": "Data types in documentation",
+                    "sentences": [
+                        {"quotes": ["compliant with the PHPDoc Type syntax as documented by PHPStan"], "status": "checked", "where": ["lint:valid-docblock", "analyze:docblock-type-mismatch"], "cases": ["documentation/type_syntax"]},
+                        {"quotes": ["Use interface names if possible, or the most general possible class"], "status": "prose"},
+                        {"quotes": ["object (NOT \"stdClass\")"], "status": "none"},
+                        {"quotes": ["If only TRUE or only FALSE is a possible value ... use true or false instead of bool."], "status": "prose"},
+                        {"quotes": ["Spell the following types accordingly", "array (NOT \"Array\").", "bool (NOT \"boolean\" or \"Boolean\").", "true (NOT \"TRUE\", see bool)", "false (NOT \"FALSE\", see bool)", "int (NOT \"integer\")", "null (NOT \"NULL\")"], "status": "partial", "where": ["ext:drupal/doc-type-name"], "cases": ["documentation/type_names"], "note": "A type inside a nullable, generic or array type, as in `?integer` or `integer[]`, isn't reported, and neither is the type of a class constant's `@var` or of an inline `@var`."},
+                        {"quotes": ["You may omit the description if using `@return`, `$this` or `@return static`."], "status": "allowed", "where": ["ext:drupal/doc-tag-descriptions"], "cases": ["documentation/return_this"]}
+                    ]
+                },
+                {
+                    "section": "Functions",
+                    "sentences": [
+                        {"quotes": ["Each parameter of a function must be documented with a `@param` tag (see exceptions below)."], "status": "none", "note": "A parameter with no `@param` tag isn't reported, as in Coder."},
+                        {"quotes": ["A `@param` tag must have a description, unless all of the following are true:"], "status": "differs", "where": ["ext:drupal/doc-tag-descriptions"], "cases": ["documentation/param_description"], "note": "The rule reports every `@param` tag without a description, as Coder does. The exemption isn't applied."},
+                        {"quotes": ["If a function has a return value, it must be documented with a `return` tag"], "status": "none"},
+                        {"quotes": ["If there is no return value for a function, there must not be a `@return` tag."], "status": "partial", "where": ["analyze:missing-return-statement"], "cases": ["documentation/return_without_value"], "note": "`@return void` passes, as in Coder."},
+                        {"quotes": ["A `@return` tag must have a description, unless all of the following are true"], "status": "differs", "where": ["ext:drupal/doc-tag-descriptions"], "cases": ["documentation/return_description"], "note": "The rule reports every `@return` tag without a description, as Coder does. The exemption isn't applied."},
+                        {"quotes": ["summary lines must start with a third person singular present tense verb"], "status": "none"},
+                        {"quotes": ["Functions that are easily described in one line may be documented by providing the function summary line only"], "status": "allowed"}
+                    ]
+                },
+                {
+                    "section": "Hook definition",
+                    "sentences": [
+                        {"quotes": ["The summary starts with an imperative verb"], "status": "none"},
+                        {"quotes": ["Parameters and return value that the implementer must use need to be documented."], "status": "partial", "where": ["ext:drupal/doc-tag-descriptions"], "cases": ["documentation/hook_definition"], "note": "A `@param` or `@return` tag with no description is reported, in an `.api.php` file too. A parameter with no tag isn't, as in Coder."}
+                    ]
+                },
+                {
+                    "section": "Hook implementation",
+                    "sentences": [
+                        {"quotes": ["Documentation uses a short format:", "Do not document parameters and return value though -- these are documented on the hook definition referenced in the summary line."], "status": "partial", "where": ["ext:drupal/hook-comment"], "cases": ["documentation/hook_summary"], "note": "A hook function whose summary doesn't start with \"Implements\" isn't recognised as a hook implementation, as in Coder."},
+                        {"quotes": ["Implements hook_form_FORM_ID_alter() for node_type_form()."], "status": "allowed", "where": ["ext:drupal/hook-comment"], "cases": ["documentation/hook_form_alter"]},
+                        {"quotes": ["you can add additional details ... in a separate paragraph after the summary"], "status": "allowed", "where": ["ext:drupal/hook-comment"], "cases": ["documentation/hook_details"]}
+                    ]
+                },
+                {
+                    "section": "Update functions (implementations of hook_update_N())",
+                    "sentences": [
+                        {"quotes": ["Note that the first line should start with an imperative verb."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Callbacks for built-in PHP functions",
+                    "sentences": [
+                        {"quotes": ["the next paragraph should indicate what function the callback is passed to"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Callback definitions and implementations",
+                    "sentences": [
+                        {"quotes": ["Callback definition function names in the *.api.php file should start with \"callback_\", followed by a descriptive name.", "The next line should start with \"Callback for ___:\"", "They should be added to the \"@ingroup callbacks\" topic."], "status": "none"},
+                        {"quotes": ["An actual callback function ... should have as its one-line documentation summary \"Implements callback_NAME().\","], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Form-generating functions",
+                    "sentences": [
+                        {"quotes": ["Form constructor for", "Page callback:", "Render API callback:", "Returns HTML for a", "Prepares variables for", "Default template:", "@ingroup themeable", "Always include an @see reference to the preprocess function"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "In-line code comments",
+                    "sentences": [
+                        {"quotes": ["Comments should be on a separate line immediately before the code line or block they reference."], "status": "checked", "where": ["ext:drupal/post-statement-comment", "ext:drupal/inline-comment-blank-line"], "cases": ["documentation/comment_placement"]},
+                        {"quotes": ["If each line of a list needs a separate comment, the comments may be given on the same line and may be formatted to a uniform indent"], "status": "differs", "where": ["ext:drupal/post-statement-comment", "format"], "cases": ["documentation/list_comments", "documentation/list_comments_format"], "note": "`drupal/post-statement-comment` reports such comments and its fix moves them, as Coder does."},
+                        {"quotes": ["C style comments (`/* */`) ... the former is discouraged within functions"], "status": "none"},
+                        {"quotes": ["Use of Perl/shell style comments (`#`) is discouraged."], "status": "checked", "where": ["ext:drupal/inline-comment", "format"], "cases": ["documentation/hash_comment", "documentation/hash_comment_format"]},
+                        {"quotes": ["`@todo` statements in inline comments follow the same rules as using the @todo tag"], "status": "checked", "where": ["ext:drupal/todo-comment"], "cases": ["documentation/todo_inline"]},
+                        {"quotes": ["you should use the special `/** */` delimiters with a double opening asterisk"], "status": "checked", "where": ["ext:drupal/inline-variable-comment"], "cases": ["documentation/inline_var"]},
+                        {"quotes": ["Always use the fully qualified namespace of the class or interface"], "status": "partial", "where": ["ext:drupal/doc-type-namespace"], "cases": ["documentation/inline_var_namespace"], "note": "A short name whose import is also used by the code isn't reported."},
+                        {"quotes": ["and include the name of the variable at the end"], "status": "partial", "where": ["ext:drupal/inline-variable-comment"], "cases": ["documentation/inline_var_name"], "note": "A name before the type is reported. A tag with no variable name isn't, as in Coder."}
+                    ]
+                },
+                {
+                    "section": "Lists in documentation",
+                    "sentences": [
+                        {"quotes": ["All list items at the same nesting level must be indented the same amount.", "There must not be blank lines between items in the same list.", "The line before a list ... must end with a colon", "each level of nesting indents by two spaces", "(optional)"], "status": "none"},
+                        {"quotes": ["Array keys are not put in quotes; keys describing literal strings ... should be put in quotes."], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Order of documentation sections",
+                    "sentences": [
+                        {"quotes": ["The docblock for functions, classes, and other PHP items should be written in the following order to comply with Drupal coding standards."], "status": "partial", "where": ["ext:drupal/doc-tag-groups", "ext:drupal/variable-comment"], "cases": ["documentation/section_order"], "note": "The rules check that the `@param` section comes first, and the `@var` tag in a property docblock. The order of the other sections isn't checked."},
+                        {"quotes": ["Separate different-type sections by a blank line"], "status": "partial", "where": ["ext:drupal/doc-tag-groups"], "cases": ["documentation/section_blank_line"], "note": "The blank line between `@see`, `@ingroup` and `@todo` sections isn't checked."}
+                    ]
+                },
+                {
+                    "section": "PHPUnit tests",
+                    "sentences": [
+                        {"quotes": ["PHPUnit classes should generally follow the Class standards"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "@code: Code samples",
+                    "sentences": [
+                        {"quotes": ["Put the `@code` and `@endcode` tags on their own lines."], "status": "none"},
+                        {"quotes": ["Do not use a blank line between the text that explains the code sample and the code sample itself."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "@defgroup, @addtogroup, @ingroup: Groups and topics",
+                    "sentences": [
+                        {"quotes": ["A `@defgroup` tag needs to be in its own docblock (not inside a file description docblock, function docblock, class docblock, etc.)"], "status": "partial", "where": ["ext:drupal/file-comment"], "cases": ["documentation/defgroup_in_file"], "note": "Only in a file docblock."},
+                        {"quotes": ["starting with a letter, and composed of numbers, letters, underscores, periods, and hyphens"], "status": "none"},
+                        {"quotes": ["Only define each group identifier once with a `@defgroup` tag."], "status": "none"},
+                        {"quotes": ["use `@ingroup` to add a class to a group", "Use groups sparingly."], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "@deprecated: Indicating deprecated functionality",
+                    "sentences": [
+                        {"quotes": ["@deprecated in %deprecation-version% and is removed from %removal-version%. %extra-info%."], "status": "checked", "where": ["ext:drupal/deprecated-tag"], "cases": ["documentation/deprecated_tag"]},
+                        {"quotes": ["The link to the change record on drupal.org ... or the relevant issue."], "status": "differs", "where": ["ext:drupal/deprecated-tag"], "cases": ["documentation/deprecated_link"], "note": "The rule accepts the three link forms that Coder does: a `drupal.org/node/N` change record, a `drupal.org/project/…/issues/N` issue and a `git.drupalcode.org` work item. It reports any other form, such as a `drupal.org/i/N` short link or an `http://` link."}
+                    ]
+                },
+                {
+                    "section": "@Event: Documenting events",
+                    "sentences": [
+                        {"quotes": ["Event documentation should use @see to indicate the class + method where the event is triggered"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "@file: Documenting files",
+                    "sentences": [
+                        {"quotes": ["The API module will only recognize one file docblock per file (the first one; there shouldn't be more than one)."], "status": "checked", "where": ["ext:drupal/file-comment"], "cases": ["documentation/file_docblock_twice"]},
+                        {"quotes": ["The docblock must be followed by a blank line"], "status": "checked", "where": ["ext:drupal/file-comment"], "cases": ["documentation/file_docblock_blank_line"]},
+                        {"quotes": ["must not contain `@defgroup` or `@mainpage` tags"], "status": "checked", "where": ["ext:drupal/file-comment"], "cases": ["documentation/defgroup_in_file"]},
+                        {"quotes": ["The summary should be one line of up to 80 characters ending in"], "status": "checked", "where": ["ext:drupal/doc-sentence", "ext:drupal/comment-line-length"], "cases": ["documentation/file_summary"]},
+                        {"quotes": ["The @file doc block MUST be present for PHP files"], "status": "checked", "where": ["ext:drupal/missing-file-comment", "ext:drupal/file-comment"], "cases": ["documentation/file_docblock_missing"]},
+                        {"quotes": ["Files that comply with the PSR-4 standard SHOULD NOT have a @file documentation block."], "status": "checked", "where": ["ext:drupal/file-comment"], "cases": ["documentation/file_docblock_class_file"]},
+                        {"quotes": ["If a file docblock summary begins with a verb, it should be in third person singular present tense"], "status": "prose"},
+                        {"quotes": ["* @mainpage"], "status": "allowed", "where": ["ext:drupal/missing-summary"], "cases": ["documentation/mainpage_in_file"], "scope": "A docblock that starts with `@mainpage`, as in the syntax example."}
+                    ]
+                },
+                {
+                    "section": "Property",
+                    "sentences": [
+                        {"quotes": ["Note the {} around the @inheritdoc tag."], "status": "partial", "where": ["ext:drupal/doc-comment"], "cases": ["documentation/inheritdoc_braces"], "note": "A bare `@inheritdoc` below a summary isn't reported, as in Coder."},
+                        {"quotes": ["This must be the only line in the docblock."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "@link: HTML links",
+                    "sentences": [
+                        {"quotes": ["The entire `@link ... @endlink` must be on the same line"], "status": "none"},
+                        {"quotes": ["must be preceded and followed by whitespace or newlines"], "status": "differs", "where": ["ext:drupal/long-description-punctuation"], "cases": ["documentation/link_punctuation"], "note": "The fix of `drupal/long-description-punctuation` writes the full stop right after `@endlink`, as phpcbf does."},
+                        {"quotes": ["The `@link ... @endlink` line is allowed to exceed 80 characters ... if putting it with other text would make the line exceed 80 characters, place it on its own line."], "status": "checked", "where": ["ext:drupal/comment-line-length"], "cases": ["documentation/link_line_length"]}
+                    ]
+                },
+                {
+                    "section": "@mainpage: Main documentation for a branch",
+                    "sentences": [
+                        {"quotes": ["This tag must appear in its own docblock."], "status": "partial", "where": ["ext:drupal/file-comment"], "cases": ["documentation/mainpage_in_file"], "note": "Only in a file docblock."}
+                    ]
+                },
+                {
+                    "section": "@param: Function parameters",
+                    "sentences": [
+                        {"quotes": ["followed by an optional data type indicator, then the variable name ... and then a newline"], "status": "checked", "where": ["ext:drupal/doc-tag-layout"], "cases": ["documentation/param_layout"]},
+                        {"quotes": ["The documentation is indented two spaces"], "status": "checked", "where": ["ext:drupal/doc-tag-layout"], "cases": ["documentation/param_indent"]},
+                        {"quotes": ["Data types are required to be included as of Drupal 8.x."], "status": "checked", "where": ["ext:drupal/doc-tag-types"], "cases": ["documentation/param_type"]},
+                        {"quotes": ["Optional parameters are indicated by (optional)"], "status": "none"},
+                        {"quotes": ["include information about the default value only if it is not obvious"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "@Annotation, @Plugin, etc.: Plugin discovery annotations",
+                    "sentences": [
+                        {"quotes": ["`@Annotation` goes at the very end of a class documentation block"], "status": "none"},
+                        {"quotes": ["Each key of a plugin annotation should be on its own line.", "individual lines should not be wrapped.", "you MUST include a comma after the last element"], "status": "none"},
+                        {"quotes": ["It is better to use a specific plugin type"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "@ref: References to sections",
+                    "sentences": [
+                        {"quotes": ["insert the `@ref` tag in the text, followed by one space (NOT a newline)"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "@return: Function return values",
+                    "sentences": [
+                        {"quotes": ["followed by an optional data type indicator, and then a newline", "indented two spaces", "Data types are required"], "status": "partial", "where": ["ext:drupal/doc-tag-descriptions", "ext:drupal/doc-tag-layout", "ext:drupal/doc-tag-types"], "cases": ["documentation/return_layout"], "note": "A missing type, a missing description and a wrong indent are reported. A description on the tag's line isn't reported by a rule: the analyzer reads it as part of the type."},
+                        {"quotes": ["Functions without return values must not have @return documentation."], "status": "partial", "where": ["analyze:missing-return-statement", "analyze:docblock-type-mismatch"], "cases": ["documentation/return_without_value"], "note": "`@return void` passes, as in Coder."}
+                    ]
+                },
+                {
+                    "section": "@section, @subsection: Documentation sections",
+                    "sentences": [
+                        {"quotes": ["Each `@section` and `@sub-section` declaration must be on its own line.", "letters, numbers, underscores, and hyphens only"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "@see: See Also references",
+                    "sentences": [
+                        {"quotes": ["Follow the `@see` tag by a space, and then the item"], "status": "partial", "where": ["ext:drupal/doc-see-tag"], "cases": ["documentation/see_item"], "note": "In function and property docblocks. An empty `@see` in a class or constant docblock passes, as in Coder."},
+                        {"quotes": ["Each `@see` reference is on its own line, with no additional text beyond the item being referenced."], "status": "checked", "where": ["ext:drupal/doc-see-tag"], "cases": ["documentation/see_line"]}
+                    ]
+                },
+                {
+                    "section": "@throws: Thrown exceptions",
+                    "sentences": [
+                        {"quotes": ["The name of an exception class should appear on the same line as the `@throws` tag."], "status": "checked", "where": ["ext:drupal/doc-tag-types", "lint:valid-docblock"], "cases": ["documentation/throws_class"]},
+                        {"quotes": ["Put explanations in starting on the next line"], "status": "partial", "where": ["ext:drupal/doc-tag-layout"], "cases": ["documentation/throws_explanation"], "note": "Text on the tag's line and a shallow indent are reported. A deeper indent isn't, as in Coder."},
+                        {"quotes": ["use complete sentences that stand alone"], "status": "partial", "where": ["ext:drupal/doc-sentence"], "cases": ["documentation/throws_sentence"], "note": "The rule checks the capital letter and the full stop."}
+                    ]
+                },
+                {
+                    "section": "@todo: To Do notes",
+                    "sentences": [
+                        {"quotes": ["* @todo Remove this in D8. http://www.drupal.org/node/1234567"], "status": "checked", "where": ["ext:drupal/todo-comment"], "cases": ["documentation/todo_tag"], "scope": "The `@todo Text` format of the syntax example."},
+                        {"quotes": ["Usually, a corresponding Drupal.org issue should be created"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "@var: Class property data types",
+                    "sentences": [
+                        {"quotes": ["The @var tag is followed by a space and then a data type specification."], "status": "checked", "where": ["ext:drupal/variable-comment"], "cases": ["documentation/var_tag"]},
+                        {"quotes": ["Typed class properties may omit the `@var` declaration."], "status": "allowed", "where": ["ext:drupal/variable-comment"], "cases": ["documentation/var_tag_typed"]},
+                        {"quotes": ["The comment may be omitted if the name of the variable matches the type, or the type with \"Interface\" appended."], "status": "differs", "where": ["ext:drupal/missing-property-comment"], "cases": ["documentation/property_comment_omitted"], "note": "`drupal/missing-property-comment` reports such a property, as Coder does."},
+                        {"quotes": ["It is recommended to use typed properties whenever possible."], "status": "prose"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "php/placeholders-delimiters.md",
+            "sections": [
+                {
+                    "section": "Temporary place-holders and delimiters",
+                    "sentences": [
+                        {"quotes": ["please use an appropriate alpha-numeric string – prefixed by the name of the module (as a name-space) and a hyphen `-` or underscore `_` – and surrounded by `[`…`]`"], "status": "prose"},
+                        {"quotes": ["If you need delimiting place-holders, the closing delimiter can incorporate a `/` after the initial `[` and may suffix the modulename."], "status": "prose"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "sql/conventions.md",
+            "sections": [
+                {
+                    "section": "Drupal 8 and 9",
+                    "sentences": [
+                        {"quotes": ["All identifiers in SQL query should be quoted. Table names are quoted using curly brackets, for example, `{table_name}`. All other identifiers are quoted using square brackets, for example, `[column_name]`."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Drupal 7",
+                    "sentences": [
+                        {"quotes": ["Don't use (ANSI) SQL / MySQL / PostgreSQL / MS SQL Server / ... Reserved Words for column and/or table names."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Capitalization and user-supplied data",
+                    "sentences": [
+                        {"quotes": ["Make SQL reserved words UPPERCASE. This is not a suggestion."], "status": "none"},
+                        {"quotes": ["Make column and constraint names lowercase."], "status": "none"},
+                        {"quotes": ["Enclose each table name with `{}` (this allows Drupal to prefix table names)."], "status": "none"},
+                        {"quotes": ["Variable arguments (which are often user-supplied) should be moved out of the query body and passed in as separate parameters ... This ensures that the data will be properly escaped and prevents SQL injection attacks."], "status": "none"},
+                        {"quotes": ["Any string literal or %s placeholder must be enclosed by single quotes: `'` . Never use double quotes."], "status": "none"},
+                        {"quotes": ["table definitions and constraints ... should be always handled by the Schema API"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Naming",
+                    "sentences": [
+                        {"quotes": ["Use singular nouns for table names"], "status": "none"},
+                        {"quotes": ["It is a good practice to prefix table names with the module name"], "status": "none"},
+                        {"quotes": ["Name every constraint (primary, foreign, unique keys) yourself.", "Index names should begin with the name of the table they depend on"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Configure your Database server for standard compliance",
+                    "sentences": [
+                        {"quotes": ["Every developer is encouraged to use the mode most standard compliant"], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Indentation",
+                    "sentences": [
+                        {"quotes": ["Drupal does not have a standard method for indentation or formatting of longer SQL queries on multiple lines."], "status": "prose"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "sql/select-from.md",
+            "sections": [
+                {
+                    "section": "Avoid \"SELECT * FROM ...\"",
+                    "sentences": [
+                        {"quotes": ["queries that generate lists of nodes should avoid SELECT * syntax in all cases. Instead use `SELECT nid, ...`."], "status": "none"},
+                        {"quotes": ["It is recommended to avoid SELECT * queries in general."], "status": "none"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "yaml/configuration-files.md",
+            "sections": [
+                {
+                    "section": "Format",
+                    "sentences": [
+                        {"quotes": ["Configuration files use YAML syntax."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Filename",
+                    "sentences": [
+                        {"quotes": ["The unique configuration name cannot exceed 250 characters."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Simple configuration",
+                    "sentences": [
+                        {"quotes": ["the unique configuration name **must** start with the extension name"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Configuration entities",
+                    "sentences": [
+                        {"quotes": ["Extension names cannot exceed 50 characters, and config entity config prefixes cannot exceed 32 characters.", "limited to 150 characters"], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Comments",
+                    "sentences": [
+                        {"quotes": ["Comments ... can be made using `#`."], "status": "prose"}
+                    ]
+                },
+                {
+                    "section": "Whitespace",
+                    "sentences": [
+                        {"quotes": ["Use two spaces to indent in config files."], "status": "none"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "spelling/spelling.md",
+            "sections": [
+                {
+                    "section": "Spelling",
+                    "sentences": [
+                        {"quotes": ["Drupal Core uses US English spelling for all source code, including comments and names."], "status": "none", "note": "The page names CSpell as the tool."}
+                    ]
+                },
+                {
+                    "section": "Spelling of CSpell",
+                    "sentences": [
+                        {"quotes": ["For in line documentation settings use all lower case for cspell."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Ignore word(s) in a file",
+                    "sentences": [
+                        {"quotes": ["The words are listed alphabetically with a single space between the words."], "status": "none"}
+                    ]
+                },
+                {
+                    "section": "Disable CSpell by line",
+                    "sentences": [
+                        {"quotes": ["// cspell:disable-next-line"], "status": "differs", "where": ["lint:no-literal-password"], "cases": ["spelling/token_example"], "note": "Mago's `no-literal-password` reports the `$token` assignment of the page's example outside the test directories."}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "composer/package-name.md",
+            "sections": [
+                {
+                    "section": "Convention",
+                    "sentences": [
+                        {"quotes": ["Projects must use the package name:"], "status": "none", "note": "Mago doesn't read `composer.json`."},
+                        {"quotes": ["Sub-modules, -themes and profiles must use the package name."], "status": "none", "note": "Mago doesn't read `composer.json`."},
+                        {"quotes": ["Drupal projects declaring their own composer.json, should also add their submodules and -themes to the `replace`-section."], "status": "none", "note": "Mago doesn't read `composer.json`."},
+                        {"quotes": ["Package names must be prefixed with their parent's name and a dash"], "status": "none", "note": "Mago doesn't read `composer.json`."}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "markup/style.md",
+            "sections": [
+                {
+                    "section": "Drupal Markup Style Guide",
+                    "sentences": [
+                        {"quotes": ["The Drupal Markup Style Guide is a document in progress on how to:"], "status": "prose"}
+                    ]
+                }
+            ]
+        },
+        {
+            "page": "index.md",
+            "sections": [
+                {
+                    "section": "Coding Standards",
+                    "sentences": [
+                        {"quotes": ["All new code should follow the current standards, regardless of (core) version.", "Coding standard fixes are done by rule not individual files."], "status": "prose"}
+                    ]
+                }
+            ]
+        }
+    ]
+}

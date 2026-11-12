@@ -1,0 +1,26 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * @see
+ */
+function see_item_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @see see_item_two()
+ */
+function see_item_one(): int {
+  return 1;
+}
+
+/**
+ * Holds a count, with a tag that isn't checked in a class docblock.
+ *
+ * @see
+ */
+class SeeItemCount {}

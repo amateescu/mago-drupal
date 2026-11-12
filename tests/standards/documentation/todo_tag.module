@@ -1,0 +1,19 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * @TODO: Remove this.
+ */
+function todo_tag_one(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @todo Remove this.
+ */
+function todo_tag_one(): int {
+  return 1;
+}

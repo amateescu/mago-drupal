@@ -1,0 +1,25 @@
+// Reported.
+/**
+ * Returns one.
+ *
+ * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
+ *   deprecated_link_new() instead.
+ *
+ * @see https://www.drupal.org/i/3123456
+ */
+function deprecated_link_old(): int {
+  return 1;
+}
+
+// Fine.
+/**
+ * Returns one.
+ *
+ * @deprecated in drupal:11.1.0 and is removed from drupal:12.0.0. Use
+ *   deprecated_link_new() instead.
+ *
+ * @see https://www.drupal.org/project/drupal/issues/3123456
+ */
+function deprecated_link_old(): int {
+  return 1;
+}

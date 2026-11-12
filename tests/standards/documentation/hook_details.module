@@ -1,0 +1,9 @@
+// Fine.
+/**
+ * Implements hook_help().
+ *
+ * Adds the help text of the overview page.
+ */
+function hook_details_help($route_name) {
+  return '';
+}

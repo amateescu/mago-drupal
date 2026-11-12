@@ -1,0 +1,21 @@
+// Reported.
+function undefined_variable_missing(array $form): string {
+  if ($label) {
+    return 'yes';
+  }
+
+  return 'no';
+}
+
+// Fine.
+function undefined_variable_label(array $form): string {
+  if (isset($form['#label'])) {
+    return 'yes';
+  }
+
+  if ($form['#input']) {
+    return 'maybe';
+  }
+
+  return 'no';
+}

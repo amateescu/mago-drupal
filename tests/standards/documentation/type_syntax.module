@@ -1,0 +1,27 @@
+// Reported.
+/**
+ * Returns the labels.
+ *
+ * @param array<string $labels
+ *   The labels.
+ *
+ * @return string
+ *   The labels.
+ */
+function type_syntax_broken(array $labels): array {
+  return $labels;
+}
+
+// Fine.
+/**
+ * Returns the labels.
+ *
+ * @param array<string, string> $labels
+ *   The labels.
+ *
+ * @return array<string, string>
+ *   The labels.
+ */
+function type_syntax_labels(array $labels): array {
+  return $labels;
+}

@@ -1,0 +1,49 @@
+// Reported.
+/**
+ * Returns the label.
+ *
+ * @return string The label.
+ */
+function return_layout_one(): string {
+  return '';
+}
+
+/**
+ * Returns the label.
+ *
+ * @return
+ *   The label.
+ */
+function return_layout_two(): string {
+  return '';
+}
+
+/**
+ * Returns the label.
+ *
+ * @return string
+ */
+function return_layout_three(): string {
+  return '';
+}
+
+/**
+ * Returns the label.
+ *
+ * @return string
+ * The label.
+ */
+function return_layout_four(): string {
+  return '';
+}
+
+// Fine.
+/**
+ * Returns the label.
+ *
+ * @return string
+ *   The label.
+ */
+function return_layout_one(): string {
+  return '';
+}

@@ -44,4 +44,30 @@ jobs:
         run: composer update carthage-software/mago --prefer-lowest --no-interaction --prefer-dist
 
       - name: Check
-        run: just check-all
+        run: just check-ci
+
+  standards:
+    name: Coding standards quotes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Set up Just
+        uses: extractions/setup-just@v3
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # The part of `just check-all` that clones Drupal's coding standards. It
+      # runs once, and not in every job of the matrix.
+      - name: Check the quotes
+        run: just check-standards-quotes

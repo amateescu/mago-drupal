@@ -1,0 +1,23 @@
+// Reported.
+/**
+ * Builds a list.
+ *
+ * @code
+ * $items = array('a', 'b');
+ * @endcode
+ */
+function doc_comment_array_build(): array {
+  return [];
+}
+
+// Fine.
+/**
+ * Builds a list.
+ *
+ * @code
+ * $items = ['a', 'b'];
+ * @endcode
+ */
+function doc_comment_array_build(): array {
+  return [];
+}

@@ -1,0 +1,58 @@
+// Reported.
+/**
+ * Returns the label.
+ *
+ * @return string
+ *   The label.
+ *
+ * @param string $label
+ *   The label.
+ */
+function section_order_label(string $label): string {
+  return $label;
+}
+
+/**
+ * Holds a count.
+ */
+class SectionOrderCount {
+
+  /**
+   * The count.
+   *
+   * @see section_order_label()
+   *
+   * @var int
+   */
+  public $count = 0;
+
+}
+
+// Fine.
+/**
+ * Returns the label.
+ *
+ * @param string $label
+ *   The label.
+ *
+ * @return string
+ *   The label.
+ */
+function section_order_label(string $label): string {
+  return $label;
+}
+
+/**
+ * Returns one, with sections whose order isn't checked.
+ *
+ * @see section_order_label()
+ *
+ * @throws \RuntimeException
+ *   Thrown when one is missing.
+ *
+ * @return int
+ *   One.
+ */
+function section_order_other(): int {
+  return 1;
+}

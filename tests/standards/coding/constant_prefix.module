@@ -1,0 +1,7 @@
+// Reported.
+const OTHER_LIMIT = 10;
+define('OTHER_OFFSET', 0);
+
+// Fine.
+const CONSTANT_PREFIX_LIMIT = 10;
+define('CONSTANT_PREFIX_OFFSET', 0);

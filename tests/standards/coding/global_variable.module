@@ -1,0 +1,11 @@
+// Reported.
+function global_variable_read(): mixed {
+  global $shared;
+  return $shared;
+}
+
+// Fine.
+function global_variable_read(): mixed {
+  global $_global_variable_shared, $_other_shared;
+  return $_global_variable_shared ?? $_other_shared;
+}

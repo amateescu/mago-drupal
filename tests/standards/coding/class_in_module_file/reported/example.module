@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * @file
+ * Holds a class.
+ */
+
+/**
+ * Has no parent class.
+ */
+class ExampleHelper {}

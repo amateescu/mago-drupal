@@ -1,0 +1,5 @@
+// Reported.
+$text = t('He\'s a good person.');
+
+// Fine.
+$text = t("He's a good person.");

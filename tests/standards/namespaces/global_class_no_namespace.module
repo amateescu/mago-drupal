@@ -1,0 +1,5 @@
+// Reported.
+$now = new DateTime();
+
+// Fine.
+$now = new \DateTime();

@@ -1,0 +1,21 @@
+// Reported.
+/**
+ * Implements hook_help.
+ */
+function hook_summary_help($route_name) {
+  return '';
+}
+
+// Fine.
+/**
+ * Implements hook_help().
+ */
+function hook_summary_help($route_name) {
+  return '';
+}
+
+/**
+ * Adds the help text.
+ */
+function hook_summary_cron() {
+}

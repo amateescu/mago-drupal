@@ -94,7 +94,7 @@ A docblock above or below the attributes counts. A docblock tagged `@file` is th
 - **Ports:** none. Coder doesn't check it.
 
 > To document a function, class, etc., the docblock must appear directly before the item being
-> documented, with no blank line in between.
+> documented, with no blank line in between (see example above).
 
 **Reports:**
 
@@ -433,7 +433,9 @@ the end of the long description.
 - **Standard:** [Functions](https://project.pages.drupalcode.org/coding_standards/php/documentation/#functions)
 - **Ports:** `Drupal.Commenting.FunctionComment`: `ExtraParamComment`, `MissingParamComment`, `MissingReturnComment`, `ParamMissingDefinition`, `ParamNameNoMatch`
 
-> Each parameter of a function must be documented with a `@param` tag (see exceptions below).
+> A `@param` tag must have a description, unless all of the following are true:
+>
+> A `@return` tag must have a description, unless all of the following are true:
 
 **Reports**, in the docblock of a function or method:
 

@@ -60,6 +60,19 @@ test-corpus:
     php tests/Tools/CorpusPins.php {{mago}}
     php tests/Tools/CorpusPins.php {{mago}} tests/ignores
 
+# Runs the cases of the sentences of tests/data/standards-map.json, which are
+# in tests/standards. See tests/Tools/StandardsCases.php for the format.
+test-standards:
+    php tests/Tools/StandardsCases.php {{mago}}
+
+# Compares the quotes of tests/data/standards-map.json and of the rule docs
+# with Drupal's coding standards, at the commit that the map names. See
+# tests/Tools/StandardsQuotes.php. The first run clones the standards
+# repository into .cache/coding-standards. Later runs use that clone, and
+# fetch only when the map names a commit that it doesn't have.
+check-standards-quotes:
+    php tests/Tools/StandardsQuotes.php
+
 # Runs every rule's fix over the before and after pairs in tests/fixes. See
 # tests/Tools/FixCases.php for the layout.
 test-fixes:
@@ -113,4 +126,8 @@ docs-env:
 
 check: validate format-check test lint analyze
 
-check-all: check test-presets test-corpus test-fixes test-examples
+# What the jobs of CI's matrix run: everything but the quote check, which
+# CI runs once, in a job of its own, since it clones the standards.
+check-ci: check test-presets test-corpus test-fixes test-examples test-standards
+
+check-all: check-ci check-standards-quotes
