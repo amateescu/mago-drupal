@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Internal\Drupal;
 
 use function basename;
+use function dirname;
 use function file_get_contents;
 use function preg_match;
 use function preg_replace;
@@ -44,6 +45,24 @@ final class InfoFile
         return $info === null
             ? null
             : (string) preg_replace('/\.info(?:\.yml)?$/', replacement: '', subject: basename($info));
+    }
+
+    /**
+     * The directory and the machine name of the module, theme or profile
+     * that holds the file at $path, or null when there isn't a Drupal 8 info
+     * file at or above its directory.
+     *
+     * @return array{string, string}|null
+     */
+    public static function extension(string $path): ?array
+    {
+        $info = self::nearest($path);
+
+        return (
+            $info === null || !str_ends_with($info, '.info.yml')
+                ? null
+                : [dirname($info), basename($info, suffix: '.info.yml')]
+        );
     }
 
     /**

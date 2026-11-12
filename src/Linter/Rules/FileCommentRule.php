@@ -8,6 +8,7 @@ use amateescu\MagoDrupal\Internal\Comment\CommentDocblock;
 use amateescu\MagoDrupal\Internal\Docblock\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblock\Docblocks;
 use amateescu\MagoDrupal\Internal\Docblock\FileDocblock;
+use amateescu\MagoDrupal\Internal\Docblock\FileTagDocblocks;
 use amateescu\MagoDrupal\Internal\Docblock\FileTags;
 use amateescu\MagoDrupal\Internal\Text\LineEnding;
 use Mago\Sdk\Linter\LintContext;
@@ -33,7 +34,9 @@ use function strspn;
  * Checks the docblock at the start of a PHP file: its style, its `@file`
  * tag and the blank line below it, and that a file with a namespace and one
  * class, interface, trait or enum does not start with a comment. Also checks
- * the blank line between a comment and the `declare` statement below it.
+ * the blank line between a comment and the `declare` statement below it, and
+ * that the file has one `@file` docblock, without an `@defgroup` or
+ * `@mainpage` tag in it.
  *
  * Ports Drupal.Commenting.FileComment, with the sniff's skip of the `@file`
  * checks for a file that holds a class, and the blank line before `declare`
@@ -71,6 +74,7 @@ final class FileCommentRule implements Rule
         $first = FileDocblock::firstComment($context->file);
         $covered = $first !== null && $this->checkFirstComment($context, $first);
         $this->checkBlankLineBeforeDeclare($context, $covered ? $first : null);
+        FileTagDocblocks::check($context);
     }
 
     /**

@@ -753,6 +753,15 @@ A tag with nothing after it is also reported by Mago's `valid-docblock` rule, as
   here, a directive such as `// @mago-expect` too, and the check runs on a class file too. The fix
   adds the blank line.
 
+**Reports**, anywhere in the file, and without a fix:
+
+- a second docblock with an `@file` tag. The standard says of the API module that it "will only
+  recognize one file docblock per file (the first one; there shouldn't be more than one)";
+- an `@defgroup` or `@mainpage` tag in a docblock with an `@file` tag. Both tags need a docblock of
+  their own.
+
+Coder doesn't check either.
+
 The comment is the first one after the first open tag, past any directive. A file that doesn't start
 with one is reported by [`drupal/missing-file-comment`](#drupalmissing-file-comment).
 
@@ -1114,7 +1123,7 @@ still want it.
 ## drupal/variable-comment
 
 - **Level:** error
-- **Fix:** safe for the repeated name. Potentially unsafe for a variable name before the type,
+- **Fix:** safe for the repeated name and the blank line. Potentially unsafe for a variable name before the type,
   because the analyzers start to trust the type, and for the [comment style](#comment-style-fixes).
 - **Standard:** [@var](https://project.pages.drupalcode.org/coding_standards/php/documentation/#var-class-property-data-types)
 - **Ports:** `Drupal.Commenting.VariableComment`: `DuplicateVar`, `EmptyVar`, `InlineVariableName`, `MissingVar`, `VarOrder`, `WrongStyle`
@@ -1133,7 +1142,12 @@ still want it.
 - a `@var` tag with no type;
 - a `@var` tag that starts with a variable name, as in `@var $count int`;
 - the property name repeated after the `@var` type on the tag's line, also after a type with
-  spaces such as `array<string, int>`.
+  spaces such as `array<string, int>`;
+- a blank line between the docblock and the property, which isn't checked by Coder. The standard
+  says that "the docblock must appear directly before the item being documented, with no blank
+  line in between". [`drupal/function-comment`](#drupalfunction-comment) and
+  [`drupal/class-comment`](#drupalclass-comment) report the same for a function and a class. The
+  fix removes the line.
 
 A missing `@var` tag is reported on the `*/` of the docblock, where Coder reports it, so a
 `phpcs:ignore` on the docblock's last line covers it.

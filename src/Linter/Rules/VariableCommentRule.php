@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace amateescu\MagoDrupal\Linter\Rules;
 
 use amateescu\MagoDrupal\Internal\Comment\DeclarationComment;
+use amateescu\MagoDrupal\Internal\Docblock\DocblockGap;
 use amateescu\MagoDrupal\Internal\Docblock\DocblockTag;
 use amateescu\MagoDrupal\Internal\Docblock\DocType;
 use amateescu\MagoDrupal\Internal\Docblock\PropertyTags;
@@ -67,6 +68,11 @@ final class VariableCommentRule implements Rule
             $context->report($fix === null ? $issue : $issue->withEdit($fix));
 
             return;
+        }
+
+        $docblock = $comment->docblock();
+        if ($docblock !== null) {
+            DocblockGap::checkBelow($context, $docblock, 'property');
         }
 
         $tags = PropertyTags::of($context);

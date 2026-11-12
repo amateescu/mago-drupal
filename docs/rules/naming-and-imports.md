@@ -528,6 +528,46 @@ class declared inside an `if` or a function is checked.
 
 ---
 
+## drupal/psr4-namespace
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Summary](https://project.pages.drupalcode.org/coding_standards/php/psr4/#summary)
+- **Ports:** none. Coder doesn't check it.
+
+> Anything after the module namespace directly maps to the directory and file structure in the
+> `./src/` folder.
+>
+> The identical logic applies to PHPUnit tests contained in `./tests/src/`.
+
+**Reports:**
+
+- a `namespace` statement that doesn't match the path of its file. A class in another namespace
+  isn't found by the autoloader. The namespace given by the path is:
+    - `Drupal\{name}` and the directories below `src/`, for a file under the `src/` directory of a
+      module, theme or profile;
+    - `Drupal\Tests\{name}` and the directories below `tests/src/`, for a file under its
+      `tests/src/` directory;
+    - the directories from `Drupal` down, for a file under core's `lib/Drupal/Core`,
+      `lib/Drupal/Component` and `tests/Drupal/*Tests` directories.
+
+The name is the one of the nearest `*.info.yml` file at or above the file's directory. So
+`modules/example/src/Form/SettingsForm.php` declares `Drupal\example\Form`, and
+`modules/example/tests/src/Kernel/SettingsTest.php` declares `Drupal\Tests\example\Kernel`.
+
+**Not reported:**
+
+- a file with more than one `namespace` statement. A test declares a second namespace to replace a
+  function of the code under test;
+- a file that doesn't declare a class, interface, trait or enum, since it isn't loaded by name;
+- a file outside the directories above, and a file that isn't named `*.php`;
+- a file under a `src` directory inside core's `lib` and `tests` trees, which belongs to a fixture
+  package with a namespace of its own.
+
+Mago's `file-name` reports a class whose name doesn't match its file.
+
+---
+
 ## drupal/redundant-use
 
 - **Level:** error
