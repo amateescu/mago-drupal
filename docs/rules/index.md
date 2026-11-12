@@ -177,6 +177,7 @@ They don't check the types in a docblock against the real signature, which is do
 | Rule | Level | What it reports |
 | --- | --- | --- |
 | [`drupal/class-comment`](docblock-structure.md#drupalclass-comment) | error | Reports a comment of the wrong style above a class, interface, trait or enum, a blank line below its docblock, and a summary that repeats the name. |
+| [`drupal/constant-comment`](docblock-structure.md#drupalconstant-comment) | error | Reports a blank line between a docblock and the constant or enum case below it. |
 | [`drupal/deprecated-tag`](docblock-structure.md#drupaldeprecated-tag) | warning | Reports a @deprecated docblock tag whose wording breaks the documented grammar, and a missing or malformed @see tag after it. |
 | [`drupal/doc-comment`](docblock-structure.md#drupaldoc-comment) | error | Reports a docblock with a wrong opener, closer, blank lines or spaces, or with @inheritdoc without braces. |
 | [`drupal/doc-see-tag`](docblock-structure.md#drupaldoc-see-tag) | error | Reports a @see tag with no reference, or with text or punctuation after the reference. |

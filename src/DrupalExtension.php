@@ -23,6 +23,7 @@ use amateescu\MagoDrupal\Linter\Rules\ClassPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\ClosingTagStatementRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentInExpressionRule;
 use amateescu\MagoDrupal\Linter\Rules\CommentLineLengthRule;
+use amateescu\MagoDrupal\Linter\Rules\ConstantCommentRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstantPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\ConstPrefixRule;
 use amateescu\MagoDrupal\Linter\Rules\CurlSslVerifyRule;
@@ -282,6 +283,7 @@ final class DrupalExtension
             new CommentInExpressionRule(),
             new CommentLineLengthRule(),
             new ConstPrefixRule(),
+            new ConstantCommentRule(),
             new ConstantPrefixRule(),
             new CurlSslVerifyRule(),
             new DefineNameRule(),
