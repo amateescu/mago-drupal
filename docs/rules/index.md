@@ -97,6 +97,7 @@ Rules for the names of classes, constants, functions, methods, properties and va
 | [`drupal/class-name-acronym`](naming-and-imports.md#drupalclass-name-acronym) | error | Reports a class-like name that starts with three capitals and doesn't have a lower-case letter, such as HTTP. |
 | [`drupal/define-name`](naming-and-imports.md#drupaldefine-name) | error | Reports a define() constant whose name isn't upper case. |
 | [`drupal/enum-case-name`](naming-and-imports.md#drupalenum-case-name) | error | Reports an enum case that doesn't use UpperCamelCase. |
+| [`drupal/exception-suffix`](naming-and-imports.md#drupalexception-suffix) | error | Reports an exception class whose name doesn't end in Exception. |
 | [`drupal/fully-qualified-name`](naming-and-imports.md#drupalfully-qualified-name) | error | Reports a namespaced class referenced in full instead of through a use statement. |
 | [`drupal/function-name`](naming-and-imports.md#drupalfunction-name) | error | Reports a function whose name isn't lower case. |
 | [`drupal/global-class-backslash`](naming-and-imports.md#drupalglobal-class-backslash) | error | Reports a global class written without a leading backslash in a file with no namespace. |

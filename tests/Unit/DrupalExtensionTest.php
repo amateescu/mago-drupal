@@ -92,6 +92,7 @@ final class DrupalExtensionTest extends TestCase
             'drupal/empty-switch' => [Level::Error, true],
             'drupal/enum-case-name' => [Level::Error, true],
             'drupal/escaped-placeholder' => [Level::Warning, true],
+            'drupal/exception-suffix' => [Level::Error, true],
             'drupal/expected-exception-tag' => [Level::Warning, true],
             'drupal/explicit-nullable-param' => [Level::Error, true],
             'drupal/file-comment' => [Level::Error, true],

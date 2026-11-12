@@ -106,6 +106,39 @@ A name that fails several checks gets one issue for each.
 
 ---
 
+## drupal/exception-suffix
+
+- **Level:** error
+- **Fix:** none
+- **Standard:** [Basic Exception Naming Conventions](https://project.pages.drupalcode.org/coding_standards/php/exceptions/#basic-exception-naming-conventions)
+- **Ports:** none. Coder doesn't check it.
+
+> All Exceptions must end with the suffix "Exception".
+
+**Reports:**
+
+- a class whose parent's name ends in `Exception`, and whose own name doesn't.
+
+**Not reported:**
+
+- a class that extends a wrongly named exception. The rule reads the name in the `extends` clause,
+  not the ancestry, and the parent is reported;
+- a class that extends `\Error`.
+
+??? example "Example"
+
+    ```php
+    // Reported.
+    class WidgetNotFound extends \RuntimeException {
+    }
+
+    // Fine.
+    class WidgetNotFoundException extends \RuntimeException {
+    }
+    ```
+
+---
+
 ## drupal/fully-qualified-name
 
 - **Level:** error
