@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> This project has moved to drupal.org as [Mago for Drupal](https://www.drupal.org/project/mago).
+> The Composer package is now `drupal/mago`, and its namespace is `DrupalMago\`.
+> Code, issues and releases are there; this repository is archived and doesn't get updates.
+> The README below describes the last version released here, 0.9.5.
+
 # mago-drupal
 
 A [Mago](https://github.com/carthage-software/mago) extension that adds
